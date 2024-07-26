@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "首页",
+  "usingComponents": {
+    "uv-navbar": "/uni_modules/uv-navbar/components/uv-navbar/uv-navbar",
+    "uv-swiper": "/uni_modules/uv-swiper/components/uv-swiper/uv-swiper",
+    "uv-notice-bar": "/uni_modules/uv-notice-bar/components/uv-notice-bar/uv-notice-bar",
+    "uv-picker": "/uni_modules/uv-picker/components/uv-picker/uv-picker"
+  }
+}
