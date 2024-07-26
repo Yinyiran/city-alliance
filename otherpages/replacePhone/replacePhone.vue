@@ -1,7 +1,7 @@
 <template>
 	<view class="p-t-90">
 		<view class="textC font-40 font-weight f-tA">输入新的手机号</view>
-		<view class="font-28 graycolor textC m-b-70">换绑新手机号后，可以用新手机号验证登录</view>
+		<view class="font-28 graycolor textC m-b-70 m-t-20">换绑新手机号后，可以用新手机号验证登录</view>
 		<view class="iptSty flex ">
 			<input type="tel" placeholder="请输入手机号" maxlength="11" />
 		</view>
@@ -10,8 +10,8 @@
 				style="width: 445rpx;border-right: 1rpx solid #afb0b2;" />
 			<view class="font-28 f-t">发送验证码</view>
 		</view>
-		<view class="grey textC font-26 ">请确保新手机号未被其他账号绑定</view>
-		<view class="">
+		<view class="grey  font-26 m-l-60 m-t-20">请确保新手机号未被其他账号绑定</view>
+		<view class="m-t-100">
 			<button type="primary">确定更换手机号</button>
 		</view>
 	</view>
@@ -40,7 +40,7 @@
 		border-radius: 20rpx;
 		background-color: #f6f7fb;
 		margin: 0 auto;
-		margin-bottom: 50rpx;
+		margin-top: 50rpx;
 		padding: 0 25rpx;
 
 		input {
