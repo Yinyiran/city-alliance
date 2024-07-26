@@ -7,7 +7,15 @@
     {
       "root": "otherpages",
       "pages": [
-        "login/login"
+        "login/login",
+        "selectShop/selectShop",
+        "replacePhone/replacePhone",
+        "extendOredr/extendOredr",
+        "fans/fans",
+        "amount/amount",
+        "withdraw/withdraw",
+        "bindAlipay/bindAlipay",
+        "withdraw_detail/withdraw_detail"
       ]
     }
   ],

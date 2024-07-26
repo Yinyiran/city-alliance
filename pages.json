@@ -9,7 +9,8 @@
 		{
 			"path": "pages/spread/spread",
 			"style": {
-				"navigationBarTitleText": "推广管理"
+				"navigationBarTitleText": "推广管理",
+				"navigationStyle": "custom"
 			}
 		}
 	],
@@ -33,6 +34,48 @@
 				"path": "replacePhone/replacePhone",
 				"style": {
 					"navigationBarTitleText": "手机号换绑"
+				}
+			},
+			{
+				"path" : "extendOredr/extendOredr",
+				"style" : 
+				{
+					"navigationBarTitleText" : "推广订单"
+				}
+			},
+			{
+				"path" : "fans/fans",
+				"style" : 
+				{
+					"navigationBarTitleText" : "我的粉丝"
+				}
+			},
+			{
+				"path" : "amount/amount",
+				"style" : 
+				{
+					"navigationBarTitleText" : "提现"
+				}
+			},
+			{
+				"path" : "withdraw/withdraw",
+				"style" : 
+				{
+					"navigationBarTitleText" : "立即提现"
+				}
+			},
+			{
+				"path" : "bindAlipay/bindAlipay",
+				"style" : 
+				{
+					"navigationBarTitleText" : "绑定支付宝"
+				}
+			},
+			{
+				"path" : "withdraw_detail/withdraw_detail",
+				"style" : 
+				{
+					"navigationBarTitleText" : "提现明细"
 				}
 			}
 		]

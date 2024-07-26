@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "提现明细",
+  "usingComponents": {
+    "uv-sticky": "/uni_modules/uv-sticky/components/uv-sticky/uv-sticky",
+    "uv-collapse": "/uni_modules/uv-collapse/components/uv-collapse/uv-collapse",
+    "uv-collapse-item": "/uni_modules/uv-collapse/components/uv-collapse-item/uv-collapse-item"
+  }
+}
