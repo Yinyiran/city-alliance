@@ -34,6 +34,28 @@
 				"style": {
 					"navigationBarTitleText": "手机号换绑"
 				}
+			},
+			{
+				"path": "setUpShop/setUpShop",
+				"style": {
+					"navigationBarTitleText": "我要开店",
+					"navigationBarBackgroundColor": "#ff4d19",
+					"navigationBarTextStyle": "white"
+				}
+			},
+			{
+				"path": "setUpShopA/setUpShopA",
+				"style": {
+					"navigationBarTitleText": "我要开店",
+					"navigationBarBackgroundColor": "#ff4d19",
+					"navigationBarTextStyle": "white"
+				}
+			},
+			{
+				"path": "shopFrom/shopFrom",
+				"style": {
+					"navigationBarTitleText": "店铺资料"
+				}
 			}
 		]
 	}],

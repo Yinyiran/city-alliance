@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 4633945 */
-  src: url('//at.alicdn.com/t/c/font_4633945_8c34r6f3c1k.woff2?t=1721980270274') format('woff2'),
-       url('//at.alicdn.com/t/c/font_4633945_8c34r6f3c1k.woff?t=1721980270274') format('woff'),
-       url('//at.alicdn.com/t/c/font_4633945_8c34r6f3c1k.ttf?t=1721980270274') format('truetype');
+  src: url('//at.alicdn.com/t/c/font_4633945_1zgekiwwksbj.woff2?t=1721987339600') format('woff2'),
+       url('//at.alicdn.com/t/c/font_4633945_1zgekiwwksbj.woff?t=1721987339600') format('woff'),
+       url('//at.alicdn.com/t/c/font_4633945_1zgekiwwksbj.ttf?t=1721987339600') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,22 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-saoyisao:before {
+  content: "\e673";
+}
+
+.icon-plus-circle-fill:before {
+  content: "\e70b";
+}
+
+.icon-yousanjiao:before {
+  content: "\e614";
+}
+
+.icon-youjiantou:before {
+  content: "\e601";
 }
 
 .icon-zhifubao:before {

@@ -29,7 +29,7 @@
 				<input type="tel" placeholder="请输入验证码" maxlength="11" style="width: 445rpx;border-right: 1rpx solid #afb0b2;"/>
 				<view class="font-28 f-t">发送验证码</view>
 			</view>
-			<view class="">
+			<view class="p-30">
 				<button type="primary">登录</button>
 			</view>
 			<view class="grey textC font-26 m-t-16">未注册的手机号登录后将自动注册</view>
@@ -38,6 +38,7 @@
 			<view class="iconfont icon-shouji f-t"></view>
 			<view class="f-t font-28 m-l-6">一键授权登录</view>
 		</view>
+		<view class="bottom-mar"></view>
 
 	</view>
 </template>

@@ -11,7 +11,7 @@
 			<view class="font-28 f-t">发送验证码</view>
 		</view>
 		<view class="grey  font-26 m-l-60 m-t-20">请确保新手机号未被其他账号绑定</view>
-		<view class="m-t-100">
+		<view class="m-t-100 p-30">
 			<button type="primary">确定更换手机号</button>
 		</view>
 	</view>
