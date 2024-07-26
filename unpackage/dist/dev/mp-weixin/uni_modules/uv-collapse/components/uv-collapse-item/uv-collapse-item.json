@@ -1,0 +1,7 @@
+{
+  "usingComponents": {
+    "uv-cell": "/uni_modules/uv-cell/components/uv-cell/uv-cell",
+    "uv-line": "/uni_modules/uv-line/components/uv-line/uv-line"
+  },
+  "component": true
+}

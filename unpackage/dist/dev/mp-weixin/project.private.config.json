@@ -3,5 +3,32 @@
   "projectname": "property",
   "setting": {
     "compileHotReLoad": true
+  },
+  "condition": {
+    "miniprogram": {
+      "list": [
+        {
+          "name": "otherpages/bindAlipay/bindAlipay",
+          "pathName": "otherpages/bindAlipay/bindAlipay",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "otherpages/withdraw/withdraw",
+          "pathName": "otherpages/withdraw/withdraw",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/spread/spread",
+          "pathName": "pages/spread/spread",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        }
+      ]
+    }
   }
 }

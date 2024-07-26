@@ -1,4 +1,11 @@
 {
   "navigationBarTitleText": "推广管理",
-  "usingComponents": {}
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "uv-navbar": "/uni_modules/uv-navbar/components/uv-navbar/uv-navbar",
+    "uv-icon": "/uni_modules/uv-icon/components/uv-icon/uv-icon",
+    "uv-line": "/uni_modules/uv-line/components/uv-line/uv-line",
+    "uv-grid": "/uni_modules/uv-grid/components/uv-grid/uv-grid",
+    "uv-grid-item": "/uni_modules/uv-grid/components/uv-grid-item/uv-grid-item"
+  }
 }

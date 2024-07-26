@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "立即提现",
+  "usingComponents": {
+    "uv-sticky": "/uni_modules/uv-sticky/components/uv-sticky/uv-sticky",
+    "uv-line": "/uni_modules/uv-line/components/uv-line/uv-line",
+    "uv-icon": "/uni_modules/uv-icon/components/uv-icon/uv-icon"
+  }
+}
