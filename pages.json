@@ -55,11 +55,14 @@
 			{
 				"path": "shopFrom/shopFrom",
 				"style": {
-					"navigationBarTitleText": "店铺资料",
-					"path": "extendOredr/extendOredr",
-					"style": {
-						"navigationBarTitleText": "推广订单"
-					}
+					"navigationBarTitleText": "店铺资料"
+					
+				}
+			},
+			{
+				"path": "extendOredr/extendOredr",
+				"style": {
+					"navigationBarTitleText": "推广订单"
 				}
 			},
 			{
@@ -90,6 +93,15 @@
 				"path": "withdraw_detail/withdraw_detail",
 				"style": {
 					"navigationBarTitleText": "提现明细"
+				}
+			},
+			{
+				"path" : "immediatelySign/immediatelySign",
+				"style" : 
+				{
+					"navigationBarTitleText": "立即签署",
+					"navigationBarBackgroundColor": "#ff4d19",
+					"navigationBarTextStyle": "white"
 				}
 			}
 		]

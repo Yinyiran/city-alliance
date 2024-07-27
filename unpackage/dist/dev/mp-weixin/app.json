@@ -10,12 +10,16 @@
         "login/login",
         "selectShop/selectShop",
         "replacePhone/replacePhone",
+        "setUpShop/setUpShop",
+        "setUpShopA/setUpShopA",
+        "shopFrom/shopFrom",
         "extendOredr/extendOredr",
         "fans/fans",
         "amount/amount",
         "withdraw/withdraw",
         "bindAlipay/bindAlipay",
-        "withdraw_detail/withdraw_detail"
+        "withdraw_detail/withdraw_detail",
+        "immediatelySign/immediatelySign"
       ]
     }
   ],
@@ -45,5 +49,17 @@
       }
     ]
   },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "为了您更好的体验，请确认获取您的位置"
+    }
+  },
+  "requiredPrivateInfos": [
+    "getLocation",
+    "chooseLocation"
+  ],
+  "requiredBackgroundModes": [
+    "location"
+  ],
   "usingComponents": {}
 }

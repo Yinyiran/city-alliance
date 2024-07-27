@@ -8,6 +8,13 @@
     "miniprogram": {
       "list": [
         {
+          "name": "otherpages/shopFrom/shopFrom",
+          "pathName": "otherpages/shopFrom/shopFrom",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
           "name": "otherpages/bindAlipay/bindAlipay",
           "pathName": "otherpages/bindAlipay/bindAlipay",
           "query": "",

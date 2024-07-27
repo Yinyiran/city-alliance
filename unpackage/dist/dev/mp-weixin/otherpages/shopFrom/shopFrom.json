@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "店铺资料",
+  "usingComponents": {
+    "uv-picker": "/uni_modules/uv-picker/components/uv-picker/uv-picker",
+    "uv-popup": "/uni_modules/uv-popup/components/uv-popup/uv-popup"
+  }
+}

@@ -22,29 +22,75 @@
 					<button type="primary" @click="submitA">确认绑定</button>
 				</view>
 			</view>
-			<view class="bodySty" v-if="presentId==2">
-				<view class="flex_b ApTypeSty">
-					<view :class="activeB==i?'activeB':''" @click="selsectB(i)" v-for="(item,i) in arrsAp">{{item}}
+
+			<block v-if="presentId==2">
+				<view class="bodySty" v-if="false">
+					<view class="flex_b ApTypeSty">
+						<view :class="activeB==i?'activeB':''" @click="selsectB(i)" v-for="(item,i) in arrsAp">{{item}}
+						</view>
+					</view>
+					<view class="p-50">
+						<view class="f-tA font-32 font-weight">1.认证资料</view>
+						<view class="font-26 grey m-l-26">法人身份证正/反面照片</view>
+						<view class="font-26 grey m-l-26">法人银行卡照片</view>
+						<view class="font-26 grey m-l-26">店铺门头照/内景照/店主合影</view>
 					</view>
 				</view>
-				<view class="p-50">
-					<view class="f-tA font-32 font-weight">1.认证资料</view>
-					<view class="font-26 grey m-l-26">法人身份证正/反面照片</view>
-					<view class="font-26 grey m-l-26">法人银行卡照片</view>
-					<view class="font-26 grey m-l-26">店铺门头照/内景照/店主合影</view>
+				<view class="UnderReview bodySty" v-else>
+					<image src="/static/image/shz.png" mode="aspectFill"></image>
+					<view class="font-32 font-weight f-tA m-t-40">资质审核中</view>
+					<view class="grey font-26 m-t-16">请尽快完成合同签署</view>
+					<view class="p-50">
+						<button type="primary"
+							@click="$util.redirectTo('/otherpages/immediatelySign/immediatelySign')">签署合同</button>
+					</view>
 				</view>
-			</view>
+			</block>
+
+			<block v-if="presentId==3">
+				<view class="" class="bodySty">
+					<view class="certifyItem flex_b">
+						<view class="flex">
+							<view class="iconfont icon-weixinzhifu "></view>
+							<view class="">
+								<view class="font-36 f-tA font-weight flex">微信待认证
+								<view class="successSty">已认证</view>
+								</view>
+								<view class="graycolor font-28 w-300 m-t-10">完成签约认证，即可开通微信收款服务</view>
+							</view>
+						</view>
+						<view class="iconfont icon-youjiantou"></view>
+					</view>
+					<view class="certifyItem flex_b">
+						<view class="flex">
+							<view class="iconfont icon-zhifubao"></view>
+							<view class="">
+								<view class="font-36 f-tA font-weight flex">支付宝待认证
+								<view class="successSty">已认证</view>
+								</view>
+								<view class="graycolor font-28 w-300 m-t-10">完成签约认证，即可开通支付宝收款服务</view>
+							</view>
+						</view>
+						<view class="iconfont icon-youjiantou"></view>
+					</view>
+				</view>
+			</block>
+
 		</view>
 
-		<view class="bomPosition" v-if="presentId==1">
-			<button class="noneBtn f-t font-28 font-weight" open-type="contact" style="width: 100%;">联系客服</button>
-			<view class="bottom-mar"></view>
-		</view>
-		<view class="bomPosition" v-if="presentId==2">
+
+
+		<view class="bomPosition" v-if="presentId==2&&false">
 			<view class="p-50">
 				<button type="primary" @click="submitB">提交资料</button>
 			</view>
 		</view>
+		<view class="bomPosition" v-else>
+			<button class="noneBtn f-t font-28 font-weight" open-type="contact" style="width: 100%;">联系客服</button>
+			<view class="bottom-mar"></view>
+		</view>
+
+
 	</view>
 </template>
 
@@ -54,7 +100,7 @@
 			return {
 				arrs: ['绑定地推', '资质认证', '开通线下收款', '开通线上收款'],
 				arrsAp: ['个人', '个体工商户', '企业'],
-				presentId: 2, //代表第几步
+				presentId: 3, //代表第几步
 				activeB: 0
 			};
 		},
@@ -78,6 +124,49 @@
 <style lang="scss">
 	page {
 		background-color: #fff;
+	}
+	.successSty {
+		width: 108rpx;
+		height: 44rpx;
+		flex-shrink: 0;
+		border-radius: 10rpx;
+		background: #02D800;
+		text-align: center;
+		line-height: 44rpx;
+		color: #fff;
+		margin-left: 20rpx;
+	}
+	.certifyItem {
+		width: 621rpx;
+		height: 198rpx;
+		border: 1rpx solid #dddfe4;
+		margin: 0 auto;
+		border-radius: 20rpx;
+		padding: 0 30rpx;
+		margin-bottom: 30rpx;
+
+		.icon-weixinzhifu {
+			color: #09bb07;
+			font-size: 80rpx;
+			width: 100rpx;
+		}
+
+		.icon-zhifubao {
+			color: #06b4fd;
+			font-size: 70rpx;
+			width: 100rpx;
+		}
+	}
+
+	.UnderReview {
+		text-align: center;
+
+		image {
+			text-align: center;
+			padding-top: 100rpx;
+			width: 112.06rpx;
+			height: 141.07rpx;
+		}
 	}
 
 	.ApTypeSty {

@@ -58,10 +58,2102 @@ module.exports = _nonIterableRest, module.exports.__esModule = true, module.expo
 
 /***/ }),
 
-/***/ 103:
-/*!***************************************************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-swiper/components/uv-swiper/props.js ***!
-  \***************************************************************************************/
+/***/ 11:
+/*!***************************************************************!*\
+  !*** ./node_modules/@babel/runtime/helpers/defineProperty.js ***!
+  \***************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var toPropertyKey = __webpack_require__(/*! ./toPropertyKey.js */ 12);
+function _defineProperty(obj, key, value) {
+  key = toPropertyKey(key);
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+  return obj;
+}
+module.exports = _defineProperty, module.exports.__esModule = true, module.exports["default"] = module.exports;
+
+/***/ }),
+
+/***/ 12:
+/*!**************************************************************!*\
+  !*** ./node_modules/@babel/runtime/helpers/toPropertyKey.js ***!
+  \**************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var _typeof = __webpack_require__(/*! ./typeof.js */ 13)["default"];
+var toPrimitive = __webpack_require__(/*! ./toPrimitive.js */ 14);
+function toPropertyKey(t) {
+  var i = toPrimitive(t, "string");
+  return "symbol" == _typeof(i) ? i : i + "";
+}
+module.exports = toPropertyKey, module.exports.__esModule = true, module.exports["default"] = module.exports;
+
+/***/ }),
+
+/***/ 13:
+/*!*******************************************************!*\
+  !*** ./node_modules/@babel/runtime/helpers/typeof.js ***!
+  \*******************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+function _typeof(o) {
+  "@babel/helpers - typeof";
+
+  return (module.exports = _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) {
+    return typeof o;
+  } : function (o) {
+    return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o;
+  }, module.exports.__esModule = true, module.exports["default"] = module.exports), _typeof(o);
+}
+module.exports = _typeof, module.exports.__esModule = true, module.exports["default"] = module.exports;
+
+/***/ }),
+
+/***/ 14:
+/*!************************************************************!*\
+  !*** ./node_modules/@babel/runtime/helpers/toPrimitive.js ***!
+  \************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var _typeof = __webpack_require__(/*! ./typeof.js */ 13)["default"];
+function toPrimitive(t, r) {
+  if ("object" != _typeof(t) || !t) return t;
+  var e = t[Symbol.toPrimitive];
+  if (void 0 !== e) {
+    var i = e.call(t, r || "default");
+    if ("object" != _typeof(i)) return i;
+    throw new TypeError("@@toPrimitive must return a primitive value.");
+  }
+  return ("string" === r ? String : Number)(t);
+}
+module.exports = toPrimitive, module.exports.__esModule = true, module.exports["default"] = module.exports;
+
+/***/ }),
+
+/***/ 15:
+/*!**********************************************************!*\
+  !*** ./node_modules/@babel/runtime/helpers/construct.js ***!
+  \**********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var setPrototypeOf = __webpack_require__(/*! ./setPrototypeOf.js */ 16);
+var isNativeReflectConstruct = __webpack_require__(/*! ./isNativeReflectConstruct.js */ 17);
+function _construct(t, e, r) {
+  if (isNativeReflectConstruct()) return Reflect.construct.apply(null, arguments);
+  var o = [null];
+  o.push.apply(o, e);
+  var p = new (t.bind.apply(t, o))();
+  return r && setPrototypeOf(p, r.prototype), p;
+}
+module.exports = _construct, module.exports.__esModule = true, module.exports["default"] = module.exports;
+
+/***/ }),
+
+/***/ 154:
+/*!**************************************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-ui-tools/libs/mixin/mpMixin.js ***!
+  \**************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var _default = {
+  // 将自定义节点设置成虚拟的（去掉自定义组件包裹层），更加接近Vue组件的表现，能更好的使用flex属性
+  options: {
+    virtualHost: true
+  }
+};
+exports.default = _default;
+
+/***/ }),
+
+/***/ 155:
+/*!************************************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-ui-tools/libs/mixin/mixin.js ***!
+  \************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(uni) {
+
+var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
+var _typeof = __webpack_require__(/*! @babel/runtime/helpers/typeof */ 13);
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
+var index = _interopRequireWildcard(__webpack_require__(/*! ../function/index.js */ 156));
+var test = _interopRequireWildcard(__webpack_require__(/*! ../function/test.js */ 157));
+var _route = _interopRequireDefault(__webpack_require__(/*! ../util/route.js */ 160));
+var _debounce = _interopRequireDefault(__webpack_require__(/*! ../function/debounce.js */ 161));
+var _throttle = _interopRequireDefault(__webpack_require__(/*! ../function/throttle.js */ 162));
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+var _default2 = {
+  // 定义每个组件都可能需要用到的外部样式以及类名
+  props: {
+    // 每个组件都有的父组件传递的样式，可以为字符串或者对象形式
+    customStyle: {
+      type: [Object, String],
+      default: function _default() {
+        return {};
+      }
+    },
+    customClass: {
+      type: String,
+      default: ''
+    },
+    // 跳转的页面路径
+    url: {
+      type: String,
+      default: ''
+    },
+    // 页面跳转的类型
+    linkType: {
+      type: String,
+      default: 'navigateTo'
+    }
+  },
+  data: function data() {
+    return {};
+  },
+  onLoad: function onLoad() {
+    // getRect挂载到$uv上，因为这方法需要使用in(this)，所以无法把它独立成一个单独的文件导出
+    this.$uv.getRect = this.$uvGetRect;
+  },
+  created: function created() {
+    // 组件当中，只有created声明周期，为了能在组件使用，故也在created中将方法挂载到$uv
+    this.$uv.getRect = this.$uvGetRect;
+  },
+  computed: {
+    $uv: function $uv() {
+      var _uni, _uni$$uv, _uni$$uv$config;
+      return _objectSpread(_objectSpread({}, index), {}, {
+        test: test,
+        route: _route.default,
+        debounce: _debounce.default,
+        throttle: _throttle.default,
+        unit: (_uni = uni) === null || _uni === void 0 ? void 0 : (_uni$$uv = _uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$config = _uni$$uv.config) === null || _uni$$uv$config === void 0 ? void 0 : _uni$$uv$config.unit
+      });
+    },
+    /**
+     * 生成bem规则类名
+     * 由于微信小程序，H5，nvue之间绑定class的差异，无法通过:class="[bem()]"的形式进行同用
+     * 故采用如下折中做法，最后返回的是数组（一般平台）或字符串（支付宝和字节跳动平台），类似['a', 'b', 'c']或'a b c'的形式
+     * @param {String} name 组件名称
+     * @param {Array} fixed 一直会存在的类名
+     * @param {Array} change 会根据变量值为true或者false而出现或者隐藏的类名
+     * @returns {Array|string}
+     */
+    bem: function bem() {
+      return function (name, fixed, change) {
+        var _this = this;
+        // 类名前缀
+        var prefix = "uv-".concat(name, "--");
+        var classes = {};
+        if (fixed) {
+          fixed.map(function (item) {
+            // 这里的类名，会一直存在
+            classes[prefix + _this[item]] = true;
+          });
+        }
+        if (change) {
+          change.map(function (item) {
+            // 这里的类名，会根据this[item]的值为true或者false，而进行添加或者移除某一个类
+            _this[item] ? classes[prefix + item] = _this[item] : delete classes[prefix + item];
+          });
+        }
+        return Object.keys(classes);
+        // 支付宝，头条小程序无法动态绑定一个数组类名，否则解析出来的结果会带有","，而导致失效
+      };
+    }
+  },
+
+  methods: {
+    // 跳转某一个页面
+    openPage: function openPage() {
+      var urlKey = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'url';
+      var url = this[urlKey];
+      if (url) {
+        // 执行类似uni.navigateTo的方法
+        uni[this.linkType]({
+          url: url
+        });
+      }
+    },
+    // 查询节点信息
+    // 目前此方法在支付宝小程序中无法获取组件跟接点的尺寸，为支付宝的bug(2020-07-21)
+    // 解决办法为在组件根部再套一个没有任何作用的view元素
+    $uvGetRect: function $uvGetRect(selector, all) {
+      var _this2 = this;
+      return new Promise(function (resolve) {
+        uni.createSelectorQuery().in(_this2)[all ? 'selectAll' : 'select'](selector).boundingClientRect(function (rect) {
+          if (all && Array.isArray(rect) && rect.length) {
+            resolve(rect);
+          }
+          if (!all && rect) {
+            resolve(rect);
+          }
+        }).exec();
+      });
+    },
+    getParentData: function getParentData() {
+      var _this3 = this;
+      var parentName = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+      // 避免在created中去定义parent变量
+      if (!this.parent) this.parent = {};
+      // 这里的本质原理是，通过获取父组件实例(也即类似uv-radio的父组件uv-radio-group的this)
+      // 将父组件this中对应的参数，赋值给本组件(uv-radio的this)的parentData对象中对应的属性
+      // 之所以需要这么做，是因为所有端中，头条小程序不支持通过this.parent.xxx去监听父组件参数的变化
+      // 此处并不会自动更新子组件的数据，而是依赖父组件uv-radio-group去监听data的变化，手动调用更新子组件的方法去重新获取
+      this.parent = this.$uv.$parent.call(this, parentName);
+      if (this.parent.children) {
+        // 如果父组件的children不存在本组件的实例，才将本实例添加到父组件的children中
+        this.parent.children.indexOf(this) === -1 && this.parent.children.push(this);
+      }
+      if (this.parent && this.parentData) {
+        // 历遍parentData中的属性，将parent中的同名属性赋值给parentData
+        Object.keys(this.parentData).map(function (key) {
+          _this3.parentData[key] = _this3.parent[key];
+        });
+      }
+    },
+    // 阻止事件冒泡
+    preventEvent: function preventEvent(e) {
+      e && typeof e.stopPropagation === 'function' && e.stopPropagation();
+    },
+    // 空操作
+    noop: function noop(e) {
+      this.preventEvent(e);
+    }
+  },
+  onReachBottom: function onReachBottom() {
+    uni.$emit('uvOnReachBottom');
+  },
+  beforeDestroy: function beforeDestroy() {
+    var _this4 = this;
+    // 判断当前页面是否存在parent和chldren，一般在checkbox和checkbox-group父子联动的场景会有此情况
+    // 组件销毁时，移除子组件在父组件children数组中的实例，释放资源，避免数据混乱
+    if (this.parent && test.array(this.parent.children)) {
+      // 组件销毁时，移除父组件中的children数组中对应的实例
+      var childrenList = this.parent.children;
+      childrenList.map(function (child, index) {
+        // 如果相等，则移除
+        if (child === _this4) {
+          childrenList.splice(index, 1);
+        }
+      });
+    }
+  },
+  // 兼容vue3
+  unmounted: function unmounted() {
+    var _this5 = this;
+    if (this.parent && test.array(this.parent.children)) {
+      // 组件销毁时，移除父组件中的children数组中对应的实例
+      var childrenList = this.parent.children;
+      childrenList.map(function (child, index) {
+        // 如果相等，则移除
+        if (child === _this5) {
+          childrenList.splice(index, 1);
+        }
+      });
+    }
+  }
+};
+exports.default = _default2;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
+
+/***/ }),
+
+/***/ 156:
+/*!***************************************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-ui-tools/libs/function/index.js ***!
+  \***************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(uni) {
+
+var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.$parent = $parent;
+exports.addStyle = addStyle;
+exports.addUnit = addUnit;
+exports.deepClone = deepClone;
+exports.deepMerge = deepMerge;
+exports.error = error;
+exports.formValidate = formValidate;
+exports.getDuration = getDuration;
+exports.getHistoryPage = getHistoryPage;
+exports.getProperty = getProperty;
+exports.getPx = getPx;
+exports.guid = guid;
+exports.os = os;
+exports.padZero = padZero;
+exports.page = page;
+exports.pages = pages;
+exports.priceFormat = priceFormat;
+exports.queryParams = queryParams;
+exports.random = random;
+exports.randomArray = randomArray;
+exports.range = range;
+exports.setConfig = setConfig;
+exports.setProperty = setProperty;
+exports.sleep = sleep;
+exports.sys = sys;
+exports.timeFormat = timeFormat;
+exports.timeFrom = timeFrom;
+exports.toast = toast;
+exports.trim = trim;
+exports.type2icon = type2icon;
+var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/slicedToArray */ 5));
+var _typeof2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/typeof */ 13));
+var _test = __webpack_require__(/*! ./test.js */ 157);
+var _digit = __webpack_require__(/*! ./digit.js */ 158);
+/**
+ * @description 如果value小于min，取min；如果value大于max，取max
+ * @param {number} min
+ * @param {number} max
+ * @param {number} value
+ */
+function range() {
+  var min = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+  var max = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+  var value = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+  return Math.max(min, Math.min(max, Number(value)));
+}
+
+/**
+ * @description 用于获取用户传递值的px值  如果用户传递了"xxpx"或者"xxrpx"，取出其数值部分，如果是"xxxrpx"还需要用过uni.upx2px进行转换
+ * @param {number|string} value 用户传递值的px值
+ * @param {boolean} unit
+ * @returns {number|string}
+ */
+function getPx(value) {
+  var unit = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+  if ((0, _test.number)(value)) {
+    return unit ? "".concat(value, "px") : Number(value);
+  }
+  // 如果带有rpx，先取出其数值部分，再转为px值
+  if (/(rpx|upx)$/.test(value)) {
+    return unit ? "".concat(uni.upx2px(parseInt(value)), "px") : Number(uni.upx2px(parseInt(value)));
+  }
+  return unit ? "".concat(parseInt(value), "px") : parseInt(value);
+}
+
+/**
+ * @description 进行延时，以达到可以简写代码的目的 比如: await uni.$uv.sleep(20)将会阻塞20ms
+ * @param {number} value 堵塞时间 单位ms 毫秒
+ * @returns {Promise} 返回promise
+ */
+function sleep() {
+  var value = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 30;
+  return new Promise(function (resolve) {
+    setTimeout(function () {
+      resolve();
+    }, value);
+  });
+}
+/**
+ * @description 运行期判断平台
+ * @returns {string} 返回所在平台(小写)
+ * @link 运行期判断平台 https://uniapp.dcloud.io/frame?id=判断平台
+ */
+function os() {
+  return uni.getSystemInfoSync().platform.toLowerCase();
+}
+/**
+ * @description 获取系统信息同步接口
+ * @link 获取系统信息同步接口 https://uniapp.dcloud.io/api/system/info?id=getsysteminfosync
+ */
+function sys() {
+  return uni.getSystemInfoSync();
+}
+
+/**
+ * @description 取一个区间数
+ * @param {Number} min 最小值
+ * @param {Number} max 最大值
+ */
+function random(min, max) {
+  if (min >= 0 && max > 0 && max >= min) {
+    var gab = max - min + 1;
+    return Math.floor(Math.random() * gab + min);
+  }
+  return 0;
+}
+
+/**
+ * @param {Number} len uuid的长度
+ * @param {Boolean} firstU 将返回的首字母置为"u"
+ * @param {Nubmer} radix 生成uuid的基数(意味着返回的字符串都是这个基数),2-二进制,8-八进制,10-十进制,16-十六进制
+ */
+function guid() {
+  var len = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 32;
+  var firstU = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+  var radix = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+  var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split('');
+  var uuid = [];
+  radix = radix || chars.length;
+  if (len) {
+    // 如果指定uuid长度,只是取随机的字符,0|x为位运算,能去掉x的小数位,返回整数位
+    for (var i = 0; i < len; i++) {
+      uuid[i] = chars[0 | Math.random() * radix];
+    }
+  } else {
+    var r;
+    // rfc4122标准要求返回的uuid中,某些位为固定的字符
+    uuid[8] = uuid[13] = uuid[18] = uuid[23] = '-';
+    uuid[14] = '4';
+    for (var _i = 0; _i < 36; _i++) {
+      if (!uuid[_i]) {
+        r = 0 | Math.random() * 16;
+        uuid[_i] = chars[_i == 19 ? r & 0x3 | 0x8 : r];
+      }
+    }
+  }
+  // 移除第一个字符,并用u替代,因为第一个字符为数值时,该guuid不能用作id或者class
+  if (firstU) {
+    uuid.shift();
+    return "u".concat(uuid.join(''));
+  }
+  return uuid.join('');
+}
+
+/**
+* @description 获取父组件的参数，因为支付宝小程序不支持provide/inject的写法
+   this.$parent在非H5中，可以准确获取到父组件，但是在H5中，需要多次this.$parent.$parent.xxx
+   这里默认值等于undefined有它的含义，因为最顶层元素(组件)的$parent就是undefined，意味着不传name
+   值(默认为undefined)，就是查找最顶层的$parent
+*  @param {string|undefined} name 父组件的参数名
+*/
+function $parent() {
+  var name = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : undefined;
+  var parent = this.$parent;
+  // 通过while历遍，这里主要是为了H5需要多层解析的问题
+  while (parent) {
+    // 父组件
+    if (parent.$options && parent.$options.name !== name) {
+      // 如果组件的name不相等，继续上一级寻找
+      parent = parent.$parent;
+    } else {
+      return parent;
+    }
+  }
+  return false;
+}
+
+/**
+ * @description 样式转换
+ * 对象转字符串，或者字符串转对象
+ * @param {object | string} customStyle 需要转换的目标
+ * @param {String} target 转换的目的，object-转为对象，string-转为字符串
+ * @returns {object|string}
+ */
+function addStyle(customStyle) {
+  var target = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'object';
+  // 字符串转字符串，对象转对象情形，直接返回
+  if ((0, _test.empty)(customStyle) || (0, _typeof2.default)(customStyle) === 'object' && target === 'object' || target === 'string' && typeof customStyle === 'string') {
+    return customStyle;
+  }
+  // 字符串转对象
+  if (target === 'object') {
+    // 去除字符串样式中的两端空格(中间的空格不能去掉，比如padding: 20px 0如果去掉了就错了)，空格是无用的
+    customStyle = trim(customStyle);
+    // 根据";"将字符串转为数组形式
+    var styleArray = customStyle.split(';');
+    var style = {};
+    // 历遍数组，拼接成对象
+    for (var i = 0; i < styleArray.length; i++) {
+      // 'font-size:20px;color:red;'，如此最后字符串有";"的话，会导致styleArray最后一个元素为空字符串，这里需要过滤
+      if (styleArray[i]) {
+        var item = styleArray[i].split(':');
+        style[trim(item[0])] = trim(item[1]);
+      }
+    }
+    return style;
+  }
+  // 这里为对象转字符串形式
+  var string = '';
+  for (var _i2 in customStyle) {
+    // 驼峰转为中划线的形式，否则css内联样式，无法识别驼峰样式属性名
+    var key = _i2.replace(/([A-Z])/g, '-$1').toLowerCase();
+    string += "".concat(key, ":").concat(customStyle[_i2], ";");
+  }
+  // 去除两端空格
+  return trim(string);
+}
+
+/**
+ * @description 添加单位，如果有rpx，upx，%，px等单位结尾或者值为auto，直接返回，否则加上px单位结尾
+ * @param {string|number} value 需要添加单位的值
+ * @param {string} unit 添加的单位名 比如px
+ */
+function addUnit() {
+  var _uni, _uni$$uv, _uni$$uv$config, _uni2, _uni2$$uv, _uni2$$uv$config;
+  var value = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'auto';
+  var unit = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : (_uni = uni) !== null && _uni !== void 0 && (_uni$$uv = _uni.$uv) !== null && _uni$$uv !== void 0 && (_uni$$uv$config = _uni$$uv.config) !== null && _uni$$uv$config !== void 0 && _uni$$uv$config.unit ? (_uni2 = uni) === null || _uni2 === void 0 ? void 0 : (_uni2$$uv = _uni2.$uv) === null || _uni2$$uv === void 0 ? void 0 : (_uni2$$uv$config = _uni2$$uv.config) === null || _uni2$$uv$config === void 0 ? void 0 : _uni2$$uv$config.unit : 'px';
+  value = String(value);
+  // 用uvui内置验证规则中的number判断是否为数值
+  return (0, _test.number)(value) ? "".concat(value).concat(unit) : value;
+}
+
+/**
+ * @description 深度克隆
+ * @param {object} obj 需要深度克隆的对象
+ * @param cache 缓存
+ * @returns {*} 克隆后的对象或者原值（不是对象）
+ */
+function deepClone(obj) {
+  var cache = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : new WeakMap();
+  if (obj === null || (0, _typeof2.default)(obj) !== 'object') return obj;
+  if (cache.has(obj)) return cache.get(obj);
+  var clone;
+  if (obj instanceof Date) {
+    clone = new Date(obj.getTime());
+  } else if (obj instanceof RegExp) {
+    clone = new RegExp(obj);
+  } else if (obj instanceof Map) {
+    clone = new Map(Array.from(obj, function (_ref) {
+      var _ref2 = (0, _slicedToArray2.default)(_ref, 2),
+        key = _ref2[0],
+        value = _ref2[1];
+      return [key, deepClone(value, cache)];
+    }));
+  } else if (obj instanceof Set) {
+    clone = new Set(Array.from(obj, function (value) {
+      return deepClone(value, cache);
+    }));
+  } else if (Array.isArray(obj)) {
+    clone = obj.map(function (value) {
+      return deepClone(value, cache);
+    });
+  } else if (Object.prototype.toString.call(obj) === '[object Object]') {
+    clone = Object.create(Object.getPrototypeOf(obj));
+    cache.set(obj, clone);
+    for (var _i3 = 0, _Object$entries = Object.entries(obj); _i3 < _Object$entries.length; _i3++) {
+      var _Object$entries$_i = (0, _slicedToArray2.default)(_Object$entries[_i3], 2),
+        key = _Object$entries$_i[0],
+        value = _Object$entries$_i[1];
+      clone[key] = deepClone(value, cache);
+    }
+  } else {
+    clone = Object.assign({}, obj);
+  }
+  cache.set(obj, clone);
+  return clone;
+}
+
+/**
+ * @description JS对象深度合并
+ * @param {object} target 需要拷贝的对象
+ * @param {object} source 拷贝的来源对象
+ * @returns {object|boolean} 深度合并后的对象或者false（入参有不是对象）
+ */
+function deepMerge() {
+  var target = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  var source = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  target = deepClone(target);
+  if ((0, _typeof2.default)(target) !== 'object' || target === null || (0, _typeof2.default)(source) !== 'object' || source === null) return target;
+  var merged = Array.isArray(target) ? target.slice() : Object.assign({}, target);
+  for (var prop in source) {
+    if (!source.hasOwnProperty(prop)) continue;
+    var sourceValue = source[prop];
+    var targetValue = merged[prop];
+    if (sourceValue instanceof Date) {
+      merged[prop] = new Date(sourceValue);
+    } else if (sourceValue instanceof RegExp) {
+      merged[prop] = new RegExp(sourceValue);
+    } else if (sourceValue instanceof Map) {
+      merged[prop] = new Map(sourceValue);
+    } else if (sourceValue instanceof Set) {
+      merged[prop] = new Set(sourceValue);
+    } else if ((0, _typeof2.default)(sourceValue) === 'object' && sourceValue !== null) {
+      merged[prop] = deepMerge(targetValue, sourceValue);
+    } else {
+      merged[prop] = sourceValue;
+    }
+  }
+  return merged;
+}
+
+/**
+ * @description error提示
+ * @param {*} err 错误内容
+ */
+function error(err) {
+  // 开发环境才提示，生产环境不会提示
+  if (true) {
+    console.error("uvui\u63D0\u793A\uFF1A".concat(err));
+  }
+}
+
+/**
+ * @description 打乱数组
+ * @param {array} array 需要打乱的数组
+ * @returns {array} 打乱后的数组
+ */
+function randomArray() {
+  var array = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+  // 原理是sort排序,Math.random()产生0<= x < 1之间的数,会导致x-0.05大于或者小于0
+  return array.sort(function () {
+    return Math.random() - 0.5;
+  });
+}
+
+// padStart 的 polyfill，因为某些机型或情况，还无法支持es7的padStart，比如电脑版的微信小程序
+// 所以这里做一个兼容polyfill的兼容处理
+if (!String.prototype.padStart) {
+  // 为了方便表示这里 fillString 用了ES6 的默认参数，不影响理解
+  String.prototype.padStart = function (maxLength) {
+    var fillString = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : ' ';
+    if (Object.prototype.toString.call(fillString) !== '[object String]') {
+      throw new TypeError('fillString must be String');
+    }
+    var str = this;
+    // 返回 String(str) 这里是为了使返回的值是字符串字面量，在控制台中更符合直觉
+    if (str.length >= maxLength) return String(str);
+    var fillLength = maxLength - str.length;
+    var times = Math.ceil(fillLength / fillString.length);
+    while (times >>= 1) {
+      fillString += fillString;
+      if (times === 1) {
+        fillString += fillString;
+      }
+    }
+    return fillString.slice(0, fillLength) + str;
+  };
+}
+
+/**
+ * @description 格式化时间
+ * @param {String|Number} dateTime 需要格式化的时间戳
+ * @param {String} fmt 格式化规则 yyyy:mm:dd|yyyy:mm|yyyy年mm月dd日|yyyy年mm月dd日 hh时MM分等,可自定义组合 默认yyyy-mm-dd
+ * @returns {string} 返回格式化后的字符串
+ */
+function timeFormat() {
+  var dateTime = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+  var formatStr = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'yyyy-mm-dd';
+  var date;
+  // 若传入时间为假值，则取当前时间
+  if (!dateTime) {
+    date = new Date();
+  }
+  // 若为unix秒时间戳，则转为毫秒时间戳（逻辑有点奇怪，但不敢改，以保证历史兼容）
+  else if (/^\d{10}$/.test(dateTime === null || dateTime === void 0 ? void 0 : dateTime.toString().trim())) {
+    date = new Date(dateTime * 1000);
+  }
+  // 若用户传入字符串格式时间戳，new Date无法解析，需做兼容
+  else if (typeof dateTime === 'string' && /^\d+$/.test(dateTime.trim())) {
+    date = new Date(Number(dateTime));
+  }
+  // 处理平台性差异，在Safari/Webkit中，new Date仅支持/作为分割符的字符串时间
+  // 处理 '2022-07-10 01:02:03'，跳过 '2022-07-10T01:02:03'
+  else if (typeof dateTime === 'string' && dateTime.includes('-') && !dateTime.includes('T')) {
+    date = new Date(dateTime.replace(/-/g, '/'));
+  }
+  // 其他都认为符合 RFC 2822 规范
+  else {
+    date = new Date(dateTime);
+  }
+  var timeSource = {
+    'y': date.getFullYear().toString(),
+    // 年
+    'm': (date.getMonth() + 1).toString().padStart(2, '0'),
+    // 月
+    'd': date.getDate().toString().padStart(2, '0'),
+    // 日
+    'h': date.getHours().toString().padStart(2, '0'),
+    // 时
+    'M': date.getMinutes().toString().padStart(2, '0'),
+    // 分
+    's': date.getSeconds().toString().padStart(2, '0') // 秒
+    // 有其他格式化字符需求可以继续添加，必须转化成字符串
+  };
+
+  for (var key in timeSource) {
+    var _ref3 = new RegExp("".concat(key, "+")).exec(formatStr) || [],
+      _ref4 = (0, _slicedToArray2.default)(_ref3, 1),
+      ret = _ref4[0];
+    if (ret) {
+      // 年可能只需展示两位
+      var beginIndex = key === 'y' && ret.length === 2 ? 2 : 0;
+      formatStr = formatStr.replace(ret, timeSource[key].slice(beginIndex));
+    }
+  }
+  return formatStr;
+}
+
+/**
+ * @description 时间戳转为多久之前
+ * @param {String|Number} timestamp 时间戳
+ * @param {String|Boolean} format
+ * 格式化规则如果为时间格式字符串，超出一定时间范围，返回固定的时间格式；
+ * 如果为布尔值false，无论什么时间，都返回多久以前的格式
+ * @returns {string} 转化后的内容
+ */
+function timeFrom() {
+  var timestamp = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+  var format = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'yyyy-mm-dd';
+  if (timestamp == null) timestamp = Number(new Date());
+  timestamp = parseInt(timestamp);
+  // 判断用户输入的时间戳是秒还是毫秒,一般前端js获取的时间戳是毫秒(13位),后端传过来的为秒(10位)
+  if (timestamp.toString().length == 10) timestamp *= 1000;
+  var timer = new Date().getTime() - timestamp;
+  timer = parseInt(timer / 1000);
+  // 如果小于5分钟,则返回"刚刚",其他以此类推
+  var tips = '';
+  switch (true) {
+    case timer < 300:
+      tips = '刚刚';
+      break;
+    case timer >= 300 && timer < 3600:
+      tips = "".concat(parseInt(timer / 60), "\u5206\u949F\u524D");
+      break;
+    case timer >= 3600 && timer < 86400:
+      tips = "".concat(parseInt(timer / 3600), "\u5C0F\u65F6\u524D");
+      break;
+    case timer >= 86400 && timer < 2592000:
+      tips = "".concat(parseInt(timer / 86400), "\u5929\u524D");
+      break;
+    default:
+      // 如果format为false，则无论什么时间戳，都显示xx之前
+      if (format === false) {
+        if (timer >= 2592000 && timer < 365 * 86400) {
+          tips = "".concat(parseInt(timer / (86400 * 30)), "\u4E2A\u6708\u524D");
+        } else {
+          tips = "".concat(parseInt(timer / (86400 * 365)), "\u5E74\u524D");
+        }
+      } else {
+        tips = timeFormat(timestamp, format);
+      }
+  }
+  return tips;
+}
+
+/**
+ * @description 去除空格
+ * @param String str 需要去除空格的字符串
+ * @param String pos both(左右)|left|right|all 默认both
+ */
+function trim(str) {
+  var pos = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'both';
+  str = String(str);
+  if (pos == 'both') {
+    return str.replace(/^\s+|\s+$/g, '');
+  }
+  if (pos == 'left') {
+    return str.replace(/^\s*/, '');
+  }
+  if (pos == 'right') {
+    return str.replace(/(\s*$)/g, '');
+  }
+  if (pos == 'all') {
+    return str.replace(/\s+/g, '');
+  }
+  return str;
+}
+
+/**
+ * @description 对象转url参数
+ * @param {object} data,对象
+ * @param {Boolean} isPrefix,是否自动加上"?"
+ * @param {string} arrayFormat 规则 indices|brackets|repeat|comma
+ */
+function queryParams() {
+  var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  var isPrefix = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+  var arrayFormat = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'brackets';
+  var prefix = isPrefix ? '?' : '';
+  var _result = [];
+  if (['indices', 'brackets', 'repeat', 'comma'].indexOf(arrayFormat) == -1) arrayFormat = 'brackets';
+  var _loop = function _loop(key) {
+    var value = data[key];
+    // 去掉为空的参数
+    if (['', undefined, null].indexOf(value) >= 0) {
+      return "continue";
+    }
+    // 如果值为数组，另行处理
+    if (value.constructor === Array) {
+      // e.g. {ids: [1, 2, 3]}
+      switch (arrayFormat) {
+        case 'indices':
+          // 结果: ids[0]=1&ids[1]=2&ids[2]=3
+          for (var i = 0; i < value.length; i++) {
+            _result.push("".concat(key, "[").concat(i, "]=").concat(value[i]));
+          }
+          break;
+        case 'brackets':
+          // 结果: ids[]=1&ids[]=2&ids[]=3
+          value.forEach(function (_value) {
+            _result.push("".concat(key, "[]=").concat(_value));
+          });
+          break;
+        case 'repeat':
+          // 结果: ids=1&ids=2&ids=3
+          value.forEach(function (_value) {
+            _result.push("".concat(key, "=").concat(_value));
+          });
+          break;
+        case 'comma':
+          // 结果: ids=1,2,3
+          var commaStr = '';
+          value.forEach(function (_value) {
+            commaStr += (commaStr ? ',' : '') + _value;
+          });
+          _result.push("".concat(key, "=").concat(commaStr));
+          break;
+        default:
+          value.forEach(function (_value) {
+            _result.push("".concat(key, "[]=").concat(_value));
+          });
+      }
+    } else {
+      _result.push("".concat(key, "=").concat(value));
+    }
+  };
+  for (var key in data) {
+    var _ret = _loop(key);
+    if (_ret === "continue") continue;
+  }
+  return _result.length ? prefix + _result.join('&') : '';
+}
+
+/**
+ * 显示消息提示框
+ * @param {String} title 提示的内容，长度与 icon 取值有关。
+ * @param {Number} duration 提示的延迟时间，单位毫秒，默认：2000
+ */
+function toast(title) {
+  var duration = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 2000;
+  uni.showToast({
+    title: String(title),
+    icon: 'none',
+    duration: duration
+  });
+}
+
+/**
+ * @description 根据主题type值,获取对应的图标
+ * @param {String} type 主题名称,primary|info|error|warning|success
+ * @param {boolean} fill 是否使用fill填充实体的图标
+ */
+function type2icon() {
+  var type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'success';
+  var fill = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+  // 如果非预置值,默认为success
+  if (['primary', 'info', 'error', 'warning', 'success'].indexOf(type) == -1) type = 'success';
+  var iconName = '';
+  // 目前(2019-12-12),info和primary使用同一个图标
+  switch (type) {
+    case 'primary':
+      iconName = 'info-circle';
+      break;
+    case 'info':
+      iconName = 'info-circle';
+      break;
+    case 'error':
+      iconName = 'close-circle';
+      break;
+    case 'warning':
+      iconName = 'error-circle';
+      break;
+    case 'success':
+      iconName = 'checkmark-circle';
+      break;
+    default:
+      iconName = 'checkmark-circle';
+  }
+  // 是否是实体类型,加上-fill,在icon组件库中,实体的类名是后面加-fill的
+  if (fill) iconName += '-fill';
+  return iconName;
+}
+
+/**
+ * @description 数字格式化
+ * @param {number|string} number 要格式化的数字
+ * @param {number} decimals 保留几位小数
+ * @param {string} decimalPoint 小数点符号
+ * @param {string} thousandsSeparator 千分位符号
+ * @returns {string} 格式化后的数字
+ */
+function priceFormat(number) {
+  var decimals = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+  var decimalPoint = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '.';
+  var thousandsSeparator = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : ',';
+  number = "".concat(number).replace(/[^0-9+-Ee.]/g, '');
+  var n = !isFinite(+number) ? 0 : +number;
+  var prec = !isFinite(+decimals) ? 0 : Math.abs(decimals);
+  var sep = typeof thousandsSeparator === 'undefined' ? ',' : thousandsSeparator;
+  var dec = typeof decimalPoint === 'undefined' ? '.' : decimalPoint;
+  var s = '';
+  s = (prec ? (0, _digit.round)(n, prec) + '' : "".concat(Math.round(n))).split('.');
+  var re = /(-?\d+)(\d{3})/;
+  while (re.test(s[0])) {
+    s[0] = s[0].replace(re, "$1".concat(sep, "$2"));
+  }
+  if ((s[1] || '').length < prec) {
+    s[1] = s[1] || '';
+    s[1] += new Array(prec - s[1].length + 1).join('0');
+  }
+  return s.join(dec);
+}
+
+/**
+ * @description 获取duration值
+ * 如果带有ms或者s直接返回，如果大于一定值，认为是ms单位，小于一定值，认为是s单位
+ * 比如以30位阈值，那么300大于30，可以理解为用户想要的是300ms，而不是想花300s去执行一个动画
+ * @param {String|number} value 比如: "1s"|"100ms"|1|100
+ * @param {boolean} unit  提示: 如果是false 默认返回number
+ * @return {string|number}
+ */
+function getDuration(value) {
+  var unit = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+  var valueNum = parseInt(value);
+  if (unit) {
+    if (/s$/.test(value)) return value;
+    return value > 30 ? "".concat(value, "ms") : "".concat(value, "s");
+  }
+  if (/ms$/.test(value)) return valueNum;
+  if (/s$/.test(value)) return valueNum > 30 ? valueNum : valueNum * 1000;
+  return valueNum;
+}
+
+/**
+ * @description 日期的月或日补零操作
+ * @param {String} value 需要补零的值
+ */
+function padZero(value) {
+  return "00".concat(value).slice(-2);
+}
+
+/**
+ * @description 在uv-form的子组件内容发生变化，或者失去焦点时，尝试通知uv-form执行校验方法
+ * @param {*} instance
+ * @param {*} event
+ */
+function formValidate(instance, event) {
+  var formItem = $parent.call(instance, 'uv-form-item');
+  var form = $parent.call(instance, 'uv-form');
+  // 如果发生变化的input或者textarea等，其父组件中有uv-form-item或者uv-form等，就执行form的validate方法
+  // 同时将form-item的pros传递给form，让其进行精确对象验证
+  if (formItem && form) {
+    form.validateField(formItem.prop, function () {}, event);
+  }
+}
+
+/**
+ * @description 获取某个对象下的属性，用于通过类似'a.b.c'的形式去获取一个对象的的属性的形式
+ * @param {object} obj 对象
+ * @param {string} key 需要获取的属性字段
+ * @returns {*}
+ */
+function getProperty(obj, key) {
+  if (!obj) {
+    return;
+  }
+  if (typeof key !== 'string' || key === '') {
+    return '';
+  }
+  if (key.indexOf('.') !== -1) {
+    var keys = key.split('.');
+    var firstObj = obj[keys[0]] || {};
+    for (var i = 1; i < keys.length; i++) {
+      if (firstObj) {
+        firstObj = firstObj[keys[i]];
+      }
+    }
+    return firstObj;
+  }
+  return obj[key];
+}
+
+/**
+ * @description 设置对象的属性值，如果'a.b.c'的形式进行设置
+ * @param {object} obj 对象
+ * @param {string} key 需要设置的属性
+ * @param {string} value 设置的值
+ */
+function setProperty(obj, key, value) {
+  if (!obj) {
+    return;
+  }
+  // 递归赋值
+  var inFn = function inFn(_obj, keys, v) {
+    // 最后一个属性key
+    if (keys.length === 1) {
+      _obj[keys[0]] = v;
+      return;
+    }
+    // 0~length-1个key
+    while (keys.length > 1) {
+      var k = keys[0];
+      if (!_obj[k] || (0, _typeof2.default)(_obj[k]) !== 'object') {
+        _obj[k] = {};
+      }
+      var _key = keys.shift();
+      // 自调用判断是否存在属性，不存在则自动创建对象
+      inFn(_obj[k], keys, v);
+    }
+  };
+  if (typeof key !== 'string' || key === '') {} else if (key.indexOf('.') !== -1) {
+    // 支持多层级赋值操作
+    var keys = key.split('.');
+    inFn(obj, keys, value);
+  } else {
+    obj[key] = value;
+  }
+}
+
+/**
+ * @description 获取当前页面路径
+ */
+function page() {
+  var _pages;
+  var pages = getCurrentPages();
+  var route = (_pages = pages[pages.length - 1]) === null || _pages === void 0 ? void 0 : _pages.route;
+  // 某些特殊情况下(比如页面进行redirectTo时的一些时机)，pages可能为空数组
+  return "/".concat(route ? route : '');
+}
+
+/**
+ * @description 获取当前路由栈实例数组
+ */
+function pages() {
+  var pages = getCurrentPages();
+  return pages;
+}
+
+/**
+ * 获取页面历史栈指定层实例
+ * @param back {number} [0] - 0或者负数，表示获取历史栈的哪一层，0表示获取当前页面实例，-1 表示获取上一个页面实例。默认0。
+ */
+function getHistoryPage() {
+  var back = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+  var pages = getCurrentPages();
+  var len = pages.length;
+  return pages[len - 1 + back];
+}
+
+/**
+ * @description 修改uvui内置属性值
+ * @param {object} props 修改内置props属性
+ * @param {object} config 修改内置config属性
+ * @param {object} color 修改内置color属性
+ * @param {object} zIndex 修改内置zIndex属性
+ */
+function setConfig(_ref5) {
+  var _ref5$props = _ref5.props,
+    props = _ref5$props === void 0 ? {} : _ref5$props,
+    _ref5$config = _ref5.config,
+    config = _ref5$config === void 0 ? {} : _ref5$config,
+    _ref5$color = _ref5.color,
+    color = _ref5$color === void 0 ? {} : _ref5$color,
+    _ref5$zIndex = _ref5.zIndex,
+    zIndex = _ref5$zIndex === void 0 ? {} : _ref5$zIndex;
+  var deepMerge = uni.$uv.deepMerge;
+  uni.$uv.config = deepMerge(uni.$uv.config, config);
+  uni.$uv.props = deepMerge(uni.$uv.props, props);
+  uni.$uv.color = deepMerge(uni.$uv.color, color);
+  uni.$uv.zIndex = deepMerge(uni.$uv.zIndex, zIndex);
+}
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
+
+/***/ }),
+
+/***/ 157:
+/*!**************************************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-ui-tools/libs/function/test.js ***!
+  \**************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.amount = amount;
+exports.array = array;
+exports.carNo = carNo;
+exports.chinese = chinese;
+exports.code = code;
+exports.contains = contains;
+exports.date = date;
+exports.dateISO = dateISO;
+exports.digits = digits;
+exports.email = email;
+exports.empty = empty;
+exports.enOrNum = enOrNum;
+exports.func = func;
+exports.idCard = idCard;
+exports.image = image;
+exports.jsonString = jsonString;
+exports.landline = landline;
+exports.letter = letter;
+exports.mobile = mobile;
+exports.number = number;
+exports.object = object;
+exports.promise = promise;
+exports.range = range;
+exports.rangeLength = rangeLength;
+exports.regExp = regExp;
+exports.string = string;
+exports.url = url;
+exports.video = video;
+var _typeof2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/typeof */ 13));
+/**
+ * 验证电子邮箱格式
+ */
+function email(value) {
+  return /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/.test(value);
+}
+
+/**
+ * 验证手机格式
+ */
+function mobile(value) {
+  return /^1([3589]\d|4[5-9]|6[1-2,4-7]|7[0-8])\d{8}$/.test(value);
+}
+
+/**
+ * 验证URL格式
+ */
+function url(value) {
+  return /^((https|http|ftp|rtsp|mms):\/\/)(([0-9a-zA-Z_!~*'().&=+$%-]+: )?[0-9a-zA-Z_!~*'().&=+$%-]+@)?(([0-9]{1,3}.){3}[0-9]{1,3}|([0-9a-zA-Z_!~*'()-]+.)*([0-9a-zA-Z][0-9a-zA-Z-]{0,61})?[0-9a-zA-Z].[a-zA-Z]{2,6})(:[0-9]{1,4})?((\/?)|(\/[0-9a-zA-Z_!~*'().;?:@&=+$,%#-]+)+\/?)$/.test(value);
+}
+
+/**
+ * 验证日期格式
+ */
+function date(value) {
+  if (!value) return false;
+  // 判断是否数值或者字符串数值(意味着为时间戳)，转为数值，否则new Date无法识别字符串时间戳
+  if (number(value)) value = +value;
+  return !/Invalid|NaN/.test(new Date(value).toString());
+}
+
+/**
+ * 验证ISO类型的日期格式
+ */
+function dateISO(value) {
+  return /^\d{4}[\/\-](0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])$/.test(value);
+}
+
+/**
+ * 验证十进制数字
+ */
+function number(value) {
+  return /^[\+-]?(\d+\.?\d*|\.\d+|\d\.\d+e\+\d+)$/.test(value);
+}
+
+/**
+ * 验证字符串
+ */
+function string(value) {
+  return typeof value === 'string';
+}
+
+/**
+ * 验证整数
+ */
+function digits(value) {
+  return /^\d+$/.test(value);
+}
+
+/**
+ * 验证身份证号码
+ */
+function idCard(value) {
+  return /^[1-9]\d{5}[1-9]\d{3}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}([0-9]|X)$/.test(value);
+}
+
+/**
+ * 是否车牌号
+ */
+function carNo(value) {
+  // 新能源车牌
+  var xreg = /^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领A-Z]{1}[A-Z]{1}(([0-9]{5}[DF]$)|([DF][A-HJ-NP-Z0-9][0-9]{4}$))/;
+  // 旧车牌
+  var creg = /^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领A-Z]{1}[A-Z]{1}[A-HJ-NP-Z0-9]{4}[A-HJ-NP-Z0-9挂学警港澳]{1}$/;
+  if (value.length === 7) {
+    return creg.test(value);
+  }
+  if (value.length === 8) {
+    return xreg.test(value);
+  }
+  return false;
+}
+
+/**
+ * 金额,只允许2位小数
+ */
+function amount(value) {
+  // 金额，只允许保留两位小数
+  return /^[1-9]\d*(,\d{3})*(\.\d{1,2})?$|^0\.\d{1,2}$/.test(value);
+}
+
+/**
+ * 中文
+ */
+function chinese(value) {
+  var reg = /^[\u4e00-\u9fa5]+$/gi;
+  return reg.test(value);
+}
+
+/**
+ * 只能输入字母
+ */
+function letter(value) {
+  return /^[a-zA-Z]*$/.test(value);
+}
+
+/**
+ * 只能是字母或者数字
+ */
+function enOrNum(value) {
+  // 英文或者数字
+  var reg = /^[0-9a-zA-Z]*$/g;
+  return reg.test(value);
+}
+
+/**
+ * 验证是否包含某个值
+ */
+function contains(value, param) {
+  return value.indexOf(param) >= 0;
+}
+
+/**
+ * 验证一个值范围[min, max]
+ */
+function range(value, param) {
+  return value >= param[0] && value <= param[1];
+}
+
+/**
+ * 验证一个长度范围[min, max]
+ */
+function rangeLength(value, param) {
+  return value.length >= param[0] && value.length <= param[1];
+}
+
+/**
+ * 是否固定电话
+ */
+function landline(value) {
+  var reg = /^\d{3,4}-\d{7,8}(-\d{3,4})?$/;
+  return reg.test(value);
+}
+
+/**
+ * 判断是否为空
+ */
+function empty(value) {
+  switch ((0, _typeof2.default)(value)) {
+    case 'undefined':
+      return true;
+    case 'string':
+      if (value.replace(/(^[ \t\n\r]*)|([ \t\n\r]*$)/g, '').length == 0) return true;
+      break;
+    case 'boolean':
+      if (!value) return true;
+      break;
+    case 'number':
+      if (value === 0 || isNaN(value)) return true;
+      break;
+    case 'object':
+      if (value === null || value.length === 0) return true;
+      for (var i in value) {
+        return false;
+      }
+      return true;
+  }
+  return false;
+}
+
+/**
+ * 是否json字符串
+ */
+function jsonString(value) {
+  if (typeof value === 'string') {
+    try {
+      var obj = JSON.parse(value);
+      if ((0, _typeof2.default)(obj) === 'object' && obj) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+  return false;
+}
+
+/**
+ * 是否数组
+ */
+function array(value) {
+  if (typeof Array.isArray === 'function') {
+    return Array.isArray(value);
+  }
+  return Object.prototype.toString.call(value) === '[object Array]';
+}
+
+/**
+ * 是否对象
+ */
+function object(value) {
+  return Object.prototype.toString.call(value) === '[object Object]';
+}
+
+/**
+ * 是否短信验证码
+ */
+function code(value) {
+  var len = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 6;
+  return new RegExp("^\\d{".concat(len, "}$")).test(value);
+}
+
+/**
+ * 是否函数方法
+ * @param {Object} value
+ */
+function func(value) {
+  return typeof value === 'function';
+}
+
+/**
+ * 是否promise对象
+ * @param {Object} value
+ */
+function promise(value) {
+  return object(value) && func(value.then) && func(value.catch);
+}
+
+/** 是否图片格式
+ * @param {Object} value
+ */
+function image(value) {
+  var newValue = value.split('?')[0];
+  var IMAGE_REGEXP = /\.(jpeg|jpg|gif|png|svg|webp|jfif|bmp|dpg)/i;
+  return IMAGE_REGEXP.test(newValue);
+}
+
+/**
+ * 是否视频格式
+ * @param {Object} value
+ */
+function video(value) {
+  var VIDEO_REGEXP = /\.(mp4|mpg|mpeg|dat|asf|avi|rm|rmvb|mov|wmv|flv|mkv|m3u8)/i;
+  return VIDEO_REGEXP.test(value);
+}
+
+/**
+ * 是否为正则对象
+ * @param {Object}
+ * @return {Boolean}
+ */
+function regExp(o) {
+  return o && Object.prototype.toString.call(o) === '[object RegExp]';
+}
+
+/***/ }),
+
+/***/ 158:
+/*!***************************************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-ui-tools/libs/function/digit.js ***!
+  \***************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+exports.divide = divide;
+exports.enableBoundaryChecking = enableBoundaryChecking;
+exports.minus = minus;
+exports.plus = plus;
+exports.round = round;
+exports.times = times;
+var _toArray2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/toArray */ 159));
+var _boundaryCheckingState = true; // 是否进行越界检查的全局开关
+
+/**
+ * 把错误的数据转正
+ * @private
+ * @example strip(0.09999999999999998)=0.1
+ */
+function strip(num) {
+  var precision = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 15;
+  return +parseFloat(Number(num).toPrecision(precision));
+}
+
+/**
+ * Return digits length of a number
+ * @private
+ * @param {*number} num Input number
+ */
+function digitLength(num) {
+  // Get digit length of e
+  var eSplit = num.toString().split(/[eE]/);
+  var len = (eSplit[0].split('.')[1] || '').length - +(eSplit[1] || 0);
+  return len > 0 ? len : 0;
+}
+
+/**
+ * 把小数转成整数,如果是小数则放大成整数
+ * @private
+ * @param {*number} num 输入数
+ */
+function float2Fixed(num) {
+  if (num.toString().indexOf('e') === -1) {
+    return Number(num.toString().replace('.', ''));
+  }
+  var dLen = digitLength(num);
+  return dLen > 0 ? strip(Number(num) * Math.pow(10, dLen)) : Number(num);
+}
+
+/**
+ * 检测数字是否越界，如果越界给出提示
+ * @private
+ * @param {*number} num 输入数
+ */
+function checkBoundary(num) {
+  if (_boundaryCheckingState) {
+    if (num > Number.MAX_SAFE_INTEGER || num < Number.MIN_SAFE_INTEGER) {
+      console.warn("".concat(num, " \u8D85\u51FA\u4E86\u7CBE\u5EA6\u9650\u5236\uFF0C\u7ED3\u679C\u53EF\u80FD\u4E0D\u6B63\u786E"));
+    }
+  }
+}
+
+/**
+ * 把递归操作扁平迭代化
+ * @param {number[]} arr 要操作的数字数组
+ * @param {function} operation 迭代操作
+ * @private
+ */
+function iteratorOperation(arr, operation) {
+  var _arr = (0, _toArray2.default)(arr),
+    num1 = _arr[0],
+    num2 = _arr[1],
+    others = _arr.slice(2);
+  var res = operation(num1, num2);
+  others.forEach(function (num) {
+    res = operation(res, num);
+  });
+  return res;
+}
+
+/**
+ * 高精度乘法
+ * @export
+ */
+function times() {
+  for (var _len = arguments.length, nums = new Array(_len), _key = 0; _key < _len; _key++) {
+    nums[_key] = arguments[_key];
+  }
+  if (nums.length > 2) {
+    return iteratorOperation(nums, times);
+  }
+  var num1 = nums[0],
+    num2 = nums[1];
+  var num1Changed = float2Fixed(num1);
+  var num2Changed = float2Fixed(num2);
+  var baseNum = digitLength(num1) + digitLength(num2);
+  var leftValue = num1Changed * num2Changed;
+  checkBoundary(leftValue);
+  return leftValue / Math.pow(10, baseNum);
+}
+
+/**
+ * 高精度加法
+ * @export
+ */
+function plus() {
+  for (var _len2 = arguments.length, nums = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+    nums[_key2] = arguments[_key2];
+  }
+  if (nums.length > 2) {
+    return iteratorOperation(nums, plus);
+  }
+  var num1 = nums[0],
+    num2 = nums[1];
+  // 取最大的小数位
+  var baseNum = Math.pow(10, Math.max(digitLength(num1), digitLength(num2)));
+  // 把小数都转为整数然后再计算
+  return (times(num1, baseNum) + times(num2, baseNum)) / baseNum;
+}
+
+/**
+ * 高精度减法
+ * @export
+ */
+function minus() {
+  for (var _len3 = arguments.length, nums = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+    nums[_key3] = arguments[_key3];
+  }
+  if (nums.length > 2) {
+    return iteratorOperation(nums, minus);
+  }
+  var num1 = nums[0],
+    num2 = nums[1];
+  var baseNum = Math.pow(10, Math.max(digitLength(num1), digitLength(num2)));
+  return (times(num1, baseNum) - times(num2, baseNum)) / baseNum;
+}
+
+/**
+ * 高精度除法
+ * @export
+ */
+function divide() {
+  for (var _len4 = arguments.length, nums = new Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+    nums[_key4] = arguments[_key4];
+  }
+  if (nums.length > 2) {
+    return iteratorOperation(nums, divide);
+  }
+  var num1 = nums[0],
+    num2 = nums[1];
+  var num1Changed = float2Fixed(num1);
+  var num2Changed = float2Fixed(num2);
+  checkBoundary(num1Changed);
+  checkBoundary(num2Changed);
+  // 重要，这里必须用strip进行修正
+  return times(num1Changed / num2Changed, strip(Math.pow(10, digitLength(num2) - digitLength(num1))));
+}
+
+/**
+ * 四舍五入
+ * @export
+ */
+function round(num, ratio) {
+  var base = Math.pow(10, ratio);
+  var result = divide(Math.round(Math.abs(times(num, base))), base);
+  if (num < 0 && result !== 0) {
+    result = times(result, -1);
+  }
+  // 位数不足则补0
+  return result;
+}
+
+/**
+ * 是否进行边界检查，默认开启
+ * @param flag 标记开关，true 为开启，false 为关闭，默认为 true
+ * @export
+ */
+function enableBoundaryChecking() {
+  var flag = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+  _boundaryCheckingState = flag;
+}
+var _default = {
+  times: times,
+  plus: plus,
+  minus: minus,
+  divide: divide,
+  round: round,
+  enableBoundaryChecking: enableBoundaryChecking
+};
+exports.default = _default;
+
+/***/ }),
+
+/***/ 159:
+/*!********************************************************!*\
+  !*** ./node_modules/@babel/runtime/helpers/toArray.js ***!
+  \********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var arrayWithHoles = __webpack_require__(/*! ./arrayWithHoles.js */ 6);
+var iterableToArray = __webpack_require__(/*! ./iterableToArray.js */ 20);
+var unsupportedIterableToArray = __webpack_require__(/*! ./unsupportedIterableToArray.js */ 8);
+var nonIterableRest = __webpack_require__(/*! ./nonIterableRest.js */ 10);
+function _toArray(arr) {
+  return arrayWithHoles(arr) || iterableToArray(arr) || unsupportedIterableToArray(arr) || nonIterableRest();
+}
+module.exports = _toArray, module.exports.__esModule = true, module.exports["default"] = module.exports;
+
+/***/ }),
+
+/***/ 16:
+/*!***************************************************************!*\
+  !*** ./node_modules/@babel/runtime/helpers/setPrototypeOf.js ***!
+  \***************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+function _setPrototypeOf(o, p) {
+  module.exports = _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) {
+    o.__proto__ = p;
+    return o;
+  }, module.exports.__esModule = true, module.exports["default"] = module.exports;
+  return _setPrototypeOf(o, p);
+}
+module.exports = _setPrototypeOf, module.exports.__esModule = true, module.exports["default"] = module.exports;
+
+/***/ }),
+
+/***/ 160:
+/*!***********************************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-ui-tools/libs/util/route.js ***!
+  \***********************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(uni) {
+
+var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var _regenerator = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/regenerator */ 36));
+var _asyncToGenerator2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ 38));
+var _classCallCheck2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ 23));
+var _createClass2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/createClass */ 24));
+var _index = __webpack_require__(/*! @/uni_modules/uv-ui-tools/libs/function/index.js */ 156);
+/**
+ * 路由跳转方法，该方法相对于直接使用uni.xxx的好处是使用更加简单快捷
+ * 并且带有路由拦截功能
+ */
+var Router = /*#__PURE__*/function () {
+  function Router() {
+    (0, _classCallCheck2.default)(this, Router);
+    // 原始属性定义
+    this.config = {
+      type: 'navigateTo',
+      url: '',
+      delta: 1,
+      // navigateBack页面后退时,回退的层数
+      params: {},
+      // 传递的参数
+      animationType: 'pop-in',
+      // 窗口动画,只在APP有效
+      animationDuration: 300,
+      // 窗口动画持续时间,单位毫秒,只在APP有效
+      intercept: false,
+      // 是否需要拦截
+      events: {} // 页面间通信接口，用于监听被打开页面发送到当前页面的数据。hbuilderx 2.8.9+ 开始支持。
+    };
+    // 因为route方法是需要对外赋值给另外的对象使用，同时route内部有使用this，会导致route失去上下文
+    // 这里在构造函数中进行this绑定
+    this.route = this.route.bind(this);
+  }
+
+  // 判断url前面是否有"/"，如果没有则加上，否则无法跳转
+  (0, _createClass2.default)(Router, [{
+    key: "addRootPath",
+    value: function addRootPath(url) {
+      return url[0] === '/' ? url : "/".concat(url);
+    }
+
+    // 整合路由参数
+  }, {
+    key: "mixinParam",
+    value: function mixinParam(url, params) {
+      url = url && this.addRootPath(url);
+
+      // 使用正则匹配，主要依据是判断是否有"/","?","="等，如“/page/index/index?name=mary"
+      // 如果有url中有get参数，转换后无需带上"?"
+      var query = '';
+      if (/.*\/.*\?.*=.*/.test(url)) {
+        // object对象转为get类型的参数
+        query = (0, _index.queryParams)(params, false);
+        // 因为已有get参数,所以后面拼接的参数需要带上"&"隔开
+        return url += "&".concat(query);
+      }
+      // 直接拼接参数，因为此处url中没有后面的query参数，也就没有"?/&"之类的符号
+      query = (0, _index.queryParams)(params);
+      return url += query;
+    }
+
+    // 对外的方法名称
+  }, {
+    key: "route",
+    value: function () {
+      var _route = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee() {
+        var options,
+          params,
+          mergeConfig,
+          isNext,
+          _args = arguments;
+        return _regenerator.default.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                options = _args.length > 0 && _args[0] !== undefined ? _args[0] : {};
+                params = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
+                // 合并用户的配置和内部的默认配置
+                mergeConfig = {};
+                if (typeof options === 'string') {
+                  // 如果options为字符串，则为route(url, params)的形式
+                  mergeConfig.url = this.mixinParam(options, params);
+                  mergeConfig.type = 'navigateTo';
+                } else {
+                  mergeConfig = (0, _index.deepMerge)(this.config, options);
+                  // 否则正常使用mergeConfig中的url和params进行拼接
+                  mergeConfig.url = this.mixinParam(options.url, options.params);
+                }
+                // 如果本次跳转的路径和本页面路径一致，不执行跳转，防止用户快速点击跳转按钮，造成多次跳转同一个页面的问题
+                if (!(mergeConfig.url === (0, _index.page)())) {
+                  _context.next = 6;
+                  break;
+                }
+                return _context.abrupt("return");
+              case 6:
+                if (params.intercept) {
+                  mergeConfig.intercept = params.intercept;
+                }
+                // params参数也带给拦截器
+                mergeConfig.params = params;
+                // 合并内外部参数
+                mergeConfig = (0, _index.deepMerge)(this.config, mergeConfig);
+                // 判断用户是否定义了拦截器
+                if (!(typeof mergeConfig.intercept === 'function')) {
+                  _context.next = 16;
+                  break;
+                }
+                _context.next = 12;
+                return new Promise(function (resolve, reject) {
+                  mergeConfig.intercept(mergeConfig, resolve);
+                });
+              case 12:
+                isNext = _context.sent;
+                // 如果isNext为true，则执行路由跳转
+                isNext && this.openPage(mergeConfig);
+                _context.next = 17;
+                break;
+              case 16:
+                this.openPage(mergeConfig);
+              case 17:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+      function route() {
+        return _route.apply(this, arguments);
+      }
+      return route;
+    }() // 执行路由跳转
+  }, {
+    key: "openPage",
+    value: function openPage(config) {
+      // 解构参数
+      var url = config.url,
+        type = config.type,
+        delta = config.delta,
+        animationType = config.animationType,
+        animationDuration = config.animationDuration,
+        events = config.events;
+      if (config.type == 'navigateTo' || config.type == 'to') {
+        uni.navigateTo({
+          url: url,
+          animationType: animationType,
+          animationDuration: animationDuration,
+          events: events
+        });
+      }
+      if (config.type == 'redirectTo' || config.type == 'redirect') {
+        uni.redirectTo({
+          url: url
+        });
+      }
+      if (config.type == 'switchTab' || config.type == 'tab') {
+        uni.switchTab({
+          url: url
+        });
+      }
+      if (config.type == 'reLaunch' || config.type == 'launch') {
+        uni.reLaunch({
+          url: url
+        });
+      }
+      if (config.type == 'navigateBack' || config.type == 'back') {
+        uni.navigateBack({
+          delta: delta
+        });
+      }
+    }
+  }]);
+  return Router;
+}();
+var _default = new Router().route;
+exports.default = _default;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
+
+/***/ }),
+
+/***/ 161:
+/*!******************************************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-ui-tools/libs/function/debounce.js ***!
+  \******************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var timeout = null;
+
+/**
+ * 防抖原理：一定时间内，只有最后一次操作，再过wait毫秒后才执行函数
+ *
+ * @param {Function} func 要执行的回调函数
+ * @param {Number} wait 延时的时间
+ * @param {Boolean} immediate 是否立即执行
+ * @return null
+ */
+function debounce(func) {
+  var wait = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 500;
+  var immediate = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+  // 清除定时器
+  if (timeout !== null) clearTimeout(timeout);
+  // 立即执行，此类情况一般用不到
+  if (immediate) {
+    var callNow = !timeout;
+    timeout = setTimeout(function () {
+      timeout = null;
+    }, wait);
+    if (callNow) typeof func === 'function' && func();
+  } else {
+    // 设置定时器，当最后一次操作后，timeout不会再被清除，所以在延时wait毫秒后执行func回调方法
+    timeout = setTimeout(function () {
+      typeof func === 'function' && func();
+    }, wait);
+  }
+}
+var _default = debounce;
+exports.default = _default;
+
+/***/ }),
+
+/***/ 162:
+/*!******************************************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-ui-tools/libs/function/throttle.js ***!
+  \******************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var timer;
+var flag;
+/**
+ * 节流原理：在一定时间内，只能触发一次
+ *
+ * @param {Function} func 要执行的回调函数
+ * @param {Number} wait 延时的时间
+ * @param {Boolean} immediate 是否立即执行
+ * @return null
+ */
+function throttle(func) {
+  var wait = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 500;
+  var immediate = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+  if (immediate) {
+    if (!flag) {
+      flag = true;
+      // 如果是立即执行，则在wait毫秒内开始时执行
+      typeof func === 'function' && func();
+      timer = setTimeout(function () {
+        flag = false;
+      }, wait);
+    }
+  } else if (!flag) {
+    flag = true;
+    // 如果是非立即执行，则在wait毫秒内的结束处执行
+    timer = setTimeout(function () {
+      flag = false;
+      typeof func === 'function' && func();
+    }, wait);
+  }
+}
+var _default = throttle;
+exports.default = _default;
+
+/***/ }),
+
+/***/ 163:
+/*!********************************************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-navbar/components/uv-navbar/props.js ***!
+  \********************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(uni) {
+
+var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
+var _uni$$uv, _uni$$uv$props;
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+var _default = {
+  props: _objectSpread({
+    // 是否开启顶部安全区适配
+    safeAreaInsetTop: {
+      type: Boolean,
+      default: true
+    },
+    // 固定在顶部时，是否生成一个等高元素，以防止塌陷
+    placeholder: {
+      type: Boolean,
+      default: false
+    },
+    // 是否固定在顶部
+    fixed: {
+      type: Boolean,
+      default: true
+    },
+    // 是否显示下边框
+    border: {
+      type: Boolean,
+      default: false
+    },
+    // 左边的图标
+    leftIcon: {
+      type: String,
+      default: 'arrow-left'
+    },
+    // 左边的提示文字
+    leftText: {
+      type: String,
+      default: ''
+    },
+    // 左右的提示文字
+    rightText: {
+      type: String,
+      default: ''
+    },
+    // 右边的图标
+    rightIcon: {
+      type: String,
+      default: ''
+    },
+    // 标题
+    title: {
+      type: [String, Number],
+      default: ''
+    },
+    // 背景颜色
+    bgColor: {
+      type: String,
+      default: '#ffffff'
+    },
+    imgMode: {
+      type: String,
+      default: 'aspectFill'
+    },
+    // 标题的宽度
+    titleWidth: {
+      type: [String, Number],
+      default: '400rpx'
+    },
+    // 导航栏高度
+    height: {
+      type: [String, Number],
+      default: '44px'
+    },
+    // 左侧返回图标的大小
+    leftIconSize: {
+      type: [String, Number],
+      default: 20
+    },
+    // 左侧返回图标的颜色
+    leftIconColor: {
+      type: String,
+      default: '#303133'
+    },
+    // 点击左侧区域(返回图标)，是否自动返回上一页
+    autoBack: {
+      type: Boolean,
+      default: false
+    },
+    // 标题的样式，对象或字符串
+    titleStyle: {
+      type: [String, Object],
+      default: ''
+    }
+  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.navbar)
+};
+exports.default = _default;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
+
+/***/ }),
+
+/***/ 17:
+/*!*************************************************************************!*\
+  !*** ./node_modules/@babel/runtime/helpers/isNativeReflectConstruct.js ***!
+  \*************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+function _isNativeReflectConstruct() {
+  try {
+    var t = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+  } catch (t) {}
+  return (module.exports = _isNativeReflectConstruct = function _isNativeReflectConstruct() {
+    return !!t;
+  }, module.exports.__esModule = true, module.exports["default"] = module.exports)();
+}
+module.exports = _isNativeReflectConstruct, module.exports.__esModule = true, module.exports["default"] = module.exports;
+
+/***/ }),
+
+/***/ 171:
+/*!********************************************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-swiper/components/uv-swiper/props.js ***!
+  \********************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -219,36 +2311,10 @@ exports.default = _default2;
 
 /***/ }),
 
-/***/ 11:
-/*!***************************************************************!*\
-  !*** ./node_modules/@babel/runtime/helpers/defineProperty.js ***!
-  \***************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-var toPropertyKey = __webpack_require__(/*! ./toPropertyKey.js */ 12);
-function _defineProperty(obj, key, value) {
-  key = toPropertyKey(key);
-  if (key in obj) {
-    Object.defineProperty(obj, key, {
-      value: value,
-      enumerable: true,
-      configurable: true,
-      writable: true
-    });
-  } else {
-    obj[key] = value;
-  }
-  return obj;
-}
-module.exports = _defineProperty, module.exports.__esModule = true, module.exports["default"] = module.exports;
-
-/***/ }),
-
-/***/ 111:
-/*!***********************************************************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-notice-bar/components/uv-notice-bar/props.js ***!
-  \***********************************************************************************************/
+/***/ 179:
+/*!****************************************************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-notice-bar/components/uv-notice-bar/props.js ***!
+  \****************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -346,10 +2412,28 @@ exports.default = _default2;
 
 /***/ }),
 
-/***/ 119:
-/*!***************************************************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-picker/components/uv-picker/props.js ***!
-  \***************************************************************************************/
+/***/ 18:
+/*!******************************************************************!*\
+  !*** ./node_modules/@babel/runtime/helpers/toConsumableArray.js ***!
+  \******************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var arrayWithoutHoles = __webpack_require__(/*! ./arrayWithoutHoles.js */ 19);
+var iterableToArray = __webpack_require__(/*! ./iterableToArray.js */ 20);
+var unsupportedIterableToArray = __webpack_require__(/*! ./unsupportedIterableToArray.js */ 8);
+var nonIterableSpread = __webpack_require__(/*! ./nonIterableSpread.js */ 21);
+function _toConsumableArray(arr) {
+  return arrayWithoutHoles(arr) || iterableToArray(arr) || unsupportedIterableToArray(arr) || nonIterableSpread();
+}
+module.exports = _toConsumableArray, module.exports.__esModule = true, module.exports["default"] = module.exports;
+
+/***/ }),
+
+/***/ 187:
+/*!********************************************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-picker/components/uv-picker/props.js ***!
+  \********************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -468,73 +2552,25 @@ exports.default = _default2;
 
 /***/ }),
 
-/***/ 12:
-/*!**************************************************************!*\
-  !*** ./node_modules/@babel/runtime/helpers/toPropertyKey.js ***!
-  \**************************************************************/
+/***/ 19:
+/*!******************************************************************!*\
+  !*** ./node_modules/@babel/runtime/helpers/arrayWithoutHoles.js ***!
+  \******************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-var _typeof = __webpack_require__(/*! ./typeof.js */ 13)["default"];
-var toPrimitive = __webpack_require__(/*! ./toPrimitive.js */ 14);
-function toPropertyKey(t) {
-  var i = toPrimitive(t, "string");
-  return "symbol" == _typeof(i) ? i : i + "";
+var arrayLikeToArray = __webpack_require__(/*! ./arrayLikeToArray.js */ 9);
+function _arrayWithoutHoles(arr) {
+  if (Array.isArray(arr)) return arrayLikeToArray(arr);
 }
-module.exports = toPropertyKey, module.exports.__esModule = true, module.exports["default"] = module.exports;
+module.exports = _arrayWithoutHoles, module.exports.__esModule = true, module.exports["default"] = module.exports;
 
 /***/ }),
 
-/***/ 127:
-/*!***********************************************************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-status-bar/components/uv-status-bar/props.js ***!
-  \***********************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var _default = {
-  props: {
-    bgColor: {
-      type: String,
-      default: 'transparent'
-    }
-  }
-};
-exports.default = _default;
-
-/***/ }),
-
-/***/ 13:
-/*!*******************************************************!*\
-  !*** ./node_modules/@babel/runtime/helpers/typeof.js ***!
-  \*******************************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-function _typeof(o) {
-  "@babel/helpers - typeof";
-
-  return (module.exports = _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) {
-    return typeof o;
-  } : function (o) {
-    return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o;
-  }, module.exports.__esModule = true, module.exports["default"] = module.exports), _typeof(o);
-}
-module.exports = _typeof, module.exports.__esModule = true, module.exports["default"] = module.exports;
-
-/***/ }),
-
-/***/ 135:
-/*!***********************************************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-icon/components/uv-icon/icons.js ***!
-  \***********************************************************************************/
+/***/ 195:
+/*!****************************************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-icon/components/uv-icon/icons.js ***!
+  \****************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -709,10 +2745,10 @@ exports.default = _default;
 
 /***/ }),
 
-/***/ 136:
-/*!***********************************************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-icon/components/uv-icon/props.js ***!
-  \***********************************************************************************/
+/***/ 196:
+/*!****************************************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-icon/components/uv-icon/props.js ***!
+  \****************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -816,671 +2852,6 @@ var _default = {
       default: false
     }
   }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.icon)
-};
-exports.default = _default;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
-
-/***/ }),
-
-/***/ 14:
-/*!************************************************************!*\
-  !*** ./node_modules/@babel/runtime/helpers/toPrimitive.js ***!
-  \************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-var _typeof = __webpack_require__(/*! ./typeof.js */ 13)["default"];
-function toPrimitive(t, r) {
-  if ("object" != _typeof(t) || !t) return t;
-  var e = t[Symbol.toPrimitive];
-  if (void 0 !== e) {
-    var i = e.call(t, r || "default");
-    if ("object" != _typeof(i)) return i;
-    throw new TypeError("@@toPrimitive must return a primitive value.");
-  }
-  return ("string" === r ? String : Number)(t);
-}
-module.exports = toPrimitive, module.exports.__esModule = true, module.exports["default"] = module.exports;
-
-/***/ }),
-
-/***/ 144:
-/*!******************************************************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-ui-tools/libs/function/colorGradient.js ***!
-  \******************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.colorGradient = colorGradient;
-exports.colorToRgba = colorToRgba;
-exports.hexToRgb = hexToRgb;
-exports.rgbToHex = rgbToHex;
-/**
- * 求两个颜色之间的渐变值
- * @param {string} startColor 开始的颜色
- * @param {string} endColor 结束的颜色
- * @param {number} step 颜色等分的份额
- * */
-function colorGradient() {
-  var startColor = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'rgb(0, 0, 0)';
-  var endColor = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'rgb(255, 255, 255)';
-  var step = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 10;
-  var startRGB = hexToRgb(startColor, false); // 转换为rgb数组模式
-  var startR = startRGB[0];
-  var startG = startRGB[1];
-  var startB = startRGB[2];
-  var endRGB = hexToRgb(endColor, false);
-  var endR = endRGB[0];
-  var endG = endRGB[1];
-  var endB = endRGB[2];
-  var sR = (endR - startR) / step; // 总差值
-  var sG = (endG - startG) / step;
-  var sB = (endB - startB) / step;
-  var colorArr = [];
-  for (var i = 0; i < step; i++) {
-    // 计算每一步的hex值
-    var hex = rgbToHex("rgb(".concat(Math.round(sR * i + startR), ",").concat(Math.round(sG * i + startG), ",").concat(Math.round(sB * i + startB), ")"));
-    // 确保第一个颜色值为startColor的值
-    if (i === 0) hex = rgbToHex(startColor);
-    // 确保最后一个颜色值为endColor的值
-    if (i === step - 1) hex = rgbToHex(endColor);
-    colorArr.push(hex);
-  }
-  return colorArr;
-}
-
-// 将hex表示方式转换为rgb表示方式(这里返回rgb数组模式)
-function hexToRgb(sColor) {
-  var str = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-  var reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/;
-  sColor = String(sColor).toLowerCase();
-  if (sColor && reg.test(sColor)) {
-    if (sColor.length === 4) {
-      var sColorNew = '#';
-      for (var i = 1; i < 4; i += 1) {
-        sColorNew += sColor.slice(i, i + 1).concat(sColor.slice(i, i + 1));
-      }
-      sColor = sColorNew;
-    }
-    // 处理六位的颜色值
-    var sColorChange = [];
-    for (var _i = 1; _i < 7; _i += 2) {
-      sColorChange.push(parseInt("0x".concat(sColor.slice(_i, _i + 2))));
-    }
-    if (!str) {
-      return sColorChange;
-    }
-    return "rgb(".concat(sColorChange[0], ",").concat(sColorChange[1], ",").concat(sColorChange[2], ")");
-  }
-  if (/^(rgb|RGB)/.test(sColor)) {
-    var arr = sColor.replace(/(?:\(|\)|rgb|RGB)*/g, '').split(',');
-    return arr.map(function (val) {
-      return Number(val);
-    });
-  }
-  return sColor;
-}
-
-// 将rgb表示方式转换为hex表示方式
-function rgbToHex(rgb) {
-  var _this = rgb;
-  var reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/;
-  if (/^(rgb|RGB)/.test(_this)) {
-    var aColor = _this.replace(/(?:\(|\)|rgb|RGB)*/g, '').split(',');
-    var strHex = '#';
-    for (var i = 0; i < aColor.length; i++) {
-      var hex = Number(aColor[i]).toString(16);
-      hex = String(hex).length == 1 ? "".concat(0, hex) : hex; // 保证每个rgb的值为2位
-      if (hex === '0') {
-        hex += hex;
-      }
-      strHex += hex;
-    }
-    if (strHex.length !== 7) {
-      strHex = _this;
-    }
-    return strHex;
-  }
-  if (reg.test(_this)) {
-    var aNum = _this.replace(/#/, '').split('');
-    if (aNum.length === 6) {
-      return _this;
-    }
-    if (aNum.length === 3) {
-      var numHex = '#';
-      for (var _i2 = 0; _i2 < aNum.length; _i2 += 1) {
-        numHex += aNum[_i2] + aNum[_i2];
-      }
-      return numHex;
-    }
-  } else {
-    return _this;
-  }
-}
-
-/**
-* JS颜色十六进制转换为rgb或rgba,返回的格式为 rgba（255，255，255，0.5）字符串
-* sHex为传入的十六进制的色值
-* alpha为rgba的透明度
-*/
-function colorToRgba(color, alpha) {
-  color = rgbToHex(color);
-  // 十六进制颜色值的正则表达式
-  var reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/;
-  /* 16进制颜色转为RGB格式 */
-  var sColor = String(color).toLowerCase();
-  if (sColor && reg.test(sColor)) {
-    if (sColor.length === 4) {
-      var sColorNew = '#';
-      for (var i = 1; i < 4; i += 1) {
-        sColorNew += sColor.slice(i, i + 1).concat(sColor.slice(i, i + 1));
-      }
-      sColor = sColorNew;
-    }
-    // 处理六位的颜色值
-    var sColorChange = [];
-    for (var _i3 = 1; _i3 < 7; _i3 += 2) {
-      sColorChange.push(parseInt("0x".concat(sColor.slice(_i3, _i3 + 2))));
-    }
-    // return sColorChange.join(',')
-    return "rgba(".concat(sColorChange.join(','), ",").concat(alpha, ")");
-  }
-  return sColor;
-}
-
-/***/ }),
-
-/***/ 145:
-/*!***************************************************************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-loading-icon/components/uv-loading-icon/props.js ***!
-  \***************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {
-
-var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
-var _uni$$uv, _uni$$uv$props;
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-var _default2 = {
-  props: _objectSpread({
-    // 是否显示组件
-    show: {
-      type: Boolean,
-      default: true
-    },
-    // 颜色
-    color: {
-      type: String,
-      default: '#909193'
-    },
-    // 提示文字颜色
-    textColor: {
-      type: String,
-      default: '#909193'
-    },
-    // 文字和图标是否垂直排列
-    vertical: {
-      type: Boolean,
-      default: false
-    },
-    // 模式选择，circle-圆形，spinner-花朵形，semicircle-半圆形
-    mode: {
-      type: String,
-      default: 'spinner'
-    },
-    // 图标大小，单位默认px
-    size: {
-      type: [String, Number],
-      default: 24
-    },
-    // 文字大小
-    textSize: {
-      type: [String, Number],
-      default: 15
-    },
-    // 文字样式
-    textStyle: {
-      type: Object,
-      default: function _default() {
-        return {};
-      }
-    },
-    // 文字内容
-    text: {
-      type: [String, Number],
-      default: ''
-    },
-    // 动画模式 https://www.runoob.com/cssref/css3-pr-animation-timing-function.html
-    timingFunction: {
-      type: String,
-      default: 'linear'
-    },
-    // 动画执行周期时间
-    duration: {
-      type: [String, Number],
-      default: 1200
-    },
-    // mode=circle时的暗边颜色
-    inactiveColor: {
-      type: String,
-      default: ''
-    }
-  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.loadingIcon)
-};
-exports.default = _default2;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
-
-/***/ }),
-
-/***/ 15:
-/*!**********************************************************!*\
-  !*** ./node_modules/@babel/runtime/helpers/construct.js ***!
-  \**********************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-var setPrototypeOf = __webpack_require__(/*! ./setPrototypeOf.js */ 16);
-var isNativeReflectConstruct = __webpack_require__(/*! ./isNativeReflectConstruct.js */ 17);
-function _construct(t, e, r) {
-  if (isNativeReflectConstruct()) return Reflect.construct.apply(null, arguments);
-  var o = [null];
-  o.push.apply(o, e);
-  var p = new (t.bind.apply(t, o))();
-  return r && setPrototypeOf(p, r.prototype), p;
-}
-module.exports = _construct, module.exports.__esModule = true, module.exports["default"] = module.exports;
-
-/***/ }),
-
-/***/ 153:
-/*!*************************************************************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-swiper/components/uv-swiper-indicator/props.js ***!
-  \*************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {
-
-var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
-var _uni$$uv, _uni$$uv$props;
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-var _default = {
-  props: _objectSpread({
-    // 轮播的长度
-    length: {
-      type: [String, Number],
-      default: 0
-    },
-    // 当前处于活动状态的轮播的索引
-    current: {
-      type: [String, Number],
-      default: 0
-    },
-    // 指示器非激活颜色
-    indicatorActiveColor: {
-      type: String,
-      default: ''
-    },
-    // 指示器的激活颜色
-    indicatorInactiveColor: {
-      type: String,
-      default: ''
-    },
-    // 指示器模式，line-线型，dot-点型
-    indicatorMode: {
-      type: String,
-      default: ''
-    }
-  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.swiperIndicator)
-};
-exports.default = _default;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
-
-/***/ }),
-
-/***/ 16:
-/*!***************************************************************!*\
-  !*** ./node_modules/@babel/runtime/helpers/setPrototypeOf.js ***!
-  \***************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-function _setPrototypeOf(o, p) {
-  module.exports = _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) {
-    o.__proto__ = p;
-    return o;
-  }, module.exports.__esModule = true, module.exports["default"] = module.exports;
-  return _setPrototypeOf(o, p);
-}
-module.exports = _setPrototypeOf, module.exports.__esModule = true, module.exports["default"] = module.exports;
-
-/***/ }),
-
-/***/ 161:
-/*!**************************************************************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-notice-bar/components/uv-column-notice/props.js ***!
-  \**************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {
-
-var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
-var _uni$$uv, _uni$$uv$props;
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-var _default = {
-  props: _objectSpread({
-    // 显示的内容，字符串
-    text: {
-      type: [Array],
-      default: ''
-    },
-    // 是否显示左侧的音量图标
-    icon: {
-      type: [String, Boolean, null],
-      default: 'volume'
-    },
-    // 通告模式，link-显示右箭头，closable-显示右侧关闭图标
-    mode: {
-      type: String,
-      default: ''
-    },
-    // 文字颜色，各图标也会使用文字颜色
-    color: {
-      type: String,
-      default: '#f9ae3d'
-    },
-    // 背景颜色
-    bgColor: {
-      type: String,
-      default: '#fdf6ec'
-    },
-    // 字体大小，单位px
-    fontSize: {
-      type: [String, Number],
-      default: 14
-    },
-    // 水平滚动时的滚动速度，即每秒滚动多少px(px)，这有利于控制文字无论多少时，都能有一个恒定的速度
-    speed: {
-      type: [String, Number],
-      default: 80
-    },
-    // direction = row时，是否使用步进形式滚动
-    step: {
-      type: Boolean,
-      default: false
-    },
-    // 滚动一个周期的时间长，单位ms
-    duration: {
-      type: [String, Number],
-      default: 1500
-    },
-    // 是否禁止用手滑动切换，仅`direction="column"生效`
-    // 目前HX2.6.11，只支持App 2.5.5+、H5 2.5.5+、支付宝小程序、字节跳动小程序
-    disableTouch: {
-      type: Boolean,
-      default: true
-    },
-    // 是否禁止滚动，仅`direction="column"生效`
-    disableScroll: {
-      type: Boolean,
-      default: false
-    }
-  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.columnNotice)
-};
-exports.default = _default;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
-
-/***/ }),
-
-/***/ 169:
-/*!***********************************************************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-notice-bar/components/uv-row-notice/props.js ***!
-  \***********************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {
-
-var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
-var _uni$$uv, _uni$$uv$props;
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-var _default = {
-  props: _objectSpread({
-    // 显示的内容，字符串
-    text: {
-      type: String,
-      default: ''
-    },
-    // 是否显示左侧的音量图标
-    icon: {
-      type: [String, Boolean, null],
-      default: 'volume'
-    },
-    // 通告模式，link-显示右箭头，closable-显示右侧关闭图标
-    mode: {
-      type: String,
-      default: ''
-    },
-    // 文字颜色，各图标也会使用文字颜色
-    color: {
-      type: String,
-      default: '#f9ae3d'
-    },
-    // 背景颜色
-    bgColor: {
-      type: String,
-      default: '#fdf6ec'
-    },
-    // 字体大小，单位px
-    fontSize: {
-      type: [String, Number],
-      default: 14
-    },
-    // 水平滚动时的滚动速度，即每秒滚动多少px(rpx)，这有利于控制文字无论多少时，都能有一个恒定的速度
-    speed: {
-      type: [String, Number],
-      default: 80
-    }
-  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.rowNotice)
-};
-exports.default = _default;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
-
-/***/ }),
-
-/***/ 17:
-/*!*************************************************************************!*\
-  !*** ./node_modules/@babel/runtime/helpers/isNativeReflectConstruct.js ***!
-  \*************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-function _isNativeReflectConstruct() {
-  try {
-    var t = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
-  } catch (t) {}
-  return (module.exports = _isNativeReflectConstruct = function _isNativeReflectConstruct() {
-    return !!t;
-  }, module.exports.__esModule = true, module.exports["default"] = module.exports)();
-}
-module.exports = _isNativeReflectConstruct, module.exports.__esModule = true, module.exports["default"] = module.exports;
-
-/***/ }),
-
-/***/ 18:
-/*!******************************************************************!*\
-  !*** ./node_modules/@babel/runtime/helpers/toConsumableArray.js ***!
-  \******************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-var arrayWithoutHoles = __webpack_require__(/*! ./arrayWithoutHoles.js */ 19);
-var iterableToArray = __webpack_require__(/*! ./iterableToArray.js */ 20);
-var unsupportedIterableToArray = __webpack_require__(/*! ./unsupportedIterableToArray.js */ 8);
-var nonIterableSpread = __webpack_require__(/*! ./nonIterableSpread.js */ 21);
-function _toConsumableArray(arr) {
-  return arrayWithoutHoles(arr) || iterableToArray(arr) || unsupportedIterableToArray(arr) || nonIterableSpread();
-}
-module.exports = _toConsumableArray, module.exports.__esModule = true, module.exports["default"] = module.exports;
-
-/***/ }),
-
-/***/ 184:
-/*!*****************************************************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-toolbar/components/uv-toolbar/props.js ***!
-  \*****************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {
-
-var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
-var _uni$$uv, _uni$$uv$props;
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-var _default = {
-  props: _objectSpread({
-    // 是否展示工具条
-    show: {
-      type: Boolean,
-      default: true
-    },
-    // 是否显示下边框
-    showBorder: {
-      type: Boolean,
-      default: false
-    },
-    // 取消按钮的文字
-    cancelText: {
-      type: String,
-      default: '取消'
-    },
-    // 确认按钮的文字
-    confirmText: {
-      type: String,
-      default: '确认'
-    },
-    // 取消按钮的颜色
-    cancelColor: {
-      type: String,
-      default: '#909193'
-    },
-    // 确认按钮的颜色
-    confirmColor: {
-      type: String,
-      default: '#3c9cff'
-    },
-    // 标题文字
-    title: {
-      type: String,
-      default: ''
-    }
-  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.toolbar)
-};
-exports.default = _default;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
-
-/***/ }),
-
-/***/ 19:
-/*!******************************************************************!*\
-  !*** ./node_modules/@babel/runtime/helpers/arrayWithoutHoles.js ***!
-  \******************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-var arrayLikeToArray = __webpack_require__(/*! ./arrayLikeToArray.js */ 9);
-function _arrayWithoutHoles(arr) {
-  if (Array.isArray(arr)) return arrayLikeToArray(arr);
-}
-module.exports = _arrayWithoutHoles, module.exports.__esModule = true, module.exports["default"] = module.exports;
-
-/***/ }),
-
-/***/ 192:
-/*!*****************************************************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-overlay/components/uv-overlay/props.js ***!
-  \*****************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {
-
-var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
-var _uni$$uv, _uni$$uv$props;
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-var _default = {
-  props: _objectSpread({
-    // 是否显示遮罩
-    show: {
-      type: Boolean,
-      default: false
-    },
-    // 层级z-index
-    zIndex: {
-      type: [String, Number],
-      default: 10070
-    },
-    // 遮罩的过渡时间，单位为ms
-    duration: {
-      type: [String, Number],
-      default: 300
-    },
-    // 不透明度值，当做rgba的第四个参数
-    opacity: {
-      type: [String, Number],
-      default: 0.5
-    }
-  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.overlay)
 };
 exports.default = _default;
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
@@ -2224,8 +3595,8 @@ function populateParameters(result) {
     appVersion: "1.0.0",
     appVersionCode: "100",
     appLanguage: getAppLanguage(hostLanguage),
-    uniCompileVersion: "4.24",
-    uniRuntimeVersion: "4.24",
+    uniCompileVersion: "4.15",
+    uniRuntimeVersion: "4.15",
     uniPlatform: undefined || "mp-weixin",
     deviceBrand: deviceBrand,
     deviceModel: model,
@@ -3909,10 +5280,10 @@ module.exports = _iterableToArray, module.exports.__esModule = true, module.expo
 
 /***/ }),
 
-/***/ 200:
-/*!*********************************************************************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-transition/components/uv-transition/createAnimation.js ***!
-  \*********************************************************************************************************/
+/***/ 204:
+/*!****************************************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-line/components/uv-line/props.js ***!
+  \****************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -3923,123 +5294,45 @@ var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/inte
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.createAnimation = createAnimation;
+exports.default = void 0;
 var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
-var _classCallCheck2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ 23));
-var _createClass2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/createClass */ 24));
+var _uni$$uv, _uni$$uv$props;
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-// const defaultOption = {
-// 	duration: 300,
-// 	timingFunction: 'linear',
-// 	delay: 0,
-// 	transformOrigin: '50% 50% 0'
-// }
-var MPAnimation = /*#__PURE__*/function () {
-  function MPAnimation(options, _this) {
-    (0, _classCallCheck2.default)(this, MPAnimation);
-    this.options = options;
-    // 在iOS10+QQ小程序平台下，传给原生的对象一定是个普通对象而不是Proxy对象，否则会报parameter should be Object instead of ProxyObject的错误
-    this.animation = uni.createAnimation(_objectSpread({}, options));
-    this.currentStepAnimates = {};
-    this.next = 0;
-    this.$ = _this;
-  }
-  (0, _createClass2.default)(MPAnimation, [{
-    key: "_nvuePushAnimates",
-    value: function _nvuePushAnimates(type, args) {
-      var aniObj = this.currentStepAnimates[this.next];
-      var styles = {};
-      if (!aniObj) {
-        styles = {
-          styles: {},
-          config: {}
-        };
-      } else {
-        styles = aniObj;
-      }
-      if (animateTypes1.includes(type)) {
-        if (!styles.styles.transform) {
-          styles.styles.transform = '';
-        }
-        var unit = '';
-        if (type === 'rotate') {
-          unit = 'deg';
-        }
-        styles.styles.transform += "".concat(type, "(").concat(args + unit, ") ");
-      } else {
-        styles.styles[type] = "".concat(args);
-      }
-      this.currentStepAnimates[this.next] = styles;
+var _default = {
+  props: _objectSpread({
+    color: {
+      type: String,
+      default: '#d6d7d9'
+    },
+    // 长度，竖向时表现为高度，横向时表现为长度，可以为百分比，带px单位的值等
+    length: {
+      type: [String, Number],
+      default: '100%'
+    },
+    // 线条方向，col-竖向，row-横向
+    direction: {
+      type: String,
+      default: 'row'
+    },
+    // 是否显示细边框
+    hairline: {
+      type: Boolean,
+      default: true
+    },
+    // 线条与上下左右元素的间距，字符串形式，如"30px"、"20px 30px"
+    margin: {
+      type: [String, Number],
+      default: 0
+    },
+    // 是否虚线，true-虚线，false-实线
+    dashed: {
+      type: Boolean,
+      default: false
     }
-  }, {
-    key: "_animateRun",
-    value: function _animateRun() {
-      var styles = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-      var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-      var ref = this.$.$refs['ani'].ref;
-      if (!ref) return;
-      return new Promise(function (resolve, reject) {
-        nvueAnimation.transition(ref, _objectSpread({
-          styles: styles
-        }, config), function (res) {
-          resolve();
-        });
-      });
-    }
-  }, {
-    key: "_nvueNextAnimate",
-    value: function _nvueNextAnimate(animates) {
-      var _this2 = this;
-      var step = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-      var fn = arguments.length > 2 ? arguments[2] : undefined;
-      var obj = animates[step];
-      if (obj) {
-        var styles = obj.styles,
-          config = obj.config;
-        this._animateRun(styles, config).then(function () {
-          step += 1;
-          _this2._nvueNextAnimate(animates, step, fn);
-        });
-      } else {
-        this.currentStepAnimates = {};
-        typeof fn === 'function' && fn();
-        this.isEnd = true;
-      }
-    }
-  }, {
-    key: "step",
-    value: function step() {
-      var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-      this.animation.step(config);
-      return this;
-    }
-  }, {
-    key: "run",
-    value: function run(fn) {
-      this.$.animationData = this.animation.export();
-      this.$.timer = setTimeout(function () {
-        typeof fn === 'function' && fn();
-      }, this.$.durationTime);
-    }
-  }]);
-  return MPAnimation;
-}();
-var animateTypes1 = ['matrix', 'matrix3d', 'rotate', 'rotate3d', 'rotateX', 'rotateY', 'rotateZ', 'scale', 'scale3d', 'scaleX', 'scaleY', 'scaleZ', 'skew', 'skewX', 'skewY', 'translate', 'translate3d', 'translateX', 'translateY', 'translateZ'];
-var animateTypes2 = ['opacity', 'backgroundColor'];
-var animateTypes3 = ['width', 'height', 'left', 'right', 'top', 'bottom'];
-animateTypes1.concat(animateTypes2, animateTypes3).forEach(function (type) {
-  MPAnimation.prototype[type] = function () {
-    var _this$animation;
-    (_this$animation = this.animation)[type].apply(_this$animation, arguments);
-    return this;
-  };
-});
-function createAnimation(option, _this) {
-  if (!_this) return;
-  clearTimeout(_this.timer);
-  return new MPAnimation(option, _this);
-}
+  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.line)
+};
+exports.default = _default;
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
 
 /***/ }),
@@ -4055,6 +5348,49 @@ function _nonIterableSpread() {
   throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
 }
 module.exports = _nonIterableSpread, module.exports.__esModule = true, module.exports["default"] = module.exports;
+
+/***/ }),
+
+/***/ 212:
+/*!****************************************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-grid/components/uv-grid/props.js ***!
+  \****************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(uni) {
+
+var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
+var _uni$$uv, _uni$$uv$props;
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+var _default = {
+  props: _objectSpread({
+    // 分成几列
+    col: {
+      type: [String, Number],
+      default: 3
+    },
+    // 是否显示边框
+    border: {
+      type: Boolean,
+      default: false
+    },
+    // 宫格对齐方式，表现为数量少的时候，靠左，居中，还是靠右
+    align: {
+      type: String,
+      default: 'left'
+    }
+  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.grid)
+};
+exports.default = _default;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
 
 /***/ }),
 
@@ -4595,26 +5931,10 @@ function resolveLocaleChain(locale) {
 
 /***/ }),
 
-/***/ 23:
-/*!***************************************************************!*\
-  !*** ./node_modules/@babel/runtime/helpers/classCallCheck.js ***!
-  \***************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-function _classCallCheck(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
-}
-module.exports = _classCallCheck, module.exports.__esModule = true, module.exports["default"] = module.exports;
-
-/***/ }),
-
-/***/ 233:
-/*!***********************************************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-line/components/uv-line/props.js ***!
-  \***********************************************************************************/
+/***/ 220:
+/*!*********************************************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-grid/components/uv-grid-item/props.js ***!
+  \*********************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -4632,39 +5952,596 @@ function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (O
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 var _default = {
   props: _objectSpread({
-    color: {
+    // 宫格的name
+    name: {
+      type: [String, Number, null],
+      default: null
+    },
+    // 背景颜色
+    bgColor: {
       type: String,
-      default: '#d6d7d9'
-    },
-    // 长度，竖向时表现为高度，横向时表现为长度，可以为百分比，带px单位的值等
-    length: {
-      type: [String, Number],
-      default: '100%'
-    },
-    // 线条方向，col-竖向，row-横向
-    direction: {
-      type: String,
-      default: 'row'
-    },
-    // 是否显示细边框
-    hairline: {
-      type: Boolean,
-      default: true
-    },
-    // 线条与上下左右元素的间距，字符串形式，如"30px"、"20px 30px"
-    margin: {
-      type: [String, Number],
-      default: 0
-    },
-    // 是否虚线，true-虚线，false-实线
-    dashed: {
-      type: Boolean,
-      default: false
+      default: 'transparent'
     }
-  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.line)
+  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.gridItem)
 };
 exports.default = _default;
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
+
+/***/ }),
+
+/***/ 228:
+/*!********************************************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-sticky/components/uv-sticky/props.js ***!
+  \********************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(uni) {
+
+var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
+var _uni$$uv, _uni$$uv$props;
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+var _default = {
+  props: _objectSpread({
+    // 吸顶容器到顶部某个距离的时候，进行吸顶，在H5平台，NavigationBar为44px
+    offsetTop: {
+      type: [String, Number],
+      default: 0
+    },
+    // 自定义导航栏的高度
+    customNavHeight: {
+      type: [String, Number],
+      default: 0
+    },
+    // 是否禁用吸顶功能
+    disabled: {
+      type: Boolean,
+      default: false
+    },
+    // 吸顶区域的背景颜色
+    bgColor: {
+      type: String,
+      default: 'transparent'
+    },
+    // z-index值
+    zIndex: {
+      type: [String, Number],
+      default: ''
+    },
+    // 列表中的索引值
+    index: {
+      type: [String, Number],
+      default: ''
+    }
+  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.sticky)
+};
+exports.default = _default;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
+
+/***/ }),
+
+/***/ 23:
+/*!***************************************************************!*\
+  !*** ./node_modules/@babel/runtime/helpers/classCallCheck.js ***!
+  \***************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
+module.exports = _classCallCheck, module.exports.__esModule = true, module.exports["default"] = module.exports;
+
+/***/ }),
+
+/***/ 236:
+/*!**************************************************************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-datetime-picker/components/uv-datetime-picker/props.js ***!
+  \**************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(uni) {
+
+var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
+var _uni$$uv, _uni$$uv$props;
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+var _default = {
+  props: _objectSpread({
+    value: {
+      type: [String, Number],
+      default: ''
+    },
+    modelValue: {
+      type: [String, Number],
+      default: ''
+    },
+    // 是否打开组件
+    show: {
+      type: Boolean,
+      default: false
+    },
+    // 是否展示顶部的操作栏
+    showToolbar: {
+      type: Boolean,
+      default: true
+    },
+    // 顶部标题
+    title: {
+      type: String,
+      default: ''
+    },
+    // 展示格式，mode=date为日期选择，mode=time为时间选择，mode=year-month为年月选择，mode=datetime为日期时间选择
+    mode: {
+      type: String,
+      default: 'datetime'
+    },
+    // 可选的最大时间
+    maxDate: {
+      type: Number,
+      // 最大默认值为后10年
+      default: new Date(new Date().getFullYear() + 10, 0, 1).getTime()
+    },
+    // 可选的最小时间
+    minDate: {
+      type: Number,
+      // 最小默认值为前10年
+      default: new Date(new Date().getFullYear() - 10, 0, 1).getTime()
+    },
+    // 可选的最小小时，仅mode=time有效
+    minHour: {
+      type: Number,
+      default: 0
+    },
+    // 可选的最大小时，仅mode=time有效
+    maxHour: {
+      type: Number,
+      default: 23
+    },
+    // 可选的最小分钟，仅mode=time有效
+    minMinute: {
+      type: Number,
+      default: 0
+    },
+    // 可选的最大分钟，仅mode=time有效
+    maxMinute: {
+      type: Number,
+      default: 59
+    },
+    // 选项过滤函数
+    filter: {
+      type: [Function, null],
+      default: null
+    },
+    // 选项格式化函数
+    formatter: {
+      type: [Function, null],
+      default: null
+    },
+    // 是否显示加载中状态
+    loading: {
+      type: Boolean,
+      default: false
+    },
+    // 各列中，单个选项的高度
+    itemHeight: {
+      type: [String, Number],
+      default: 44
+    },
+    // 取消按钮的文字
+    cancelText: {
+      type: String,
+      default: '取消'
+    },
+    // 确认按钮的文字
+    confirmText: {
+      type: String,
+      default: '确认'
+    },
+    // 取消按钮的颜色
+    cancelColor: {
+      type: String,
+      default: '#909193'
+    },
+    // 确认按钮的颜色
+    confirmColor: {
+      type: String,
+      default: '#3c9cff'
+    },
+    // 每列中可见选项的数量
+    visibleItemCount: {
+      type: [String, Number],
+      default: 5
+    },
+    // 是否允许点击遮罩关闭选择器
+    closeOnClickOverlay: {
+      type: Boolean,
+      default: true
+    },
+    // 是否允许点击确认关闭选择器
+    closeOnClickConfirm: {
+      type: Boolean,
+      default: true
+    },
+    // 是否清空上次选择内容
+    clearDate: {
+      type: Boolean,
+      default: false
+    },
+    // 圆角
+    round: {
+      type: [String, Number],
+      default: 0
+    }
+  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.datetimePicker)
+};
+exports.default = _default;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
+
+/***/ }),
+
+/***/ 237:
+/*!***********************************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-ui-tools/libs/util/dayjs.js ***!
+  \***********************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;
+
+var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var _typeof2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/typeof */ 13));
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __commonJS = function __commonJS(cb, mod) {
+  return function __require() {
+    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = {
+      exports: {}
+    }).exports, mod), mod.exports;
+  };
+};
+var require_dayjs_min = __commonJS({
+  "uvuidayjs": function uvuidayjs(exports, module) {
+    !function (t, e) {
+      "object" == (0, _typeof2.default)(exports) && "undefined" != typeof module ? module.exports = e() :  true ? !(__WEBPACK_AMD_DEFINE_FACTORY__ = (e),
+				__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
+				(__WEBPACK_AMD_DEFINE_FACTORY__.call(exports, __webpack_require__, exports, module)) :
+				__WEBPACK_AMD_DEFINE_FACTORY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__)) : undefined;
+    }(exports, function () {
+      "use strict";
+
+      var t = 1e3,
+        e = 6e4,
+        n = 36e5,
+        r = "millisecond",
+        i = "second",
+        s = "minute",
+        u = "hour",
+        a = "day",
+        o = "week",
+        f = "month",
+        h = "quarter",
+        c = "year",
+        d = "date",
+        l = "Invalid Date",
+        $ = /^(\d{4})[-/]?(\d{1,2})?[-/]?(\d{0,2})[Tt\s]*(\d{1,2})?:?(\d{1,2})?:?(\d{1,2})?[.:]?(\d+)?$/,
+        y = /\[([^\]]+)]|Y{1,4}|M{1,4}|D{1,2}|d{1,4}|H{1,2}|h{1,2}|a|A|m{1,2}|s{1,2}|Z{1,2}|SSS/g,
+        M = {
+          name: "en",
+          weekdays: "Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday".split("_"),
+          months: "January_February_March_April_May_June_July_August_September_October_November_December".split("_"),
+          ordinal: function ordinal(t2) {
+            var e2 = ["th", "st", "nd", "rd"],
+              n2 = t2 % 100;
+            return "[" + t2 + (e2[(n2 - 20) % 10] || e2[n2] || e2[0]) + "]";
+          }
+        },
+        m = function m(t2, e2, n2) {
+          var r2 = String(t2);
+          return !r2 || r2.length >= e2 ? t2 : "" + Array(e2 + 1 - r2.length).join(n2) + t2;
+        },
+        v = {
+          s: m,
+          z: function z(t2) {
+            var e2 = -t2.utcOffset(),
+              n2 = Math.abs(e2),
+              r2 = Math.floor(n2 / 60),
+              i2 = n2 % 60;
+            return (e2 <= 0 ? "+" : "-") + m(r2, 2, "0") + ":" + m(i2, 2, "0");
+          },
+          m: function t2(e2, n2) {
+            if (e2.date() < n2.date()) return -t2(n2, e2);
+            var r2 = 12 * (n2.year() - e2.year()) + (n2.month() - e2.month()),
+              i2 = e2.clone().add(r2, f),
+              s2 = n2 - i2 < 0,
+              u2 = e2.clone().add(r2 + (s2 ? -1 : 1), f);
+            return +(-(r2 + (n2 - i2) / (s2 ? i2 - u2 : u2 - i2)) || 0);
+          },
+          a: function a(t2) {
+            return t2 < 0 ? Math.ceil(t2) || 0 : Math.floor(t2);
+          },
+          p: function p(t2) {
+            return {
+              M: f,
+              y: c,
+              w: o,
+              d: a,
+              D: d,
+              h: u,
+              m: s,
+              s: i,
+              ms: r,
+              Q: h
+            }[t2] || String(t2 || "").toLowerCase().replace(/s$/, "");
+          },
+          u: function u(t2) {
+            return void 0 === t2;
+          }
+        },
+        g = "en",
+        D = {};
+      D[g] = M;
+      var p = function p(t2) {
+          return t2 instanceof _;
+        },
+        S = function t2(e2, n2, r2) {
+          var i2;
+          if (!e2) return g;
+          if ("string" == typeof e2) {
+            var s2 = e2.toLowerCase();
+            D[s2] && (i2 = s2), n2 && (D[s2] = n2, i2 = s2);
+            var u2 = e2.split("-");
+            if (!i2 && u2.length > 1) return t2(u2[0]);
+          } else {
+            var a2 = e2.name;
+            D[a2] = e2, i2 = a2;
+          }
+          return !r2 && i2 && (g = i2), i2 || !r2 && g;
+        },
+        w = function w(t2, e2) {
+          if (p(t2)) return t2.clone();
+          var n2 = "object" == (0, _typeof2.default)(e2) ? e2 : {};
+          return n2.date = t2, n2.args = arguments, new _(n2);
+        },
+        O = v;
+      O.l = S, O.i = p, O.w = function (t2, e2) {
+        return w(t2, {
+          locale: e2.$L,
+          utc: e2.$u,
+          x: e2.$x,
+          $offset: e2.$offset
+        });
+      };
+      var _ = function () {
+          function M2(t2) {
+            this.$L = S(t2.locale, null, true), this.parse(t2);
+          }
+          var m2 = M2.prototype;
+          return m2.parse = function (t2) {
+            this.$d = function (t3) {
+              var e2 = t3.date,
+                n2 = t3.utc;
+              if (null === e2) return new Date(NaN);
+              if (O.u(e2)) return new Date();
+              if (e2 instanceof Date) return new Date(e2);
+              if ("string" == typeof e2 && !/Z$/i.test(e2)) {
+                var r2 = e2.match($);
+                if (r2) {
+                  var i2 = r2[2] - 1 || 0,
+                    s2 = (r2[7] || "0").substring(0, 3);
+                  return n2 ? new Date(Date.UTC(r2[1], i2, r2[3] || 1, r2[4] || 0, r2[5] || 0, r2[6] || 0, s2)) : new Date(r2[1], i2, r2[3] || 1, r2[4] || 0, r2[5] || 0, r2[6] || 0, s2);
+                }
+              }
+              return new Date(e2);
+            }(t2), this.$x = t2.x || {}, this.init();
+          }, m2.init = function () {
+            var t2 = this.$d;
+            this.$y = t2.getFullYear(), this.$M = t2.getMonth(), this.$D = t2.getDate(), this.$W = t2.getDay(), this.$H = t2.getHours(), this.$m = t2.getMinutes(), this.$s = t2.getSeconds(), this.$ms = t2.getMilliseconds();
+          }, m2.$utils = function () {
+            return O;
+          }, m2.isValid = function () {
+            return !(this.$d.toString() === l);
+          }, m2.isSame = function (t2, e2) {
+            var n2 = w(t2);
+            return this.startOf(e2) <= n2 && n2 <= this.endOf(e2);
+          }, m2.isAfter = function (t2, e2) {
+            return w(t2) < this.startOf(e2);
+          }, m2.isBefore = function (t2, e2) {
+            return this.endOf(e2) < w(t2);
+          }, m2.$g = function (t2, e2, n2) {
+            return O.u(t2) ? this[e2] : this.set(n2, t2);
+          }, m2.unix = function () {
+            return Math.floor(this.valueOf() / 1e3);
+          }, m2.valueOf = function () {
+            return this.$d.getTime();
+          }, m2.startOf = function (t2, e2) {
+            var n2 = this,
+              r2 = !!O.u(e2) || e2,
+              h2 = O.p(t2),
+              l2 = function l2(t3, e3) {
+                var i2 = O.w(n2.$u ? Date.UTC(n2.$y, e3, t3) : new Date(n2.$y, e3, t3), n2);
+                return r2 ? i2 : i2.endOf(a);
+              },
+              $2 = function $2(t3, e3) {
+                return O.w(n2.toDate()[t3].apply(n2.toDate("s"), (r2 ? [0, 0, 0, 0] : [23, 59, 59, 999]).slice(e3)), n2);
+              },
+              y2 = this.$W,
+              M3 = this.$M,
+              m3 = this.$D,
+              v2 = "set" + (this.$u ? "UTC" : "");
+            switch (h2) {
+              case c:
+                return r2 ? l2(1, 0) : l2(31, 11);
+              case f:
+                return r2 ? l2(1, M3) : l2(0, M3 + 1);
+              case o:
+                var g2 = this.$locale().weekStart || 0,
+                  D2 = (y2 < g2 ? y2 + 7 : y2) - g2;
+                return l2(r2 ? m3 - D2 : m3 + (6 - D2), M3);
+              case a:
+              case d:
+                return $2(v2 + "Hours", 0);
+              case u:
+                return $2(v2 + "Minutes", 1);
+              case s:
+                return $2(v2 + "Seconds", 2);
+              case i:
+                return $2(v2 + "Milliseconds", 3);
+              default:
+                return this.clone();
+            }
+          }, m2.endOf = function (t2) {
+            return this.startOf(t2, false);
+          }, m2.$set = function (t2, e2) {
+            var n2,
+              o2 = O.p(t2),
+              h2 = "set" + (this.$u ? "UTC" : ""),
+              l2 = (n2 = {}, n2[a] = h2 + "Date", n2[d] = h2 + "Date", n2[f] = h2 + "Month", n2[c] = h2 + "FullYear", n2[u] = h2 + "Hours", n2[s] = h2 + "Minutes", n2[i] = h2 + "Seconds", n2[r] = h2 + "Milliseconds", n2)[o2],
+              $2 = o2 === a ? this.$D + (e2 - this.$W) : e2;
+            if (o2 === f || o2 === c) {
+              var y2 = this.clone().set(d, 1);
+              y2.$d[l2]($2), y2.init(), this.$d = y2.set(d, Math.min(this.$D, y2.daysInMonth())).$d;
+            } else l2 && this.$d[l2]($2);
+            return this.init(), this;
+          }, m2.set = function (t2, e2) {
+            return this.clone().$set(t2, e2);
+          }, m2.get = function (t2) {
+            return this[O.p(t2)]();
+          }, m2.add = function (r2, h2) {
+            var d2,
+              l2 = this;
+            r2 = Number(r2);
+            var $2 = O.p(h2),
+              y2 = function y2(t2) {
+                var e2 = w(l2);
+                return O.w(e2.date(e2.date() + Math.round(t2 * r2)), l2);
+              };
+            if ($2 === f) return this.set(f, this.$M + r2);
+            if ($2 === c) return this.set(c, this.$y + r2);
+            if ($2 === a) return y2(1);
+            if ($2 === o) return y2(7);
+            var M3 = (d2 = {}, d2[s] = e, d2[u] = n, d2[i] = t, d2)[$2] || 1,
+              m3 = this.$d.getTime() + r2 * M3;
+            return O.w(m3, this);
+          }, m2.subtract = function (t2, e2) {
+            return this.add(-1 * t2, e2);
+          }, m2.format = function (t2) {
+            var e2 = this,
+              n2 = this.$locale();
+            if (!this.isValid()) return n2.invalidDate || l;
+            var r2 = t2 || "YYYY-MM-DDTHH:mm:ssZ",
+              i2 = O.z(this),
+              s2 = this.$H,
+              u2 = this.$m,
+              a2 = this.$M,
+              o2 = n2.weekdays,
+              f2 = n2.months,
+              h2 = function h2(t3, n3, i3, s3) {
+                return t3 && (t3[n3] || t3(e2, r2)) || i3[n3].slice(0, s3);
+              },
+              c2 = function c2(t3) {
+                return O.s(s2 % 12 || 12, t3, "0");
+              },
+              d2 = n2.meridiem || function (t3, e3, n3) {
+                var r3 = t3 < 12 ? "AM" : "PM";
+                return n3 ? r3.toLowerCase() : r3;
+              },
+              $2 = {
+                YY: String(this.$y).slice(-2),
+                YYYY: this.$y,
+                M: a2 + 1,
+                MM: O.s(a2 + 1, 2, "0"),
+                MMM: h2(n2.monthsShort, a2, f2, 3),
+                MMMM: h2(f2, a2),
+                D: this.$D,
+                DD: O.s(this.$D, 2, "0"),
+                d: String(this.$W),
+                dd: h2(n2.weekdaysMin, this.$W, o2, 2),
+                ddd: h2(n2.weekdaysShort, this.$W, o2, 3),
+                dddd: o2[this.$W],
+                H: String(s2),
+                HH: O.s(s2, 2, "0"),
+                h: c2(1),
+                hh: c2(2),
+                a: d2(s2, u2, true),
+                A: d2(s2, u2, false),
+                m: String(u2),
+                mm: O.s(u2, 2, "0"),
+                s: String(this.$s),
+                ss: O.s(this.$s, 2, "0"),
+                SSS: O.s(this.$ms, 3, "0"),
+                Z: i2
+              };
+            return r2.replace(y, function (t3, e3) {
+              return e3 || $2[t3] || i2.replace(":", "");
+            });
+          }, m2.utcOffset = function () {
+            return 15 * -Math.round(this.$d.getTimezoneOffset() / 15);
+          }, m2.diff = function (r2, d2, l2) {
+            var $2,
+              y2 = O.p(d2),
+              M3 = w(r2),
+              m3 = (M3.utcOffset() - this.utcOffset()) * e,
+              v2 = this - M3,
+              g2 = O.m(this, M3);
+            return g2 = ($2 = {}, $2[c] = g2 / 12, $2[f] = g2, $2[h] = g2 / 3, $2[o] = (v2 - m3) / 6048e5, $2[a] = (v2 - m3) / 864e5, $2[u] = v2 / n, $2[s] = v2 / e, $2[i] = v2 / t, $2)[y2] || v2, l2 ? g2 : O.a(g2);
+          }, m2.daysInMonth = function () {
+            return this.endOf(f).$D;
+          }, m2.$locale = function () {
+            return D[this.$L];
+          }, m2.locale = function (t2, e2) {
+            if (!t2) return this.$L;
+            var n2 = this.clone(),
+              r2 = S(t2, e2, true);
+            return r2 && (n2.$L = r2), n2;
+          }, m2.clone = function () {
+            return O.w(this.$d, this);
+          }, m2.toDate = function () {
+            return new Date(this.valueOf());
+          }, m2.toJSON = function () {
+            return this.isValid() ? this.toISOString() : null;
+          }, m2.toISOString = function () {
+            return this.$d.toISOString();
+          }, m2.toString = function () {
+            return this.$d.toUTCString();
+          }, M2;
+        }(),
+        T = _.prototype;
+      return w.prototype = T, [["$ms", r], ["$s", i], ["$m", s], ["$H", u], ["$W", a], ["$M", f], ["$y", c], ["$D", d]].forEach(function (t2) {
+        T[t2[1]] = function (e2) {
+          return this.$g(e2, t2[0], t2[1]);
+        };
+      }), w.extend = function (t2, e2) {
+        return t2.$i || (t2(e2, _, w), t2.$i = true), w;
+      }, w.locale = S, w.isDayjs = p, w.unix = function (t2) {
+        return w(1e3 * t2);
+      }, w.en = D[g], w.Ls = D, w.p = {}, w;
+    });
+  }
+});
+var _default = require_dayjs_min();
+exports.default = _default;
 
 /***/ }),
 
@@ -4697,32 +6574,10 @@ module.exports = _createClass, module.exports.__esModule = true, module.exports[
 
 /***/ }),
 
-/***/ 240:
-/*!**********************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/static/index/icon1.png ***!
-  \**********************************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEsAAABLCAYAAAA4TnrqAAAAAXNSR0IArs4c6QAABzBJREFUeF7tnG2MVNUZx3/P7BoQ0DRGZXeWmiIYFSIfSkGCTWqNQYWdQUPFYMVGpQmVqrG1RO0Li9pU+2a0LZIIJq3GNlKN7ixY18RqIm1daz/QLNYIqMAOrDRGlxXdsHsf9+zMwsyys/fcO+cOszdzvk3meTv/83Kf8/I/wkkoevXZMxion4/oLJTzIfEV0KnAl4BJQD3gAb3AxyDd4L0PshvYgfAfac2+U+nQpRIO9aozTueUCWlUFgOXAQaYcks38Aqi2zja1yovftRTrkE//cjA0hYSvNW0GNXvIlwBTPALpoz/+0C2orKZ3v3t8ir9ZdgqqeocLL1q5gTqe2+Buh+CnhtF0D42zVB9lL6BzdLe/alL/87A0kupZ0rTKhL6Y5RpLoMMaesQcA+Hs3901dOcgKXNya8j/AGYE7JiUartQFkjbdnXy3VSFlh67bRT+dz7NbAaSJQbTIT6/aC/o8/7aTlDMzRYurRhFl7iGWB2hJV0bboTvOskc7AzjOFQYGkqeTXwJDAljNOTrNMDerNkDjwbNI7AYGlz8kcID1b5sPPDwUO5W9qyv/ITLPw/EFjanFyH0BLEQVXLKi3Sll1vG6M1WLEDahihAIBZgZUfer+0bYFxJ6estRmSvmBpqnEZiPnqVXNqUG77mEX7Mslknx/L0Jhg5dODfwKnlxvNONDvBW/BWGlFSbB00dTJTKh7Y5zlUeW2SScTE/Nky/7PRjNUGqxU429B7izX+zjU3yCZ7BprsPJrvb/nN+HGYX3LCtnkYN8YbS15Qs8a2j04LflWlS6Ky0IhgPIODmfnjtytOBGsVPIWYFMAw/EUVfmetHVtLJnB5yf194CzIkdAEjDvcjh3NohPBqMK778NHS+DNxB5aEMOhP0cnTRTXtzVN+ywKEpNJW8HHok8mkQdrH0MFi4J5uofW+Gh1aAmLapE8dZI5uCGE8DKz1X/G9xNmBF5GAuuhHs3h3PzwE3Q0R5ON7CW7GFu13nSMnTSNLgszhdtnrYY8bYGtjeWwpmNcEkKJo3YyZm9AOZcEs7Vju3Q+a9i3U974I126N4bzuaYWpKSTFdbMVjp5HMo1zjzNms+rHsKTp3szOSYhj4bPJto+Ta8/aZbf0qrtGWXHgNr6FyvfuKHTo+rHmmH6RXeRN39X7jzSrdgQR/9n59tziWHhqGmG29Axex8uisv7APzxatkMRP/0i+79+jpStl64KkcWKnk08AKp15au5yaszaWbrIWtRZU/iJt2RXDYB10dKR+3H+cwIJuyWQbRNPJ81FMyuC2xAss6O+fKZpKmuFnhqHbEjew4HoD1i+Au90iBcQNLNEHRFONz4BcWwPLDwHdIppq6gCd5yca+P+49SzkTTMMPwDOCQyGn8JIsLp2w89WwKGAKcVZTXDfn6HJcskaReqQq+teA9YnkRxIjATrr7+HP5npMUS58R741vftFKMDq8eAZTaI3Kfa8etZ/QYstWuygFKxm7PAgHU0koOJ+IHlVW7OCtgxQ4tHPGdV99ewEDWbL2N0YJmvYYXyrHK+hoWA+X0ZIwNrKM+qUAYfNs+qmp5lMvh04/2o/CT0HFFKMX4T/IO1XQf7XnK9aHraTNR7117HUjJuPUu4oLZTatf2uZ1SI1vbg/dBrGgPPorTnTgNQ9GV0jp8uhPFuWF8wCo+Nxwais3JFwYZomm7IWwhFZtzQ3lOMl3LTI2P33VINTWDZixgsBN5+G8w4yI7WVdS73XCHYtcWcvZUW+JtB3cVgxWjnn6rjNC5YVfg5anK3vXYf0NsLPDJVi7OZy9YPgG4Ij7WQ23QsLwBt2UqefAxYtgcsQ3w4/0wvYM/P+Am7iPW7lDMtlHh38Wg2Uou6cc2VUlTFTXFQ9q7xB9A9ML+Ykn3iltblqN6GNBLcdQfpVkskU37mq3lUdvZbvbyvk0wnCeX4vkIKP6u2A/yjet7sEP10VTSTPR31r9dXMdoT4smQM/GM1qaTpKjiz+b2CW63Cq2N5O+gbmlyKdj80KSzXMhoS57ToeudBB26QHvIWhWGEFw9GQxw352v1BbNDqRCfvgS73I5n7kjPzE74hkdeYrLaNpelkC8o6W/lxIyesl9asFUneqmcdG5JxAywAUEULadueUHvXwRapvFyeZP5EJFeVAsYSQty89rbSjzweKM/yC0JzaYVh5Y+nPGwneMsr+hbNsTlsiHSeuB/ktkhu4vi1mP3/htW1kYmJu0qRxW1MBZrgSxmsvZ9lA3WBTJ6v+J1BspS5Cxk9E9YvPsNE9eTn9HZtqqqX2QrjzlOHDc/asGItb8361TzI/7IHBn5D/5TNhZTdIBZKyToZhqMZz70B2LCIRGIVinlyM9rXJJWXEHmcuV3bhpmnLgAqtBEZWEW9rfZOafh2y5Orvpp7O0JnjHgB1+xwmEW7eWv0SNELuMI7qOykrq5Dnt9nntisaPkCeRiKstAAumoAAAAASUVORK5CYII="
-
-/***/ }),
-
-/***/ 241:
-/*!**********************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/static/index/icon2.png ***!
-  \**********************************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEsAAABLCAYAAAA4TnrqAAAAAXNSR0IArs4c6QAACWhJREFUeF7tnHlw1OUZxz/vJghyKVAh2SAeQEUYaS3KtJQRwRmpNBtwkMghOhSUS6Gc1UFKKFKQKwPUoyMwXhUUBcwGqAy0SMtwKLbDFCqXIpIFxCqGcGRI9i3PHrAhu9nfuUkYnn/2j32f533e7+89nvc5XkU1kO7TvDXl6Z1Ruj2aO8BzK+gWwI1AfSAdCAIlwClQJyB4GNQhYDeKz1RBYF+qVVep6FA/1LQxdermoFUvoAcgwNilE8DfUHodF0oL1Prviu0KTMbvGlg6Dw+7snqh9ZMoegJ1kylj4/9SUGvRaiklRzeozZTZkJWQ1XGw9ENt6pJeMhTSJoC+3Q2lk8iUpbqI0vKlasOJM0727xhY+n7SaZg1DI+egqalk0palHUSeI7TgTecmmmOgKWzvV1RvAR0tDgwN9l2oxmtCgP/tNuJLbB0v5bXcz44DxgBeOwq4yJ/GejFlAan2lmalsHSvTPaE/S8B3RwcZBOi94DwUeV//geK4ItgaV93j7AW0BDK51WM08x6N8o/7EPzOphGiyd7Z2EYnYNX3bJcAiieVYVBuYmaxj7vymwdLZ3Goo8Mx3U6LaaPFUYmG5UR8NgXXVARREyAZghsCJLb47RL1Dr2mkmG1mSScHSvsy+oOTUq8mmgd3vI5f2vsofWFOVoCrBipgH24DGdrWpBfwlEPx5VWZFQrD0gy0aUDdtRy2zo+x+kz3U89yrVh49F09QYrB8mQtAjbPbey3kf1n5A6MNgxW56/094oSrheO1pbLYYN3i3SUrzayQ96CRd1cNvRTbQsEE825OBzpd6a2oDJbPOxRYYkLw1dlUq5GqsOjVhBZ8ZFP/ErjJVQRatIKeg+DubnBzW7iuHpw6CV/ugR0bYNNKKD3rqgpJhSuOcqF+G7X+YGm0bYWZpX3eMcDCpIKsNqhzHTz+HGSLIzUtsZQf/gcvTYLtH1ntySG+4GjlP/5yJbAie9XnF70JrR3qqaKY+o1g2ttw5z3Gxb8zD1bkG2/veEv1BZ2K2qq8UKTp4rU4Qjq7ZS9UcK3j/UUF/v5NuOcB8+LnPw0frzbP5xiH8il/UWFFsHK8q9A87FgfsYLu7wvjF1kTfaYYhneB4u+t8dvl0hSowkDvS2CF4nrp9b5xLVz1yhbIsrG6l8+H5QvsDtsqfyll55tLXDK0DHVO5mNoJZ5P5+m2DrBwgz25RYdg5H32ZNjhDurBau2xt8Ng+bzvAAPsyEvI+6vHYNSL9kUPuBNkSVYHaVaowsCAKFjHHQqpVx5K/3EwcKL9IcrMkhlWPXRC+QMZSud470AjJoM71G8MDP6dfdlP/gJOHLEvx6qEsrI2Svu8svxkGbpD9/WBiRJ/tUFlFyC3Lchv9dFAAWsW8KxrOjRpDq/vAmXD0bp7Kzyf65qKhgQr/YLSvsz3QPUzxGC1kVWDNNrfwnGwSTzb1Ul6pdK+rJ2g73VVDTEfFqyv+j6YSIHD/4Xf9oRguasqJheuPpFl+BXQKnljmy16PwVDp5kTcvY0TM6BI/vN8bnT+oiA9UPKAhKPPA2DJhubYeKyeWEI7P+XO0M3L7VYwJL5bWP3Ndlr+87hGdb2p/EZZbltXg1vzITvv4EGjaFHPxA+Txoc3A0bV4T/u74BdH8E7uoS/k/8YRuWw3diNjpOZQKWdlxsVQLljtipO/TIhduvSMDRwbCHQQb8n23w47thyjKQEzWWzp2BlYtAbgfNb674nzgNF02AfxQ4PiwBS4wXyQ52j8Rs6NIL+o6GNkny3QSwKbnw9X5YvAlutOC0ldk5KQcO/NvJMQXd37NuyoKx+dDxl8YU/2QjzHgivLc9OtYYT7xWn22GvEHW+StzhvYs907D1nfBtLfMzY5F42Hju5D/VxB+q+S81S+noUt2lgQl8tdDQ6kDMEFiqYvFvmR75f3IhJhQ08EdQfz5jlDIznLBgpeTSYASY9QszRoG29bD7NXhE9AqySHQvx3IHugIiQWfkzkDrZ53RF5UyMMjYYhFkQVLYMm0cAToqT9YV0uuR3JNco5mO+91kHDXsk/hhmbW1BQH34iuINb7vEJrs1NkPNMDvj1mTYf4XAOVzmnZBh084JhUJ1wysmfJSda4Gcz6ADJvNa6egCy8n0sGgoOkaOe8p3TCn6CbA0EiCbDOGQ5NM+CP70NzA0UbbgEFYU+pYO+oD/7PW83NhKo+/tZCmDsKfuRNDphY7lP7Oz+jQgDF+uCdjO6sOgzpdZyb/1vWwIIxVQMmQE1/PHxFcoOUHqwKotEdJ+OGToMlg48CltEKZr4PzTIuQyLG58whsEvSyVyhinHD0EzL9n54sUI0x3Z3M96Fn3S1LaaSALlgywzLvAXm+KFxk7BP/sXhsMPNBBK1SvmL+oo+l3MdfFnZoP22R3lLO5ixwtwVx2in4ppZPClsTkz/C7w2FbZ8aJTbWjsd/LUqPL6uIljhytMDjhRUio0lhukDudbtrXhDO3YY5o4M+7TElyVWurt0iNOBdtEMwCvyszJGgcdm3CpGe7n2iEumXSdo2TZ8/DdtAY2ahAcrSWyxh8H5c3ChNBx5LjkF3wbg+FdwZB/s3QkBybNLKY1V/sCljJaKYEnJbp2zB2tIJWpKUYnT2UlKy2+LrU+snFOanTUCpV+pbk1rQP/DlD+wNFaPa9nK8b+KsWzliBkhNc8fpzSQUQOmUkSFMjTdDeXBR3XWPq9s9KNqzhhSpYnOV/5j4+P1lrgcJVws/inQPlVq1oB+9lJa3jlR0XnVVWG+jA7g2V5La6HNYl8MwS6WqsJilqMUj0vxdeoCsWaHab99EHRusiLzpMWZkQ1fisivVbIa/Sg6x5uHxmRmh1Hp1dhOMV0VBAwVyRuaWZeW5NUGmAmgBANTYMUsyWvvOhhdDJEi82UpS1UyqpixdvLa2+BkxeOm7Kxk/eqwWSG5i7XJDtsLwdyUvkVzaQ8LFZ17ZoB6xvVMnGRfr+r/JSz9KvU8ExMVixsRb3rPiif02vtZRqCOaROpV3ziYrGUpIpbSKoy2WGy5lKJGlQzKSlaUqNeZovVO1I6LHXWUhVroxQsGRqJ/ldfQPl8yhoujS3ZtSotls+RZRh3aYbeAMx4EI9nGBp5ctPd1yQ1H6HUa3QqWhetPHUCoJSAVWG2XXun1Pp3ixRX/Sz8doRufcULuPLam1za5a1RKcG//AKuYh9a7SUtbada83XKS8T+D1s4GMEwD4WyAAAAAElFTkSuQmCC"
-
-/***/ }),
-
-/***/ 247:
-/*!***********************************************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-grid/components/uv-grid/props.js ***!
-  \***********************************************************************************/
+/***/ 243:
+/*!******************************************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-input/components/uv-input/props.js ***!
+  \******************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -4740,22 +6595,177 @@ function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (O
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 var _default = {
   props: _objectSpread({
-    // 分成几列
-    col: {
+    value: {
       type: [String, Number],
-      default: 3
+      default: ''
     },
-    // 是否显示边框
-    border: {
+    modelValue: {
+      type: [String, Number],
+      default: ''
+    },
+    // 输入框类型
+    // number-数字输入键盘，app-vue下可以输入浮点数，app-nvue和小程序平台下只能输入整数
+    // idcard-身份证输入键盘，微信、支付宝、百度、QQ小程序
+    // digit-带小数点的数字键盘，App的nvue页面、微信、支付宝、百度、头条、QQ小程序
+    // text-文本输入键盘
+    type: {
+      type: String,
+      default: 'text'
+    },
+    // 是否禁用输入框
+    disabled: {
       type: Boolean,
       default: false
     },
-    // 宫格对齐方式，表现为数量少的时候，靠左，居中，还是靠右
-    align: {
+    // 禁用状态时的背景色
+    disabledColor: {
+      type: String,
+      default: '#f5f7fa'
+    },
+    // 是否显示清除控件
+    clearable: {
+      type: Boolean,
+      default: false
+    },
+    // 是否密码类型
+    password: {
+      type: Boolean,
+      default: false
+    },
+    // 最大输入长度，设置为 -1 的时候不限制最大长度
+    maxlength: {
+      type: [String, Number],
+      default: -1
+    },
+    // 	输入框为空时的占位符
+    placeholder: {
+      type: String,
+      default: null
+    },
+    // 指定placeholder的样式类，注意页面或组件的style中写了scoped时，需要在类名前写/deep/
+    placeholderClass: {
+      type: String,
+      default: 'input-placeholder'
+    },
+    // 指定placeholder的样式
+    placeholderStyle: {
+      type: [String, Object],
+      default: 'color: #c0c4cc'
+    },
+    // 设置右下角按钮的文字，有效值：send|search|next|go|done，兼容性详见uni-app文档
+    // https://uniapp.dcloud.io/component/input
+    // https://uniapp.dcloud.io/component/textarea
+    confirmType: {
+      type: String,
+      default: 'done'
+    },
+    // 点击键盘右下角按钮时是否保持键盘不收起，H5无效
+    confirmHold: {
+      type: Boolean,
+      default: false
+    },
+    // focus时，点击页面的时候不收起键盘，微信小程序有效
+    holdKeyboard: {
+      type: Boolean,
+      default: false
+    },
+    // 自动获取焦点
+    // 在 H5 平台能否聚焦以及软键盘是否跟随弹出，取决于当前浏览器本身的实现。nvue 页面不支持，需使用组件的 focus()、blur() 方法控制焦点
+    focus: {
+      type: Boolean,
+      default: false
+    },
+    // 键盘收起时，是否自动失去焦点，目前仅App3.0.0+有效
+    autoBlur: {
+      type: Boolean,
+      default: false
+    },
+    // 指定focus时光标的位置
+    cursor: {
+      type: [String, Number],
+      default: -1
+    },
+    // 输入框聚焦时底部与键盘的距离
+    cursorSpacing: {
+      type: [String, Number],
+      default: 30
+    },
+    // 光标起始位置，自动聚集时有效，需与selection-end搭配使用
+    selectionStart: {
+      type: [String, Number],
+      default: -1
+    },
+    // 光标结束位置，自动聚集时有效，需与selection-start搭配使用
+    selectionEnd: {
+      type: [String, Number],
+      default: -1
+    },
+    // 键盘弹起时，是否自动上推页面
+    adjustPosition: {
+      type: Boolean,
+      default: true
+    },
+    // 输入框内容对齐方式，可选值为：left|center|right
+    inputAlign: {
       type: String,
       default: 'left'
+    },
+    // 输入框字体的大小
+    fontSize: {
+      type: [String, Number],
+      default: '14px'
+    },
+    // 输入框字体颜色
+    color: {
+      type: String,
+      default: '#303133'
+    },
+    // 输入框前置图标
+    prefixIcon: {
+      type: String,
+      default: ''
+    },
+    // 前置图标样式，对象或字符串
+    prefixIconStyle: {
+      type: [String, Object],
+      default: ''
+    },
+    // 输入框后置图标
+    suffixIcon: {
+      type: String,
+      default: ''
+    },
+    // 后置图标样式，对象或字符串
+    suffixIconStyle: {
+      type: [String, Object],
+      default: ''
+    },
+    // 边框类型，surround-四周边框，bottom-底部边框，none-无边框
+    border: {
+      type: String,
+      default: 'surround'
+    },
+    // 是否只读，与disabled不同之处在于disabled会置灰组件，而readonly则不会
+    readonly: {
+      type: Boolean,
+      default: false
+    },
+    // 输入框形状，circle-圆形，square-方形
+    shape: {
+      type: String,
+      default: 'square'
+    },
+    // 用于处理或者过滤输入框内容的方法
+    formatter: {
+      type: [Function, null],
+      default: null
+    },
+    // 是否忽略组件内对文本合成系统事件的处理
+    ignoreCompositionEvent: {
+      type: Boolean,
+      default: true
     }
-  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.grid)
+  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.input)
 };
 exports.default = _default;
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
@@ -10844,9 +12854,551 @@ internalMixin(Vue);
 
 /***/ }),
 
-/***/ 255:
+/***/ 251:
+/*!************************************************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-collapse/components/uv-collapse/props.js ***!
+  \************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(uni) {
+
+var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
+var _uni$$uv, _uni$$uv$props;
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+var _default = {
+  props: _objectSpread({
+    // 当前展开面板的name，非手风琴模式：[<string | number>]，手风琴模式：string | number
+    value: {
+      type: [String, Number, Array, null],
+      default: null
+    },
+    // 是否手风琴模式
+    accordion: {
+      type: Boolean,
+      default: false
+    },
+    // 是否显示外边框
+    border: {
+      type: Boolean,
+      default: true
+    }
+  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.collapse)
+};
+exports.default = _default;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
+
+/***/ }),
+
+/***/ 257:
+/*!*****************************************************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-collapse/components/uv-collapse-item/props.js ***!
+  \*****************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(uni) {
+
+var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
+var _uni$$uv, _uni$$uv$props;
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+var _default = {
+  props: _objectSpread({
+    // 标题
+    title: {
+      type: String,
+      default: ''
+    },
+    // 标题右侧内容
+    value: {
+      type: String,
+      default: ''
+    },
+    // 标题下方的描述信息
+    label: {
+      type: String,
+      default: ''
+    },
+    // 是否禁用折叠面板
+    disabled: {
+      type: Boolean,
+      default: false
+    },
+    // 是否展示右侧箭头并开启点击反馈
+    isLink: {
+      type: Boolean,
+      default: true
+    },
+    // 是否开启点击反馈
+    clickable: {
+      type: Boolean,
+      default: true
+    },
+    // 是否显示内边框
+    border: {
+      type: Boolean,
+      default: true
+    },
+    // 标题的对齐方式
+    align: {
+      type: String,
+      default: 'left'
+    },
+    // 唯一标识符
+    name: {
+      type: [String, Number],
+      default: ''
+    },
+    // 标题左侧图片，可为绝对路径的图片或内置图标
+    icon: {
+      type: String,
+      default: ''
+    },
+    // 面板展开收起的过渡时间，单位ms
+    duration: {
+      type: Number,
+      default: 300
+    }
+  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.collapseItem)
+};
+exports.default = _default;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
+
+/***/ }),
+
+/***/ 26:
+/*!***************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/pages.json ***!
+  \***************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+
+
+/***/ }),
+
+/***/ 265:
 /*!****************************************************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-grid/components/uv-grid-item/props.js ***!
+  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-status-bar/components/uv-status-bar/props.js ***!
+  \****************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var _default = {
+  props: {
+    bgColor: {
+      type: String,
+      default: 'transparent'
+    }
+  }
+};
+exports.default = _default;
+
+/***/ }),
+
+/***/ 273:
+/*!***********************************************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-ui-tools/libs/function/colorGradient.js ***!
+  \***********************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.colorGradient = colorGradient;
+exports.colorToRgba = colorToRgba;
+exports.hexToRgb = hexToRgb;
+exports.rgbToHex = rgbToHex;
+/**
+ * 求两个颜色之间的渐变值
+ * @param {string} startColor 开始的颜色
+ * @param {string} endColor 结束的颜色
+ * @param {number} step 颜色等分的份额
+ * */
+function colorGradient() {
+  var startColor = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'rgb(0, 0, 0)';
+  var endColor = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'rgb(255, 255, 255)';
+  var step = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 10;
+  var startRGB = hexToRgb(startColor, false); // 转换为rgb数组模式
+  var startR = startRGB[0];
+  var startG = startRGB[1];
+  var startB = startRGB[2];
+  var endRGB = hexToRgb(endColor, false);
+  var endR = endRGB[0];
+  var endG = endRGB[1];
+  var endB = endRGB[2];
+  var sR = (endR - startR) / step; // 总差值
+  var sG = (endG - startG) / step;
+  var sB = (endB - startB) / step;
+  var colorArr = [];
+  for (var i = 0; i < step; i++) {
+    // 计算每一步的hex值
+    var hex = rgbToHex("rgb(".concat(Math.round(sR * i + startR), ",").concat(Math.round(sG * i + startG), ",").concat(Math.round(sB * i + startB), ")"));
+    // 确保第一个颜色值为startColor的值
+    if (i === 0) hex = rgbToHex(startColor);
+    // 确保最后一个颜色值为endColor的值
+    if (i === step - 1) hex = rgbToHex(endColor);
+    colorArr.push(hex);
+  }
+  return colorArr;
+}
+
+// 将hex表示方式转换为rgb表示方式(这里返回rgb数组模式)
+function hexToRgb(sColor) {
+  var str = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+  var reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/;
+  sColor = String(sColor).toLowerCase();
+  if (sColor && reg.test(sColor)) {
+    if (sColor.length === 4) {
+      var sColorNew = '#';
+      for (var i = 1; i < 4; i += 1) {
+        sColorNew += sColor.slice(i, i + 1).concat(sColor.slice(i, i + 1));
+      }
+      sColor = sColorNew;
+    }
+    // 处理六位的颜色值
+    var sColorChange = [];
+    for (var _i = 1; _i < 7; _i += 2) {
+      sColorChange.push(parseInt("0x".concat(sColor.slice(_i, _i + 2))));
+    }
+    if (!str) {
+      return sColorChange;
+    }
+    return "rgb(".concat(sColorChange[0], ",").concat(sColorChange[1], ",").concat(sColorChange[2], ")");
+  }
+  if (/^(rgb|RGB)/.test(sColor)) {
+    var arr = sColor.replace(/(?:\(|\)|rgb|RGB)*/g, '').split(',');
+    return arr.map(function (val) {
+      return Number(val);
+    });
+  }
+  return sColor;
+}
+
+// 将rgb表示方式转换为hex表示方式
+function rgbToHex(rgb) {
+  var _this = rgb;
+  var reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/;
+  if (/^(rgb|RGB)/.test(_this)) {
+    var aColor = _this.replace(/(?:\(|\)|rgb|RGB)*/g, '').split(',');
+    var strHex = '#';
+    for (var i = 0; i < aColor.length; i++) {
+      var hex = Number(aColor[i]).toString(16);
+      hex = String(hex).length == 1 ? "".concat(0, hex) : hex; // 保证每个rgb的值为2位
+      if (hex === '0') {
+        hex += hex;
+      }
+      strHex += hex;
+    }
+    if (strHex.length !== 7) {
+      strHex = _this;
+    }
+    return strHex;
+  }
+  if (reg.test(_this)) {
+    var aNum = _this.replace(/#/, '').split('');
+    if (aNum.length === 6) {
+      return _this;
+    }
+    if (aNum.length === 3) {
+      var numHex = '#';
+      for (var _i2 = 0; _i2 < aNum.length; _i2 += 1) {
+        numHex += aNum[_i2] + aNum[_i2];
+      }
+      return numHex;
+    }
+  } else {
+    return _this;
+  }
+}
+
+/**
+* JS颜色十六进制转换为rgb或rgba,返回的格式为 rgba（255，255，255，0.5）字符串
+* sHex为传入的十六进制的色值
+* alpha为rgba的透明度
+*/
+function colorToRgba(color, alpha) {
+  color = rgbToHex(color);
+  // 十六进制颜色值的正则表达式
+  var reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/;
+  /* 16进制颜色转为RGB格式 */
+  var sColor = String(color).toLowerCase();
+  if (sColor && reg.test(sColor)) {
+    if (sColor.length === 4) {
+      var sColorNew = '#';
+      for (var i = 1; i < 4; i += 1) {
+        sColorNew += sColor.slice(i, i + 1).concat(sColor.slice(i, i + 1));
+      }
+      sColor = sColorNew;
+    }
+    // 处理六位的颜色值
+    var sColorChange = [];
+    for (var _i3 = 1; _i3 < 7; _i3 += 2) {
+      sColorChange.push(parseInt("0x".concat(sColor.slice(_i3, _i3 + 2))));
+    }
+    // return sColorChange.join(',')
+    return "rgba(".concat(sColorChange.join(','), ",").concat(alpha, ")");
+  }
+  return sColor;
+}
+
+/***/ }),
+
+/***/ 274:
+/*!********************************************************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-loading-icon/components/uv-loading-icon/props.js ***!
+  \********************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(uni) {
+
+var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
+var _uni$$uv, _uni$$uv$props;
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+var _default2 = {
+  props: _objectSpread({
+    // 是否显示组件
+    show: {
+      type: Boolean,
+      default: true
+    },
+    // 颜色
+    color: {
+      type: String,
+      default: '#909193'
+    },
+    // 提示文字颜色
+    textColor: {
+      type: String,
+      default: '#909193'
+    },
+    // 文字和图标是否垂直排列
+    vertical: {
+      type: Boolean,
+      default: false
+    },
+    // 模式选择，circle-圆形，spinner-花朵形，semicircle-半圆形
+    mode: {
+      type: String,
+      default: 'spinner'
+    },
+    // 图标大小，单位默认px
+    size: {
+      type: [String, Number],
+      default: 24
+    },
+    // 文字大小
+    textSize: {
+      type: [String, Number],
+      default: 15
+    },
+    // 文字样式
+    textStyle: {
+      type: Object,
+      default: function _default() {
+        return {};
+      }
+    },
+    // 文字内容
+    text: {
+      type: [String, Number],
+      default: ''
+    },
+    // 动画模式 https://www.runoob.com/cssref/css3-pr-animation-timing-function.html
+    timingFunction: {
+      type: String,
+      default: 'linear'
+    },
+    // 动画执行周期时间
+    duration: {
+      type: [String, Number],
+      default: 1200
+    },
+    // mode=circle时的暗边颜色
+    inactiveColor: {
+      type: String,
+      default: ''
+    }
+  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.loadingIcon)
+};
+exports.default = _default2;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
+
+/***/ }),
+
+/***/ 282:
+/*!******************************************************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-swiper/components/uv-swiper-indicator/props.js ***!
+  \******************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(uni) {
+
+var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
+var _uni$$uv, _uni$$uv$props;
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+var _default = {
+  props: _objectSpread({
+    // 轮播的长度
+    length: {
+      type: [String, Number],
+      default: 0
+    },
+    // 当前处于活动状态的轮播的索引
+    current: {
+      type: [String, Number],
+      default: 0
+    },
+    // 指示器非激活颜色
+    indicatorActiveColor: {
+      type: String,
+      default: ''
+    },
+    // 指示器的激活颜色
+    indicatorInactiveColor: {
+      type: String,
+      default: ''
+    },
+    // 指示器模式，line-线型，dot-点型
+    indicatorMode: {
+      type: String,
+      default: ''
+    }
+  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.swiperIndicator)
+};
+exports.default = _default;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
+
+/***/ }),
+
+/***/ 290:
+/*!*******************************************************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-notice-bar/components/uv-column-notice/props.js ***!
+  \*******************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(uni) {
+
+var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
+var _uni$$uv, _uni$$uv$props;
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+var _default = {
+  props: _objectSpread({
+    // 显示的内容，字符串
+    text: {
+      type: [Array],
+      default: ''
+    },
+    // 是否显示左侧的音量图标
+    icon: {
+      type: [String, Boolean, null],
+      default: 'volume'
+    },
+    // 通告模式，link-显示右箭头，closable-显示右侧关闭图标
+    mode: {
+      type: String,
+      default: ''
+    },
+    // 文字颜色，各图标也会使用文字颜色
+    color: {
+      type: String,
+      default: '#f9ae3d'
+    },
+    // 背景颜色
+    bgColor: {
+      type: String,
+      default: '#fdf6ec'
+    },
+    // 字体大小，单位px
+    fontSize: {
+      type: [String, Number],
+      default: 14
+    },
+    // 水平滚动时的滚动速度，即每秒滚动多少px(px)，这有利于控制文字无论多少时，都能有一个恒定的速度
+    speed: {
+      type: [String, Number],
+      default: 80
+    },
+    // direction = row时，是否使用步进形式滚动
+    step: {
+      type: Boolean,
+      default: false
+    },
+    // 滚动一个周期的时间长，单位ms
+    duration: {
+      type: [String, Number],
+      default: 1500
+    },
+    // 是否禁止用手滑动切换，仅`direction="column"生效`
+    // 目前HX2.6.11，只支持App 2.5.5+、H5 2.5.5+、支付宝小程序、字节跳动小程序
+    disableTouch: {
+      type: Boolean,
+      default: true
+    },
+    // 是否禁止滚动，仅`direction="column"生效`
+    disableScroll: {
+      type: Boolean,
+      default: false
+    }
+  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.columnNotice)
+};
+exports.default = _default;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
+
+/***/ }),
+
+/***/ 298:
+/*!****************************************************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-notice-bar/components/uv-row-notice/props.js ***!
   \****************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
@@ -10865,244 +13417,44 @@ function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (O
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 var _default = {
   props: _objectSpread({
-    // 宫格的name
-    name: {
-      type: [String, Number, null],
-      default: null
+    // 显示的内容，字符串
+    text: {
+      type: String,
+      default: ''
+    },
+    // 是否显示左侧的音量图标
+    icon: {
+      type: [String, Boolean, null],
+      default: 'volume'
+    },
+    // 通告模式，link-显示右箭头，closable-显示右侧关闭图标
+    mode: {
+      type: String,
+      default: ''
+    },
+    // 文字颜色，各图标也会使用文字颜色
+    color: {
+      type: String,
+      default: '#f9ae3d'
     },
     // 背景颜色
     bgColor: {
       type: String,
-      default: 'transparent'
+      default: '#fdf6ec'
+    },
+    // 字体大小，单位px
+    fontSize: {
+      type: [String, Number],
+      default: 14
+    },
+    // 水平滚动时的滚动速度，即每秒滚动多少px(rpx)，这有利于控制文字无论多少时，都能有一个恒定的速度
+    speed: {
+      type: [String, Number],
+      default: 80
     }
-  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.gridItem)
+  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.rowNotice)
 };
 exports.default = _default;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
-
-/***/ }),
-
-/***/ 26:
-/*!**********************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/pages.json ***!
-  \**********************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-
-
-/***/ }),
-
-/***/ 273:
-/*!***************************************************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-sticky/components/uv-sticky/props.js ***!
-  \***************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {
-
-var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
-var _uni$$uv, _uni$$uv$props;
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-var _default = {
-  props: _objectSpread({
-    // 吸顶容器到顶部某个距离的时候，进行吸顶，在H5平台，NavigationBar为44px
-    offsetTop: {
-      type: [String, Number],
-      default: 0
-    },
-    // 自定义导航栏的高度
-    customNavHeight: {
-      type: [String, Number],
-      default: 0
-    },
-    // 是否禁用吸顶功能
-    disabled: {
-      type: Boolean,
-      default: false
-    },
-    // 吸顶区域的背景颜色
-    bgColor: {
-      type: String,
-      default: 'transparent'
-    },
-    // z-index值
-    zIndex: {
-      type: [String, Number],
-      default: ''
-    },
-    // 列表中的索引值
-    index: {
-      type: [String, Number],
-      default: ''
-    }
-  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.sticky)
-};
-exports.default = _default;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
-
-/***/ }),
-
-/***/ 281:
-/*!***************************************************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-search/components/uv-search/props.js ***!
-  \***************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {
-
-var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
-var _uni$$uv, _uni$$uv$props;
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-var _default2 = {
-  props: _objectSpread({
-    value: {
-      type: [String, Number],
-      default: ''
-    },
-    modelValue: {
-      type: [String, Number],
-      default: ''
-    },
-    // 搜索框形状，round-圆形，square-方形
-    shape: {
-      type: String,
-      default: 'round'
-    },
-    // 搜索框背景色，默认值#f2f2f2
-    bgColor: {
-      type: String,
-      default: '#f2f2f2'
-    },
-    // 占位提示文字
-    placeholder: {
-      type: String,
-      default: '请输入关键字'
-    },
-    // 是否启用清除控件
-    clearabled: {
-      type: Boolean,
-      default: true
-    },
-    // 是否自动聚焦
-    focus: {
-      type: Boolean,
-      default: false
-    },
-    // 是否在搜索框右侧显示取消按钮
-    showAction: {
-      type: Boolean,
-      default: true
-    },
-    // 右边控件的样式
-    actionStyle: {
-      type: Object,
-      default: function _default() {
-        return {};
-      }
-    },
-    // 取消按钮文字
-    actionText: {
-      type: String,
-      default: '搜索'
-    },
-    // 输入框内容对齐方式，可选值为 left|center|right
-    inputAlign: {
-      type: String,
-      default: 'left'
-    },
-    // input输入框的样式，可以定义文字颜色，大小等，对象形式
-    inputStyle: {
-      type: Object,
-      default: function _default() {
-        return {};
-      }
-    },
-    // 是否禁用输入框
-    disabled: {
-      type: Boolean,
-      default: false
-    },
-    // 边框颜色
-    borderColor: {
-      type: String,
-      default: 'transparent'
-    },
-    // 搜索图标的颜色，默认同输入框字体颜色
-    searchIconColor: {
-      type: String,
-      default: '#909399'
-    },
-    // 输入框字体颜色
-    color: {
-      type: String,
-      default: '#606266'
-    },
-    // placeholder的颜色
-    placeholderColor: {
-      type: String,
-      default: '#909399'
-    },
-    // 左边输入框的图标，可以为uvui图标名称或图片路径
-    searchIcon: {
-      type: String,
-      default: 'search'
-    },
-    searchIconSize: {
-      type: [Number, String],
-      default: 22
-    },
-    // 组件与其他上下左右元素之间的距离，带单位的字符串形式，如"30px"、"30px 20px"等写法
-    margin: {
-      type: String,
-      default: '0'
-    },
-    // 开启showAction时，是否在input获取焦点时才显示
-    animation: {
-      type: Boolean,
-      default: false
-    },
-    // 输入框最大能输入的长度，-1为不限制长度(来自uniapp文档)
-    maxlength: {
-      type: [String, Number],
-      default: -1
-    },
-    // 搜索框高度，单位px
-    height: {
-      type: [String, Number],
-      default: 32
-    },
-    // 搜索框左侧文本
-    label: {
-      type: [String, Number, null],
-      default: null
-    },
-    // 搜索框扩展样式
-    boxStyle: {
-      type: [String, Object],
-      default: function _default() {
-        return {};
-      }
-    }
-  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.search)
-};
-exports.default = _default2;
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
 
 /***/ }),
@@ -11138,10 +13490,10 @@ module.exports = g;
 
 /***/ }),
 
-/***/ 309:
-/*!*********************************************************************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-datetime-picker/components/uv-datetime-picker/props.js ***!
-  \*********************************************************************************************************/
+/***/ 313:
+/*!**********************************************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-toolbar/components/uv-toolbar/props.js ***!
+  \**********************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -11159,85 +13511,15 @@ function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (O
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 var _default = {
   props: _objectSpread({
-    value: {
-      type: [String, Number],
-      default: ''
-    },
-    modelValue: {
-      type: [String, Number],
-      default: ''
-    },
-    // 是否打开组件
+    // 是否展示工具条
     show: {
-      type: Boolean,
-      default: false
-    },
-    // 是否展示顶部的操作栏
-    showToolbar: {
       type: Boolean,
       default: true
     },
-    // 顶部标题
-    title: {
-      type: String,
-      default: ''
-    },
-    // 展示格式，mode=date为日期选择，mode=time为时间选择，mode=year-month为年月选择，mode=datetime为日期时间选择
-    mode: {
-      type: String,
-      default: 'datetime'
-    },
-    // 可选的最大时间
-    maxDate: {
-      type: Number,
-      // 最大默认值为后10年
-      default: new Date(new Date().getFullYear() + 10, 0, 1).getTime()
-    },
-    // 可选的最小时间
-    minDate: {
-      type: Number,
-      // 最小默认值为前10年
-      default: new Date(new Date().getFullYear() - 10, 0, 1).getTime()
-    },
-    // 可选的最小小时，仅mode=time有效
-    minHour: {
-      type: Number,
-      default: 0
-    },
-    // 可选的最大小时，仅mode=time有效
-    maxHour: {
-      type: Number,
-      default: 23
-    },
-    // 可选的最小分钟，仅mode=time有效
-    minMinute: {
-      type: Number,
-      default: 0
-    },
-    // 可选的最大分钟，仅mode=time有效
-    maxMinute: {
-      type: Number,
-      default: 59
-    },
-    // 选项过滤函数
-    filter: {
-      type: [Function, null],
-      default: null
-    },
-    // 选项格式化函数
-    formatter: {
-      type: [Function, null],
-      default: null
-    },
-    // 是否显示加载中状态
-    loading: {
+    // 是否显示下边框
+    showBorder: {
       type: Boolean,
       default: false
-    },
-    // 各列中，单个选项的高度
-    itemHeight: {
-      type: [String, Number],
-      default: 44
     },
     // 取消按钮的文字
     cancelText: {
@@ -11259,384 +13541,337 @@ var _default = {
       type: String,
       default: '#3c9cff'
     },
-    // 每列中可见选项的数量
-    visibleItemCount: {
-      type: [String, Number],
-      default: 5
-    },
-    // 是否允许点击遮罩关闭选择器
-    closeOnClickOverlay: {
-      type: Boolean,
-      default: true
-    },
-    // 是否允许点击确认关闭选择器
-    closeOnClickConfirm: {
-      type: Boolean,
-      default: true
-    },
-    // 是否清空上次选择内容
-    clearDate: {
-      type: Boolean,
-      default: false
-    },
-    // 圆角
-    round: {
-      type: [String, Number],
-      default: 0
+    // 标题文字
+    title: {
+      type: String,
+      default: ''
     }
-  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.datetimePicker)
+  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.toolbar)
 };
 exports.default = _default;
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
 
 /***/ }),
 
-/***/ 310:
-/*!******************************************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-ui-tools/libs/util/dayjs.js ***!
-  \******************************************************************************/
+/***/ 321:
+/*!****************************************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-cell/components/uv-cell/props.js ***!
+  \****************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;
+/* WEBPACK VAR INJECTION */(function(uni) {
 
 var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = void 0;
-var _typeof2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/typeof */ 13));
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __commonJS = function __commonJS(cb, mod) {
-  return function __require() {
-    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = {
-      exports: {}
-    }).exports, mod), mod.exports;
-  };
+var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
+var _uni$$uv, _uni$$uv$props;
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+var _default2 = {
+  props: _objectSpread({
+    // 标题
+    title: {
+      type: [String, Number],
+      default: ''
+    },
+    // 标题下方的描述信息
+    label: {
+      type: [String, Number],
+      default: ''
+    },
+    // 右侧的内容
+    value: {
+      type: [String, Number],
+      default: ''
+    },
+    // 左侧图标名称，或者图片链接(本地文件建议使用绝对地址)
+    icon: {
+      type: String,
+      default: ''
+    },
+    // 是否禁用cell
+    disabled: {
+      type: Boolean,
+      default: false
+    },
+    // 是否显示下边框
+    border: {
+      type: Boolean,
+      default: true
+    },
+    // 内容是否垂直居中(主要是针对右侧的value部分)
+    center: {
+      type: Boolean,
+      default: true
+    },
+    // 点击后跳转的URL地址
+    url: {
+      type: String,
+      default: ''
+    },
+    // 链接跳转的方式，内部使用的是uvui封装的route方法，可能会进行拦截操作
+    linkType: {
+      type: String,
+      default: 'navigateTo'
+    },
+    // 是否开启点击反馈(表现为点击时加上灰色背景)
+    clickable: {
+      type: Boolean,
+      default: false
+    },
+    // 是否展示右侧箭头并开启点击反馈
+    isLink: {
+      type: Boolean,
+      default: false
+    },
+    // 是否显示表单状态下的必填星号(此组件可能会内嵌入input组件)
+    required: {
+      type: Boolean,
+      default: false
+    },
+    // 右侧的图标箭头
+    rightIcon: {
+      type: String,
+      default: 'arrow-right'
+    },
+    // 右侧箭头的方向，可选值为：left，up，down
+    arrowDirection: {
+      type: String,
+      default: ''
+    },
+    // 左侧图标样式
+    iconStyle: {
+      type: [Object, String],
+      default: function _default() {
+        return {};
+      }
+    },
+    // 右侧箭头图标的样式
+    rightIconStyle: {
+      type: [Object, String],
+      default: function _default() {
+        return {};
+      }
+    },
+    // 标题的样式
+    titleStyle: {
+      type: [Object, String],
+      default: function _default() {
+        return {};
+      }
+    },
+    // 单位元的大小，可选值为large
+    size: {
+      type: String,
+      default: ''
+    },
+    // 点击cell是否阻止事件传播
+    stop: {
+      type: Boolean,
+      default: true
+    },
+    // 标识符，cell被点击时返回
+    name: {
+      type: [Number, String],
+      default: ''
+    },
+    // 单元格自定义样式
+    cellStyle: {
+      type: [Object, String],
+      default: function _default() {}
+    }
+  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.cell)
 };
-var require_dayjs_min = __commonJS({
-  "uvuidayjs": function uvuidayjs(exports, module) {
-    !function (t, e) {
-      "object" == (0, _typeof2.default)(exports) && "undefined" != typeof module ? module.exports = e() :  true ? !(__WEBPACK_AMD_DEFINE_FACTORY__ = (e),
-				__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
-				(__WEBPACK_AMD_DEFINE_FACTORY__.call(exports, __webpack_require__, exports, module)) :
-				__WEBPACK_AMD_DEFINE_FACTORY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__)) : undefined;
-    }(exports, function () {
-      "use strict";
+exports.default = _default2;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
 
-      var t = 1e3,
-        e = 6e4,
-        n = 36e5,
-        r = "millisecond",
-        i = "second",
-        s = "minute",
-        u = "hour",
-        a = "day",
-        o = "week",
-        f = "month",
-        h = "quarter",
-        c = "year",
-        d = "date",
-        l = "Invalid Date",
-        $ = /^(\d{4})[-/]?(\d{1,2})?[-/]?(\d{0,2})[Tt\s]*(\d{1,2})?:?(\d{1,2})?:?(\d{1,2})?[.:]?(\d+)?$/,
-        y = /\[([^\]]+)]|Y{1,4}|M{1,4}|D{1,2}|d{1,4}|H{1,2}|h{1,2}|a|A|m{1,2}|s{1,2}|Z{1,2}|SSS/g,
-        M = {
-          name: "en",
-          weekdays: "Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday".split("_"),
-          months: "January_February_March_April_May_June_July_August_September_October_November_December".split("_"),
-          ordinal: function ordinal(t2) {
-            var e2 = ["th", "st", "nd", "rd"],
-              n2 = t2 % 100;
-            return "[" + t2 + (e2[(n2 - 20) % 10] || e2[n2] || e2[0]) + "]";
-          }
-        },
-        m = function m(t2, e2, n2) {
-          var r2 = String(t2);
-          return !r2 || r2.length >= e2 ? t2 : "" + Array(e2 + 1 - r2.length).join(n2) + t2;
-        },
-        v = {
-          s: m,
-          z: function z(t2) {
-            var e2 = -t2.utcOffset(),
-              n2 = Math.abs(e2),
-              r2 = Math.floor(n2 / 60),
-              i2 = n2 % 60;
-            return (e2 <= 0 ? "+" : "-") + m(r2, 2, "0") + ":" + m(i2, 2, "0");
-          },
-          m: function t2(e2, n2) {
-            if (e2.date() < n2.date()) return -t2(n2, e2);
-            var r2 = 12 * (n2.year() - e2.year()) + (n2.month() - e2.month()),
-              i2 = e2.clone().add(r2, f),
-              s2 = n2 - i2 < 0,
-              u2 = e2.clone().add(r2 + (s2 ? -1 : 1), f);
-            return +(-(r2 + (n2 - i2) / (s2 ? i2 - u2 : u2 - i2)) || 0);
-          },
-          a: function a(t2) {
-            return t2 < 0 ? Math.ceil(t2) || 0 : Math.floor(t2);
-          },
-          p: function p(t2) {
-            return {
-              M: f,
-              y: c,
-              w: o,
-              d: a,
-              D: d,
-              h: u,
-              m: s,
-              s: i,
-              ms: r,
-              Q: h
-            }[t2] || String(t2 || "").toLowerCase().replace(/s$/, "");
-          },
-          u: function u(t2) {
-            return void 0 === t2;
-          }
-        },
-        g = "en",
-        D = {};
-      D[g] = M;
-      var p = function p(t2) {
-          return t2 instanceof _;
-        },
-        S = function t2(e2, n2, r2) {
-          var i2;
-          if (!e2) return g;
-          if ("string" == typeof e2) {
-            var s2 = e2.toLowerCase();
-            D[s2] && (i2 = s2), n2 && (D[s2] = n2, i2 = s2);
-            var u2 = e2.split("-");
-            if (!i2 && u2.length > 1) return t2(u2[0]);
-          } else {
-            var a2 = e2.name;
-            D[a2] = e2, i2 = a2;
-          }
-          return !r2 && i2 && (g = i2), i2 || !r2 && g;
-        },
-        w = function w(t2, e2) {
-          if (p(t2)) return t2.clone();
-          var n2 = "object" == (0, _typeof2.default)(e2) ? e2 : {};
-          return n2.date = t2, n2.args = arguments, new _(n2);
-        },
-        O = v;
-      O.l = S, O.i = p, O.w = function (t2, e2) {
-        return w(t2, {
-          locale: e2.$L,
-          utc: e2.$u,
-          x: e2.$x,
-          $offset: e2.$offset
-        });
-      };
-      var _ = function () {
-          function M2(t2) {
-            this.$L = S(t2.locale, null, true), this.parse(t2);
-          }
-          var m2 = M2.prototype;
-          return m2.parse = function (t2) {
-            this.$d = function (t3) {
-              var e2 = t3.date,
-                n2 = t3.utc;
-              if (null === e2) return new Date(NaN);
-              if (O.u(e2)) return new Date();
-              if (e2 instanceof Date) return new Date(e2);
-              if ("string" == typeof e2 && !/Z$/i.test(e2)) {
-                var r2 = e2.match($);
-                if (r2) {
-                  var i2 = r2[2] - 1 || 0,
-                    s2 = (r2[7] || "0").substring(0, 3);
-                  return n2 ? new Date(Date.UTC(r2[1], i2, r2[3] || 1, r2[4] || 0, r2[5] || 0, r2[6] || 0, s2)) : new Date(r2[1], i2, r2[3] || 1, r2[4] || 0, r2[5] || 0, r2[6] || 0, s2);
-                }
-              }
-              return new Date(e2);
-            }(t2), this.$x = t2.x || {}, this.init();
-          }, m2.init = function () {
-            var t2 = this.$d;
-            this.$y = t2.getFullYear(), this.$M = t2.getMonth(), this.$D = t2.getDate(), this.$W = t2.getDay(), this.$H = t2.getHours(), this.$m = t2.getMinutes(), this.$s = t2.getSeconds(), this.$ms = t2.getMilliseconds();
-          }, m2.$utils = function () {
-            return O;
-          }, m2.isValid = function () {
-            return !(this.$d.toString() === l);
-          }, m2.isSame = function (t2, e2) {
-            var n2 = w(t2);
-            return this.startOf(e2) <= n2 && n2 <= this.endOf(e2);
-          }, m2.isAfter = function (t2, e2) {
-            return w(t2) < this.startOf(e2);
-          }, m2.isBefore = function (t2, e2) {
-            return this.endOf(e2) < w(t2);
-          }, m2.$g = function (t2, e2, n2) {
-            return O.u(t2) ? this[e2] : this.set(n2, t2);
-          }, m2.unix = function () {
-            return Math.floor(this.valueOf() / 1e3);
-          }, m2.valueOf = function () {
-            return this.$d.getTime();
-          }, m2.startOf = function (t2, e2) {
-            var n2 = this,
-              r2 = !!O.u(e2) || e2,
-              h2 = O.p(t2),
-              l2 = function l2(t3, e3) {
-                var i2 = O.w(n2.$u ? Date.UTC(n2.$y, e3, t3) : new Date(n2.$y, e3, t3), n2);
-                return r2 ? i2 : i2.endOf(a);
-              },
-              $2 = function $2(t3, e3) {
-                return O.w(n2.toDate()[t3].apply(n2.toDate("s"), (r2 ? [0, 0, 0, 0] : [23, 59, 59, 999]).slice(e3)), n2);
-              },
-              y2 = this.$W,
-              M3 = this.$M,
-              m3 = this.$D,
-              v2 = "set" + (this.$u ? "UTC" : "");
-            switch (h2) {
-              case c:
-                return r2 ? l2(1, 0) : l2(31, 11);
-              case f:
-                return r2 ? l2(1, M3) : l2(0, M3 + 1);
-              case o:
-                var g2 = this.$locale().weekStart || 0,
-                  D2 = (y2 < g2 ? y2 + 7 : y2) - g2;
-                return l2(r2 ? m3 - D2 : m3 + (6 - D2), M3);
-              case a:
-              case d:
-                return $2(v2 + "Hours", 0);
-              case u:
-                return $2(v2 + "Minutes", 1);
-              case s:
-                return $2(v2 + "Seconds", 2);
-              case i:
-                return $2(v2 + "Milliseconds", 3);
-              default:
-                return this.clone();
-            }
-          }, m2.endOf = function (t2) {
-            return this.startOf(t2, false);
-          }, m2.$set = function (t2, e2) {
-            var n2,
-              o2 = O.p(t2),
-              h2 = "set" + (this.$u ? "UTC" : ""),
-              l2 = (n2 = {}, n2[a] = h2 + "Date", n2[d] = h2 + "Date", n2[f] = h2 + "Month", n2[c] = h2 + "FullYear", n2[u] = h2 + "Hours", n2[s] = h2 + "Minutes", n2[i] = h2 + "Seconds", n2[r] = h2 + "Milliseconds", n2)[o2],
-              $2 = o2 === a ? this.$D + (e2 - this.$W) : e2;
-            if (o2 === f || o2 === c) {
-              var y2 = this.clone().set(d, 1);
-              y2.$d[l2]($2), y2.init(), this.$d = y2.set(d, Math.min(this.$D, y2.daysInMonth())).$d;
-            } else l2 && this.$d[l2]($2);
-            return this.init(), this;
-          }, m2.set = function (t2, e2) {
-            return this.clone().$set(t2, e2);
-          }, m2.get = function (t2) {
-            return this[O.p(t2)]();
-          }, m2.add = function (r2, h2) {
-            var d2,
-              l2 = this;
-            r2 = Number(r2);
-            var $2 = O.p(h2),
-              y2 = function y2(t2) {
-                var e2 = w(l2);
-                return O.w(e2.date(e2.date() + Math.round(t2 * r2)), l2);
-              };
-            if ($2 === f) return this.set(f, this.$M + r2);
-            if ($2 === c) return this.set(c, this.$y + r2);
-            if ($2 === a) return y2(1);
-            if ($2 === o) return y2(7);
-            var M3 = (d2 = {}, d2[s] = e, d2[u] = n, d2[i] = t, d2)[$2] || 1,
-              m3 = this.$d.getTime() + r2 * M3;
-            return O.w(m3, this);
-          }, m2.subtract = function (t2, e2) {
-            return this.add(-1 * t2, e2);
-          }, m2.format = function (t2) {
-            var e2 = this,
-              n2 = this.$locale();
-            if (!this.isValid()) return n2.invalidDate || l;
-            var r2 = t2 || "YYYY-MM-DDTHH:mm:ssZ",
-              i2 = O.z(this),
-              s2 = this.$H,
-              u2 = this.$m,
-              a2 = this.$M,
-              o2 = n2.weekdays,
-              f2 = n2.months,
-              h2 = function h2(t3, n3, i3, s3) {
-                return t3 && (t3[n3] || t3(e2, r2)) || i3[n3].slice(0, s3);
-              },
-              c2 = function c2(t3) {
-                return O.s(s2 % 12 || 12, t3, "0");
-              },
-              d2 = n2.meridiem || function (t3, e3, n3) {
-                var r3 = t3 < 12 ? "AM" : "PM";
-                return n3 ? r3.toLowerCase() : r3;
-              },
-              $2 = {
-                YY: String(this.$y).slice(-2),
-                YYYY: this.$y,
-                M: a2 + 1,
-                MM: O.s(a2 + 1, 2, "0"),
-                MMM: h2(n2.monthsShort, a2, f2, 3),
-                MMMM: h2(f2, a2),
-                D: this.$D,
-                DD: O.s(this.$D, 2, "0"),
-                d: String(this.$W),
-                dd: h2(n2.weekdaysMin, this.$W, o2, 2),
-                ddd: h2(n2.weekdaysShort, this.$W, o2, 3),
-                dddd: o2[this.$W],
-                H: String(s2),
-                HH: O.s(s2, 2, "0"),
-                h: c2(1),
-                hh: c2(2),
-                a: d2(s2, u2, true),
-                A: d2(s2, u2, false),
-                m: String(u2),
-                mm: O.s(u2, 2, "0"),
-                s: String(this.$s),
-                ss: O.s(this.$s, 2, "0"),
-                SSS: O.s(this.$ms, 3, "0"),
-                Z: i2
-              };
-            return r2.replace(y, function (t3, e3) {
-              return e3 || $2[t3] || i2.replace(":", "");
-            });
-          }, m2.utcOffset = function () {
-            return 15 * -Math.round(this.$d.getTimezoneOffset() / 15);
-          }, m2.diff = function (r2, d2, l2) {
-            var $2,
-              y2 = O.p(d2),
-              M3 = w(r2),
-              m3 = (M3.utcOffset() - this.utcOffset()) * e,
-              v2 = this - M3,
-              g2 = O.m(this, M3);
-            return g2 = ($2 = {}, $2[c] = g2 / 12, $2[f] = g2, $2[h] = g2 / 3, $2[o] = (v2 - m3) / 6048e5, $2[a] = (v2 - m3) / 864e5, $2[u] = v2 / n, $2[s] = v2 / e, $2[i] = v2 / t, $2)[y2] || v2, l2 ? g2 : O.a(g2);
-          }, m2.daysInMonth = function () {
-            return this.endOf(f).$D;
-          }, m2.$locale = function () {
-            return D[this.$L];
-          }, m2.locale = function (t2, e2) {
-            if (!t2) return this.$L;
-            var n2 = this.clone(),
-              r2 = S(t2, e2, true);
-            return r2 && (n2.$L = r2), n2;
-          }, m2.clone = function () {
-            return O.w(this.$d, this);
-          }, m2.toDate = function () {
-            return new Date(this.valueOf());
-          }, m2.toJSON = function () {
-            return this.isValid() ? this.toISOString() : null;
-          }, m2.toISOString = function () {
-            return this.$d.toISOString();
-          }, m2.toString = function () {
-            return this.$d.toUTCString();
-          }, M2;
-        }(),
-        T = _.prototype;
-      return w.prototype = T, [["$ms", r], ["$s", i], ["$m", s], ["$H", u], ["$W", a], ["$M", f], ["$y", c], ["$D", d]].forEach(function (t2) {
-        T[t2[1]] = function (e2) {
-          return this.$g(e2, t2[0], t2[1]);
-        };
-      }), w.extend = function (t2, e2) {
-        return t2.$i || (t2(e2, _, w), t2.$i = true), w;
-      }, w.locale = S, w.isDayjs = p, w.unix = function (t2) {
-        return w(1e3 * t2);
-      }, w.en = D[g], w.Ls = D, w.p = {}, w;
-    });
-  }
+/***/ }),
+
+/***/ 329:
+/*!**********************************************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-overlay/components/uv-overlay/props.js ***!
+  \**********************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(uni) {
+
+var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
+Object.defineProperty(exports, "__esModule", {
+  value: true
 });
-var _default = require_dayjs_min();
+exports.default = void 0;
+var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
+var _uni$$uv, _uni$$uv$props;
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+var _default = {
+  props: _objectSpread({
+    // 是否显示遮罩
+    show: {
+      type: Boolean,
+      default: false
+    },
+    // 层级z-index
+    zIndex: {
+      type: [String, Number],
+      default: 10070
+    },
+    // 遮罩的过渡时间，单位为ms
+    duration: {
+      type: [String, Number],
+      default: 300
+    },
+    // 不透明度值，当做rgba的第四个参数
+    opacity: {
+      type: [String, Number],
+      default: 0.5
+    }
+  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.overlay)
+};
 exports.default = _default;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
+
+/***/ }),
+
+/***/ 337:
+/*!**************************************************************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-transition/components/uv-transition/createAnimation.js ***!
+  \**************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(uni) {
+
+var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.createAnimation = createAnimation;
+var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
+var _classCallCheck2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ 23));
+var _createClass2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/createClass */ 24));
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+// const defaultOption = {
+// 	duration: 300,
+// 	timingFunction: 'linear',
+// 	delay: 0,
+// 	transformOrigin: '50% 50% 0'
+// }
+var MPAnimation = /*#__PURE__*/function () {
+  function MPAnimation(options, _this) {
+    (0, _classCallCheck2.default)(this, MPAnimation);
+    this.options = options;
+    // 在iOS10+QQ小程序平台下，传给原生的对象一定是个普通对象而不是Proxy对象，否则会报parameter should be Object instead of ProxyObject的错误
+    this.animation = uni.createAnimation(_objectSpread({}, options));
+    this.currentStepAnimates = {};
+    this.next = 0;
+    this.$ = _this;
+  }
+  (0, _createClass2.default)(MPAnimation, [{
+    key: "_nvuePushAnimates",
+    value: function _nvuePushAnimates(type, args) {
+      var aniObj = this.currentStepAnimates[this.next];
+      var styles = {};
+      if (!aniObj) {
+        styles = {
+          styles: {},
+          config: {}
+        };
+      } else {
+        styles = aniObj;
+      }
+      if (animateTypes1.includes(type)) {
+        if (!styles.styles.transform) {
+          styles.styles.transform = '';
+        }
+        var unit = '';
+        if (type === 'rotate') {
+          unit = 'deg';
+        }
+        styles.styles.transform += "".concat(type, "(").concat(args + unit, ") ");
+      } else {
+        styles.styles[type] = "".concat(args);
+      }
+      this.currentStepAnimates[this.next] = styles;
+    }
+  }, {
+    key: "_animateRun",
+    value: function _animateRun() {
+      var styles = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+      var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      var ref = this.$.$refs['ani'].ref;
+      if (!ref) return;
+      return new Promise(function (resolve, reject) {
+        nvueAnimation.transition(ref, _objectSpread({
+          styles: styles
+        }, config), function (res) {
+          resolve();
+        });
+      });
+    }
+  }, {
+    key: "_nvueNextAnimate",
+    value: function _nvueNextAnimate(animates) {
+      var _this2 = this;
+      var step = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+      var fn = arguments.length > 2 ? arguments[2] : undefined;
+      var obj = animates[step];
+      if (obj) {
+        var styles = obj.styles,
+          config = obj.config;
+        this._animateRun(styles, config).then(function () {
+          step += 1;
+          _this2._nvueNextAnimate(animates, step, fn);
+        });
+      } else {
+        this.currentStepAnimates = {};
+        typeof fn === 'function' && fn();
+        this.isEnd = true;
+      }
+    }
+  }, {
+    key: "step",
+    value: function step() {
+      var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+      this.animation.step(config);
+      return this;
+    }
+  }, {
+    key: "run",
+    value: function run(fn) {
+      this.$.animationData = this.animation.export();
+      this.$.timer = setTimeout(function () {
+        typeof fn === 'function' && fn();
+      }, this.$.durationTime);
+    }
+  }]);
+  return MPAnimation;
+}();
+var animateTypes1 = ['matrix', 'matrix3d', 'rotate', 'rotate3d', 'rotateX', 'rotateY', 'rotateZ', 'scale', 'scale3d', 'scaleX', 'scaleY', 'scaleZ', 'skew', 'skewX', 'skewY', 'translate', 'translate3d', 'translateX', 'translateY', 'translateZ'];
+var animateTypes2 = ['opacity', 'backgroundColor'];
+var animateTypes3 = ['width', 'height', 'left', 'right', 'top', 'bottom'];
+animateTypes1.concat(animateTypes2, animateTypes3).forEach(function (type) {
+  MPAnimation.prototype[type] = function () {
+    var _this$animation;
+    (_this$animation = this.animation)[type].apply(_this$animation, arguments);
+    return this;
+  };
+});
+function createAnimation(option, _this) {
+  if (!_this) return;
+  clearTimeout(_this.timer);
+  return new MPAnimation(option, _this);
+}
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
 
 /***/ }),
 
@@ -11772,136 +14007,10 @@ function normalizeComponent (
 
 /***/ }),
 
-/***/ 343:
-/*!*******************************************************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-collapse/components/uv-collapse/props.js ***!
-  \*******************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {
-
-var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
-var _uni$$uv, _uni$$uv$props;
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-var _default = {
-  props: _objectSpread({
-    // 当前展开面板的name，非手风琴模式：[<string | number>]，手风琴模式：string | number
-    value: {
-      type: [String, Number, Array, null],
-      default: null
-    },
-    // 是否手风琴模式
-    accordion: {
-      type: Boolean,
-      default: false
-    },
-    // 是否显示外边框
-    border: {
-      type: Boolean,
-      default: true
-    }
-  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.collapse)
-};
-exports.default = _default;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
-
-/***/ }),
-
-/***/ 349:
-/*!************************************************************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-collapse/components/uv-collapse-item/props.js ***!
-  \************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {
-
-var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
-var _uni$$uv, _uni$$uv$props;
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-var _default = {
-  props: _objectSpread({
-    // 标题
-    title: {
-      type: String,
-      default: ''
-    },
-    // 标题右侧内容
-    value: {
-      type: String,
-      default: ''
-    },
-    // 标题下方的描述信息
-    label: {
-      type: String,
-      default: ''
-    },
-    // 是否禁用折叠面板
-    disabled: {
-      type: Boolean,
-      default: false
-    },
-    // 是否展示右侧箭头并开启点击反馈
-    isLink: {
-      type: Boolean,
-      default: true
-    },
-    // 是否开启点击反馈
-    clickable: {
-      type: Boolean,
-      default: true
-    },
-    // 是否显示内边框
-    border: {
-      type: Boolean,
-      default: true
-    },
-    // 标题的对齐方式
-    align: {
-      type: String,
-      default: 'left'
-    },
-    // 唯一标识符
-    name: {
-      type: [String, Number],
-      default: ''
-    },
-    // 标题左侧图片，可为绝对路径的图片或内置图标
-    icon: {
-      type: String,
-      default: ''
-    },
-    // 面板展开收起的过渡时间，单位ms
-    duration: {
-      type: Number,
-      default: 300
-    }
-  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.collapseItem)
-};
-exports.default = _default;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
-
-/***/ }),
-
 /***/ 35:
-/*!*****************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/common/js/util.js ***!
-  \*****************************************************/
+/*!**********************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/common/js/util.js ***!
+  \**********************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -12593,145 +14702,6 @@ exports.default = _default;
 
 /***/ }),
 
-/***/ 357:
-/*!***********************************************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-cell/components/uv-cell/props.js ***!
-  \***********************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {
-
-var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
-var _uni$$uv, _uni$$uv$props;
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-var _default2 = {
-  props: _objectSpread({
-    // 标题
-    title: {
-      type: [String, Number],
-      default: ''
-    },
-    // 标题下方的描述信息
-    label: {
-      type: [String, Number],
-      default: ''
-    },
-    // 右侧的内容
-    value: {
-      type: [String, Number],
-      default: ''
-    },
-    // 左侧图标名称，或者图片链接(本地文件建议使用绝对地址)
-    icon: {
-      type: String,
-      default: ''
-    },
-    // 是否禁用cell
-    disabled: {
-      type: Boolean,
-      default: false
-    },
-    // 是否显示下边框
-    border: {
-      type: Boolean,
-      default: true
-    },
-    // 内容是否垂直居中(主要是针对右侧的value部分)
-    center: {
-      type: Boolean,
-      default: true
-    },
-    // 点击后跳转的URL地址
-    url: {
-      type: String,
-      default: ''
-    },
-    // 链接跳转的方式，内部使用的是uvui封装的route方法，可能会进行拦截操作
-    linkType: {
-      type: String,
-      default: 'navigateTo'
-    },
-    // 是否开启点击反馈(表现为点击时加上灰色背景)
-    clickable: {
-      type: Boolean,
-      default: false
-    },
-    // 是否展示右侧箭头并开启点击反馈
-    isLink: {
-      type: Boolean,
-      default: false
-    },
-    // 是否显示表单状态下的必填星号(此组件可能会内嵌入input组件)
-    required: {
-      type: Boolean,
-      default: false
-    },
-    // 右侧的图标箭头
-    rightIcon: {
-      type: String,
-      default: 'arrow-right'
-    },
-    // 右侧箭头的方向，可选值为：left，up，down
-    arrowDirection: {
-      type: String,
-      default: ''
-    },
-    // 左侧图标样式
-    iconStyle: {
-      type: [Object, String],
-      default: function _default() {
-        return {};
-      }
-    },
-    // 右侧箭头图标的样式
-    rightIconStyle: {
-      type: [Object, String],
-      default: function _default() {
-        return {};
-      }
-    },
-    // 标题的样式
-    titleStyle: {
-      type: [Object, String],
-      default: function _default() {
-        return {};
-      }
-    },
-    // 单位元的大小，可选值为large
-    size: {
-      type: String,
-      default: ''
-    },
-    // 点击cell是否阻止事件传播
-    stop: {
-      type: Boolean,
-      default: true
-    },
-    // 标识符，cell被点击时返回
-    name: {
-      type: [Number, String],
-      default: ''
-    },
-    // 单元格自定义样式
-    cellStyle: {
-      type: [Object, String],
-      default: function _default() {}
-    }
-  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.cell)
-};
-exports.default = _default2;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
-
-/***/ }),
-
 /***/ 36:
 /*!************************************************************************************************!*\
   !*** ./node_modules/@dcloudio/vue-cli-plugin-uni/packages/@babel/runtime/regenerator/index.js ***!
@@ -12743,204 +14713,6 @@ exports.default = _default2;
 
 var runtime = __webpack_require__(/*! @babel/runtime/helpers/regeneratorRuntime */ 37)();
 module.exports = runtime;
-
-/***/ }),
-
-/***/ 368:
-/*!*************************************************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-input/components/uv-input/props.js ***!
-  \*************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {
-
-var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
-var _uni$$uv, _uni$$uv$props;
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-var _default = {
-  props: _objectSpread({
-    value: {
-      type: [String, Number],
-      default: ''
-    },
-    modelValue: {
-      type: [String, Number],
-      default: ''
-    },
-    // 输入框类型
-    // number-数字输入键盘，app-vue下可以输入浮点数，app-nvue和小程序平台下只能输入整数
-    // idcard-身份证输入键盘，微信、支付宝、百度、QQ小程序
-    // digit-带小数点的数字键盘，App的nvue页面、微信、支付宝、百度、头条、QQ小程序
-    // text-文本输入键盘
-    type: {
-      type: String,
-      default: 'text'
-    },
-    // 是否禁用输入框
-    disabled: {
-      type: Boolean,
-      default: false
-    },
-    // 禁用状态时的背景色
-    disabledColor: {
-      type: String,
-      default: '#f5f7fa'
-    },
-    // 是否显示清除控件
-    clearable: {
-      type: Boolean,
-      default: false
-    },
-    // 是否密码类型
-    password: {
-      type: Boolean,
-      default: false
-    },
-    // 最大输入长度，设置为 -1 的时候不限制最大长度
-    maxlength: {
-      type: [String, Number],
-      default: -1
-    },
-    // 	输入框为空时的占位符
-    placeholder: {
-      type: String,
-      default: null
-    },
-    // 指定placeholder的样式类，注意页面或组件的style中写了scoped时，需要在类名前写/deep/
-    placeholderClass: {
-      type: String,
-      default: 'input-placeholder'
-    },
-    // 指定placeholder的样式
-    placeholderStyle: {
-      type: [String, Object],
-      default: 'color: #c0c4cc'
-    },
-    // 设置右下角按钮的文字，有效值：send|search|next|go|done，兼容性详见uni-app文档
-    // https://uniapp.dcloud.io/component/input
-    // https://uniapp.dcloud.io/component/textarea
-    confirmType: {
-      type: String,
-      default: 'done'
-    },
-    // 点击键盘右下角按钮时是否保持键盘不收起，H5无效
-    confirmHold: {
-      type: Boolean,
-      default: false
-    },
-    // focus时，点击页面的时候不收起键盘，微信小程序有效
-    holdKeyboard: {
-      type: Boolean,
-      default: false
-    },
-    // 自动获取焦点
-    // 在 H5 平台能否聚焦以及软键盘是否跟随弹出，取决于当前浏览器本身的实现。nvue 页面不支持，需使用组件的 focus()、blur() 方法控制焦点
-    focus: {
-      type: Boolean,
-      default: false
-    },
-    // 键盘收起时，是否自动失去焦点，目前仅App3.0.0+有效
-    autoBlur: {
-      type: Boolean,
-      default: false
-    },
-    // 指定focus时光标的位置
-    cursor: {
-      type: [String, Number],
-      default: -1
-    },
-    // 输入框聚焦时底部与键盘的距离
-    cursorSpacing: {
-      type: [String, Number],
-      default: 30
-    },
-    // 光标起始位置，自动聚集时有效，需与selection-end搭配使用
-    selectionStart: {
-      type: [String, Number],
-      default: -1
-    },
-    // 光标结束位置，自动聚集时有效，需与selection-start搭配使用
-    selectionEnd: {
-      type: [String, Number],
-      default: -1
-    },
-    // 键盘弹起时，是否自动上推页面
-    adjustPosition: {
-      type: Boolean,
-      default: true
-    },
-    // 输入框内容对齐方式，可选值为：left|center|right
-    inputAlign: {
-      type: String,
-      default: 'left'
-    },
-    // 输入框字体的大小
-    fontSize: {
-      type: [String, Number],
-      default: '14px'
-    },
-    // 输入框字体颜色
-    color: {
-      type: String,
-      default: '#303133'
-    },
-    // 输入框前置图标
-    prefixIcon: {
-      type: String,
-      default: ''
-    },
-    // 前置图标样式，对象或字符串
-    prefixIconStyle: {
-      type: [String, Object],
-      default: ''
-    },
-    // 输入框后置图标
-    suffixIcon: {
-      type: String,
-      default: ''
-    },
-    // 后置图标样式，对象或字符串
-    suffixIconStyle: {
-      type: [String, Object],
-      default: ''
-    },
-    // 边框类型，surround-四周边框，bottom-底部边框，none-无边框
-    border: {
-      type: String,
-      default: 'surround'
-    },
-    // 是否只读，与disabled不同之处在于disabled会置灰组件，而readonly则不会
-    readonly: {
-      type: Boolean,
-      default: false
-    },
-    // 输入框形状，circle-圆形，square-方形
-    shape: {
-      type: String,
-      default: 'square'
-    },
-    // 用于处理或者过滤输入框内容的方法
-    formatter: {
-      type: [Function, null],
-      default: null
-    },
-    // 是否忽略组件内对文本合成系统事件的处理
-    ignoreCompositionEvent: {
-      type: Boolean,
-      default: true
-    }
-  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.input)
-};
-exports.default = _default;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
 
 /***/ }),
 
@@ -13307,10 +15079,166 @@ module.exports = _asyncToGenerator, module.exports.__esModule = true, module.exp
 
 /***/ }),
 
+/***/ 382:
+/*!********************************************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-search/components/uv-search/props.js ***!
+  \********************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(uni) {
+
+var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
+var _uni$$uv, _uni$$uv$props;
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+var _default2 = {
+  props: _objectSpread({
+    value: {
+      type: [String, Number],
+      default: ''
+    },
+    modelValue: {
+      type: [String, Number],
+      default: ''
+    },
+    // 搜索框形状，round-圆形，square-方形
+    shape: {
+      type: String,
+      default: 'round'
+    },
+    // 搜索框背景色，默认值#f2f2f2
+    bgColor: {
+      type: String,
+      default: '#f2f2f2'
+    },
+    // 占位提示文字
+    placeholder: {
+      type: String,
+      default: '请输入关键字'
+    },
+    // 是否启用清除控件
+    clearabled: {
+      type: Boolean,
+      default: true
+    },
+    // 是否自动聚焦
+    focus: {
+      type: Boolean,
+      default: false
+    },
+    // 是否在搜索框右侧显示取消按钮
+    showAction: {
+      type: Boolean,
+      default: true
+    },
+    // 右边控件的样式
+    actionStyle: {
+      type: Object,
+      default: function _default() {
+        return {};
+      }
+    },
+    // 取消按钮文字
+    actionText: {
+      type: String,
+      default: '搜索'
+    },
+    // 输入框内容对齐方式，可选值为 left|center|right
+    inputAlign: {
+      type: String,
+      default: 'left'
+    },
+    // input输入框的样式，可以定义文字颜色，大小等，对象形式
+    inputStyle: {
+      type: Object,
+      default: function _default() {
+        return {};
+      }
+    },
+    // 是否禁用输入框
+    disabled: {
+      type: Boolean,
+      default: false
+    },
+    // 边框颜色
+    borderColor: {
+      type: String,
+      default: 'transparent'
+    },
+    // 搜索图标的颜色，默认同输入框字体颜色
+    searchIconColor: {
+      type: String,
+      default: '#909399'
+    },
+    // 输入框字体颜色
+    color: {
+      type: String,
+      default: '#606266'
+    },
+    // placeholder的颜色
+    placeholderColor: {
+      type: String,
+      default: '#909399'
+    },
+    // 左边输入框的图标，可以为uvui图标名称或图片路径
+    searchIcon: {
+      type: String,
+      default: 'search'
+    },
+    searchIconSize: {
+      type: [Number, String],
+      default: 22
+    },
+    // 组件与其他上下左右元素之间的距离，带单位的字符串形式，如"30px"、"30px 20px"等写法
+    margin: {
+      type: String,
+      default: '0'
+    },
+    // 开启showAction时，是否在input获取焦点时才显示
+    animation: {
+      type: Boolean,
+      default: false
+    },
+    // 输入框最大能输入的长度，-1为不限制长度(来自uniapp文档)
+    maxlength: {
+      type: [String, Number],
+      default: -1
+    },
+    // 搜索框高度，单位px
+    height: {
+      type: [String, Number],
+      default: 32
+    },
+    // 搜索框左侧文本
+    label: {
+      type: [String, Number, null],
+      default: null
+    },
+    // 搜索框扩展样式
+    boxStyle: {
+      type: [String, Object],
+      default: function _default() {
+        return {};
+      }
+    }
+  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.search)
+};
+exports.default = _default2;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
+
+/***/ }),
+
 /***/ 39:
-/*!*******************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/common/js/config.js ***!
-  \*******************************************************/
+/*!************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/common/js/config.js ***!
+  \************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -13358,9 +15286,9 @@ module.exports = _interopRequireDefault, module.exports.__esModule = true, modul
 /***/ }),
 
 /***/ 40:
-/*!*****************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/common/js/http.js ***!
-  \*****************************************************/
+/*!**********************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/common/js/http.js ***!
+  \**********************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -13448,9 +15376,9 @@ exports.default = _default;
 /***/ }),
 
 /***/ 41:
-/*!******************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/common/js/share.js ***!
-  \******************************************************/
+/*!***********************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/common/js/share.js ***!
+  \***********************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -13514,9 +15442,9 @@ exports.default = _default;
 /***/ }),
 
 /***/ 48:
-/*!***************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/static/logo.png ***!
-  \***************************************************/
+/*!********************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/static/logo.png ***!
+  \********************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 
@@ -13539,6 +15467,28 @@ function _slicedToArray(arr, i) {
   return arrayWithHoles(arr) || iterableToArrayLimit(arr, i) || unsupportedIterableToArray(arr, i) || nonIterableRest();
 }
 module.exports = _slicedToArray, module.exports.__esModule = true, module.exports["default"] = module.exports;
+
+/***/ }),
+
+/***/ 57:
+/*!***************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/static/index/icon1.png ***!
+  \***************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEsAAABLCAYAAAA4TnrqAAAAAXNSR0IArs4c6QAABzBJREFUeF7tnG2MVNUZx3/P7BoQ0DRGZXeWmiIYFSIfSkGCTWqNQYWdQUPFYMVGpQmVqrG1RO0Li9pU+2a0LZIIJq3GNlKN7ixY18RqIm1daz/QLNYIqMAOrDRGlxXdsHsf9+zMwsyys/fcO+cOszdzvk3meTv/83Kf8/I/wkkoevXZMxion4/oLJTzIfEV0KnAl4BJQD3gAb3AxyDd4L0PshvYgfAfac2+U+nQpRIO9aozTueUCWlUFgOXAQaYcks38Aqi2zja1yovftRTrkE//cjA0hYSvNW0GNXvIlwBTPALpoz/+0C2orKZ3v3t8ir9ZdgqqeocLL1q5gTqe2+Buh+CnhtF0D42zVB9lL6BzdLe/alL/87A0kupZ0rTKhL6Y5RpLoMMaesQcA+Hs3901dOcgKXNya8j/AGYE7JiUartQFkjbdnXy3VSFlh67bRT+dz7NbAaSJQbTIT6/aC/o8/7aTlDMzRYurRhFl7iGWB2hJV0bboTvOskc7AzjOFQYGkqeTXwJDAljNOTrNMDerNkDjwbNI7AYGlz8kcID1b5sPPDwUO5W9qyv/ITLPw/EFjanFyH0BLEQVXLKi3Sll1vG6M1WLEDahihAIBZgZUfer+0bYFxJ6estRmSvmBpqnEZiPnqVXNqUG77mEX7Mslknx/L0Jhg5dODfwKnlxvNONDvBW/BWGlFSbB00dTJTKh7Y5zlUeW2SScTE/Nky/7PRjNUGqxU429B7izX+zjU3yCZ7BprsPJrvb/nN+HGYX3LCtnkYN8YbS15Qs8a2j04LflWlS6Ky0IhgPIODmfnjtytOBGsVPIWYFMAw/EUVfmetHVtLJnB5yf194CzIkdAEjDvcjh3NohPBqMK778NHS+DNxB5aEMOhP0cnTRTXtzVN+ywKEpNJW8HHok8mkQdrH0MFi4J5uofW+Gh1aAmLapE8dZI5uCGE8DKz1X/G9xNmBF5GAuuhHs3h3PzwE3Q0R5ON7CW7GFu13nSMnTSNLgszhdtnrYY8bYGtjeWwpmNcEkKJo3YyZm9AOZcEs7Vju3Q+a9i3U974I126N4bzuaYWpKSTFdbMVjp5HMo1zjzNms+rHsKTp3szOSYhj4bPJto+Ta8/aZbf0qrtGWXHgNr6FyvfuKHTo+rHmmH6RXeRN39X7jzSrdgQR/9n59tziWHhqGmG29Axex8uisv7APzxatkMRP/0i+79+jpStl64KkcWKnk08AKp15au5yaszaWbrIWtRZU/iJt2RXDYB10dKR+3H+cwIJuyWQbRNPJ81FMyuC2xAss6O+fKZpKmuFnhqHbEjew4HoD1i+Au90iBcQNLNEHRFONz4BcWwPLDwHdIppq6gCd5yca+P+49SzkTTMMPwDOCQyGn8JIsLp2w89WwKGAKcVZTXDfn6HJcskaReqQq+teA9YnkRxIjATrr7+HP5npMUS58R741vftFKMDq8eAZTaI3Kfa8etZ/QYstWuygFKxm7PAgHU0koOJ+IHlVW7OCtgxQ4tHPGdV99ewEDWbL2N0YJmvYYXyrHK+hoWA+X0ZIwNrKM+qUAYfNs+qmp5lMvh04/2o/CT0HFFKMX4T/IO1XQf7XnK9aHraTNR7117HUjJuPUu4oLZTatf2uZ1SI1vbg/dBrGgPPorTnTgNQ9GV0jp8uhPFuWF8wCo+Nxwais3JFwYZomm7IWwhFZtzQ3lOMl3LTI2P33VINTWDZixgsBN5+G8w4yI7WVdS73XCHYtcWcvZUW+JtB3cVgxWjnn6rjNC5YVfg5anK3vXYf0NsLPDJVi7OZy9YPgG4Ij7WQ23QsLwBt2UqefAxYtgcsQ3w4/0wvYM/P+Am7iPW7lDMtlHh38Wg2Uou6cc2VUlTFTXFQ9q7xB9A9ML+Ykn3iltblqN6GNBLcdQfpVkskU37mq3lUdvZbvbyvk0wnCeX4vkIKP6u2A/yjet7sEP10VTSTPR31r9dXMdoT4smQM/GM1qaTpKjiz+b2CW63Cq2N5O+gbmlyKdj80KSzXMhoS57ToeudBB26QHvIWhWGEFw9GQxw352v1BbNDqRCfvgS73I5n7kjPzE74hkdeYrLaNpelkC8o6W/lxIyesl9asFUneqmcdG5JxAywAUEULadueUHvXwRapvFyeZP5EJFeVAsYSQty89rbSjzweKM/yC0JzaYVh5Y+nPGwneMsr+hbNsTlsiHSeuB/ktkhu4vi1mP3/htW1kYmJu0qRxW1MBZrgSxmsvZ9lA3WBTJ6v+J1BspS5Cxk9E9YvPsNE9eTn9HZtqqqX2QrjzlOHDc/asGItb8361TzI/7IHBn5D/5TNhZTdIBZKyToZhqMZz70B2LCIRGIVinlyM9rXJJWXEHmcuV3bhpmnLgAqtBEZWEW9rfZOafh2y5Orvpp7O0JnjHgB1+xwmEW7eWv0SNELuMI7qOykrq5Dnt9nntisaPkCeRiKstAAumoAAAAASUVORK5CYII="
+
+/***/ }),
+
+/***/ 58:
+/*!***************************************************!*\
+  !*** D:/项目/新项目的模版/shopBIZ/static/index/icon2.png ***!
+  \***************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEsAAABLCAYAAAA4TnrqAAAAAXNSR0IArs4c6QAACWhJREFUeF7tnHlw1OUZxz/vJghyKVAh2SAeQEUYaS3KtJQRwRmpNBtwkMghOhSUS6Gc1UFKKFKQKwPUoyMwXhUUBcwGqAy0SMtwKLbDFCqXIpIFxCqGcGRI9i3PHrAhu9nfuUkYnn/2j32f533e7+89nvc5XkU1kO7TvDXl6Z1Ruj2aO8BzK+gWwI1AfSAdCAIlwClQJyB4GNQhYDeKz1RBYF+qVVep6FA/1LQxdermoFUvoAcgwNilE8DfUHodF0oL1Prviu0KTMbvGlg6Dw+7snqh9ZMoegJ1kylj4/9SUGvRaiklRzeozZTZkJWQ1XGw9ENt6pJeMhTSJoC+3Q2lk8iUpbqI0vKlasOJM0727xhY+n7SaZg1DI+egqalk0palHUSeI7TgTecmmmOgKWzvV1RvAR0tDgwN9l2oxmtCgP/tNuJLbB0v5bXcz44DxgBeOwq4yJ/GejFlAan2lmalsHSvTPaE/S8B3RwcZBOi94DwUeV//geK4ItgaV93j7AW0BDK51WM08x6N8o/7EPzOphGiyd7Z2EYnYNX3bJcAiieVYVBuYmaxj7vymwdLZ3Goo8Mx3U6LaaPFUYmG5UR8NgXXVARREyAZghsCJLb47RL1Dr2mkmG1mSScHSvsy+oOTUq8mmgd3vI5f2vsofWFOVoCrBipgH24DGdrWpBfwlEPx5VWZFQrD0gy0aUDdtRy2zo+x+kz3U89yrVh49F09QYrB8mQtAjbPbey3kf1n5A6MNgxW56/094oSrheO1pbLYYN3i3SUrzayQ96CRd1cNvRTbQsEE825OBzpd6a2oDJbPOxRYYkLw1dlUq5GqsOjVhBZ8ZFP/ErjJVQRatIKeg+DubnBzW7iuHpw6CV/ugR0bYNNKKD3rqgpJhSuOcqF+G7X+YGm0bYWZpX3eMcDCpIKsNqhzHTz+HGSLIzUtsZQf/gcvTYLtH1ntySG+4GjlP/5yJbAie9XnF70JrR3qqaKY+o1g2ttw5z3Gxb8zD1bkG2/veEv1BZ2K2qq8UKTp4rU4Qjq7ZS9UcK3j/UUF/v5NuOcB8+LnPw0frzbP5xiH8il/UWFFsHK8q9A87FgfsYLu7wvjF1kTfaYYhneB4u+t8dvl0hSowkDvS2CF4nrp9b5xLVz1yhbIsrG6l8+H5QvsDtsqfyll55tLXDK0DHVO5mNoJZ5P5+m2DrBwgz25RYdg5H32ZNjhDurBau2xt8Ng+bzvAAPsyEvI+6vHYNSL9kUPuBNkSVYHaVaowsCAKFjHHQqpVx5K/3EwcKL9IcrMkhlWPXRC+QMZSud470AjJoM71G8MDP6dfdlP/gJOHLEvx6qEsrI2Svu8svxkGbpD9/WBiRJ/tUFlFyC3Lchv9dFAAWsW8KxrOjRpDq/vAmXD0bp7Kzyf65qKhgQr/YLSvsz3QPUzxGC1kVWDNNrfwnGwSTzb1Ul6pdK+rJ2g73VVDTEfFqyv+j6YSIHD/4Xf9oRguasqJheuPpFl+BXQKnljmy16PwVDp5kTcvY0TM6BI/vN8bnT+oiA9UPKAhKPPA2DJhubYeKyeWEI7P+XO0M3L7VYwJL5bWP3Ndlr+87hGdb2p/EZZbltXg1vzITvv4EGjaFHPxA+Txoc3A0bV4T/u74BdH8E7uoS/k/8YRuWw3diNjpOZQKWdlxsVQLljtipO/TIhduvSMDRwbCHQQb8n23w47thyjKQEzWWzp2BlYtAbgfNb674nzgNF02AfxQ4PiwBS4wXyQ52j8Rs6NIL+o6GNkny3QSwKbnw9X5YvAlutOC0ldk5KQcO/NvJMQXd37NuyoKx+dDxl8YU/2QjzHgivLc9OtYYT7xWn22GvEHW+StzhvYs907D1nfBtLfMzY5F42Hju5D/VxB+q+S81S+noUt2lgQl8tdDQ6kDMEFiqYvFvmR75f3IhJhQ08EdQfz5jlDIznLBgpeTSYASY9QszRoG29bD7NXhE9AqySHQvx3IHugIiQWfkzkDrZ53RF5UyMMjYYhFkQVLYMm0cAToqT9YV0uuR3JNco5mO+91kHDXsk/hhmbW1BQH34iuINb7vEJrs1NkPNMDvj1mTYf4XAOVzmnZBh084JhUJ1wysmfJSda4Gcz6ADJvNa6egCy8n0sGgoOkaOe8p3TCn6CbA0EiCbDOGQ5NM+CP70NzA0UbbgEFYU+pYO+oD/7PW83NhKo+/tZCmDsKfuRNDphY7lP7Oz+jQgDF+uCdjO6sOgzpdZyb/1vWwIIxVQMmQE1/PHxFcoOUHqwKotEdJ+OGToMlg48CltEKZr4PzTIuQyLG58whsEvSyVyhinHD0EzL9n54sUI0x3Z3M96Fn3S1LaaSALlgywzLvAXm+KFxk7BP/sXhsMPNBBK1SvmL+oo+l3MdfFnZoP22R3lLO5ixwtwVx2in4ppZPClsTkz/C7w2FbZ8aJTbWjsd/LUqPL6uIljhytMDjhRUio0lhukDudbtrXhDO3YY5o4M+7TElyVWurt0iNOBdtEMwCvyszJGgcdm3CpGe7n2iEumXSdo2TZ8/DdtAY2ahAcrSWyxh8H5c3ChNBx5LjkF3wbg+FdwZB/s3QkBybNLKY1V/sCljJaKYEnJbp2zB2tIJWpKUYnT2UlKy2+LrU+snFOanTUCpV+pbk1rQP/DlD+wNFaPa9nK8b+KsWzliBkhNc8fpzSQUQOmUkSFMjTdDeXBR3XWPq9s9KNqzhhSpYnOV/5j4+P1lrgcJVws/inQPlVq1oB+9lJa3jlR0XnVVWG+jA7g2V5La6HNYl8MwS6WqsJilqMUj0vxdeoCsWaHab99EHRusiLzpMWZkQ1fisivVbIa/Sg6x5uHxmRmh1Hp1dhOMV0VBAwVyRuaWZeW5NUGmAmgBANTYMUsyWvvOhhdDJEi82UpS1UyqpixdvLa2+BkxeOm7Kxk/eqwWSG5i7XJDtsLwdyUvkVzaQ8LFZ17ZoB6xvVMnGRfr+r/JSz9KvU8ExMVixsRb3rPiif02vtZRqCOaROpV3ziYrGUpIpbSKoy2WGy5lKJGlQzKSlaUqNeZovVO1I6LHXWUhVroxQsGRqJ/ldfQPl8yhoujS3ZtSotls+RZRh3aYbeAMx4EI9nGBp5ctPd1yQ1H6HUa3QqWhetPHUCoJSAVWG2XXun1Pp3ixRX/Sz8doRufcULuPLam1za5a1RKcG//AKuYh9a7SUtbada83XKS8T+D1s4GMEwD4WyAAAAAElFTkSuQmCC"
 
 /***/ }),
 
@@ -13616,1332 +15566,6 @@ module.exports = _unsupportedIterableToArray, module.exports.__esModule = true, 
 
 /***/ }),
 
-/***/ 86:
-/*!*********************************************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-ui-tools/libs/mixin/mpMixin.js ***!
-  \*********************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var _default = {
-  // 将自定义节点设置成虚拟的（去掉自定义组件包裹层），更加接近Vue组件的表现，能更好的使用flex属性
-  options: {
-    virtualHost: true
-  }
-};
-exports.default = _default;
-
-/***/ }),
-
-/***/ 87:
-/*!*******************************************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-ui-tools/libs/mixin/mixin.js ***!
-  \*******************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {
-
-var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
-var _typeof = __webpack_require__(/*! @babel/runtime/helpers/typeof */ 13);
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
-var index = _interopRequireWildcard(__webpack_require__(/*! ../function/index.js */ 88));
-var test = _interopRequireWildcard(__webpack_require__(/*! ../function/test.js */ 89));
-var _route = _interopRequireDefault(__webpack_require__(/*! ../util/route.js */ 92));
-var _debounce = _interopRequireDefault(__webpack_require__(/*! ../function/debounce.js */ 93));
-var _throttle = _interopRequireDefault(__webpack_require__(/*! ../function/throttle.js */ 94));
-function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
-function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-var _default2 = {
-  // 定义每个组件都可能需要用到的外部样式以及类名
-  props: {
-    // 每个组件都有的父组件传递的样式，可以为字符串或者对象形式
-    customStyle: {
-      type: [Object, String],
-      default: function _default() {
-        return {};
-      }
-    },
-    customClass: {
-      type: String,
-      default: ''
-    },
-    // 跳转的页面路径
-    url: {
-      type: String,
-      default: ''
-    },
-    // 页面跳转的类型
-    linkType: {
-      type: String,
-      default: 'navigateTo'
-    }
-  },
-  data: function data() {
-    return {};
-  },
-  onLoad: function onLoad() {
-    // getRect挂载到$uv上，因为这方法需要使用in(this)，所以无法把它独立成一个单独的文件导出
-    this.$uv.getRect = this.$uvGetRect;
-  },
-  created: function created() {
-    // 组件当中，只有created声明周期，为了能在组件使用，故也在created中将方法挂载到$uv
-    this.$uv.getRect = this.$uvGetRect;
-  },
-  computed: {
-    $uv: function $uv() {
-      var _uni, _uni$$uv, _uni$$uv$config;
-      return _objectSpread(_objectSpread({}, index), {}, {
-        test: test,
-        route: _route.default,
-        debounce: _debounce.default,
-        throttle: _throttle.default,
-        unit: (_uni = uni) === null || _uni === void 0 ? void 0 : (_uni$$uv = _uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$config = _uni$$uv.config) === null || _uni$$uv$config === void 0 ? void 0 : _uni$$uv$config.unit
-      });
-    },
-    /**
-     * 生成bem规则类名
-     * 由于微信小程序，H5，nvue之间绑定class的差异，无法通过:class="[bem()]"的形式进行同用
-     * 故采用如下折中做法，最后返回的是数组（一般平台）或字符串（支付宝和字节跳动平台），类似['a', 'b', 'c']或'a b c'的形式
-     * @param {String} name 组件名称
-     * @param {Array} fixed 一直会存在的类名
-     * @param {Array} change 会根据变量值为true或者false而出现或者隐藏的类名
-     * @returns {Array|string}
-     */
-    bem: function bem() {
-      return function (name, fixed, change) {
-        var _this = this;
-        // 类名前缀
-        var prefix = "uv-".concat(name, "--");
-        var classes = {};
-        if (fixed) {
-          fixed.map(function (item) {
-            // 这里的类名，会一直存在
-            classes[prefix + _this[item]] = true;
-          });
-        }
-        if (change) {
-          change.map(function (item) {
-            // 这里的类名，会根据this[item]的值为true或者false，而进行添加或者移除某一个类
-            _this[item] ? classes[prefix + item] = _this[item] : delete classes[prefix + item];
-          });
-        }
-        return Object.keys(classes);
-        // 支付宝，头条小程序无法动态绑定一个数组类名，否则解析出来的结果会带有","，而导致失效
-      };
-    }
-  },
-
-  methods: {
-    // 跳转某一个页面
-    openPage: function openPage() {
-      var urlKey = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'url';
-      var url = this[urlKey];
-      if (url) {
-        // 执行类似uni.navigateTo的方法
-        uni[this.linkType]({
-          url: url
-        });
-      }
-    },
-    // 查询节点信息
-    // 目前此方法在支付宝小程序中无法获取组件跟接点的尺寸，为支付宝的bug(2020-07-21)
-    // 解决办法为在组件根部再套一个没有任何作用的view元素
-    $uvGetRect: function $uvGetRect(selector, all) {
-      var _this2 = this;
-      return new Promise(function (resolve) {
-        uni.createSelectorQuery().in(_this2)[all ? 'selectAll' : 'select'](selector).boundingClientRect(function (rect) {
-          if (all && Array.isArray(rect) && rect.length) {
-            resolve(rect);
-          }
-          if (!all && rect) {
-            resolve(rect);
-          }
-        }).exec();
-      });
-    },
-    getParentData: function getParentData() {
-      var _this3 = this;
-      var parentName = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
-      // 避免在created中去定义parent变量
-      if (!this.parent) this.parent = {};
-      // 这里的本质原理是，通过获取父组件实例(也即类似uv-radio的父组件uv-radio-group的this)
-      // 将父组件this中对应的参数，赋值给本组件(uv-radio的this)的parentData对象中对应的属性
-      // 之所以需要这么做，是因为所有端中，头条小程序不支持通过this.parent.xxx去监听父组件参数的变化
-      // 此处并不会自动更新子组件的数据，而是依赖父组件uv-radio-group去监听data的变化，手动调用更新子组件的方法去重新获取
-      this.parent = this.$uv.$parent.call(this, parentName);
-      if (this.parent.children) {
-        // 如果父组件的children不存在本组件的实例，才将本实例添加到父组件的children中
-        this.parent.children.indexOf(this) === -1 && this.parent.children.push(this);
-      }
-      if (this.parent && this.parentData) {
-        // 历遍parentData中的属性，将parent中的同名属性赋值给parentData
-        Object.keys(this.parentData).map(function (key) {
-          _this3.parentData[key] = _this3.parent[key];
-        });
-      }
-    },
-    // 阻止事件冒泡
-    preventEvent: function preventEvent(e) {
-      e && typeof e.stopPropagation === 'function' && e.stopPropagation();
-    },
-    // 空操作
-    noop: function noop(e) {
-      this.preventEvent(e);
-    }
-  },
-  onReachBottom: function onReachBottom() {
-    uni.$emit('uvOnReachBottom');
-  },
-  beforeDestroy: function beforeDestroy() {
-    var _this4 = this;
-    // 判断当前页面是否存在parent和chldren，一般在checkbox和checkbox-group父子联动的场景会有此情况
-    // 组件销毁时，移除子组件在父组件children数组中的实例，释放资源，避免数据混乱
-    if (this.parent && test.array(this.parent.children)) {
-      // 组件销毁时，移除父组件中的children数组中对应的实例
-      var childrenList = this.parent.children;
-      childrenList.map(function (child, index) {
-        // 如果相等，则移除
-        if (child === _this4) {
-          childrenList.splice(index, 1);
-        }
-      });
-    }
-  },
-  // 兼容vue3
-  unmounted: function unmounted() {
-    var _this5 = this;
-    if (this.parent && test.array(this.parent.children)) {
-      // 组件销毁时，移除父组件中的children数组中对应的实例
-      var childrenList = this.parent.children;
-      childrenList.map(function (child, index) {
-        // 如果相等，则移除
-        if (child === _this5) {
-          childrenList.splice(index, 1);
-        }
-      });
-    }
-  }
-};
-exports.default = _default2;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
-
-/***/ }),
-
-/***/ 88:
-/*!**********************************************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-ui-tools/libs/function/index.js ***!
-  \**********************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {
-
-var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.$parent = $parent;
-exports.addStyle = addStyle;
-exports.addUnit = addUnit;
-exports.deepClone = deepClone;
-exports.deepMerge = deepMerge;
-exports.error = error;
-exports.formValidate = formValidate;
-exports.getDuration = getDuration;
-exports.getHistoryPage = getHistoryPage;
-exports.getProperty = getProperty;
-exports.getPx = getPx;
-exports.guid = guid;
-exports.os = os;
-exports.padZero = padZero;
-exports.page = page;
-exports.pages = pages;
-exports.priceFormat = priceFormat;
-exports.queryParams = queryParams;
-exports.random = random;
-exports.randomArray = randomArray;
-exports.range = range;
-exports.setConfig = setConfig;
-exports.setProperty = setProperty;
-exports.sleep = sleep;
-exports.sys = sys;
-exports.timeFormat = timeFormat;
-exports.timeFrom = timeFrom;
-exports.toast = toast;
-exports.trim = trim;
-exports.type2icon = type2icon;
-var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/slicedToArray */ 5));
-var _typeof2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/typeof */ 13));
-var _test = __webpack_require__(/*! ./test.js */ 89);
-var _digit = __webpack_require__(/*! ./digit.js */ 90);
-/**
- * @description 如果value小于min，取min；如果value大于max，取max
- * @param {number} min
- * @param {number} max
- * @param {number} value
- */
-function range() {
-  var min = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-  var max = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-  var value = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
-  return Math.max(min, Math.min(max, Number(value)));
-}
-
-/**
- * @description 用于获取用户传递值的px值  如果用户传递了"xxpx"或者"xxrpx"，取出其数值部分，如果是"xxxrpx"还需要用过uni.upx2px进行转换
- * @param {number|string} value 用户传递值的px值
- * @param {boolean} unit
- * @returns {number|string}
- */
-function getPx(value) {
-  var unit = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-  if ((0, _test.number)(value)) {
-    return unit ? "".concat(value, "px") : Number(value);
-  }
-  // 如果带有rpx，先取出其数值部分，再转为px值
-  if (/(rpx|upx)$/.test(value)) {
-    return unit ? "".concat(uni.upx2px(parseInt(value)), "px") : Number(uni.upx2px(parseInt(value)));
-  }
-  return unit ? "".concat(parseInt(value), "px") : parseInt(value);
-}
-
-/**
- * @description 进行延时，以达到可以简写代码的目的 比如: await uni.$uv.sleep(20)将会阻塞20ms
- * @param {number} value 堵塞时间 单位ms 毫秒
- * @returns {Promise} 返回promise
- */
-function sleep() {
-  var value = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 30;
-  return new Promise(function (resolve) {
-    setTimeout(function () {
-      resolve();
-    }, value);
-  });
-}
-/**
- * @description 运行期判断平台
- * @returns {string} 返回所在平台(小写)
- * @link 运行期判断平台 https://uniapp.dcloud.io/frame?id=判断平台
- */
-function os() {
-  return uni.getSystemInfoSync().platform.toLowerCase();
-}
-/**
- * @description 获取系统信息同步接口
- * @link 获取系统信息同步接口 https://uniapp.dcloud.io/api/system/info?id=getsysteminfosync
- */
-function sys() {
-  return uni.getSystemInfoSync();
-}
-
-/**
- * @description 取一个区间数
- * @param {Number} min 最小值
- * @param {Number} max 最大值
- */
-function random(min, max) {
-  if (min >= 0 && max > 0 && max >= min) {
-    var gab = max - min + 1;
-    return Math.floor(Math.random() * gab + min);
-  }
-  return 0;
-}
-
-/**
- * @param {Number} len uuid的长度
- * @param {Boolean} firstU 将返回的首字母置为"u"
- * @param {Nubmer} radix 生成uuid的基数(意味着返回的字符串都是这个基数),2-二进制,8-八进制,10-十进制,16-十六进制
- */
-function guid() {
-  var len = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 32;
-  var firstU = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-  var radix = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-  var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split('');
-  var uuid = [];
-  radix = radix || chars.length;
-  if (len) {
-    // 如果指定uuid长度,只是取随机的字符,0|x为位运算,能去掉x的小数位,返回整数位
-    for (var i = 0; i < len; i++) {
-      uuid[i] = chars[0 | Math.random() * radix];
-    }
-  } else {
-    var r;
-    // rfc4122标准要求返回的uuid中,某些位为固定的字符
-    uuid[8] = uuid[13] = uuid[18] = uuid[23] = '-';
-    uuid[14] = '4';
-    for (var _i = 0; _i < 36; _i++) {
-      if (!uuid[_i]) {
-        r = 0 | Math.random() * 16;
-        uuid[_i] = chars[_i == 19 ? r & 0x3 | 0x8 : r];
-      }
-    }
-  }
-  // 移除第一个字符,并用u替代,因为第一个字符为数值时,该guuid不能用作id或者class
-  if (firstU) {
-    uuid.shift();
-    return "u".concat(uuid.join(''));
-  }
-  return uuid.join('');
-}
-
-/**
-* @description 获取父组件的参数，因为支付宝小程序不支持provide/inject的写法
-   this.$parent在非H5中，可以准确获取到父组件，但是在H5中，需要多次this.$parent.$parent.xxx
-   这里默认值等于undefined有它的含义，因为最顶层元素(组件)的$parent就是undefined，意味着不传name
-   值(默认为undefined)，就是查找最顶层的$parent
-*  @param {string|undefined} name 父组件的参数名
-*/
-function $parent() {
-  var name = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : undefined;
-  var parent = this.$parent;
-  // 通过while历遍，这里主要是为了H5需要多层解析的问题
-  while (parent) {
-    // 父组件
-    if (parent.$options && parent.$options.name !== name) {
-      // 如果组件的name不相等，继续上一级寻找
-      parent = parent.$parent;
-    } else {
-      return parent;
-    }
-  }
-  return false;
-}
-
-/**
- * @description 样式转换
- * 对象转字符串，或者字符串转对象
- * @param {object | string} customStyle 需要转换的目标
- * @param {String} target 转换的目的，object-转为对象，string-转为字符串
- * @returns {object|string}
- */
-function addStyle(customStyle) {
-  var target = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'object';
-  // 字符串转字符串，对象转对象情形，直接返回
-  if ((0, _test.empty)(customStyle) || (0, _typeof2.default)(customStyle) === 'object' && target === 'object' || target === 'string' && typeof customStyle === 'string') {
-    return customStyle;
-  }
-  // 字符串转对象
-  if (target === 'object') {
-    // 去除字符串样式中的两端空格(中间的空格不能去掉，比如padding: 20px 0如果去掉了就错了)，空格是无用的
-    customStyle = trim(customStyle);
-    // 根据";"将字符串转为数组形式
-    var styleArray = customStyle.split(';');
-    var style = {};
-    // 历遍数组，拼接成对象
-    for (var i = 0; i < styleArray.length; i++) {
-      // 'font-size:20px;color:red;'，如此最后字符串有";"的话，会导致styleArray最后一个元素为空字符串，这里需要过滤
-      if (styleArray[i]) {
-        var item = styleArray[i].split(':');
-        style[trim(item[0])] = trim(item[1]);
-      }
-    }
-    return style;
-  }
-  // 这里为对象转字符串形式
-  var string = '';
-  for (var _i2 in customStyle) {
-    // 驼峰转为中划线的形式，否则css内联样式，无法识别驼峰样式属性名
-    var key = _i2.replace(/([A-Z])/g, '-$1').toLowerCase();
-    string += "".concat(key, ":").concat(customStyle[_i2], ";");
-  }
-  // 去除两端空格
-  return trim(string);
-}
-
-/**
- * @description 添加单位，如果有rpx，upx，%，px等单位结尾或者值为auto，直接返回，否则加上px单位结尾
- * @param {string|number} value 需要添加单位的值
- * @param {string} unit 添加的单位名 比如px
- */
-function addUnit() {
-  var _uni, _uni$$uv, _uni$$uv$config, _uni2, _uni2$$uv, _uni2$$uv$config;
-  var value = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'auto';
-  var unit = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : (_uni = uni) !== null && _uni !== void 0 && (_uni$$uv = _uni.$uv) !== null && _uni$$uv !== void 0 && (_uni$$uv$config = _uni$$uv.config) !== null && _uni$$uv$config !== void 0 && _uni$$uv$config.unit ? (_uni2 = uni) === null || _uni2 === void 0 ? void 0 : (_uni2$$uv = _uni2.$uv) === null || _uni2$$uv === void 0 ? void 0 : (_uni2$$uv$config = _uni2$$uv.config) === null || _uni2$$uv$config === void 0 ? void 0 : _uni2$$uv$config.unit : 'px';
-  value = String(value);
-  // 用uvui内置验证规则中的number判断是否为数值
-  return (0, _test.number)(value) ? "".concat(value).concat(unit) : value;
-}
-
-/**
- * @description 深度克隆
- * @param {object} obj 需要深度克隆的对象
- * @param cache 缓存
- * @returns {*} 克隆后的对象或者原值（不是对象）
- */
-function deepClone(obj) {
-  var cache = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : new WeakMap();
-  if (obj === null || (0, _typeof2.default)(obj) !== 'object') return obj;
-  if (cache.has(obj)) return cache.get(obj);
-  var clone;
-  if (obj instanceof Date) {
-    clone = new Date(obj.getTime());
-  } else if (obj instanceof RegExp) {
-    clone = new RegExp(obj);
-  } else if (obj instanceof Map) {
-    clone = new Map(Array.from(obj, function (_ref) {
-      var _ref2 = (0, _slicedToArray2.default)(_ref, 2),
-        key = _ref2[0],
-        value = _ref2[1];
-      return [key, deepClone(value, cache)];
-    }));
-  } else if (obj instanceof Set) {
-    clone = new Set(Array.from(obj, function (value) {
-      return deepClone(value, cache);
-    }));
-  } else if (Array.isArray(obj)) {
-    clone = obj.map(function (value) {
-      return deepClone(value, cache);
-    });
-  } else if (Object.prototype.toString.call(obj) === '[object Object]') {
-    clone = Object.create(Object.getPrototypeOf(obj));
-    cache.set(obj, clone);
-    for (var _i3 = 0, _Object$entries = Object.entries(obj); _i3 < _Object$entries.length; _i3++) {
-      var _Object$entries$_i = (0, _slicedToArray2.default)(_Object$entries[_i3], 2),
-        key = _Object$entries$_i[0],
-        value = _Object$entries$_i[1];
-      clone[key] = deepClone(value, cache);
-    }
-  } else {
-    clone = Object.assign({}, obj);
-  }
-  cache.set(obj, clone);
-  return clone;
-}
-
-/**
- * @description JS对象深度合并
- * @param {object} target 需要拷贝的对象
- * @param {object} source 拷贝的来源对象
- * @returns {object|boolean} 深度合并后的对象或者false（入参有不是对象）
- */
-function deepMerge() {
-  var target = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-  var source = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  target = deepClone(target);
-  if ((0, _typeof2.default)(target) !== 'object' || target === null || (0, _typeof2.default)(source) !== 'object' || source === null) return target;
-  var merged = Array.isArray(target) ? target.slice() : Object.assign({}, target);
-  for (var prop in source) {
-    if (!source.hasOwnProperty(prop)) continue;
-    var sourceValue = source[prop];
-    var targetValue = merged[prop];
-    if (sourceValue instanceof Date) {
-      merged[prop] = new Date(sourceValue);
-    } else if (sourceValue instanceof RegExp) {
-      merged[prop] = new RegExp(sourceValue);
-    } else if (sourceValue instanceof Map) {
-      merged[prop] = new Map(sourceValue);
-    } else if (sourceValue instanceof Set) {
-      merged[prop] = new Set(sourceValue);
-    } else if ((0, _typeof2.default)(sourceValue) === 'object' && sourceValue !== null) {
-      merged[prop] = deepMerge(targetValue, sourceValue);
-    } else {
-      merged[prop] = sourceValue;
-    }
-  }
-  return merged;
-}
-
-/**
- * @description error提示
- * @param {*} err 错误内容
- */
-function error(err) {
-  // 开发环境才提示，生产环境不会提示
-  if (true) {
-    console.error("uvui\u63D0\u793A\uFF1A".concat(err));
-  }
-}
-
-/**
- * @description 打乱数组
- * @param {array} array 需要打乱的数组
- * @returns {array} 打乱后的数组
- */
-function randomArray() {
-  var array = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-  // 原理是sort排序,Math.random()产生0<= x < 1之间的数,会导致x-0.05大于或者小于0
-  return array.sort(function () {
-    return Math.random() - 0.5;
-  });
-}
-
-// padStart 的 polyfill，因为某些机型或情况，还无法支持es7的padStart，比如电脑版的微信小程序
-// 所以这里做一个兼容polyfill的兼容处理
-if (!String.prototype.padStart) {
-  // 为了方便表示这里 fillString 用了ES6 的默认参数，不影响理解
-  String.prototype.padStart = function (maxLength) {
-    var fillString = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : ' ';
-    if (Object.prototype.toString.call(fillString) !== '[object String]') {
-      throw new TypeError('fillString must be String');
-    }
-    var str = this;
-    // 返回 String(str) 这里是为了使返回的值是字符串字面量，在控制台中更符合直觉
-    if (str.length >= maxLength) return String(str);
-    var fillLength = maxLength - str.length;
-    var times = Math.ceil(fillLength / fillString.length);
-    while (times >>= 1) {
-      fillString += fillString;
-      if (times === 1) {
-        fillString += fillString;
-      }
-    }
-    return fillString.slice(0, fillLength) + str;
-  };
-}
-
-/**
- * @description 格式化时间
- * @param {String|Number} dateTime 需要格式化的时间戳
- * @param {String} fmt 格式化规则 yyyy:mm:dd|yyyy:mm|yyyy年mm月dd日|yyyy年mm月dd日 hh时MM分等,可自定义组合 默认yyyy-mm-dd
- * @returns {string} 返回格式化后的字符串
- */
-function timeFormat() {
-  var dateTime = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-  var formatStr = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'yyyy-mm-dd';
-  var date;
-  // 若传入时间为假值，则取当前时间
-  if (!dateTime) {
-    date = new Date();
-  }
-  // 若为unix秒时间戳，则转为毫秒时间戳（逻辑有点奇怪，但不敢改，以保证历史兼容）
-  else if (/^\d{10}$/.test(dateTime === null || dateTime === void 0 ? void 0 : dateTime.toString().trim())) {
-    date = new Date(dateTime * 1000);
-  }
-  // 若用户传入字符串格式时间戳，new Date无法解析，需做兼容
-  else if (typeof dateTime === 'string' && /^\d+$/.test(dateTime.trim())) {
-    date = new Date(Number(dateTime));
-  }
-  // 处理平台性差异，在Safari/Webkit中，new Date仅支持/作为分割符的字符串时间
-  // 处理 '2022-07-10 01:02:03'，跳过 '2022-07-10T01:02:03'
-  else if (typeof dateTime === 'string' && dateTime.includes('-') && !dateTime.includes('T')) {
-    date = new Date(dateTime.replace(/-/g, '/'));
-  }
-  // 其他都认为符合 RFC 2822 规范
-  else {
-    date = new Date(dateTime);
-  }
-  var timeSource = {
-    'y': date.getFullYear().toString(),
-    // 年
-    'm': (date.getMonth() + 1).toString().padStart(2, '0'),
-    // 月
-    'd': date.getDate().toString().padStart(2, '0'),
-    // 日
-    'h': date.getHours().toString().padStart(2, '0'),
-    // 时
-    'M': date.getMinutes().toString().padStart(2, '0'),
-    // 分
-    's': date.getSeconds().toString().padStart(2, '0') // 秒
-    // 有其他格式化字符需求可以继续添加，必须转化成字符串
-  };
-
-  for (var key in timeSource) {
-    var _ref3 = new RegExp("".concat(key, "+")).exec(formatStr) || [],
-      _ref4 = (0, _slicedToArray2.default)(_ref3, 1),
-      ret = _ref4[0];
-    if (ret) {
-      // 年可能只需展示两位
-      var beginIndex = key === 'y' && ret.length === 2 ? 2 : 0;
-      formatStr = formatStr.replace(ret, timeSource[key].slice(beginIndex));
-    }
-  }
-  return formatStr;
-}
-
-/**
- * @description 时间戳转为多久之前
- * @param {String|Number} timestamp 时间戳
- * @param {String|Boolean} format
- * 格式化规则如果为时间格式字符串，超出一定时间范围，返回固定的时间格式；
- * 如果为布尔值false，无论什么时间，都返回多久以前的格式
- * @returns {string} 转化后的内容
- */
-function timeFrom() {
-  var timestamp = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-  var format = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'yyyy-mm-dd';
-  if (timestamp == null) timestamp = Number(new Date());
-  timestamp = parseInt(timestamp);
-  // 判断用户输入的时间戳是秒还是毫秒,一般前端js获取的时间戳是毫秒(13位),后端传过来的为秒(10位)
-  if (timestamp.toString().length == 10) timestamp *= 1000;
-  var timer = new Date().getTime() - timestamp;
-  timer = parseInt(timer / 1000);
-  // 如果小于5分钟,则返回"刚刚",其他以此类推
-  var tips = '';
-  switch (true) {
-    case timer < 300:
-      tips = '刚刚';
-      break;
-    case timer >= 300 && timer < 3600:
-      tips = "".concat(parseInt(timer / 60), "\u5206\u949F\u524D");
-      break;
-    case timer >= 3600 && timer < 86400:
-      tips = "".concat(parseInt(timer / 3600), "\u5C0F\u65F6\u524D");
-      break;
-    case timer >= 86400 && timer < 2592000:
-      tips = "".concat(parseInt(timer / 86400), "\u5929\u524D");
-      break;
-    default:
-      // 如果format为false，则无论什么时间戳，都显示xx之前
-      if (format === false) {
-        if (timer >= 2592000 && timer < 365 * 86400) {
-          tips = "".concat(parseInt(timer / (86400 * 30)), "\u4E2A\u6708\u524D");
-        } else {
-          tips = "".concat(parseInt(timer / (86400 * 365)), "\u5E74\u524D");
-        }
-      } else {
-        tips = timeFormat(timestamp, format);
-      }
-  }
-  return tips;
-}
-
-/**
- * @description 去除空格
- * @param String str 需要去除空格的字符串
- * @param String pos both(左右)|left|right|all 默认both
- */
-function trim(str) {
-  var pos = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'both';
-  str = String(str);
-  if (pos == 'both') {
-    return str.replace(/^\s+|\s+$/g, '');
-  }
-  if (pos == 'left') {
-    return str.replace(/^\s*/, '');
-  }
-  if (pos == 'right') {
-    return str.replace(/(\s*$)/g, '');
-  }
-  if (pos == 'all') {
-    return str.replace(/\s+/g, '');
-  }
-  return str;
-}
-
-/**
- * @description 对象转url参数
- * @param {object} data,对象
- * @param {Boolean} isPrefix,是否自动加上"?"
- * @param {string} arrayFormat 规则 indices|brackets|repeat|comma
- */
-function queryParams() {
-  var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-  var isPrefix = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-  var arrayFormat = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'brackets';
-  var prefix = isPrefix ? '?' : '';
-  var _result = [];
-  if (['indices', 'brackets', 'repeat', 'comma'].indexOf(arrayFormat) == -1) arrayFormat = 'brackets';
-  var _loop = function _loop(key) {
-    var value = data[key];
-    // 去掉为空的参数
-    if (['', undefined, null].indexOf(value) >= 0) {
-      return "continue";
-    }
-    // 如果值为数组，另行处理
-    if (value.constructor === Array) {
-      // e.g. {ids: [1, 2, 3]}
-      switch (arrayFormat) {
-        case 'indices':
-          // 结果: ids[0]=1&ids[1]=2&ids[2]=3
-          for (var i = 0; i < value.length; i++) {
-            _result.push("".concat(key, "[").concat(i, "]=").concat(value[i]));
-          }
-          break;
-        case 'brackets':
-          // 结果: ids[]=1&ids[]=2&ids[]=3
-          value.forEach(function (_value) {
-            _result.push("".concat(key, "[]=").concat(_value));
-          });
-          break;
-        case 'repeat':
-          // 结果: ids=1&ids=2&ids=3
-          value.forEach(function (_value) {
-            _result.push("".concat(key, "=").concat(_value));
-          });
-          break;
-        case 'comma':
-          // 结果: ids=1,2,3
-          var commaStr = '';
-          value.forEach(function (_value) {
-            commaStr += (commaStr ? ',' : '') + _value;
-          });
-          _result.push("".concat(key, "=").concat(commaStr));
-          break;
-        default:
-          value.forEach(function (_value) {
-            _result.push("".concat(key, "[]=").concat(_value));
-          });
-      }
-    } else {
-      _result.push("".concat(key, "=").concat(value));
-    }
-  };
-  for (var key in data) {
-    var _ret = _loop(key);
-    if (_ret === "continue") continue;
-  }
-  return _result.length ? prefix + _result.join('&') : '';
-}
-
-/**
- * 显示消息提示框
- * @param {String} title 提示的内容，长度与 icon 取值有关。
- * @param {Number} duration 提示的延迟时间，单位毫秒，默认：2000
- */
-function toast(title) {
-  var duration = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 2000;
-  uni.showToast({
-    title: String(title),
-    icon: 'none',
-    duration: duration
-  });
-}
-
-/**
- * @description 根据主题type值,获取对应的图标
- * @param {String} type 主题名称,primary|info|error|warning|success
- * @param {boolean} fill 是否使用fill填充实体的图标
- */
-function type2icon() {
-  var type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'success';
-  var fill = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-  // 如果非预置值,默认为success
-  if (['primary', 'info', 'error', 'warning', 'success'].indexOf(type) == -1) type = 'success';
-  var iconName = '';
-  // 目前(2019-12-12),info和primary使用同一个图标
-  switch (type) {
-    case 'primary':
-      iconName = 'info-circle';
-      break;
-    case 'info':
-      iconName = 'info-circle';
-      break;
-    case 'error':
-      iconName = 'close-circle';
-      break;
-    case 'warning':
-      iconName = 'error-circle';
-      break;
-    case 'success':
-      iconName = 'checkmark-circle';
-      break;
-    default:
-      iconName = 'checkmark-circle';
-  }
-  // 是否是实体类型,加上-fill,在icon组件库中,实体的类名是后面加-fill的
-  if (fill) iconName += '-fill';
-  return iconName;
-}
-
-/**
- * @description 数字格式化
- * @param {number|string} number 要格式化的数字
- * @param {number} decimals 保留几位小数
- * @param {string} decimalPoint 小数点符号
- * @param {string} thousandsSeparator 千分位符号
- * @returns {string} 格式化后的数字
- */
-function priceFormat(number) {
-  var decimals = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-  var decimalPoint = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '.';
-  var thousandsSeparator = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : ',';
-  number = "".concat(number).replace(/[^0-9+-Ee.]/g, '');
-  var n = !isFinite(+number) ? 0 : +number;
-  var prec = !isFinite(+decimals) ? 0 : Math.abs(decimals);
-  var sep = typeof thousandsSeparator === 'undefined' ? ',' : thousandsSeparator;
-  var dec = typeof decimalPoint === 'undefined' ? '.' : decimalPoint;
-  var s = '';
-  s = (prec ? (0, _digit.round)(n, prec) + '' : "".concat(Math.round(n))).split('.');
-  var re = /(-?\d+)(\d{3})/;
-  while (re.test(s[0])) {
-    s[0] = s[0].replace(re, "$1".concat(sep, "$2"));
-  }
-  if ((s[1] || '').length < prec) {
-    s[1] = s[1] || '';
-    s[1] += new Array(prec - s[1].length + 1).join('0');
-  }
-  return s.join(dec);
-}
-
-/**
- * @description 获取duration值
- * 如果带有ms或者s直接返回，如果大于一定值，认为是ms单位，小于一定值，认为是s单位
- * 比如以30位阈值，那么300大于30，可以理解为用户想要的是300ms，而不是想花300s去执行一个动画
- * @param {String|number} value 比如: "1s"|"100ms"|1|100
- * @param {boolean} unit  提示: 如果是false 默认返回number
- * @return {string|number}
- */
-function getDuration(value) {
-  var unit = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-  var valueNum = parseInt(value);
-  if (unit) {
-    if (/s$/.test(value)) return value;
-    return value > 30 ? "".concat(value, "ms") : "".concat(value, "s");
-  }
-  if (/ms$/.test(value)) return valueNum;
-  if (/s$/.test(value)) return valueNum > 30 ? valueNum : valueNum * 1000;
-  return valueNum;
-}
-
-/**
- * @description 日期的月或日补零操作
- * @param {String} value 需要补零的值
- */
-function padZero(value) {
-  return "00".concat(value).slice(-2);
-}
-
-/**
- * @description 在uv-form的子组件内容发生变化，或者失去焦点时，尝试通知uv-form执行校验方法
- * @param {*} instance
- * @param {*} event
- */
-function formValidate(instance, event) {
-  var formItem = $parent.call(instance, 'uv-form-item');
-  var form = $parent.call(instance, 'uv-form');
-  // 如果发生变化的input或者textarea等，其父组件中有uv-form-item或者uv-form等，就执行form的validate方法
-  // 同时将form-item的pros传递给form，让其进行精确对象验证
-  if (formItem && form) {
-    form.validateField(formItem.prop, function () {}, event);
-  }
-}
-
-/**
- * @description 获取某个对象下的属性，用于通过类似'a.b.c'的形式去获取一个对象的的属性的形式
- * @param {object} obj 对象
- * @param {string} key 需要获取的属性字段
- * @returns {*}
- */
-function getProperty(obj, key) {
-  if (!obj) {
-    return;
-  }
-  if (typeof key !== 'string' || key === '') {
-    return '';
-  }
-  if (key.indexOf('.') !== -1) {
-    var keys = key.split('.');
-    var firstObj = obj[keys[0]] || {};
-    for (var i = 1; i < keys.length; i++) {
-      if (firstObj) {
-        firstObj = firstObj[keys[i]];
-      }
-    }
-    return firstObj;
-  }
-  return obj[key];
-}
-
-/**
- * @description 设置对象的属性值，如果'a.b.c'的形式进行设置
- * @param {object} obj 对象
- * @param {string} key 需要设置的属性
- * @param {string} value 设置的值
- */
-function setProperty(obj, key, value) {
-  if (!obj) {
-    return;
-  }
-  // 递归赋值
-  var inFn = function inFn(_obj, keys, v) {
-    // 最后一个属性key
-    if (keys.length === 1) {
-      _obj[keys[0]] = v;
-      return;
-    }
-    // 0~length-1个key
-    while (keys.length > 1) {
-      var k = keys[0];
-      if (!_obj[k] || (0, _typeof2.default)(_obj[k]) !== 'object') {
-        _obj[k] = {};
-      }
-      var _key = keys.shift();
-      // 自调用判断是否存在属性，不存在则自动创建对象
-      inFn(_obj[k], keys, v);
-    }
-  };
-  if (typeof key !== 'string' || key === '') {} else if (key.indexOf('.') !== -1) {
-    // 支持多层级赋值操作
-    var keys = key.split('.');
-    inFn(obj, keys, value);
-  } else {
-    obj[key] = value;
-  }
-}
-
-/**
- * @description 获取当前页面路径
- */
-function page() {
-  var _pages;
-  var pages = getCurrentPages();
-  var route = (_pages = pages[pages.length - 1]) === null || _pages === void 0 ? void 0 : _pages.route;
-  // 某些特殊情况下(比如页面进行redirectTo时的一些时机)，pages可能为空数组
-  return "/".concat(route ? route : '');
-}
-
-/**
- * @description 获取当前路由栈实例数组
- */
-function pages() {
-  var pages = getCurrentPages();
-  return pages;
-}
-
-/**
- * 获取页面历史栈指定层实例
- * @param back {number} [0] - 0或者负数，表示获取历史栈的哪一层，0表示获取当前页面实例，-1 表示获取上一个页面实例。默认0。
- */
-function getHistoryPage() {
-  var back = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-  var pages = getCurrentPages();
-  var len = pages.length;
-  return pages[len - 1 + back];
-}
-
-/**
- * @description 修改uvui内置属性值
- * @param {object} props 修改内置props属性
- * @param {object} config 修改内置config属性
- * @param {object} color 修改内置color属性
- * @param {object} zIndex 修改内置zIndex属性
- */
-function setConfig(_ref5) {
-  var _ref5$props = _ref5.props,
-    props = _ref5$props === void 0 ? {} : _ref5$props,
-    _ref5$config = _ref5.config,
-    config = _ref5$config === void 0 ? {} : _ref5$config,
-    _ref5$color = _ref5.color,
-    color = _ref5$color === void 0 ? {} : _ref5$color,
-    _ref5$zIndex = _ref5.zIndex,
-    zIndex = _ref5$zIndex === void 0 ? {} : _ref5$zIndex;
-  var deepMerge = uni.$uv.deepMerge;
-  uni.$uv.config = deepMerge(uni.$uv.config, config);
-  uni.$uv.props = deepMerge(uni.$uv.props, props);
-  uni.$uv.color = deepMerge(uni.$uv.color, color);
-  uni.$uv.zIndex = deepMerge(uni.$uv.zIndex, zIndex);
-}
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
-
-/***/ }),
-
-/***/ 89:
-/*!*********************************************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-ui-tools/libs/function/test.js ***!
-  \*********************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.amount = amount;
-exports.array = array;
-exports.carNo = carNo;
-exports.chinese = chinese;
-exports.code = code;
-exports.contains = contains;
-exports.date = date;
-exports.dateISO = dateISO;
-exports.digits = digits;
-exports.email = email;
-exports.empty = empty;
-exports.enOrNum = enOrNum;
-exports.func = func;
-exports.idCard = idCard;
-exports.image = image;
-exports.jsonString = jsonString;
-exports.landline = landline;
-exports.letter = letter;
-exports.mobile = mobile;
-exports.number = number;
-exports.object = object;
-exports.promise = promise;
-exports.range = range;
-exports.rangeLength = rangeLength;
-exports.regExp = regExp;
-exports.string = string;
-exports.url = url;
-exports.video = video;
-var _typeof2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/typeof */ 13));
-/**
- * 验证电子邮箱格式
- */
-function email(value) {
-  return /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/.test(value);
-}
-
-/**
- * 验证手机格式
- */
-function mobile(value) {
-  return /^1([3589]\d|4[5-9]|6[1-2,4-7]|7[0-8])\d{8}$/.test(value);
-}
-
-/**
- * 验证URL格式
- */
-function url(value) {
-  return /^((https|http|ftp|rtsp|mms):\/\/)(([0-9a-zA-Z_!~*'().&=+$%-]+: )?[0-9a-zA-Z_!~*'().&=+$%-]+@)?(([0-9]{1,3}.){3}[0-9]{1,3}|([0-9a-zA-Z_!~*'()-]+.)*([0-9a-zA-Z][0-9a-zA-Z-]{0,61})?[0-9a-zA-Z].[a-zA-Z]{2,6})(:[0-9]{1,4})?((\/?)|(\/[0-9a-zA-Z_!~*'().;?:@&=+$,%#-]+)+\/?)$/.test(value);
-}
-
-/**
- * 验证日期格式
- */
-function date(value) {
-  if (!value) return false;
-  // 判断是否数值或者字符串数值(意味着为时间戳)，转为数值，否则new Date无法识别字符串时间戳
-  if (number(value)) value = +value;
-  return !/Invalid|NaN/.test(new Date(value).toString());
-}
-
-/**
- * 验证ISO类型的日期格式
- */
-function dateISO(value) {
-  return /^\d{4}[\/\-](0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])$/.test(value);
-}
-
-/**
- * 验证十进制数字
- */
-function number(value) {
-  return /^[\+-]?(\d+\.?\d*|\.\d+|\d\.\d+e\+\d+)$/.test(value);
-}
-
-/**
- * 验证字符串
- */
-function string(value) {
-  return typeof value === 'string';
-}
-
-/**
- * 验证整数
- */
-function digits(value) {
-  return /^\d+$/.test(value);
-}
-
-/**
- * 验证身份证号码
- */
-function idCard(value) {
-  return /^[1-9]\d{5}[1-9]\d{3}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}([0-9]|X)$/.test(value);
-}
-
-/**
- * 是否车牌号
- */
-function carNo(value) {
-  // 新能源车牌
-  var xreg = /^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领A-Z]{1}[A-Z]{1}(([0-9]{5}[DF]$)|([DF][A-HJ-NP-Z0-9][0-9]{4}$))/;
-  // 旧车牌
-  var creg = /^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领A-Z]{1}[A-Z]{1}[A-HJ-NP-Z0-9]{4}[A-HJ-NP-Z0-9挂学警港澳]{1}$/;
-  if (value.length === 7) {
-    return creg.test(value);
-  }
-  if (value.length === 8) {
-    return xreg.test(value);
-  }
-  return false;
-}
-
-/**
- * 金额,只允许2位小数
- */
-function amount(value) {
-  // 金额，只允许保留两位小数
-  return /^[1-9]\d*(,\d{3})*(\.\d{1,2})?$|^0\.\d{1,2}$/.test(value);
-}
-
-/**
- * 中文
- */
-function chinese(value) {
-  var reg = /^[\u4e00-\u9fa5]+$/gi;
-  return reg.test(value);
-}
-
-/**
- * 只能输入字母
- */
-function letter(value) {
-  return /^[a-zA-Z]*$/.test(value);
-}
-
-/**
- * 只能是字母或者数字
- */
-function enOrNum(value) {
-  // 英文或者数字
-  var reg = /^[0-9a-zA-Z]*$/g;
-  return reg.test(value);
-}
-
-/**
- * 验证是否包含某个值
- */
-function contains(value, param) {
-  return value.indexOf(param) >= 0;
-}
-
-/**
- * 验证一个值范围[min, max]
- */
-function range(value, param) {
-  return value >= param[0] && value <= param[1];
-}
-
-/**
- * 验证一个长度范围[min, max]
- */
-function rangeLength(value, param) {
-  return value.length >= param[0] && value.length <= param[1];
-}
-
-/**
- * 是否固定电话
- */
-function landline(value) {
-  var reg = /^\d{3,4}-\d{7,8}(-\d{3,4})?$/;
-  return reg.test(value);
-}
-
-/**
- * 判断是否为空
- */
-function empty(value) {
-  switch ((0, _typeof2.default)(value)) {
-    case 'undefined':
-      return true;
-    case 'string':
-      if (value.replace(/(^[ \t\n\r]*)|([ \t\n\r]*$)/g, '').length == 0) return true;
-      break;
-    case 'boolean':
-      if (!value) return true;
-      break;
-    case 'number':
-      if (value === 0 || isNaN(value)) return true;
-      break;
-    case 'object':
-      if (value === null || value.length === 0) return true;
-      for (var i in value) {
-        return false;
-      }
-      return true;
-  }
-  return false;
-}
-
-/**
- * 是否json字符串
- */
-function jsonString(value) {
-  if (typeof value === 'string') {
-    try {
-      var obj = JSON.parse(value);
-      if ((0, _typeof2.default)(obj) === 'object' && obj) {
-        return true;
-      }
-      return false;
-    } catch (e) {
-      return false;
-    }
-  }
-  return false;
-}
-
-/**
- * 是否数组
- */
-function array(value) {
-  if (typeof Array.isArray === 'function') {
-    return Array.isArray(value);
-  }
-  return Object.prototype.toString.call(value) === '[object Array]';
-}
-
-/**
- * 是否对象
- */
-function object(value) {
-  return Object.prototype.toString.call(value) === '[object Object]';
-}
-
-/**
- * 是否短信验证码
- */
-function code(value) {
-  var len = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 6;
-  return new RegExp("^\\d{".concat(len, "}$")).test(value);
-}
-
-/**
- * 是否函数方法
- * @param {Object} value
- */
-function func(value) {
-  return typeof value === 'function';
-}
-
-/**
- * 是否promise对象
- * @param {Object} value
- */
-function promise(value) {
-  return object(value) && func(value.then) && func(value.catch);
-}
-
-/** 是否图片格式
- * @param {Object} value
- */
-function image(value) {
-  var newValue = value.split('?')[0];
-  var IMAGE_REGEXP = /\.(jpeg|jpg|gif|png|svg|webp|jfif|bmp|dpg)/i;
-  return IMAGE_REGEXP.test(newValue);
-}
-
-/**
- * 是否视频格式
- * @param {Object} value
- */
-function video(value) {
-  var VIDEO_REGEXP = /\.(mp4|mpg|mpeg|dat|asf|avi|rm|rmvb|mov|wmv|flv|mkv|m3u8)/i;
-  return VIDEO_REGEXP.test(value);
-}
-
-/**
- * 是否为正则对象
- * @param {Object}
- * @return {Boolean}
- */
-function regExp(o) {
-  return o && Object.prototype.toString.call(o) === '[object RegExp]';
-}
-
-/***/ }),
-
 /***/ 9:
 /*!*****************************************************************!*\
   !*** ./node_modules/@babel/runtime/helpers/arrayLikeToArray.js ***!
@@ -14957,630 +15581,6 @@ function _arrayLikeToArray(arr, len) {
   return arr2;
 }
 module.exports = _arrayLikeToArray, module.exports.__esModule = true, module.exports["default"] = module.exports;
-
-/***/ }),
-
-/***/ 90:
-/*!**********************************************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-ui-tools/libs/function/digit.js ***!
-  \**********************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-exports.divide = divide;
-exports.enableBoundaryChecking = enableBoundaryChecking;
-exports.minus = minus;
-exports.plus = plus;
-exports.round = round;
-exports.times = times;
-var _toArray2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/toArray */ 91));
-var _boundaryCheckingState = true; // 是否进行越界检查的全局开关
-
-/**
- * 把错误的数据转正
- * @private
- * @example strip(0.09999999999999998)=0.1
- */
-function strip(num) {
-  var precision = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 15;
-  return +parseFloat(Number(num).toPrecision(precision));
-}
-
-/**
- * Return digits length of a number
- * @private
- * @param {*number} num Input number
- */
-function digitLength(num) {
-  // Get digit length of e
-  var eSplit = num.toString().split(/[eE]/);
-  var len = (eSplit[0].split('.')[1] || '').length - +(eSplit[1] || 0);
-  return len > 0 ? len : 0;
-}
-
-/**
- * 把小数转成整数,如果是小数则放大成整数
- * @private
- * @param {*number} num 输入数
- */
-function float2Fixed(num) {
-  if (num.toString().indexOf('e') === -1) {
-    return Number(num.toString().replace('.', ''));
-  }
-  var dLen = digitLength(num);
-  return dLen > 0 ? strip(Number(num) * Math.pow(10, dLen)) : Number(num);
-}
-
-/**
- * 检测数字是否越界，如果越界给出提示
- * @private
- * @param {*number} num 输入数
- */
-function checkBoundary(num) {
-  if (_boundaryCheckingState) {
-    if (num > Number.MAX_SAFE_INTEGER || num < Number.MIN_SAFE_INTEGER) {
-      console.warn("".concat(num, " \u8D85\u51FA\u4E86\u7CBE\u5EA6\u9650\u5236\uFF0C\u7ED3\u679C\u53EF\u80FD\u4E0D\u6B63\u786E"));
-    }
-  }
-}
-
-/**
- * 把递归操作扁平迭代化
- * @param {number[]} arr 要操作的数字数组
- * @param {function} operation 迭代操作
- * @private
- */
-function iteratorOperation(arr, operation) {
-  var _arr = (0, _toArray2.default)(arr),
-    num1 = _arr[0],
-    num2 = _arr[1],
-    others = _arr.slice(2);
-  var res = operation(num1, num2);
-  others.forEach(function (num) {
-    res = operation(res, num);
-  });
-  return res;
-}
-
-/**
- * 高精度乘法
- * @export
- */
-function times() {
-  for (var _len = arguments.length, nums = new Array(_len), _key = 0; _key < _len; _key++) {
-    nums[_key] = arguments[_key];
-  }
-  if (nums.length > 2) {
-    return iteratorOperation(nums, times);
-  }
-  var num1 = nums[0],
-    num2 = nums[1];
-  var num1Changed = float2Fixed(num1);
-  var num2Changed = float2Fixed(num2);
-  var baseNum = digitLength(num1) + digitLength(num2);
-  var leftValue = num1Changed * num2Changed;
-  checkBoundary(leftValue);
-  return leftValue / Math.pow(10, baseNum);
-}
-
-/**
- * 高精度加法
- * @export
- */
-function plus() {
-  for (var _len2 = arguments.length, nums = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-    nums[_key2] = arguments[_key2];
-  }
-  if (nums.length > 2) {
-    return iteratorOperation(nums, plus);
-  }
-  var num1 = nums[0],
-    num2 = nums[1];
-  // 取最大的小数位
-  var baseNum = Math.pow(10, Math.max(digitLength(num1), digitLength(num2)));
-  // 把小数都转为整数然后再计算
-  return (times(num1, baseNum) + times(num2, baseNum)) / baseNum;
-}
-
-/**
- * 高精度减法
- * @export
- */
-function minus() {
-  for (var _len3 = arguments.length, nums = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
-    nums[_key3] = arguments[_key3];
-  }
-  if (nums.length > 2) {
-    return iteratorOperation(nums, minus);
-  }
-  var num1 = nums[0],
-    num2 = nums[1];
-  var baseNum = Math.pow(10, Math.max(digitLength(num1), digitLength(num2)));
-  return (times(num1, baseNum) - times(num2, baseNum)) / baseNum;
-}
-
-/**
- * 高精度除法
- * @export
- */
-function divide() {
-  for (var _len4 = arguments.length, nums = new Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
-    nums[_key4] = arguments[_key4];
-  }
-  if (nums.length > 2) {
-    return iteratorOperation(nums, divide);
-  }
-  var num1 = nums[0],
-    num2 = nums[1];
-  var num1Changed = float2Fixed(num1);
-  var num2Changed = float2Fixed(num2);
-  checkBoundary(num1Changed);
-  checkBoundary(num2Changed);
-  // 重要，这里必须用strip进行修正
-  return times(num1Changed / num2Changed, strip(Math.pow(10, digitLength(num2) - digitLength(num1))));
-}
-
-/**
- * 四舍五入
- * @export
- */
-function round(num, ratio) {
-  var base = Math.pow(10, ratio);
-  var result = divide(Math.round(Math.abs(times(num, base))), base);
-  if (num < 0 && result !== 0) {
-    result = times(result, -1);
-  }
-  // 位数不足则补0
-  return result;
-}
-
-/**
- * 是否进行边界检查，默认开启
- * @param flag 标记开关，true 为开启，false 为关闭，默认为 true
- * @export
- */
-function enableBoundaryChecking() {
-  var flag = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-  _boundaryCheckingState = flag;
-}
-var _default = {
-  times: times,
-  plus: plus,
-  minus: minus,
-  divide: divide,
-  round: round,
-  enableBoundaryChecking: enableBoundaryChecking
-};
-exports.default = _default;
-
-/***/ }),
-
-/***/ 91:
-/*!********************************************************!*\
-  !*** ./node_modules/@babel/runtime/helpers/toArray.js ***!
-  \********************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-var arrayWithHoles = __webpack_require__(/*! ./arrayWithHoles.js */ 6);
-var iterableToArray = __webpack_require__(/*! ./iterableToArray.js */ 20);
-var unsupportedIterableToArray = __webpack_require__(/*! ./unsupportedIterableToArray.js */ 8);
-var nonIterableRest = __webpack_require__(/*! ./nonIterableRest.js */ 10);
-function _toArray(arr) {
-  return arrayWithHoles(arr) || iterableToArray(arr) || unsupportedIterableToArray(arr) || nonIterableRest();
-}
-module.exports = _toArray, module.exports.__esModule = true, module.exports["default"] = module.exports;
-
-/***/ }),
-
-/***/ 92:
-/*!******************************************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-ui-tools/libs/util/route.js ***!
-  \******************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {
-
-var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var _regenerator = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/regenerator */ 36));
-var _asyncToGenerator2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ 38));
-var _classCallCheck2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ 23));
-var _createClass2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/createClass */ 24));
-var _index = __webpack_require__(/*! @/uni_modules/uv-ui-tools/libs/function/index.js */ 88);
-/**
- * 路由跳转方法，该方法相对于直接使用uni.xxx的好处是使用更加简单快捷
- * 并且带有路由拦截功能
- */
-var Router = /*#__PURE__*/function () {
-  function Router() {
-    (0, _classCallCheck2.default)(this, Router);
-    // 原始属性定义
-    this.config = {
-      type: 'navigateTo',
-      url: '',
-      delta: 1,
-      // navigateBack页面后退时,回退的层数
-      params: {},
-      // 传递的参数
-      animationType: 'pop-in',
-      // 窗口动画,只在APP有效
-      animationDuration: 300,
-      // 窗口动画持续时间,单位毫秒,只在APP有效
-      intercept: false,
-      // 是否需要拦截
-      events: {} // 页面间通信接口，用于监听被打开页面发送到当前页面的数据。hbuilderx 2.8.9+ 开始支持。
-    };
-    // 因为route方法是需要对外赋值给另外的对象使用，同时route内部有使用this，会导致route失去上下文
-    // 这里在构造函数中进行this绑定
-    this.route = this.route.bind(this);
-  }
-
-  // 判断url前面是否有"/"，如果没有则加上，否则无法跳转
-  (0, _createClass2.default)(Router, [{
-    key: "addRootPath",
-    value: function addRootPath(url) {
-      return url[0] === '/' ? url : "/".concat(url);
-    }
-
-    // 整合路由参数
-  }, {
-    key: "mixinParam",
-    value: function mixinParam(url, params) {
-      url = url && this.addRootPath(url);
-
-      // 使用正则匹配，主要依据是判断是否有"/","?","="等，如“/page/index/index?name=mary"
-      // 如果有url中有get参数，转换后无需带上"?"
-      var query = '';
-      if (/.*\/.*\?.*=.*/.test(url)) {
-        // object对象转为get类型的参数
-        query = (0, _index.queryParams)(params, false);
-        // 因为已有get参数,所以后面拼接的参数需要带上"&"隔开
-        return url += "&".concat(query);
-      }
-      // 直接拼接参数，因为此处url中没有后面的query参数，也就没有"?/&"之类的符号
-      query = (0, _index.queryParams)(params);
-      return url += query;
-    }
-
-    // 对外的方法名称
-  }, {
-    key: "route",
-    value: function () {
-      var _route = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee() {
-        var options,
-          params,
-          mergeConfig,
-          isNext,
-          _args = arguments;
-        return _regenerator.default.wrap(function _callee$(_context) {
-          while (1) {
-            switch (_context.prev = _context.next) {
-              case 0:
-                options = _args.length > 0 && _args[0] !== undefined ? _args[0] : {};
-                params = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
-                // 合并用户的配置和内部的默认配置
-                mergeConfig = {};
-                if (typeof options === 'string') {
-                  // 如果options为字符串，则为route(url, params)的形式
-                  mergeConfig.url = this.mixinParam(options, params);
-                  mergeConfig.type = 'navigateTo';
-                } else {
-                  mergeConfig = (0, _index.deepMerge)(this.config, options);
-                  // 否则正常使用mergeConfig中的url和params进行拼接
-                  mergeConfig.url = this.mixinParam(options.url, options.params);
-                }
-                // 如果本次跳转的路径和本页面路径一致，不执行跳转，防止用户快速点击跳转按钮，造成多次跳转同一个页面的问题
-                if (!(mergeConfig.url === (0, _index.page)())) {
-                  _context.next = 6;
-                  break;
-                }
-                return _context.abrupt("return");
-              case 6:
-                if (params.intercept) {
-                  mergeConfig.intercept = params.intercept;
-                }
-                // params参数也带给拦截器
-                mergeConfig.params = params;
-                // 合并内外部参数
-                mergeConfig = (0, _index.deepMerge)(this.config, mergeConfig);
-                // 判断用户是否定义了拦截器
-                if (!(typeof mergeConfig.intercept === 'function')) {
-                  _context.next = 16;
-                  break;
-                }
-                _context.next = 12;
-                return new Promise(function (resolve, reject) {
-                  mergeConfig.intercept(mergeConfig, resolve);
-                });
-              case 12:
-                isNext = _context.sent;
-                // 如果isNext为true，则执行路由跳转
-                isNext && this.openPage(mergeConfig);
-                _context.next = 17;
-                break;
-              case 16:
-                this.openPage(mergeConfig);
-              case 17:
-              case "end":
-                return _context.stop();
-            }
-          }
-        }, _callee, this);
-      }));
-      function route() {
-        return _route.apply(this, arguments);
-      }
-      return route;
-    }() // 执行路由跳转
-  }, {
-    key: "openPage",
-    value: function openPage(config) {
-      // 解构参数
-      var url = config.url,
-        type = config.type,
-        delta = config.delta,
-        animationType = config.animationType,
-        animationDuration = config.animationDuration,
-        events = config.events;
-      if (config.type == 'navigateTo' || config.type == 'to') {
-        uni.navigateTo({
-          url: url,
-          animationType: animationType,
-          animationDuration: animationDuration,
-          events: events
-        });
-      }
-      if (config.type == 'redirectTo' || config.type == 'redirect') {
-        uni.redirectTo({
-          url: url
-        });
-      }
-      if (config.type == 'switchTab' || config.type == 'tab') {
-        uni.switchTab({
-          url: url
-        });
-      }
-      if (config.type == 'reLaunch' || config.type == 'launch') {
-        uni.reLaunch({
-          url: url
-        });
-      }
-      if (config.type == 'navigateBack' || config.type == 'back') {
-        uni.navigateBack({
-          delta: delta
-        });
-      }
-    }
-  }]);
-  return Router;
-}();
-var _default = new Router().route;
-exports.default = _default;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
-
-/***/ }),
-
-/***/ 93:
-/*!*************************************************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-ui-tools/libs/function/debounce.js ***!
-  \*************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var timeout = null;
-
-/**
- * 防抖原理：一定时间内，只有最后一次操作，再过wait毫秒后才执行函数
- *
- * @param {Function} func 要执行的回调函数
- * @param {Number} wait 延时的时间
- * @param {Boolean} immediate 是否立即执行
- * @return null
- */
-function debounce(func) {
-  var wait = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 500;
-  var immediate = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-  // 清除定时器
-  if (timeout !== null) clearTimeout(timeout);
-  // 立即执行，此类情况一般用不到
-  if (immediate) {
-    var callNow = !timeout;
-    timeout = setTimeout(function () {
-      timeout = null;
-    }, wait);
-    if (callNow) typeof func === 'function' && func();
-  } else {
-    // 设置定时器，当最后一次操作后，timeout不会再被清除，所以在延时wait毫秒后执行func回调方法
-    timeout = setTimeout(function () {
-      typeof func === 'function' && func();
-    }, wait);
-  }
-}
-var _default = debounce;
-exports.default = _default;
-
-/***/ }),
-
-/***/ 94:
-/*!*************************************************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-ui-tools/libs/function/throttle.js ***!
-  \*************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var timer;
-var flag;
-/**
- * 节流原理：在一定时间内，只能触发一次
- *
- * @param {Function} func 要执行的回调函数
- * @param {Number} wait 延时的时间
- * @param {Boolean} immediate 是否立即执行
- * @return null
- */
-function throttle(func) {
-  var wait = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 500;
-  var immediate = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
-  if (immediate) {
-    if (!flag) {
-      flag = true;
-      // 如果是立即执行，则在wait毫秒内开始时执行
-      typeof func === 'function' && func();
-      timer = setTimeout(function () {
-        flag = false;
-      }, wait);
-    }
-  } else if (!flag) {
-    flag = true;
-    // 如果是非立即执行，则在wait毫秒内的结束处执行
-    timer = setTimeout(function () {
-      flag = false;
-      typeof func === 'function' && func();
-    }, wait);
-  }
-}
-var _default = throttle;
-exports.default = _default;
-
-/***/ }),
-
-/***/ 95:
-/*!***************************************************************************************!*\
-  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-navbar/components/uv-navbar/props.js ***!
-  \***************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {
-
-var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
-var _uni$$uv, _uni$$uv$props;
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-var _default = {
-  props: _objectSpread({
-    // 是否开启顶部安全区适配
-    safeAreaInsetTop: {
-      type: Boolean,
-      default: true
-    },
-    // 固定在顶部时，是否生成一个等高元素，以防止塌陷
-    placeholder: {
-      type: Boolean,
-      default: false
-    },
-    // 是否固定在顶部
-    fixed: {
-      type: Boolean,
-      default: true
-    },
-    // 是否显示下边框
-    border: {
-      type: Boolean,
-      default: false
-    },
-    // 左边的图标
-    leftIcon: {
-      type: String,
-      default: 'arrow-left'
-    },
-    // 左边的提示文字
-    leftText: {
-      type: String,
-      default: ''
-    },
-    // 左右的提示文字
-    rightText: {
-      type: String,
-      default: ''
-    },
-    // 右边的图标
-    rightIcon: {
-      type: String,
-      default: ''
-    },
-    // 标题
-    title: {
-      type: [String, Number],
-      default: ''
-    },
-    // 背景颜色
-    bgColor: {
-      type: String,
-      default: '#ffffff'
-    },
-    imgMode: {
-      type: String,
-      default: 'aspectFill'
-    },
-    // 标题的宽度
-    titleWidth: {
-      type: [String, Number],
-      default: '400rpx'
-    },
-    // 导航栏高度
-    height: {
-      type: [String, Number],
-      default: '44px'
-    },
-    // 左侧返回图标的大小
-    leftIconSize: {
-      type: [String, Number],
-      default: 20
-    },
-    // 左侧返回图标的颜色
-    leftIconColor: {
-      type: String,
-      default: '#303133'
-    },
-    // 点击左侧区域(返回图标)，是否自动返回上一页
-    autoBack: {
-      type: Boolean,
-      default: false
-    },
-    // 标题的样式，对象或字符串
-    titleStyle: {
-      type: [String, Object],
-      default: ''
-    }
-  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.navbar)
-};
-exports.default = _default;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
 
 /***/ })
 
