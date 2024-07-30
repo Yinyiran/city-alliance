@@ -15,7 +15,7 @@
 @font-face {
   font-family: "iconfont";
   /* Project id 4633945 */
-  src: url("//at.alicdn.com/t/c/font_4633945_ei3r3a1ls8k.woff2?t=1722222352763") format("woff2"), url("//at.alicdn.com/t/c/font_4633945_ei3r3a1ls8k.woff?t=1722222352763") format("woff"), url("//at.alicdn.com/t/c/font_4633945_ei3r3a1ls8k.ttf?t=1722222352763") format("truetype");
+  src: url("//at.alicdn.com/t/c/font_4633945_o30ga7qy22.woff2?t=1722241912868") format("woff2"), url("//at.alicdn.com/t/c/font_4633945_o30ga7qy22.woff?t=1722241912868") format("woff"), url("//at.alicdn.com/t/c/font_4633945_o30ga7qy22.ttf?t=1722241912868") format("truetype");
 }
 .iconfont.data-v-8e561900 {
   font-family: "iconfont" !important;
@@ -23,6 +23,15 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+.icon-guanbi.data-v-8e561900:before {
+  content: "\e677";
+}
+.icon-tupian.data-v-8e561900:before {
+  content: "\e67f";
+}
+.icon-icon-.data-v-8e561900:before {
+  content: "\e627";
 }
 .icon-qiehuan.data-v-8e561900:before {
   content: "\e608";

@@ -32,7 +32,13 @@
 		</view>
 		<view class="flex_b " style="padding: 30rpx 20rpx;">
 			<view class="infoBox">
-				
+				<view class="flex_b">
+					<view class="flex">
+						<text>今日交易额(元)</text>
+						<text class="iconfont icon-icon-"></text>
+					</view>
+					<view class="iconfont icon-yousanjiao"></view>
+				</view>
 			</view>
 			<view class="infoBox">
 				
@@ -180,6 +186,8 @@
 
 <style scoped lang="scss">
 	.infoBox {
+		box-sizing: border-box;
+		padding: 30rpx;
 		width: 345rpx;
 		height: 308rpx;
 		background-color: #fff;
