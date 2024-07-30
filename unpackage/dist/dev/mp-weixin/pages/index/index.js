@@ -103,6 +103,12 @@ try {
     uvNavbar: function () {
       return Promise.all(/*! import() | uni_modules/uv-navbar/components/uv-navbar/uv-navbar */[__webpack_require__.e("common/vendor"), __webpack_require__.e("uni_modules/uv-navbar/components/uv-navbar/uv-navbar")]).then(__webpack_require__.bind(null, /*! @/uni_modules/uv-navbar/components/uv-navbar/uv-navbar.vue */ 165))
     },
+    uvGrid: function () {
+      return Promise.all(/*! import() | uni_modules/uv-grid/components/uv-grid/uv-grid */[__webpack_require__.e("common/vendor"), __webpack_require__.e("uni_modules/uv-grid/components/uv-grid/uv-grid")]).then(__webpack_require__.bind(null, /*! @/uni_modules/uv-grid/components/uv-grid/uv-grid.vue */ 223))
+    },
+    uvGridItem: function () {
+      return Promise.all(/*! import() | uni_modules/uv-grid/components/uv-grid-item/uv-grid-item */[__webpack_require__.e("common/vendor"), __webpack_require__.e("uni_modules/uv-grid/components/uv-grid-item/uv-grid-item")]).then(__webpack_require__.bind(null, /*! @/uni_modules/uv-grid/components/uv-grid-item/uv-grid-item.vue */ 231))
+    },
     uvPicker: function () {
       return Promise.all(/*! import() | uni_modules/uv-picker/components/uv-picker/uv-picker */[__webpack_require__.e("common/vendor"), __webpack_require__.e("uni_modules/uv-picker/components/uv-picker/uv-picker")]).then(__webpack_require__.bind(null, /*! @/uni_modules/uv-picker/components/uv-picker/uv-picker.vue */ 198))
     },
@@ -217,6 +223,42 @@ exports.default = void 0;
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 var _default = {
   data: function data() {
     return {
@@ -247,50 +289,42 @@ var _default = {
         image: __webpack_require__(/*! ../../static/home/n4.png */ 187),
         title: '生意报表'
       }],
-      funList: [{
-        image: __webpack_require__(/*! ../../static/logo.png */ 48),
-        title: '食堂招商',
-        router: '/otherpages/squareList/squareList'
+      listB: [{
+        image: __webpack_require__(/*! ../../static/home/jy1.png */ 48),
+        title: '收款码'
       }, {
-        image: __webpack_require__(/*! ../../static/logo.png */ 48),
-        title: '求货供货',
-        router: '/pages/square/square'
+        image: __webpack_require__(/*! ../../static/home/jy2.png */ 330),
+        title: '语音设备'
       }, {
-        image: __webpack_require__(/*! ../../static/logo.png */ 48),
-        title: '团餐优商',
-        router: '/enterprisepages/enterpriseHome/enterpriseHome'
+        image: __webpack_require__(/*! ../../static/home/jy3.png */ 331),
+        title: '我的团购'
       }, {
-        image: __webpack_require__(/*! ../../static/logo.png */ 48),
-        title: '二手市场',
-        router: '/pages/square/square?type=erShou'
+        image: __webpack_require__(/*! ../../static/home/jy4.png */ 369),
+        title: '团购核销'
+      }],
+      listC: [{
+        image: __webpack_require__(/*! ../../static/home/shop1.png */ 370),
+        title: '收款账户'
       }, {
-        image: __webpack_require__(/*! ../../static/logo.png */ 48),
-        title: '邀请有奖',
-        router: '/otherpages/invite/invite'
+        image: __webpack_require__(/*! ../../static/home/shop2.png */ 371),
+        title: '员工管理'
       }, {
-        image: __webpack_require__(/*! ../../static/logo.png */ 48),
-        title: '团膳招标',
-        router: '/otherpages/tsSeek/tsSeek'
+        image: __webpack_require__(/*! ../../static/home/shop3.png */ 372),
+        title: '店铺资料'
       }, {
-        image: __webpack_require__(/*! ../../static/logo.png */ 48),
-        title: '食堂整包',
-        router: '/otherpages/canteen/canteen'
+        image: __webpack_require__(/*! ../../static/home/shop4.png */ 373),
+        title: '地推商务'
+      }],
+      listD: [{
+        image: __webpack_require__(/*! ../../static/home/other1.png */ 374),
+        title: '下载中心'
       }, {
-        image: __webpack_require__(/*! ../../static/logo.png */ 48),
-        title: '求职/招聘',
-        router: '/otherpages/recruit/recruit'
+        image: __webpack_require__(/*! ../../static/home/other2.png */ 375),
+        title: '在线客服'
       }, {
-        image: __webpack_require__(/*! ../../static/logo.png */ 48),
-        title: '档口达人',
-        router: '/otherpages/seekStalls/seekStalls'
-      }, {
-        image: __webpack_require__(/*! ../../static/logo.png */ 48),
-        title: '团餐云课堂',
-        router: '/otherpages/classList/classList'
-      }
-      // /otherpages/spread/spread 推广
-      ],
-
+        image: __webpack_require__(/*! ../../static/home/other3.png */ 376),
+        title: '设置'
+      }],
       bannerList: [],
       type: 0,
       homeInfo: {},

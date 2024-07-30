@@ -106,6 +106,9 @@ text.data-v-57280228 {
   text-align: center;
   bottom: 15rpx;
 }
+.wbg.data-v-57280228 {
+  background: #fff;
+}
 .shopBodyBg.data-v-57280228 {
   height: 350rpx;
   background-color: #ff4d19;

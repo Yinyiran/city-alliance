@@ -28,21 +28,57 @@
 				</view>
 				<view class="iconfont icon-yousanjiao graycolor"></view>
 			</view>
-			
+
 		</view>
 		<view class="flex_b " style="padding: 30rpx 20rpx;">
 			<view class="infoBox">
-				
+
 			</view>
 			<view class="infoBox">
-				
+
 			</view>
 		</view>
 
+		<view class="wbg p-20 m-t-30 m-r-20 m-l-20 bor-10">
+			<view class="font-30 font-weight-6 m-b-18">经营工具</view>
+			<uv-grid :col="4" @click="click">
+				<uv-grid-item v-for="(item,index) in listB" :key="index">
+					<image :src="item.image" class="w-74 h-74" mode=""></image>
+					<view class="m-t-14 font-26">{{item.title}}</view>
+				</uv-grid-item>
+			</uv-grid>
+		</view>
+		<view class="wbg p-20 m-t-30 m-r-20 m-l-20 bor-10">
+			<view class="font-30 font-weight-6 m-b-18">店铺管理</view>
+			<uv-grid :col="4" @click="click">
+				<uv-grid-item v-for="(item,index) in listC" :key="index">
+					<image :src="item.image" class="w-74 h-74" mode=""></image>
+					<view class="m-t-14 font-26">{{item.title}}</view>
+				</uv-grid-item>
+			</uv-grid>
+		</view>
+		<view class="wbg p-20 m-t-30 m-r-20 m-l-20 bor-10">
+			<view class="font-30 font-weight-6 m-b-18">营销推广</view>
+			<uv-grid :col="4" @click="click">
+				<uv-grid-item>
+					<image src="../../static/home/yx1.png" class="w-74 h-74" mode=""></image>
+					<view class="m-t-14 font-26">支付有礼</view>
+				</uv-grid-item>
+			</uv-grid>
+		</view>
+		<view class="wbg p-20 m-t-30 m-r-20 m-l-20 bor-10">
+			<view class="font-30 font-weight-6 m-b-18">其他服务</view>
+			<uv-grid :col="4" @click="click">
+				<uv-grid-item v-for="(item,index) in listD" :key="index">
+					<image :src="item.image" class="w-74 h-74" mode=""></image>
+					<view class="m-t-14 font-26">{{item.title}}</view>
+				</uv-grid-item>
+			</uv-grid>
+		</view>
 
+		<view class="h-400">
 
-
-		<view class="h-400"></view>
+		</view>
 		<uv-picker ref="picker" :columns="columns" keyName="Name" @confirm="confirm"></uv-picker>
 		<TabBar :current-page="0" />
 	</view>
@@ -87,57 +123,52 @@
 						title: '生意报表'
 					},
 				],
-				funList: [{
-						image: require('../../static/logo.png'),
-						title: '食堂招商',
-						router: '/otherpages/squareList/squareList'
+				listB: [{
+						image: require('../../static/home/jy1.png'),
+						title: '收款码'
 					},
 					{
-						image: require('../../static/logo.png'),
-						title: '求货供货',
-						router: '/pages/square/square'
+						image: require('../../static/home/jy2.png'),
+						title: '语音设备'
 					},
 					{
-						image: require('../../static/logo.png'),
-						title: '团餐优商',
-						router: '/enterprisepages/enterpriseHome/enterpriseHome'
+						image: require('../../static/home/jy3.png'),
+						title: '我的团购'
 					},
 					{
-						image: require('../../static/logo.png'),
-						title: '二手市场',
-						router: '/pages/square/square?type=erShou'
+						image: require('../../static/home/jy4.png'),
+						title: '团购核销'
+					},
+				],
+				listC: [{
+						image: require('../../static/home/shop1.png'),
+						title: '收款账户'
 					},
 					{
-						image: require('../../static/logo.png'),
-						title: '邀请有奖',
-						router: '/otherpages/invite/invite'
+						image: require('../../static/home/shop2.png'),
+						title: '员工管理'
 					},
 					{
-						image: require('../../static/logo.png'),
-						title: '团膳招标',
-						router: '/otherpages/tsSeek/tsSeek'
+						image: require('../../static/home/shop3.png'),
+						title: '店铺资料'
 					},
 					{
-						image: require('../../static/logo.png'),
-						title: '食堂整包',
-						router: '/otherpages/canteen/canteen'
+						image: require('../../static/home/shop4.png'),
+						title: '地推商务'
+					},
+				],
+				listD: [{
+						image: require('../../static/home/other1.png'),
+						title: '下载中心'
 					},
 					{
-						image: require('../../static/logo.png'),
-						title: '求职/招聘',
-						router: '/otherpages/recruit/recruit'
+						image: require('../../static/home/other2.png'),
+						title: '在线客服'
 					},
 					{
-						image: require('../../static/logo.png'),
-						title: '档口达人',
-						router: '/otherpages/seekStalls/seekStalls'
-					},
-					{
-						image: require('../../static/logo.png'),
-						title: '团餐云课堂',
-						router: '/otherpages/classList/classList'
-					},
-					// /otherpages/spread/spread 推广
+						image: require('../../static/home/other3.png'),
+						title: '设置'
+					}
 				],
 				bannerList: [],
 				type: 0,
@@ -185,6 +216,7 @@
 		background-color: #fff;
 		border-radius: 20rpx;
 	}
+
 	.navImg {
 		width: 53rpx;
 		height: 53rpx;
@@ -207,10 +239,15 @@
 		}
 	}
 
+	.wbg {
+		background: #fff;
+	}
+
 	.shopBodyBg {
 		height: 350rpx;
 		background-color: #ff4d19;
 		position: relative;
+
 		.certifySty {
 			position: absolute;
 			bottom: 0;
@@ -220,10 +257,11 @@
 			height: 108rpx;
 			border-radius: 20rpx 20rpx 0 0;
 			opacity: 1;
-			
+
 			left: 50%;
 			margin-left: -345rpx;
 			background: #ffffff;
+
 			image {
 				width: 66rpx;
 				height: 66rpx;
@@ -277,7 +315,7 @@
 		}
 	}
 
- 
+
 
 
 
