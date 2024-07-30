@@ -1,7 +1,0 @@
-{
-  "usingComponents": {
-    "uv-column-notice": "/uni_modules/uv-notice-bar/components/uv-column-notice/uv-column-notice",
-    "uv-row-notice": "/uni_modules/uv-notice-bar/components/uv-row-notice/uv-row-notice"
-  },
-  "component": true
-}

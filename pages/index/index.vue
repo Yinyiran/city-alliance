@@ -1,35 +1,46 @@
 <template>
 	<view class="content">
 		<!-- 头部 -->
-		<uv-navbar bgColor="rgba(0,0,0,0)">
-			<view class="flex font-weight white font-34" @click="addressFn" slot="left">{{addressVal.Name||'位置'}}<text
-					class="iconfont icon-arrowdown"></text>
+		<uv-navbar bgColor="#ff4d19" :placeholder="true">
+			<view class="flex" slot="left">
+				<image class="navImg" src="/static/image/userNone.png" mode="aspectFill"></image>
+				<view class="font-32 font-weight white m-l-20 m-r-20">白苏叶店铺</view>
+				<view class="flex_center changeShopSty">
+					<view class="iconfont icon-qiehuan lh-24 white"></view>
+					<view class="lh-24 white">切换店铺</view>
+				</view>
 			</view>
-			<view class="inputBox flex white" slot="center">
-				<text class="iconfont icon-sousuo_o m-r-8 m-l-10"></text>
-				<input type="text" @confirm="searchConfirm()" v-model="keywords" placeholder="搜索感兴趣的内容"
-					placeholder-class="white font-26">
+			<view class="" slot="center">
 			</view>
 		</uv-navbar>
-
-		<view class="swiperSty">
-			<uv-swiper height="247" :list="bannerList" keyName="image" indicatorStyle="right:20rpx;bottom:100rpx;"
-				indicator indicatorMode="dot" circular></uv-swiper>
-
-			<view class="swiperStyTxtB" v-if="textList.length">
-				<uv-notice-bar :text="textList" direction="column"></uv-notice-bar>
+		<view class="shopBodyBg ">
+			<view class="flex_b p-30">
+				<view v-for="(item,index) in listA" class="listASty" :key="index"
+					:style="'backgroundImage: url('+item.image+')'">
+					<view class="Atitle font-26 white">{{item.title}}</view>
+				</view>
 			</view>
+			<view class="certifySty flex_b">
+				<view class="flex">
+					<image src="../../static/home/b.png" mode="aspectFill"></image>
+					<view class="f-t font-30 m-r-20">收款认证</view>
+					<view class="font-28 graycolor">折扣买单待认证</view>
+				</view>
+				<view class="iconfont icon-yousanjiao graycolor"></view>
+			</view>
+			
 		</view>
-
-		
-		<view class="poBom">
+		<view class="flex_b " style="padding: 30rpx 20rpx;">
 			<view class="infoBox">
-				<button class="iconfont icon-tongzhi font-36" @click="$util.redirectTo('/pages/my/infoList')"></button>
-				<view class="white lh-24" v-if="homeInfo.no_read_count">{{homeInfo.no_read_count}}</view>
+				
 			</view>
-			<button class="iconfont icon-kefu font-36" open-type="contact"></button>
-			<button class="iconfont icon-31huidaodingbu font-36" @click="scrollTop"></button>
+			<view class="infoBox">
+				
+			</view>
 		</view>
+
+
+
 
 		<view class="h-400"></view>
 		<uv-picker ref="picker" :columns="columns" keyName="Name" @confirm="confirm"></uv-picker>
@@ -59,26 +70,23 @@
 				],
 				addressVal: {},
 				activeId: 0,
-				list: [{
-					name: '最新消息',
-					type: 'new'
-				}, {
-					name: '学校食堂',
-					type: 'canteen'
-				}, {
-					name: '校园商铺',
-					type: 'shop'
-				}, {
-					name: '课堂',
-					type: 'course'
-				}],
-				bannerList: [{
-					image: 'https://cdn.uviewui.com/uview/swiper/swiper1.png'
-				}, {
-					image: 'https://cdn.uviewui.com/uview/swiper/swiper2.png'
-				}, {
-					image: 'https://cdn.uviewui.com/uview/swiper/swiper3.png'
-				}],
+				listA: [{
+						image: require('../../static/home/n1.png'),
+						title: '收款码'
+					},
+					{
+						image: require('../../static/home/n2.png'),
+						title: '团购核销'
+					},
+					{
+						image: require('../../static/home/n3.png'),
+						title: '收款账户'
+					},
+					{
+						image: require('../../static/home/n4.png'),
+						title: '生意报表'
+					},
+				],
 				funList: [{
 						image: require('../../static/logo.png'),
 						title: '食堂招商',
@@ -171,6 +179,66 @@
 </script>
 
 <style scoped lang="scss">
+	.infoBox {
+		width: 345rpx;
+		height: 308rpx;
+		background-color: #fff;
+		border-radius: 20rpx;
+	}
+	.navImg {
+		width: 53rpx;
+		height: 53rpx;
+		border-radius: 50%;
+		border: 1rpx solid #fff;
+	}
+
+	.listASty {
+		width: 151rpx;
+		height: 167rpx;
+		background-size: cover;
+		position: relative;
+
+		.Atitle {
+			position: absolute;
+			bottom: 0;
+			width: 151rpx;
+			text-align: center;
+			bottom: 15rpx;
+		}
+	}
+
+	.shopBodyBg {
+		height: 350rpx;
+		background-color: #ff4d19;
+		position: relative;
+		.certifySty {
+			position: absolute;
+			bottom: 0;
+			width: 690rpx;
+			padding: 0 20rpx;
+			box-sizing: border-box;
+			height: 108rpx;
+			border-radius: 20rpx 20rpx 0 0;
+			opacity: 1;
+			
+			left: 50%;
+			margin-left: -345rpx;
+			background: #ffffff;
+			image {
+				width: 66rpx;
+				height: 66rpx;
+			}
+		}
+	}
+
+	.changeShopSty {
+		width: 167rpx;
+		height: 46rpx;
+		flex-shrink: 0;
+		border-radius: 47rpx;
+		background: #FF8765;
+	}
+
 	.tabsList {
 		padding: 18rpx 0;
 		flex-wrap: wrap;
@@ -209,39 +277,7 @@
 		}
 	}
 
-	.poBom {
-		z-index: 999;
-		position: fixed;
-		bottom: 300rpx;
-		right: 30rpx;
-
-		.infoBox {
-			width: 76rpx;
-			height: 76rpx;
-			position: relative;
-
-			view {
-				padding: 4rpx;
-				position: absolute;
-				right: 0;
-				top: 0;
-				background-color: red;
-				border-radius: 50%;
-			}
-		}
-
-		button {
-			opacity: 0.6;
-			margin: 30rpx 0;
-			padding: 0;
-			outline: none;
-			border-radius: 50%;
-			line-height: 76rpx;
-			width: 76rpx;
-			height: 76rpx;
-			background-color: #fe440c;
-		}
-	}
+ 
 
 
 
