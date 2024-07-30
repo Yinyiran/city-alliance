@@ -103,12 +103,6 @@ try {
     uvNavbar: function () {
       return Promise.all(/*! import() | uni_modules/uv-navbar/components/uv-navbar/uv-navbar */[__webpack_require__.e("common/vendor"), __webpack_require__.e("uni_modules/uv-navbar/components/uv-navbar/uv-navbar")]).then(__webpack_require__.bind(null, /*! @/uni_modules/uv-navbar/components/uv-navbar/uv-navbar.vue */ 165))
     },
-    uvSwiper: function () {
-      return Promise.all(/*! import() | uni_modules/uv-swiper/components/uv-swiper/uv-swiper */[__webpack_require__.e("common/vendor"), __webpack_require__.e("uni_modules/uv-swiper/components/uv-swiper/uv-swiper")]).then(__webpack_require__.bind(null, /*! @/uni_modules/uv-swiper/components/uv-swiper/uv-swiper.vue */ 182))
-    },
-    uvNoticeBar: function () {
-      return Promise.all(/*! import() | uni_modules/uv-notice-bar/components/uv-notice-bar/uv-notice-bar */[__webpack_require__.e("common/vendor"), __webpack_require__.e("uni_modules/uv-notice-bar/components/uv-notice-bar/uv-notice-bar")]).then(__webpack_require__.bind(null, /*! @/uni_modules/uv-notice-bar/components/uv-notice-bar/uv-notice-bar.vue */ 190))
-    },
     uvPicker: function () {
       return Promise.all(/*! import() | uni_modules/uv-picker/components/uv-picker/uv-picker */[__webpack_require__.e("common/vendor"), __webpack_require__.e("uni_modules/uv-picker/components/uv-picker/uv-picker")]).then(__webpack_require__.bind(null, /*! @/uni_modules/uv-picker/components/uv-picker/uv-picker.vue */ 198))
     },
@@ -134,20 +128,6 @@ var render = function () {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  var g0 = _vm.textList.length
-  if (!_vm._isMounted) {
-    _vm.e0 = function ($event) {
-      return _vm.$util.redirectTo("/pages/my/infoList")
-    }
-  }
-  _vm.$mp.data = Object.assign(
-    {},
-    {
-      $root: {
-        g0: g0,
-      },
-    }
-  )
 }
 var recyclableRender = false
 var staticRenderFns = []
@@ -183,12 +163,21 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 /* WEBPACK VAR INJECTION */(function(uni) {
 
-var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = void 0;
-var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -230,8 +219,7 @@ var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/run
 //
 var _default = {
   data: function data() {
-    var _ref;
-    return _ref = {
+    return {
       shopList: [],
       textList: [],
       columns: [[]],
@@ -246,25 +234,18 @@ var _default = {
       }]],
       addressVal: {},
       activeId: 0,
-      list: [{
-        name: '最新消息',
-        type: 'new'
+      listA: [{
+        image: __webpack_require__(/*! ../../static/home/n1.png */ 184),
+        title: '收款码'
       }, {
-        name: '学校食堂',
-        type: 'canteen'
+        image: __webpack_require__(/*! ../../static/home/n2.png */ 185),
+        title: '团购核销'
       }, {
-        name: '校园商铺',
-        type: 'shop'
+        image: __webpack_require__(/*! ../../static/home/n3.png */ 186),
+        title: '收款账户'
       }, {
-        name: '课堂',
-        type: 'course'
-      }],
-      bannerList: [{
-        image: 'https://cdn.uviewui.com/uview/swiper/swiper1.png'
-      }, {
-        image: 'https://cdn.uviewui.com/uview/swiper/swiper2.png'
-      }, {
-        image: 'https://cdn.uviewui.com/uview/swiper/swiper3.png'
+        image: __webpack_require__(/*! ../../static/home/n4.png */ 187),
+        title: '生意报表'
       }],
       funList: [{
         image: __webpack_require__(/*! ../../static/logo.png */ 48),
@@ -308,11 +289,18 @@ var _default = {
         router: '/otherpages/classList/classList'
       }
       // /otherpages/spread/spread 推广
-      ]
-    }, (0, _defineProperty2.default)(_ref, "bannerList", []), (0, _defineProperty2.default)(_ref, "type", 0), (0, _defineProperty2.default)(_ref, "homeInfo", {}), (0, _defineProperty2.default)(_ref, "classList", []), (0, _defineProperty2.default)(_ref, "keywords", ''), (0, _defineProperty2.default)(_ref, "typeList", [{
-      name: '最新消息',
-      id: 0
-    }]), _ref;
+      ],
+
+      bannerList: [],
+      type: 0,
+      homeInfo: {},
+      classList: [],
+      keywords: '',
+      typeList: [{
+        name: '最新消息',
+        id: 0
+      }]
+    };
   },
   onLoad: function onLoad(res) {
     if (res.invite_code) {

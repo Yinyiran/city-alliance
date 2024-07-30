@@ -15,7 +15,7 @@
 @font-face {
   font-family: "iconfont";
   /* Project id 4633945 */
-  src: url("//at.alicdn.com/t/c/font_4633945_j2zu9847s4.woff2?t=1722074190003") format("woff2"), url("//at.alicdn.com/t/c/font_4633945_j2zu9847s4.woff?t=1722074190003") format("woff"), url("//at.alicdn.com/t/c/font_4633945_j2zu9847s4.ttf?t=1722074190003") format("truetype");
+  src: url("//at.alicdn.com/t/c/font_4633945_ei3r3a1ls8k.woff2?t=1722222352763") format("woff2"), url("//at.alicdn.com/t/c/font_4633945_ei3r3a1ls8k.woff?t=1722222352763") format("woff"), url("//at.alicdn.com/t/c/font_4633945_ei3r3a1ls8k.ttf?t=1722222352763") format("truetype");
 }
 .iconfont.data-v-57280228 {
   font-family: "iconfont" !important;
@@ -23,6 +23,9 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+.icon-qiehuan.data-v-57280228:before {
+  content: "\e608";
 }
 .icon-weixinzhifu.data-v-57280228:before {
   content: "\e650";
@@ -78,6 +81,60 @@ view.data-v-57280228 {
 text.data-v-57280228 {
   font-family: HarmonyOS Sans SC,PingFangSC-Medium, PingFang SC;
 }
+.infoBox.data-v-57280228 {
+  width: 345rpx;
+  height: 308rpx;
+  background-color: #fff;
+  border-radius: 20rpx;
+}
+.navImg.data-v-57280228 {
+  width: 53rpx;
+  height: 53rpx;
+  border-radius: 50%;
+  border: 1rpx solid #fff;
+}
+.listASty.data-v-57280228 {
+  width: 151rpx;
+  height: 167rpx;
+  background-size: cover;
+  position: relative;
+}
+.listASty .Atitle.data-v-57280228 {
+  position: absolute;
+  bottom: 0;
+  width: 151rpx;
+  text-align: center;
+  bottom: 15rpx;
+}
+.shopBodyBg.data-v-57280228 {
+  height: 350rpx;
+  background-color: #ff4d19;
+  position: relative;
+}
+.shopBodyBg .certifySty.data-v-57280228 {
+  position: absolute;
+  bottom: 0;
+  width: 690rpx;
+  padding: 0 20rpx;
+  box-sizing: border-box;
+  height: 108rpx;
+  border-radius: 20rpx 20rpx 0 0;
+  opacity: 1;
+  left: 50%;
+  margin-left: -345rpx;
+  background: #ffffff;
+}
+.shopBodyBg .certifySty image.data-v-57280228 {
+  width: 66rpx;
+  height: 66rpx;
+}
+.changeShopSty.data-v-57280228 {
+  width: 167rpx;
+  height: 46rpx;
+  flex-shrink: 0;
+  border-radius: 47rpx;
+  background: #FF8765;
+}
 .tabsList.data-v-57280228 {
   padding: 18rpx 0;
   flex-wrap: wrap;
@@ -109,36 +166,6 @@ text.data-v-57280228 {
 .infoFun view.data-v-57280228:nth-child(2) {
   color: #F33B04;
   border: 3rpx solid #F33B04;
-}
-.poBom.data-v-57280228 {
-  z-index: 999;
-  position: fixed;
-  bottom: 300rpx;
-  right: 30rpx;
-}
-.poBom .infoBox.data-v-57280228 {
-  width: 76rpx;
-  height: 76rpx;
-  position: relative;
-}
-.poBom .infoBox view.data-v-57280228 {
-  padding: 4rpx;
-  position: absolute;
-  right: 0;
-  top: 0;
-  background-color: red;
-  border-radius: 50%;
-}
-.poBom button.data-v-57280228 {
-  opacity: 0.6;
-  margin: 30rpx 0;
-  padding: 0;
-  outline: none;
-  border-radius: 50%;
-  line-height: 76rpx;
-  width: 76rpx;
-  height: 76rpx;
-  background-color: #fe440c;
 }
 .infoItem.data-v-57280228 {
   border-bottom: 1rpx solid #f3f3f3;
