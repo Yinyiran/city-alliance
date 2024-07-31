@@ -45,7 +45,7 @@
 		</view>
 		<view class="btm p-t-20 p-r-20 p-l-20 iphone-x acea-row row-between row-middle ">
 			<view class="bor-64 font-28" v-if="check==0" @click="employee(1)">添加员工</view>
-			<view class="bor-64 font-28" v-else>添加角色</view>
+			<view class="bor-64 font-28" v-else @click="addemployee">添加角色</view>
 		</view>
 		<uv-popup ref="popup1" :round="10" closeable>
 			<view class="popup1">
@@ -57,21 +57,78 @@
 			<view class="popup2">
 				<view class="font-32 font-bold p-t-32 p-b-22">{{is_edit==1?'添加员工':'编辑员工'}}</view>
 				<view class="m-t-30 m-r-50 m-l-50">
-					<uv-input placeholder="输入员工姓名" inputAlign="right" border="surround" :customStyle='customStyle'>
+					<uv-input placeholder="输入员工姓名" fontSize='14px' inputAlign="right" border="surround"
+						:customStyle='customStyle'>
 						<template v-slot:prefix>
 							<text class="font-28 font-bold">姓名</text>
 						</template>
 					</uv-input>
 				</view>
 				<view class="m-t-30 m-r-50 m-l-50">
-					<uv-input placeholder="输入员工姓名" inputAlign="right" border="surround" :customStyle='customStyle'>
+					<uv-input placeholder="输入员工姓名" fontSize='14px' readonly inputAlign="right" border="surround"
+						:customStyle='customStyle'>
 						<template v-slot:prefix>
 							<text class="font-28 font-bold">角色</text>
 						</template>
+						<template v-slot:suffix>
+							<uv-icon name="play-right-fill" color="#898FA3" size="10"></uv-icon>
+						</template>
 					</uv-input>
+				</view>
+				<view class="m-t-30 m-r-50 m-l-50">
+					<uv-input placeholder="输入手机号" fontSize='14px' inputAlign="right" border="surround"
+						:customStyle='customStyle'>
+						<template v-slot:prefix>
+							<text class="font-28 font-bold">手机号</text>
+						</template>
+					</uv-input>
+				</view>
+				<view class="m-t-30 m-r-50 m-l-50">
+					<uv-input placeholder="输入验证码" fontSize='14px' readonly inputAlign="right" border="surround"
+						:customStyle='customStyle'>
+						<template v-slot:prefix>
+							<text class="font-28 font-bold">验证码</text>
+						</template>
+						<template v-slot:suffix>
+							<text class="font-28 fcolor">获取验证码</text>
+						</template>
+					</uv-input>
+				</view>
+				<view class="btns acea-row row-between m-t-66 m-r-20 m-l-20">
+					<view class="font-28 font-weight-6 bor-80">取消</view>
+					<view class="font-28 font-weight-6 bor-80">确认添加</view>
 				</view>
 			</view>
 		</uv-popup>
+		<uv-popup ref="popup3" :round="10" closeable>
+			<view class="popup2">
+				<view class="font-32 font-bold p-t-32 p-b-22">{{is_edit==1?'添加员工':'编辑员工'}}</view>
+				<view class="m-t-30 m-r-50 m-l-50">
+					<uv-input placeholder="输入角色名称" fontSize='14px' inputAlign="right" border="surround"
+						:customStyle='customStyle'>
+						<template v-slot:prefix>
+							<text class="font-28 font-bold">角色名称</text>
+						</template>
+					</uv-input>
+				</view>
+				<view class="m-t-30 m-r-50 m-l-50">
+					<uv-input placeholder="请选择数据权限" fontSize='14px' readonly inputAlign="right" border="surround"
+						:customStyle='customStyle'>
+						<template v-slot:prefix>
+							<text class="font-28 font-bold">数据权限</text>
+						</template>
+						<template v-slot:suffix>
+							<uv-icon name="play-right-fill" color="#898FA3" size="10"></uv-icon>
+						</template>
+					</uv-input>
+				</view>
+				<view class="btns acea-row row-between m-t-66 m-r-20 m-l-20">
+					<view class="font-28 font-weight-6 bor-80">取消</view>
+					<view class="font-28 font-weight-6 bor-80">确认添加</view>
+				</view>
+			</view>
+		</uv-popup>
+		<uv-picker ref="picker" :columns="columns" @confirm="confirm"></uv-picker>
 	</view>
 </template>
 
@@ -82,7 +139,10 @@
 				list: ['员工管理', '角色管理'],
 				check: 0,
 				is_edit: 1,
-				customStyle:'padding:30rpx;border:1rpx solid #DDDFE4;border-radius:20rpx'
+				customStyle: 'padding:30rpx;border:1rpx solid #DDDFE4;border-radius:20rpx',
+				columns: [
+					['中国', '美国', '日本']
+				]
 			};
 		},
 		methods: {
@@ -92,6 +152,9 @@
 			employee(type) {
 				this.is_edit = type
 				this.$refs.popup2.open('bottom')
+			},
+			addemployee() {
+				this.$refs.popup3.open('bottom')
 			},
 		}
 	}
@@ -147,11 +210,29 @@
 			line-height: 100rpx;
 			background: #F8F9FA;
 		}
+
 	}
 
 	.popup2 {
 		>view:first-child {
 			text-align: center;
+		}
+
+		.btns {
+			view {
+				flex: 0 0 calc((100% - 28rpx)/2);
+				padding: 29rpx 0;
+				text-align: center;
+			}
+
+			>view:first-child {
+				border: 1rpx solid #BBBEC9;
+			}
+
+			>view:last-child {
+				background: #FF4D1A;
+				color: #fff;
+			}
 		}
 	}
 

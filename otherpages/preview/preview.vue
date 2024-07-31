@@ -94,7 +94,7 @@
 				</view>
 			</view>
 			<view class="acea-row row-baseline m-t-30">
-				<image src="../../static/index/icon8.png" class="w-22 h-22 m-r-20" style="flex-shrink: 0;" mode="">
+				<image src="../../static/index/icon9.png" class="w-22 h-22 m-r-20" style="flex-shrink: 0;" mode="">
 				</image>
 				<view class="">
 					<view class="font-weight-6">使用规则</view>
