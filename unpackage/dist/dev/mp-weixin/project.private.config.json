@@ -8,6 +8,20 @@
     "miniprogram": {
       "list": [
         {
+          "name": "otherpages/employee/employee",
+          "pathName": "otherpages/employee/employee",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "otherpages/preview/preview",
+          "pathName": "otherpages/preview/preview",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
           "name": "otherpages/shopFrom/shopFrom",
           "pathName": "otherpages/shopFrom/shopFrom",
           "query": "",

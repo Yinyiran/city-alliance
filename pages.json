@@ -144,6 +144,20 @@
 				{
 					"navigationBarTitleText" : "生意报表"
 				}
+			},
+			{
+				"path" : "preview/preview",
+				"style" : 
+				{
+					"navigationBarTitleText" : ""
+				}
+			},
+			{
+				"path" : "employee/employee",
+				"style" : 
+				{
+					"navigationBarTitleText" : "员工管理"
+				}
 			}
 		]
 	}],
