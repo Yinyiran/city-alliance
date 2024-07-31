@@ -57,7 +57,7 @@
 				"path": "shopFrom/shopFrom",
 				"style": {
 					"navigationBarTitleText": "店铺资料"
-					
+
 				}
 			},
 			{
@@ -97,12 +97,52 @@
 				}
 			},
 			{
-				"path" : "immediatelySign/immediatelySign",
-				"style" : 
-				{
+				"path": "immediatelySign/immediatelySign",
+				"style": {
 					"navigationBarTitleText": "立即签署",
 					"navigationBarBackgroundColor": "#ff4d19",
 					"navigationBarTextStyle": "white"
+				}
+			},
+			{
+				"path": "payCode/payCode",
+				"style": {
+					"navigationBarTitleText": "收款码",
+					"navigationBarBackgroundColor": "#ff4d19",
+					"navigationBarTextStyle": "white"
+				}
+			},
+			{
+				"path": "editCode/editCode",
+				"style": {
+					"navigationBarTitleText": "设置收款码"
+				}
+			},
+			{
+				"path": "receiptnAccount/receiptnAccount",
+				"style": {
+					"navigationBarTitleText": "收款账户"
+				}
+			},
+			{
+				"path" : "transferRecord/transferRecord",
+				"style" : 
+				{
+					"navigationBarTitleText" : "到账记录"
+				}
+			},
+			{
+				"path" : "editPayAccount/editPayAccount",
+				"style" : 
+				{
+					"navigationBarTitleText" : "修改收款账户"
+				}
+			},
+			{
+				"path" : "businessEchars/businessEchars",
+				"style" : 
+				{
+					"navigationBarTitleText" : "生意报表"
 				}
 			}
 		]

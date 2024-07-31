@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "生意报表",
+  "usingComponents": {
+    "time-select-com": "/components/timeSelectCom/timeSelectCom"
+  }
+}

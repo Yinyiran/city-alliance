@@ -19,7 +19,13 @@
         "withdraw/withdraw",
         "bindAlipay/bindAlipay",
         "withdraw_detail/withdraw_detail",
-        "immediatelySign/immediatelySign"
+        "immediatelySign/immediatelySign",
+        "payCode/payCode",
+        "editCode/editCode",
+        "receiptnAccount/receiptnAccount",
+        "transferRecord/transferRecord",
+        "editPayAccount/editPayAccount",
+        "businessEchars/businessEchars"
       ]
     }
   ],

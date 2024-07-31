@@ -15,7 +15,7 @@
 @font-face {
   font-family: "iconfont";
   /* Project id 4633945 */
-  src: url("//at.alicdn.com/t/c/font_4633945_o30ga7qy22.woff2?t=1722241912868") format("woff2"), url("//at.alicdn.com/t/c/font_4633945_o30ga7qy22.woff?t=1722241912868") format("woff"), url("//at.alicdn.com/t/c/font_4633945_o30ga7qy22.ttf?t=1722241912868") format("truetype");
+  src: url("//at.alicdn.com/t/c/font_4633945_shnnc7o0ho.woff2?t=1722325865197") format("woff2"), url("//at.alicdn.com/t/c/font_4633945_shnnc7o0ho.woff?t=1722325865197") format("woff"), url("//at.alicdn.com/t/c/font_4633945_shnnc7o0ho.ttf?t=1722325865197") format("truetype");
 }
 .iconfont.data-v-57280228 {
   font-family: "iconfont" !important;
@@ -23,6 +23,39 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+.icon-xiajiantou.data-v-57280228:before {
+  content: "\e615";
+}
+.icon-shijianfang.data-v-57280228:before {
+  content: "\e99c";
+}
+.icon-qianbao.data-v-57280228:before {
+  content: "\e685";
+}
+.icon-zhanghuyue.data-v-57280228:before {
+  content: "\e652";
+}
+.icon-shijian.data-v-57280228:before {
+  content: "\e65c";
+}
+.icon-zhuanzhang.data-v-57280228:before {
+  content: "\e619";
+}
+.icon-lianxi2hebing_jilu.data-v-57280228:before {
+  content: "\e630";
+}
+.icon-bangzhu.data-v-57280228:before {
+  content: "\e620";
+}
+.icon-shoukuan.data-v-57280228:before {
+  content: "\e616";
+}
+.icon-yincang.data-v-57280228:before {
+  content: "\e605";
+}
+.icon-weixinzhifu2.data-v-57280228:before {
+  content: "\e624";
 }
 .icon-guanbi.data-v-57280228:before {
   content: "\e677";
@@ -90,6 +123,21 @@ view.data-v-57280228 {
 text.data-v-57280228 {
   font-family: HarmonyOS Sans SC,PingFangSC-Medium, PingFang SC;
 }
+.popupBoxHome.data-v-57280228 {
+  background-image: linear-gradient(to top, #fff, #fff, #fff, #ffc1ae);
+  text-align: center;
+  padding-top: 40rpx;
+}
+.popupBoxHome view.data-v-57280228 {
+  text-align: center;
+}
+.popupBoxHome image.data-v-57280228 {
+  margin-top: 50rpx;
+  margin-bottom: 50rpx;
+  text-align: center;
+  width: 339rpx;
+  height: 344rpx;
+}
 .infoBox.data-v-57280228 {
   box-sizing: border-box;
   padding: 30rpx;
@@ -116,6 +164,9 @@ text.data-v-57280228 {
   width: 151rpx;
   text-align: center;
   bottom: 15rpx;
+}
+.wbg.data-v-57280228 {
+  background: #fff;
 }
 .shopBodyBg.data-v-57280228 {
   height: 350rpx;
