@@ -15,7 +15,7 @@
 @font-face {
   font-family: "iconfont";
   /* Project id 4633945 */
-  src: url("//at.alicdn.com/t/c/font_4633945_shnnc7o0ho.woff2?t=1722325865197") format("woff2"), url("//at.alicdn.com/t/c/font_4633945_shnnc7o0ho.woff?t=1722325865197") format("woff"), url("//at.alicdn.com/t/c/font_4633945_shnnc7o0ho.ttf?t=1722325865197") format("truetype");
+  src: url("//at.alicdn.com/t/c/font_4633945_2tgimvl7104.woff2?t=1722419688689") format("woff2"), url("//at.alicdn.com/t/c/font_4633945_2tgimvl7104.woff?t=1722419688689") format("woff"), url("//at.alicdn.com/t/c/font_4633945_2tgimvl7104.ttf?t=1722419688689") format("truetype");
 }
 .iconfont.data-v-106cef3c {
   font-family: "iconfont" !important;
@@ -23,6 +23,15 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+.icon-xiazai.data-v-106cef3c:before {
+  content: "\e610";
+}
+.icon-xiajiantou1.data-v-106cef3c:before {
+  content: "\e603";
+}
+.icon-shangjiantou.data-v-106cef3c:before {
+  content: "\e602";
 }
 .icon-xiajiantou.data-v-106cef3c:before {
   content: "\e615";
@@ -123,6 +132,18 @@ view.data-v-106cef3c {
 text.data-v-106cef3c {
   font-family: HarmonyOS Sans SC,PingFangSC-Medium, PingFang SC;
 }
+.uv-percentage-slot.data-v-106cef3c {
+  padding: 1px 5px;
+  background-color: #ffffff;
+  color: #898FA3;
+  font-size: 10px;
+  margin-right: -5px;
+}
+.canvas.data-v-106cef3c {
+  width: 100% !important;
+  height: 405rpx;
+  margin: 0 auto;
+}
 .echarsBox.data-v-106cef3c {
   background-color: #ff4d1a;
   width: 710rpx;
@@ -133,9 +154,22 @@ text.data-v-106cef3c {
   margin-top: 20rpx;
   background-image: linear-gradient(to top, #fff, #fff, #fff, #fff, #fff, #ffd9cd);
   border-radius: 20rpx;
-  height: 671rpx;
   box-sizing: border-box;
   padding: 20rpx 10rpx;
+}
+.echarsBox .echarsBoxA .activeType.data-v-106cef3c {
+  background-color: #ff4d1a;
+}
+.echarsBox .echarsBoxA .activeType view.data-v-106cef3c {
+  color: #fff !important;
+}
+.echarsBox .echarsBoxA .item.data-v-106cef3c {
+  width: 218rpx;
+  height: 120rpx;
+  border-radius: 20rpx;
+}
+.echarsBox .echarsBoxA .item view.data-v-106cef3c {
+  text-align: center;
 }
 .itemType.data-v-106cef3c {
   width: 120rpx;

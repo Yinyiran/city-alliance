@@ -144,6 +144,20 @@
 				{
 					"navigationBarTitleText" : "生意报表"
 				}
+			},
+			{
+				"path" : "realTimeBill/realTimeBill",
+				"style" : 
+				{
+					"navigationBarTitleText" : "实时账单"
+				}
+			},
+			{
+				"path" : "billDetail/billDetail",
+				"style" : 
+				{
+					"navigationBarTitleText" : "账单详情"
+				}
 			}
 		]
 	}],

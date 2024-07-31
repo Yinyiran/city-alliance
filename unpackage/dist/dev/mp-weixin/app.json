@@ -25,7 +25,9 @@
         "receiptnAccount/receiptnAccount",
         "transferRecord/transferRecord",
         "editPayAccount/editPayAccount",
-        "businessEchars/businessEchars"
+        "businessEchars/businessEchars",
+        "realTimeBill/realTimeBill",
+        "billDetail/billDetail"
       ]
     }
   ],
