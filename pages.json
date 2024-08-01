@@ -172,6 +172,20 @@
 				{
 					"navigationBarTitleText" : "语音设备"
 				}
+			},
+			{
+				"path" : "myGroupBuy/myGroupBuy",
+				"style" : 
+				{
+					"navigationBarTitleText" : ""
+				}
+			},
+			{
+				"path" : "submitGroupBuy/submitGroupBuy",
+				"style" : 
+				{
+					"navigationBarTitleText" : "发布套餐"
+				}
 			}
 		]
 	}],

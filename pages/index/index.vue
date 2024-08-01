@@ -76,7 +76,7 @@
 		<view class="wbg p-20 m-t-30 m-r-20 m-l-20 bor-10">
 			<view class="font-30 font-weight-6 m-b-18">经营工具</view>
 			<uv-grid :col="4" @click="click">
-				<uv-grid-item v-for="(item,index) in listB" :key="index">
+				<uv-grid-item v-for="(item,index) in listB" :key="index" @click="goRouter(item)">
 					<image :src="item.image" class="w-74 h-74" mode="aspectFill"></image>
 					<view class="m-t-14 font-26">{{item.title}}</view>
 				</uv-grid-item>
@@ -179,7 +179,8 @@
 					},
 					{
 						image: require('../../static/home/jy3.png'),
-						title: '我的团购'
+						title: '我的团购',
+						router:'/otherpages/myGroupBuy/myGroupBuy'
 					},
 					{
 						image: require('../../static/home/jy4.png'),
