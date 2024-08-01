@@ -17,7 +17,7 @@
 			</view>
 		</view>
 		<view class="payCodeBtn flex_c">
-			<view v-for="(item,index) in list" :key="index" class="flex_b ">
+			<view v-for="(item,index) in list" :key="index" class="flex_b " @click="rouFn(item)">
 				<view class="flex">
 					<image :src="item.image" mode="aspectFill"></image>
 					<view class="font-32 white m-l-10">{{item.title}}</view>
@@ -39,11 +39,17 @@
 				}, {
 					title: '收款语音提醒',
 					image: require('../../static/home/pay2.png'),
+					router: '/otherpages/sgdModel/sgdModel'
 				}, {
 					title: '收款账户',
 					image: require('../../static/home/pay3.png'),
 				}, ]
 			};
+		},
+		methods: {
+			rouFn(item) {
+				this.$util.redirectTo(item.router)
+			}
 		}
 	}
 </script>

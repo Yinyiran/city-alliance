@@ -26,8 +26,11 @@
         "transferRecord/transferRecord",
         "editPayAccount/editPayAccount",
         "businessEchars/businessEchars",
+        "realTimeBill/realTimeBill",
+        "billDetail/billDetail",
         "preview/preview",
-        "employee/employee"
+        "employee/employee",
+        "sgdModel/sgdModel"
       ]
     }
   ],

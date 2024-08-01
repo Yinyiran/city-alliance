@@ -15,7 +15,7 @@
 @font-face {
   font-family: "iconfont";
   /* Project id 4633945 */
-  src: url("//at.alicdn.com/t/c/font_4633945_shnnc7o0ho.woff2?t=1722325865197") format("woff2"), url("//at.alicdn.com/t/c/font_4633945_shnnc7o0ho.woff?t=1722325865197") format("woff"), url("//at.alicdn.com/t/c/font_4633945_shnnc7o0ho.ttf?t=1722325865197") format("truetype");
+  src: url("//at.alicdn.com/t/c/font_4633945_2tgimvl7104.woff2?t=1722419688689") format("woff2"), url("//at.alicdn.com/t/c/font_4633945_2tgimvl7104.woff?t=1722419688689") format("woff"), url("//at.alicdn.com/t/c/font_4633945_2tgimvl7104.ttf?t=1722419688689") format("truetype");
 }
 .iconfont {
   font-family: "iconfont" !important;
@@ -23,6 +23,15 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+.icon-xiazai:before {
+  content: "\e610";
+}
+.icon-xiajiantou1:before {
+  content: "\e603";
+}
+.icon-shangjiantou:before {
+  content: "\e602";
 }
 .icon-xiajiantou:before {
   content: "\e615";
@@ -127,7 +136,7 @@ view {
   line-height: 1.5;
   font-family: HarmonyOS Sans SC,PingFangSC-Medium, PingFang SC;
   font-size: 24rpx;
-  color: #000;
+  color: #1C274C;
 }
 page {
   background-color: #f5f5f5;
@@ -390,7 +399,7 @@ scroll-view ::-webkit-scrollbar {
   font-size: 24rpx;
 }
 .color-title {
-  color: #000 !important;
+  color: #1C274C !important;
 }
 .color-sub {
   color: #ff4d1a !important;
@@ -481,7 +490,7 @@ button::after {
 }
 .uni-tag--inverted {
   border-color: #eeeeee !important;
-  color: #000 !important;
+  color: #1C274C !important;
 }
  ::-webkit-scrollbar {
   width: 0;
@@ -16992,7 +17001,7 @@ button::after {
 .save-con .save-btn {
   width: 690rpx;
   height: 86rpx;
-  background: #000;
+  background: #1C274C;
   border-radius: 48rpx;
   line-height: 86rpx;
   text-align: center;
@@ -17012,7 +17021,7 @@ button::after {
   border-radius: 24rpx;
 }
 .save-con .save-btn-border {
-  color: #000 !important;
+  color: #1C274C !important;
   border: 2rpx solid rgba(255, 65, 32, 0.5);
   background-color: #fff !important;
   margin-top: 32rpx !important;
@@ -17030,7 +17039,7 @@ button::after {
   color: #333;
 }
 .save-con .two-border-bg {
-  background-color: #000;
+  background-color: #1C274C;
   color: #fff;
 }
 
@@ -17051,7 +17060,7 @@ button::after {
 @font-face {
   font-family: "iconfont";
   /* Project id 4633945 */
-  src: url("//at.alicdn.com/t/c/font_4633945_shnnc7o0ho.woff2?t=1722325865197") format("woff2"), url("//at.alicdn.com/t/c/font_4633945_shnnc7o0ho.woff?t=1722325865197") format("woff"), url("//at.alicdn.com/t/c/font_4633945_shnnc7o0ho.ttf?t=1722325865197") format("truetype");
+  src: url("//at.alicdn.com/t/c/font_4633945_2tgimvl7104.woff2?t=1722419688689") format("woff2"), url("//at.alicdn.com/t/c/font_4633945_2tgimvl7104.woff?t=1722419688689") format("woff"), url("//at.alicdn.com/t/c/font_4633945_2tgimvl7104.ttf?t=1722419688689") format("truetype");
 }
 .iconfont {
   font-family: "iconfont" !important;
@@ -17059,6 +17068,15 @@ button::after {
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+.icon-xiazai:before {
+  content: "\e610";
+}
+.icon-xiajiantou1:before {
+  content: "\e603";
+}
+.icon-shangjiantou:before {
+  content: "\e602";
 }
 .icon-xiajiantou:before {
   content: "\e615";

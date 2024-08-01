@@ -1,6 +1,7 @@
 {
   "navigationBarTitleText": "生意报表",
   "usingComponents": {
+    "uv-line-progress": "/uni_modules/uv-line-progress/components/uv-line-progress/uv-line-progress",
     "time-select-com": "/components/timeSelectCom/timeSelectCom"
   }
 }

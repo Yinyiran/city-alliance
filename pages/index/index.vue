@@ -5,7 +5,7 @@
 			<view class="flex" slot="left">
 				<image class="navImg" src="/static/image/userNone.png" mode="aspectFill"></image>
 				<view class="font-32 font-weight white m-l-20 m-r-20">白苏叶店铺</view>
-				<view class="flex_center changeShopSty">
+				<view class="flex_center changeShopSty" @click="$util.redirectTo('/otherpages/selectShop/selectShop')">
 					<view class="iconfont icon-qiehuan lh-24 white"></view>
 					<view class="lh-24 white">切换店铺</view>
 				</view>
@@ -54,7 +54,7 @@
 					</view>
 				</view>
 			</view>
-			<view class="infoBox flex_c" @click="$util.redirectTo('/otherpages/businessEchars/businessEchars')">
+			<view class="infoBox flex_c" @click="$util.redirectTo('/otherpages/realTimeBill/realTimeBill')">
 				<view class="flex_b m-b-10">
 					<view class="flex">
 						<text class="font-28 f-tA ">实时账单</text>
@@ -165,7 +165,8 @@
 					},
 					{
 						image: require('../../static/home/n4.png'),
-						title: '生意报表'
+						title: '生意报表',
+						router: '/otherpages/businessEchars/businessEchars'
 					},
 				],
 				listB: [{

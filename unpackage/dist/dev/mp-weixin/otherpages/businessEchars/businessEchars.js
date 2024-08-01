@@ -100,6 +100,9 @@ __webpack_require__.r(__webpack_exports__);
 var components
 try {
   components = {
+    uvLineProgress: function () {
+      return Promise.all(/*! import() | uni_modules/uv-line-progress/components/uv-line-progress/uv-line-progress */[__webpack_require__.e("common/vendor"), __webpack_require__.e("uni_modules/uv-line-progress/components/uv-line-progress/uv-line-progress")]).then(__webpack_require__.bind(null, /*! @/uni_modules/uv-line-progress/components/uv-line-progress/uv-line-progress.vue */ 461))
+    },
     timeSelectCom: function () {
       return __webpack_require__.e(/*! import() | components/timeSelectCom/timeSelectCom */ "components/timeSelectCom/timeSelectCom").then(__webpack_require__.bind(null, /*! @/components/timeSelectCom/timeSelectCom.vue */ 356))
     },
@@ -167,12 +170,105 @@ __webpack_require__.r(__webpack_exports__);
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+/* WEBPACK VAR INJECTION */(function(wx) {
 
-
+var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = void 0;
+var _wxcharts = _interopRequireDefault(__webpack_require__(/*! @/utils/wxcharts.js */ 460));
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -206,17 +302,62 @@ var _default = {
   data: function data() {
     return {
       typeList: ['今日', '近7天', '近30天'],
-      typeId: 0
+      typeId: 0,
+      activeTypeId: 1
     };
   },
+  mixins: ['wxCharts'],
+  onLoad: function onLoad() {
+    this.infoFn();
+  },
   methods: {
+    infoFn: function infoFn() {
+      var windowWidth = 300;
+      try {
+        var res = wx.getSystemInfoSync();
+        windowWidth = res.windowWidth;
+      } catch (e) {}
+      new _wxcharts.default({
+        canvasId: 'columnCanvas',
+        type: 'line',
+        title: {
+          color: 'red',
+          name: '123132'
+        },
+        extra: {
+          column: {
+            width: '10'
+          },
+          lineStyle: 'curve'
+        },
+        categories: ['1月', '2月', '3月', '4月', '5月', '6月', '7月'],
+        series: [{
+          name: '微信收入',
+          data: [1200, 3000, 4500, 3700, 700, 8044, 3700],
+          color: '#ff4d1a'
+        }],
+        yAxis: {
+          format: function format(val) {
+            return val;
+          }
+          // max:400,
+          // min:0
+        },
+
+        width: 355,
+        height: 200
+      });
+    },
+    selectType: function selectType(e) {
+      this.activeTypeId = e;
+    },
     openTime: function openTime() {
-      console.log(this.$refs.popup);
       this.$refs.popup.openTime('bottom');
     }
   }
 };
 exports.default = _default;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/wx.js */ 1)["default"]))
 
 /***/ }),
 

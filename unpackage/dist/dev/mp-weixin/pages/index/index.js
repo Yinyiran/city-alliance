@@ -139,15 +139,18 @@ var render = function () {
   var _c = _vm._self._c || _h
   if (!_vm._isMounted) {
     _vm.e0 = function ($event) {
-      $event.stopPropagation()
-      _vm.show = !_vm.show
+      return _vm.$util.redirectTo("/otherpages/selectShop/selectShop")
     }
     _vm.e1 = function ($event) {
       $event.stopPropagation()
       _vm.show = !_vm.show
     }
     _vm.e2 = function ($event) {
-      return _vm.$util.redirectTo("/otherpages/businessEchars/businessEchars")
+      $event.stopPropagation()
+      _vm.show = !_vm.show
+    }
+    _vm.e3 = function ($event) {
+      return _vm.$util.redirectTo("/otherpages/realTimeBill/realTimeBill")
     }
   }
 }
@@ -348,7 +351,8 @@ var _default = {
         router: '/otherpages/receiptnAccount/receiptnAccount'
       }, {
         image: __webpack_require__(/*! ../../static/home/n4.png */ 51),
-        title: '生意报表'
+        title: '生意报表',
+        router: '/otherpages/businessEchars/businessEchars'
       }],
       listB: [{
         image: __webpack_require__(/*! ../../static/home/jy1.png */ 52),

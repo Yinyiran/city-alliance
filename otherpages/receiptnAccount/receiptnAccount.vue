@@ -70,6 +70,7 @@
 				</view>
 			</view>
 		</uv-popup>
+		
 		<uv-popup ref="popupB" round="10" :safeAreaInsetBottom="false">
 			<view class="popupBox">
 				<view class="textC font-36 f-tA lh-120 color-base-border-bottom">实时到账的额度限制</view>

@@ -185,12 +185,18 @@ var _default = {
         image: __webpack_require__(/*! ../../static/home/pay1.png */ 185)
       }, {
         title: '收款语音提醒',
-        image: __webpack_require__(/*! ../../static/home/pay2.png */ 186)
+        image: __webpack_require__(/*! ../../static/home/pay2.png */ 186),
+        router: '/otherpages/sgdModel/sgdModel'
       }, {
         title: '收款账户',
         image: __webpack_require__(/*! ../../static/home/pay3.png */ 187)
       }]
     };
+  },
+  methods: {
+    rouFn: function rouFn(item) {
+      this.$util.redirectTo(item.router);
+    }
   }
 };
 exports.default = _default;
