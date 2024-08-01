@@ -112,6 +112,9 @@ try {
     uvPopup: function () {
       return Promise.all(/*! import() | uni_modules/uv-popup/components/uv-popup/uv-popup */[__webpack_require__.e("common/vendor"), __webpack_require__.e("uni_modules/uv-popup/components/uv-popup/uv-popup")]).then(__webpack_require__.bind(null, /*! @/uni_modules/uv-popup/components/uv-popup/uv-popup.vue */ 279))
     },
+    uvButton: function () {
+      return Promise.all(/*! import() | uni_modules/uv-button/components/uv-button/uv-button */[__webpack_require__.e("common/vendor"), __webpack_require__.e("uni_modules/uv-button/components/uv-button/uv-button")]).then(__webpack_require__.bind(null, /*! @/uni_modules/uv-button/components/uv-button/uv-button.vue */ 521))
+    },
     uvPicker: function () {
       return Promise.all(/*! import() | uni_modules/uv-picker/components/uv-picker/uv-picker */[__webpack_require__.e("common/vendor"), __webpack_require__.e("uni_modules/uv-picker/components/uv-picker/uv-picker")]).then(__webpack_require__.bind(null, /*! @/uni_modules/uv-picker/components/uv-picker/uv-picker.vue */ 286))
     },
@@ -151,6 +154,9 @@ var render = function () {
     }
     _vm.e3 = function ($event) {
       return _vm.$util.redirectTo("/otherpages/realTimeBill/realTimeBill")
+    }
+    _vm.e4 = function ($event) {
+      return _vm.$util.redirectTo("/otherpages/courtesy/courtesy")
     }
   }
 }
@@ -192,6 +198,30 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = void 0;
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -376,20 +406,27 @@ var _default = {
         router: '/otherpages/employee/employee'
       }, {
         image: __webpack_require__(/*! ../../static/home/shop3.png */ 58),
-        title: '店铺资料'
+        title: '店铺资料',
+        router: '/otherpages/information/information'
       }, {
         image: __webpack_require__(/*! ../../static/home/shop4.png */ 59),
         title: '地推商务'
       }],
       listD: [{
         image: __webpack_require__(/*! ../../static/home/other1.png */ 60),
-        title: '下载中心'
+        title: '下载中心',
+        router: '/otherpages/download/download'
       }, {
         image: __webpack_require__(/*! ../../static/home/other2.png */ 61),
-        title: '在线客服'
+        title: '在线客服',
+        router: '/otherpages/contact/contact'
+      }, {
+        image: __webpack_require__(/*! ../../static/home/other4.png */ 574),
+        title: '人工客服'
       }, {
         image: __webpack_require__(/*! ../../static/home/other3.png */ 62),
-        title: '设置'
+        title: '设置',
+        router: "/otherpages/settings/settings"
       }],
       bannerList: [],
       type: 0,
@@ -419,8 +456,10 @@ var _default = {
   onShow: function onShow() {},
   methods: {
     goRouter: function goRouter(item) {
-      if (item.title == '在线客服') {
-        this.$refs.popup.open('bottom');
+      if (item.title == '地推商务') {
+        this.$refs.popup1.open('bottom');
+      } else if (item.title == '人工客服') {
+        this.$refs.popup2.open('center');
       } else {
         this.$util.redirectTo(item.router);
       }

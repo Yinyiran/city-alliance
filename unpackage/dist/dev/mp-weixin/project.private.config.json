@@ -8,29 +8,15 @@
     "miniprogram": {
       "list": [
         {
-          "name": "otherpages/employee/employee",
-          "pathName": "otherpages/employee/employee",
+          "name": "otherpages/settings/settings",
+          "pathName": "otherpages/settings/settings",
           "query": "",
           "launchMode": "default",
           "scene": null
         },
         {
-          "name": "otherpages/preview/preview",
-          "pathName": "otherpages/preview/preview",
-          "query": "",
-          "launchMode": "default",
-          "scene": null
-        },
-        {
-          "name": "otherpages/shopFrom/shopFrom",
-          "pathName": "otherpages/shopFrom/shopFrom",
-          "query": "",
-          "launchMode": "default",
-          "scene": null
-        },
-        {
-          "name": "otherpages/bindAlipay/bindAlipay",
-          "pathName": "otherpages/bindAlipay/bindAlipay",
+          "name": "otherpages/download/download",
+          "pathName": "otherpages/download/download",
           "query": "",
           "launchMode": "default",
           "scene": null

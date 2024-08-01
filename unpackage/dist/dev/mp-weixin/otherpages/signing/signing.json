@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "签约信息",
+  "usingComponents": {
+    "uv-icon": "/uni_modules/uv-icon/components/uv-icon/uv-icon"
+  }
+}

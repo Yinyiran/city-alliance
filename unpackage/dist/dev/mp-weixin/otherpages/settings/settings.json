@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "设置",
+  "usingComponents": {
+    "uv-switch": "/uni_modules/uv-switch/components/uv-switch/uv-switch"
+  }
+}

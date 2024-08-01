@@ -85,7 +85,7 @@
 		<view class="wbg p-20 m-t-30 m-r-20 m-l-20 bor-10">
 			<view class="font-30 font-weight-6 m-b-18">店铺管理</view>
 			<uv-grid :col="4">
-				<uv-grid-item v-for="(item,index) in listC" :key="index"  @click="goRouter(item)">
+				<uv-grid-item v-for="(item,index) in listC" :key="index" @click="goRouter(item)">
 					<image :src="item.image" class="w-74 h-74" mode="aspectFill"></image>
 					<view class="m-t-14 font-26">{{item.title}}</view>
 				</uv-grid-item>
@@ -94,7 +94,7 @@
 		<view class="wbg p-20 m-t-30 m-r-20 m-l-20 bor-10">
 			<view class="font-30 font-weight-6 m-b-18">营销推广</view>
 			<uv-grid :col="4" @click="click">
-				<uv-grid-item>
+				<uv-grid-item @click="$util.redirectTo('/otherpages/courtesy/courtesy')">
 					<image src="../../static/home/yx1.png" class="w-74 h-74" mode="aspectFill"></image>
 					<view class="m-t-14 font-26">支付有礼</view>
 				</uv-grid-item>
@@ -119,6 +119,30 @@
 				<view class="font-36 font-weight f-t textC">申请更高的收款额度</view>
 				<image src="../../static/logo.png" mode="aspectFill"></image>
 				<view class="font-28 f-tA">长按扫码添加官方客服</view>
+			</view>
+		</uv-popup>
+		<uv-popup ref="popup1" round="10" bgColor="#F6F7FB">
+			<view class="business p-t-36">
+				<view class="acea-row row-middle row-around font-32">
+					<text class="on">地推商务</text>
+					<text class="">区域经理</text>
+				</view>
+				<view class="wbg m-t-64 bor-20 m-r-20 m-l-20 p-20 acea-row row-middle">
+					<image src="../../static/logo.png" class="w-102 h-102 m-r-20" mode=""></image>
+					<view class="h-102">
+						<view class="m-t-12 font-32 font-bold">白苏叶</view>
+						<view class="font-24 fcolor m-t-6">18327327831 <text class="fcolor1 m-l-20">复制</text></view>
+					</view>
+				</view>
+				<view class="m-t-56 m-r-30 m-l-30">
+					<uv-button text="我知道了" shape="circle" color="#FF4D1A"></uv-button>
+				</view>
+			</view>
+		</uv-popup>
+		<uv-popup ref="popup2" round="10" bgColor="#F6F7FB" closeable>
+			<view class="popup2 p-b-102 p-t-40">
+				<view class="font-32 font-bold">添加客服</view>
+				<image src="../../static/logo.png" show-menu-by-longpress class="w-340 h-340 m-t-66" mode=""></image>
 			</view>
 		</uv-popup>
 		<uv-picker ref="picker" :columns="columns" keyName="Name" @confirm="confirm"></uv-picker>
@@ -193,11 +217,12 @@
 					{
 						image: require('../../static/home/shop2.png'),
 						title: '员工管理',
-						router:'/otherpages/employee/employee'
+						router: '/otherpages/employee/employee'
 					},
 					{
 						image: require('../../static/home/shop3.png'),
-						title: '店铺资料'
+						title: '店铺资料',
+						router: '/otherpages/information/information'
 					},
 					{
 						image: require('../../static/home/shop4.png'),
@@ -206,15 +231,22 @@
 				],
 				listD: [{
 						image: require('../../static/home/other1.png'),
-						title: '下载中心'
+						title: '下载中心',
+						router: '/otherpages/download/download'
 					},
 					{
 						image: require('../../static/home/other2.png'),
-						title: '在线客服'
+						title: '在线客服',
+						router: '/otherpages/contact/contact'
+					},
+					{
+						image: require('../../static/home/other4.png'),
+						title: '人工客服'
 					},
 					{
 						image: require('../../static/home/other3.png'),
-						title: '设置'
+						title: '设置',
+						router: "/otherpages/settings/settings"
 					}
 				],
 				bannerList: [],
@@ -250,8 +282,10 @@
 		},
 		methods: {
 			goRouter(item) {
-				if (item.title == '在线客服') {
-					this.$refs.popup.open('bottom');
+				if (item.title == '地推商务') {
+					this.$refs.popup1.open('bottom');
+				} else if (item.title == '人工客服') {
+					this.$refs.popup2.open('center');
 				} else {
 					this.$util.redirectTo(item.router)
 				}
@@ -264,6 +298,38 @@
 </script>
 
 <style scoped lang="scss">
+	.wbg {
+		background: #fff;
+	}
+
+	.popup2 {
+		width: 80vw;
+		text-align: center;
+	}
+
+	.business {
+		view {
+			color: #1C274C;
+		}
+
+		.fcolor {
+			color: #5D6581;
+		}
+
+		.fcolor1 {
+			color: #FF4D1A;
+		}
+
+		image {
+			border-radius: 50%;
+		}
+
+		.on {
+			color: #FF4D1A;
+			font-weight: bold;
+		}
+	}
+
 	.popupBoxHome {
 		background-image: linear-gradient(to top, #fff, #fff, #fff, #ffc1ae);
 		text-align: center;
