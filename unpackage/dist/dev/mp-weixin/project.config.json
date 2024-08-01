@@ -18,7 +18,7 @@
     }
   },
   "compileType": "miniprogram",
-  "libVersion": "3.5.2",
+  "libVersion": "3.5.1",
   "appid": "wx45b0fbf1fbd741de",
   "projectname": "shopBIZ",
   "condition": {

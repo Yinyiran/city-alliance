@@ -64,7 +64,7 @@
 						</template>
 					</uv-input>
 				</view>
-				<view class="m-t-30 m-r-50 m-l-50">
+				<view class="m-t-30 m-r-50 m-l-50" @click="choserole">
 					<uv-input placeholder="输入员工姓名" fontSize='14px' readonly inputAlign="right" border="surround"
 						:customStyle='customStyle'>
 						<template v-slot:prefix>
@@ -146,6 +146,9 @@
 			};
 		},
 		methods: {
+			choserole(){
+				this.$refs.picker.open()
+			},
 			edit() {
 				this.$refs.popup1.open('bottom')
 			},
