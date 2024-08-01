@@ -1,6 +1,3 @@
 {
-  "navigationBarTitleText": "实时账单",
-  "usingComponents": {
-    "uv-popup": "/uni_modules/uv-popup/components/uv-popup/uv-popup"
-  }
+  "navigationBarTitleText": "实时账单"
 }
