@@ -17453,6 +17453,118 @@ module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEsAAABLCAYAAAA4
 
 /***/ }),
 
+/***/ 596:
+/*!*******************************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-radio/components/uv-radio-group/props.js ***!
+  \*******************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(uni) {
+
+var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
+var _uni$$uv, _uni$$uv$props;
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+var _default = {
+  props: _objectSpread({
+    // 绑定的值
+    value: {
+      type: [String, Number, Boolean],
+      default: ''
+    },
+    modelValue: {
+      type: [String, Number, Boolean],
+      default: ''
+    },
+    // 是否禁用全部radio
+    disabled: {
+      type: Boolean,
+      default: false
+    },
+    // 形状，circle-圆形，square-方形
+    shape: {
+      type: String,
+      default: 'circle'
+    },
+    // 选中状态下的颜色，如设置此值，将会覆盖parent的activeColor值
+    activeColor: {
+      type: String,
+      default: '#2979ff'
+    },
+    // 未选中的颜色
+    inactiveColor: {
+      type: String,
+      default: '#c8c9cc'
+    },
+    // 标识符
+    name: {
+      type: String,
+      default: ''
+    },
+    // 整个组件的尺寸，默认px
+    size: {
+      type: [String, Number],
+      default: 18
+    },
+    // 布局方式，row-横向，column-纵向
+    placement: {
+      type: String,
+      default: 'row'
+    },
+    // label的文本
+    label: {
+      type: [String],
+      default: ''
+    },
+    // label的颜色 （默认 '#303133' ）
+    labelColor: {
+      type: [String],
+      default: '#303133'
+    },
+    // label的字体大小，px单位
+    labelSize: {
+      type: [String, Number],
+      default: 14
+    },
+    // 是否禁止点击文本操作checkbox(默认 false )
+    labelDisabled: {
+      type: Boolean,
+      default: false
+    },
+    // 图标颜色
+    iconColor: {
+      type: String,
+      default: '#fff'
+    },
+    // 图标的大小，单位px
+    iconSize: {
+      type: [String, Number],
+      default: 12
+    },
+    // 竖向配列时，是否显示下划线
+    borderBottom: {
+      type: Boolean,
+      default: false
+    },
+    // 图标与文字的对齐方式
+    iconPlacement: {
+      type: String,
+      default: 'left'
+    }
+  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.radioGroup)
+};
+exports.default = _default;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
+
+/***/ }),
+
 /***/ 6:
 /*!***************************************************************!*\
   !*** ./node_modules/@babel/runtime/helpers/arrayWithHoles.js ***!
@@ -17475,6 +17587,94 @@ module.exports = _arrayWithHoles, module.exports.__esModule = true, module.expor
 /***/ (function(module, exports) {
 
 module.exports = "data:image/png;base64,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"
+
+/***/ }),
+
+/***/ 604:
+/*!*************************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-radio/components/uv-radio/props.js ***!
+  \*************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(uni) {
+
+var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
+var _uni$$uv, _uni$$uv$props;
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+var _default = {
+  props: _objectSpread({
+    // radio的名称
+    name: {
+      type: [String, Number, Boolean],
+      default: ''
+    },
+    // 形状，square为方形，circle为圆型
+    shape: {
+      type: String,
+      default: ''
+    },
+    // 是否禁用
+    disabled: {
+      type: [String, Boolean],
+      default: ''
+    },
+    // 是否禁止点击提示语选中单选框
+    labelDisabled: {
+      type: [String, Boolean],
+      default: ''
+    },
+    // 选中状态下的颜色，如设置此值，将会覆盖parent的activeColor值
+    activeColor: {
+      type: String,
+      default: ''
+    },
+    // 未选中的颜色
+    inactiveColor: {
+      type: String,
+      default: ''
+    },
+    // 图标的大小，单位px
+    iconSize: {
+      type: [String, Number],
+      default: ''
+    },
+    // label的字体大小，px单位
+    labelSize: {
+      type: [String, Number],
+      default: ''
+    },
+    // label提示文字，因为nvue下，直接slot进来的文字，由于特殊的结构，无法修改样式
+    label: {
+      type: [String, Number, Boolean],
+      default: ''
+    },
+    // 整体的大小
+    size: {
+      type: [String, Number],
+      default: ''
+    },
+    // 图标颜色
+    iconColor: {
+      type: String,
+      default: ''
+    },
+    // label的颜色
+    labelColor: {
+      type: String,
+      default: ''
+    }
+  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.radio)
+};
+exports.default = _default;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
 
 /***/ }),
 

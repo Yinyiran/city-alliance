@@ -392,7 +392,8 @@ var _default = {
         title: '语音设备'
       }, {
         image: __webpack_require__(/*! ../../static/home/jy3.png */ 54),
-        title: '我的团购'
+        title: '我的团购',
+        router: '/otherpages/myGroupBuy/myGroupBuy'
       }, {
         image: __webpack_require__(/*! ../../static/home/jy4.png */ 55),
         title: '团购核销'

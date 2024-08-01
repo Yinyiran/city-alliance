@@ -31,6 +31,8 @@
         "preview/preview",
         "employee/employee",
         "sgdModel/sgdModel",
+        "myGroupBuy/myGroupBuy",
+        "submitGroupBuy/submitGroupBuy",
         "information/information",
         "signing/signing",
         "authentication/authentication",

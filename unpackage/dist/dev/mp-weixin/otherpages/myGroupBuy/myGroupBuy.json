@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "",
+  "usingComponents": {
+    "uv-search": "/uni_modules/uv-search/components/uv-search/uv-search"
+  }
+}
