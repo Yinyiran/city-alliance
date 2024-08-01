@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "下载中心",
+  "usingComponents": {
+    "uv-line": "/uni_modules/uv-line/components/uv-line/uv-line"
+  }
+}

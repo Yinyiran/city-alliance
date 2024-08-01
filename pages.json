@@ -167,24 +167,64 @@
 				}
 			},
 			{
-				"path" : "sgdModel/sgdModel",
-				"style" : 
-				{
-					"navigationBarTitleText" : "语音设备"
+				"path": "sgdModel/sgdModel",
+				"style": {
+					"navigationBarTitleText": "语音设备"
 				}
 			},
 			{
-				"path" : "myGroupBuy/myGroupBuy",
-				"style" : 
-				{
-					"navigationBarTitleText" : ""
+				"path": "myGroupBuy/myGroupBuy",
+				"style": {
+					"navigationBarTitleText": ""
 				}
 			},
 			{
-				"path" : "submitGroupBuy/submitGroupBuy",
-				"style" : 
-				{
-					"navigationBarTitleText" : "发布套餐"
+				"path": "submitGroupBuy/submitGroupBuy",
+				"style": {
+					"navigationBarTitleText": "发布套餐"
+
+				}
+			},
+			{
+				"path": "information/information",
+				"style": {
+					"navigationBarTitleText": "收款账户"
+				}
+			},
+			{
+				"path": "signing/signing",
+				"style": {
+					"navigationBarTitleText": "签约信息"
+				}
+			},
+			{
+				"path": "authentication/authentication",
+				"style": {
+					"navigationBarTitleText": "微信认证码"
+				}
+			},
+			{
+				"path": "courtesy/courtesy",
+				"style": {
+					"navigationBarTitleText": "支付有礼"
+				}
+			},
+			{
+				"path": "download/download",
+				"style": {
+					"navigationBarTitleText": "下载中心"
+				}
+			},
+			{
+				"path": "settings/settings",
+				"style": {
+					"navigationBarTitleText": "设置"
+				}
+			},
+			{
+				"path": "contact/contact",
+				"style": {
+					"navigationBarTitleText": "在线客服"
 				}
 			}
 		]

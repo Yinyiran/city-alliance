@@ -8,7 +8,7 @@
 }
 
 // margin/padding:8-100rpx
-$i: 100;
+$i: 300;
 @while $i >= 2 {
   .m-#{$i} {margin: 1rpx * $i;}
   .m-t-#{$i} {margin-top: 1rpx * $i;}

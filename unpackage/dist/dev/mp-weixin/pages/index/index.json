@@ -6,6 +6,7 @@
     "uv-grid": "/uni_modules/uv-grid/components/uv-grid/uv-grid",
     "uv-grid-item": "/uni_modules/uv-grid/components/uv-grid-item/uv-grid-item",
     "uv-popup": "/uni_modules/uv-popup/components/uv-popup/uv-popup",
+    "uv-button": "/uni_modules/uv-button/components/uv-button/uv-button",
     "uv-picker": "/uni_modules/uv-picker/components/uv-picker/uv-picker"
   }
 }

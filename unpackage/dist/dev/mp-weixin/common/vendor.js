@@ -93,11 +93,11 @@ module.exports = _defineProperty, module.exports.__esModule = true, module.expor
 
 var _typeof = __webpack_require__(/*! ./typeof.js */ 13)["default"];
 var toPrimitive = __webpack_require__(/*! ./toPrimitive.js */ 14);
-function _toPropertyKey(arg) {
-  var key = toPrimitive(arg, "string");
-  return _typeof(key) === "symbol" ? key : String(key);
+function toPropertyKey(t) {
+  var i = toPrimitive(t, "string");
+  return "symbol" == _typeof(i) ? i : i + "";
 }
-module.exports = _toPropertyKey, module.exports.__esModule = true, module.exports["default"] = module.exports;
+module.exports = toPropertyKey, module.exports.__esModule = true, module.exports["default"] = module.exports;
 
 /***/ }),
 
@@ -108,14 +108,14 @@ module.exports = _toPropertyKey, module.exports.__esModule = true, module.export
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-function _typeof(obj) {
+function _typeof(o) {
   "@babel/helpers - typeof";
 
-  return (module.exports = _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) {
-    return typeof obj;
-  } : function (obj) {
-    return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-  }, module.exports.__esModule = true, module.exports["default"] = module.exports), _typeof(obj);
+  return (module.exports = _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) {
+    return typeof o;
+  } : function (o) {
+    return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o;
+  }, module.exports.__esModule = true, module.exports["default"] = module.exports), _typeof(o);
 }
 module.exports = _typeof, module.exports.__esModule = true, module.exports["default"] = module.exports;
 
@@ -129,17 +129,17 @@ module.exports = _typeof, module.exports.__esModule = true, module.exports["defa
 /***/ (function(module, exports, __webpack_require__) {
 
 var _typeof = __webpack_require__(/*! ./typeof.js */ 13)["default"];
-function _toPrimitive(input, hint) {
-  if (_typeof(input) !== "object" || input === null) return input;
-  var prim = input[Symbol.toPrimitive];
-  if (prim !== undefined) {
-    var res = prim.call(input, hint || "default");
-    if (_typeof(res) !== "object") return res;
+function toPrimitive(t, r) {
+  if ("object" != _typeof(t) || !t) return t;
+  var e = t[Symbol.toPrimitive];
+  if (void 0 !== e) {
+    var i = e.call(t, r || "default");
+    if ("object" != _typeof(i)) return i;
     throw new TypeError("@@toPrimitive must return a primitive value.");
   }
-  return (hint === "string" ? String : Number)(input);
+  return ("string" === r ? String : Number)(t);
 }
-module.exports = _toPrimitive, module.exports.__esModule = true, module.exports["default"] = module.exports;
+module.exports = toPrimitive, module.exports.__esModule = true, module.exports["default"] = module.exports;
 
 /***/ }),
 
@@ -152,20 +152,12 @@ module.exports = _toPrimitive, module.exports.__esModule = true, module.exports[
 
 var setPrototypeOf = __webpack_require__(/*! ./setPrototypeOf.js */ 16);
 var isNativeReflectConstruct = __webpack_require__(/*! ./isNativeReflectConstruct.js */ 17);
-function _construct(Parent, args, Class) {
-  if (isNativeReflectConstruct()) {
-    module.exports = _construct = Reflect.construct.bind(), module.exports.__esModule = true, module.exports["default"] = module.exports;
-  } else {
-    module.exports = _construct = function _construct(Parent, args, Class) {
-      var a = [null];
-      a.push.apply(a, args);
-      var Constructor = Function.bind.apply(Parent, a);
-      var instance = new Constructor();
-      if (Class) setPrototypeOf(instance, Class.prototype);
-      return instance;
-    }, module.exports.__esModule = true, module.exports["default"] = module.exports;
-  }
-  return _construct.apply(null, arguments);
+function _construct(t, e, r) {
+  if (isNativeReflectConstruct()) return Reflect.construct.apply(null, arguments);
+  var o = [null];
+  o.push.apply(o, e);
+  var p = new (t.bind.apply(t, o))();
+  return r && setPrototypeOf(p, r.prototype), p;
 }
 module.exports = _construct, module.exports.__esModule = true, module.exports["default"] = module.exports;
 
@@ -197,15 +189,12 @@ module.exports = _setPrototypeOf, module.exports.__esModule = true, module.expor
 /***/ (function(module, exports) {
 
 function _isNativeReflectConstruct() {
-  if (typeof Reflect === "undefined" || !Reflect.construct) return false;
-  if (Reflect.construct.sham) return false;
-  if (typeof Proxy === "function") return true;
   try {
-    Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
-    return true;
-  } catch (e) {
-    return false;
-  }
+    var t = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+  } catch (t) {}
+  return (module.exports = _isNativeReflectConstruct = function _isNativeReflectConstruct() {
+    return !!t;
+  }, module.exports.__esModule = true, module.exports["default"] = module.exports)();
 }
 module.exports = _isNativeReflectConstruct, module.exports.__esModule = true, module.exports["default"] = module.exports;
 
@@ -230,15 +219,9 @@ module.exports = _toConsumableArray, module.exports.__esModule = true, module.ex
 /***/ }),
 
 /***/ 185:
-<<<<<<< HEAD
-/*!*************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/static/home/pay1.png ***!
-  \*************************************************/
-=======
-/*!*******************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/static/home/pay1.png ***!
-  \*******************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!********************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/static/home/pay1.png ***!
+  \********************************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 
@@ -247,15 +230,9 @@ module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAe
 /***/ }),
 
 /***/ 186:
-<<<<<<< HEAD
-/*!*************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/static/home/pay2.png ***!
-  \*************************************************/
-=======
-/*!*******************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/static/home/pay2.png ***!
-  \*******************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!********************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/static/home/pay2.png ***!
+  \********************************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 
@@ -264,15 +241,9 @@ module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAe
 /***/ }),
 
 /***/ 187:
-<<<<<<< HEAD
-/*!*************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/static/home/pay3.png ***!
-  \*************************************************/
-=======
-/*!*******************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/static/home/pay3.png ***!
-  \*******************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!********************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/static/home/pay3.png ***!
+  \********************************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 
@@ -1032,13 +1003,8 @@ function populateParameters(result) {
     appVersion: "1.0.0",
     appVersionCode: "100",
     appLanguage: getAppLanguage(hostLanguage),
-<<<<<<< HEAD
-    uniCompileVersion: "4.15",
-    uniRuntimeVersion: "4.15",
-=======
-    uniCompileVersion: "3.8.7",
-    uniRuntimeVersion: "3.8.7",
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+    uniCompileVersion: "4.24",
+    uniRuntimeVersion: "4.24",
     uniPlatform: undefined || "mp-weixin",
     deviceBrand: deviceBrand,
     deviceModel: model,
@@ -1814,7 +1780,7 @@ function initData(vueOptions, context) {
     try {
       data = data.call(context); // 支持 Vue.prototype 上挂的数据
     } catch (e) {
-      if (Object({"NODE_ENV":"development","VUE_APP_DARK_MODE":"false","VUE_APP_NAME":"shopBIZ","VUE_APP_PLATFORM":"mp-weixin","BASE_URL":"/"}).VUE_APP_DEBUG) {
+      if (Object({"VUE_APP_DARK_MODE":"false","VUE_APP_NAME":"shopBIZ","VUE_APP_PLATFORM":"mp-weixin","NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_DEBUG) {
         console.warn('根据 Vue 的 data 函数初始化小程序 data 失败，请尽量确保 data 函数中不访问 vm 对象，否则可能影响首次数据渲染速度。', data);
       }
     }
@@ -3273,1034 +3239,6 @@ function resolveLocaleChain(locale) {
 
 /***/ }),
 
-<<<<<<< HEAD
-/***/ 227:
-/*!**************************************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-ui-tools/libs/mixin/mpMixin.js ***!
-  \**************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var _default = {
-  // 将自定义节点设置成虚拟的（去掉自定义组件包裹层），更加接近Vue组件的表现，能更好的使用flex属性
-  options: {
-    virtualHost: true
-  }
-};
-exports.default = _default;
-
-/***/ }),
-
-/***/ 228:
-/*!************************************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-ui-tools/libs/mixin/mixin.js ***!
-  \************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {
-
-var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
-var _typeof = __webpack_require__(/*! @babel/runtime/helpers/typeof */ 13);
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
-var index = _interopRequireWildcard(__webpack_require__(/*! ../function/index.js */ 229));
-var test = _interopRequireWildcard(__webpack_require__(/*! ../function/test.js */ 230));
-var _route = _interopRequireDefault(__webpack_require__(/*! ../util/route.js */ 233));
-var _debounce = _interopRequireDefault(__webpack_require__(/*! ../function/debounce.js */ 234));
-var _throttle = _interopRequireDefault(__webpack_require__(/*! ../function/throttle.js */ 235));
-function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
-function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-var _default2 = {
-  // 定义每个组件都可能需要用到的外部样式以及类名
-  props: {
-    // 每个组件都有的父组件传递的样式，可以为字符串或者对象形式
-    customStyle: {
-      type: [Object, String],
-      default: function _default() {
-        return {};
-      }
-    },
-    customClass: {
-      type: String,
-      default: ''
-    },
-    // 跳转的页面路径
-    url: {
-      type: String,
-      default: ''
-    },
-    // 页面跳转的类型
-    linkType: {
-      type: String,
-      default: 'navigateTo'
-    }
-  },
-  data: function data() {
-    return {};
-  },
-  onLoad: function onLoad() {
-    // getRect挂载到$uv上，因为这方法需要使用in(this)，所以无法把它独立成一个单独的文件导出
-    this.$uv.getRect = this.$uvGetRect;
-  },
-  created: function created() {
-    // 组件当中，只有created声明周期，为了能在组件使用，故也在created中将方法挂载到$uv
-    this.$uv.getRect = this.$uvGetRect;
-  },
-  computed: {
-    $uv: function $uv() {
-      var _uni, _uni$$uv, _uni$$uv$config;
-      return _objectSpread(_objectSpread({}, index), {}, {
-        test: test,
-        route: _route.default,
-        debounce: _debounce.default,
-        throttle: _throttle.default,
-        unit: (_uni = uni) === null || _uni === void 0 ? void 0 : (_uni$$uv = _uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$config = _uni$$uv.config) === null || _uni$$uv$config === void 0 ? void 0 : _uni$$uv$config.unit
-      });
-    },
-    /**
-     * 生成bem规则类名
-     * 由于微信小程序，H5，nvue之间绑定class的差异，无法通过:class="[bem()]"的形式进行同用
-     * 故采用如下折中做法，最后返回的是数组（一般平台）或字符串（支付宝和字节跳动平台），类似['a', 'b', 'c']或'a b c'的形式
-     * @param {String} name 组件名称
-     * @param {Array} fixed 一直会存在的类名
-     * @param {Array} change 会根据变量值为true或者false而出现或者隐藏的类名
-     * @returns {Array|string}
-     */
-    bem: function bem() {
-      return function (name, fixed, change) {
-        var _this = this;
-        // 类名前缀
-        var prefix = "uv-".concat(name, "--");
-        var classes = {};
-        if (fixed) {
-          fixed.map(function (item) {
-            // 这里的类名，会一直存在
-            classes[prefix + _this[item]] = true;
-          });
-        }
-        if (change) {
-          change.map(function (item) {
-            // 这里的类名，会根据this[item]的值为true或者false，而进行添加或者移除某一个类
-            _this[item] ? classes[prefix + item] = _this[item] : delete classes[prefix + item];
-          });
-        }
-        return Object.keys(classes);
-        // 支付宝，头条小程序无法动态绑定一个数组类名，否则解析出来的结果会带有","，而导致失效
-      };
-    }
-  },
-
-  methods: {
-    // 跳转某一个页面
-    openPage: function openPage() {
-      var urlKey = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'url';
-      var url = this[urlKey];
-      if (url) {
-        // 执行类似uni.navigateTo的方法
-        uni[this.linkType]({
-          url: url
-        });
-      }
-    },
-    // 查询节点信息
-    // 目前此方法在支付宝小程序中无法获取组件跟接点的尺寸，为支付宝的bug(2020-07-21)
-    // 解决办法为在组件根部再套一个没有任何作用的view元素
-    $uvGetRect: function $uvGetRect(selector, all) {
-      var _this2 = this;
-      return new Promise(function (resolve) {
-        uni.createSelectorQuery().in(_this2)[all ? 'selectAll' : 'select'](selector).boundingClientRect(function (rect) {
-          if (all && Array.isArray(rect) && rect.length) {
-            resolve(rect);
-          }
-          if (!all && rect) {
-            resolve(rect);
-          }
-        }).exec();
-      });
-    },
-    getParentData: function getParentData() {
-      var _this3 = this;
-      var parentName = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
-      // 避免在created中去定义parent变量
-      if (!this.parent) this.parent = {};
-      // 这里的本质原理是，通过获取父组件实例(也即类似uv-radio的父组件uv-radio-group的this)
-      // 将父组件this中对应的参数，赋值给本组件(uv-radio的this)的parentData对象中对应的属性
-      // 之所以需要这么做，是因为所有端中，头条小程序不支持通过this.parent.xxx去监听父组件参数的变化
-      // 此处并不会自动更新子组件的数据，而是依赖父组件uv-radio-group去监听data的变化，手动调用更新子组件的方法去重新获取
-      this.parent = this.$uv.$parent.call(this, parentName);
-      if (this.parent.children) {
-        // 如果父组件的children不存在本组件的实例，才将本实例添加到父组件的children中
-        this.parent.children.indexOf(this) === -1 && this.parent.children.push(this);
-      }
-      if (this.parent && this.parentData) {
-        // 历遍parentData中的属性，将parent中的同名属性赋值给parentData
-        Object.keys(this.parentData).map(function (key) {
-          _this3.parentData[key] = _this3.parent[key];
-        });
-      }
-    },
-    // 阻止事件冒泡
-    preventEvent: function preventEvent(e) {
-      e && typeof e.stopPropagation === 'function' && e.stopPropagation();
-    },
-    // 空操作
-    noop: function noop(e) {
-      this.preventEvent(e);
-    }
-  },
-  onReachBottom: function onReachBottom() {
-    uni.$emit('uvOnReachBottom');
-  },
-  beforeDestroy: function beforeDestroy() {
-    var _this4 = this;
-    // 判断当前页面是否存在parent和chldren，一般在checkbox和checkbox-group父子联动的场景会有此情况
-    // 组件销毁时，移除子组件在父组件children数组中的实例，释放资源，避免数据混乱
-    if (this.parent && test.array(this.parent.children)) {
-      // 组件销毁时，移除父组件中的children数组中对应的实例
-      var childrenList = this.parent.children;
-      childrenList.map(function (child, index) {
-        // 如果相等，则移除
-        if (child === _this4) {
-          childrenList.splice(index, 1);
-        }
-      });
-    }
-  },
-  // 兼容vue3
-  unmounted: function unmounted() {
-    var _this5 = this;
-    if (this.parent && test.array(this.parent.children)) {
-      // 组件销毁时，移除父组件中的children数组中对应的实例
-      var childrenList = this.parent.children;
-      childrenList.map(function (child, index) {
-        // 如果相等，则移除
-        if (child === _this5) {
-          childrenList.splice(index, 1);
-        }
-      });
-    }
-  }
-};
-exports.default = _default2;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
-
-/***/ }),
-
-/***/ 229:
-/*!***************************************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-ui-tools/libs/function/index.js ***!
-  \***************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {
-
-var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.$parent = $parent;
-exports.addStyle = addStyle;
-exports.addUnit = addUnit;
-exports.deepClone = deepClone;
-exports.deepMerge = deepMerge;
-exports.error = error;
-exports.formValidate = formValidate;
-exports.getDuration = getDuration;
-exports.getHistoryPage = getHistoryPage;
-exports.getProperty = getProperty;
-exports.getPx = getPx;
-exports.guid = guid;
-exports.os = os;
-exports.padZero = padZero;
-exports.page = page;
-exports.pages = pages;
-exports.priceFormat = priceFormat;
-exports.queryParams = queryParams;
-exports.random = random;
-exports.randomArray = randomArray;
-exports.range = range;
-exports.setConfig = setConfig;
-exports.setProperty = setProperty;
-exports.sleep = sleep;
-exports.sys = sys;
-exports.timeFormat = timeFormat;
-exports.timeFrom = timeFrom;
-exports.toast = toast;
-exports.trim = trim;
-exports.type2icon = type2icon;
-var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/slicedToArray */ 5));
-var _typeof2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/typeof */ 13));
-var _test = __webpack_require__(/*! ./test.js */ 230);
-var _digit = __webpack_require__(/*! ./digit.js */ 231);
-/**
- * @description 如果value小于min，取min；如果value大于max，取max
- * @param {number} min
- * @param {number} max
- * @param {number} value
- */
-function range() {
-  var min = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-  var max = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-  var value = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
-  return Math.max(min, Math.min(max, Number(value)));
-}
-
-/**
- * @description 用于获取用户传递值的px值  如果用户传递了"xxpx"或者"xxrpx"，取出其数值部分，如果是"xxxrpx"还需要用过uni.upx2px进行转换
- * @param {number|string} value 用户传递值的px值
- * @param {boolean} unit
- * @returns {number|string}
- */
-function getPx(value) {
-  var unit = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-  if ((0, _test.number)(value)) {
-    return unit ? "".concat(value, "px") : Number(value);
-  }
-  // 如果带有rpx，先取出其数值部分，再转为px值
-  if (/(rpx|upx)$/.test(value)) {
-    return unit ? "".concat(uni.upx2px(parseInt(value)), "px") : Number(uni.upx2px(parseInt(value)));
-  }
-  return unit ? "".concat(parseInt(value), "px") : parseInt(value);
-}
-
-/**
- * @description 进行延时，以达到可以简写代码的目的 比如: await uni.$uv.sleep(20)将会阻塞20ms
- * @param {number} value 堵塞时间 单位ms 毫秒
- * @returns {Promise} 返回promise
- */
-function sleep() {
-  var value = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 30;
-  return new Promise(function (resolve) {
-    setTimeout(function () {
-      resolve();
-    }, value);
-  });
-}
-/**
- * @description 运行期判断平台
- * @returns {string} 返回所在平台(小写)
- * @link 运行期判断平台 https://uniapp.dcloud.io/frame?id=判断平台
- */
-function os() {
-  return uni.getSystemInfoSync().platform.toLowerCase();
-}
-/**
- * @description 获取系统信息同步接口
- * @link 获取系统信息同步接口 https://uniapp.dcloud.io/api/system/info?id=getsysteminfosync
- */
-function sys() {
-  return uni.getSystemInfoSync();
-}
-
-/**
- * @description 取一个区间数
- * @param {Number} min 最小值
- * @param {Number} max 最大值
- */
-function random(min, max) {
-  if (min >= 0 && max > 0 && max >= min) {
-    var gab = max - min + 1;
-    return Math.floor(Math.random() * gab + min);
-  }
-  return 0;
-}
-
-/**
- * @param {Number} len uuid的长度
- * @param {Boolean} firstU 将返回的首字母置为"u"
- * @param {Nubmer} radix 生成uuid的基数(意味着返回的字符串都是这个基数),2-二进制,8-八进制,10-十进制,16-十六进制
- */
-function guid() {
-  var len = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 32;
-  var firstU = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-  var radix = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-  var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split('');
-  var uuid = [];
-  radix = radix || chars.length;
-  if (len) {
-    // 如果指定uuid长度,只是取随机的字符,0|x为位运算,能去掉x的小数位,返回整数位
-    for (var i = 0; i < len; i++) {
-      uuid[i] = chars[0 | Math.random() * radix];
-    }
-  } else {
-    var r;
-    // rfc4122标准要求返回的uuid中,某些位为固定的字符
-    uuid[8] = uuid[13] = uuid[18] = uuid[23] = '-';
-    uuid[14] = '4';
-    for (var _i = 0; _i < 36; _i++) {
-      if (!uuid[_i]) {
-        r = 0 | Math.random() * 16;
-        uuid[_i] = chars[_i == 19 ? r & 0x3 | 0x8 : r];
-      }
-    }
-  }
-  // 移除第一个字符,并用u替代,因为第一个字符为数值时,该guuid不能用作id或者class
-  if (firstU) {
-    uuid.shift();
-    return "u".concat(uuid.join(''));
-  }
-  return uuid.join('');
-}
-
-/**
-* @description 获取父组件的参数，因为支付宝小程序不支持provide/inject的写法
-   this.$parent在非H5中，可以准确获取到父组件，但是在H5中，需要多次this.$parent.$parent.xxx
-   这里默认值等于undefined有它的含义，因为最顶层元素(组件)的$parent就是undefined，意味着不传name
-   值(默认为undefined)，就是查找最顶层的$parent
-*  @param {string|undefined} name 父组件的参数名
-*/
-function $parent() {
-  var name = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : undefined;
-  var parent = this.$parent;
-  // 通过while历遍，这里主要是为了H5需要多层解析的问题
-  while (parent) {
-    // 父组件
-    if (parent.$options && parent.$options.name !== name) {
-      // 如果组件的name不相等，继续上一级寻找
-      parent = parent.$parent;
-    } else {
-      return parent;
-    }
-  }
-  return false;
-}
-
-/**
- * @description 样式转换
- * 对象转字符串，或者字符串转对象
- * @param {object | string} customStyle 需要转换的目标
- * @param {String} target 转换的目的，object-转为对象，string-转为字符串
- * @returns {object|string}
- */
-function addStyle(customStyle) {
-  var target = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'object';
-  // 字符串转字符串，对象转对象情形，直接返回
-  if ((0, _test.empty)(customStyle) || (0, _typeof2.default)(customStyle) === 'object' && target === 'object' || target === 'string' && typeof customStyle === 'string') {
-    return customStyle;
-  }
-  // 字符串转对象
-  if (target === 'object') {
-    // 去除字符串样式中的两端空格(中间的空格不能去掉，比如padding: 20px 0如果去掉了就错了)，空格是无用的
-    customStyle = trim(customStyle);
-    // 根据";"将字符串转为数组形式
-    var styleArray = customStyle.split(';');
-    var style = {};
-    // 历遍数组，拼接成对象
-    for (var i = 0; i < styleArray.length; i++) {
-      // 'font-size:20px;color:red;'，如此最后字符串有";"的话，会导致styleArray最后一个元素为空字符串，这里需要过滤
-      if (styleArray[i]) {
-        var item = styleArray[i].split(':');
-        style[trim(item[0])] = trim(item[1]);
-      }
-    }
-    return style;
-  }
-  // 这里为对象转字符串形式
-  var string = '';
-  for (var _i2 in customStyle) {
-    // 驼峰转为中划线的形式，否则css内联样式，无法识别驼峰样式属性名
-    var key = _i2.replace(/([A-Z])/g, '-$1').toLowerCase();
-    string += "".concat(key, ":").concat(customStyle[_i2], ";");
-  }
-  // 去除两端空格
-  return trim(string);
-}
-
-/**
- * @description 添加单位，如果有rpx，upx，%，px等单位结尾或者值为auto，直接返回，否则加上px单位结尾
- * @param {string|number} value 需要添加单位的值
- * @param {string} unit 添加的单位名 比如px
- */
-function addUnit() {
-  var _uni, _uni$$uv, _uni$$uv$config, _uni2, _uni2$$uv, _uni2$$uv$config;
-  var value = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'auto';
-  var unit = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : (_uni = uni) !== null && _uni !== void 0 && (_uni$$uv = _uni.$uv) !== null && _uni$$uv !== void 0 && (_uni$$uv$config = _uni$$uv.config) !== null && _uni$$uv$config !== void 0 && _uni$$uv$config.unit ? (_uni2 = uni) === null || _uni2 === void 0 ? void 0 : (_uni2$$uv = _uni2.$uv) === null || _uni2$$uv === void 0 ? void 0 : (_uni2$$uv$config = _uni2$$uv.config) === null || _uni2$$uv$config === void 0 ? void 0 : _uni2$$uv$config.unit : 'px';
-  value = String(value);
-  // 用uvui内置验证规则中的number判断是否为数值
-  return (0, _test.number)(value) ? "".concat(value).concat(unit) : value;
-}
-
-/**
- * @description 深度克隆
- * @param {object} obj 需要深度克隆的对象
- * @param cache 缓存
- * @returns {*} 克隆后的对象或者原值（不是对象）
- */
-function deepClone(obj) {
-  var cache = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : new WeakMap();
-  if (obj === null || (0, _typeof2.default)(obj) !== 'object') return obj;
-  if (cache.has(obj)) return cache.get(obj);
-  var clone;
-  if (obj instanceof Date) {
-    clone = new Date(obj.getTime());
-  } else if (obj instanceof RegExp) {
-    clone = new RegExp(obj);
-  } else if (obj instanceof Map) {
-    clone = new Map(Array.from(obj, function (_ref) {
-      var _ref2 = (0, _slicedToArray2.default)(_ref, 2),
-        key = _ref2[0],
-        value = _ref2[1];
-      return [key, deepClone(value, cache)];
-    }));
-  } else if (obj instanceof Set) {
-    clone = new Set(Array.from(obj, function (value) {
-      return deepClone(value, cache);
-    }));
-  } else if (Array.isArray(obj)) {
-    clone = obj.map(function (value) {
-      return deepClone(value, cache);
-    });
-  } else if (Object.prototype.toString.call(obj) === '[object Object]') {
-    clone = Object.create(Object.getPrototypeOf(obj));
-    cache.set(obj, clone);
-    for (var _i3 = 0, _Object$entries = Object.entries(obj); _i3 < _Object$entries.length; _i3++) {
-      var _Object$entries$_i = (0, _slicedToArray2.default)(_Object$entries[_i3], 2),
-        key = _Object$entries$_i[0],
-        value = _Object$entries$_i[1];
-      clone[key] = deepClone(value, cache);
-    }
-  } else {
-    clone = Object.assign({}, obj);
-  }
-  cache.set(obj, clone);
-  return clone;
-}
-
-/**
- * @description JS对象深度合并
- * @param {object} target 需要拷贝的对象
- * @param {object} source 拷贝的来源对象
- * @returns {object|boolean} 深度合并后的对象或者false（入参有不是对象）
- */
-function deepMerge() {
-  var target = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-  var source = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  target = deepClone(target);
-  if ((0, _typeof2.default)(target) !== 'object' || target === null || (0, _typeof2.default)(source) !== 'object' || source === null) return target;
-  var merged = Array.isArray(target) ? target.slice() : Object.assign({}, target);
-  for (var prop in source) {
-    if (!source.hasOwnProperty(prop)) continue;
-    var sourceValue = source[prop];
-    var targetValue = merged[prop];
-    if (sourceValue instanceof Date) {
-      merged[prop] = new Date(sourceValue);
-    } else if (sourceValue instanceof RegExp) {
-      merged[prop] = new RegExp(sourceValue);
-    } else if (sourceValue instanceof Map) {
-      merged[prop] = new Map(sourceValue);
-    } else if (sourceValue instanceof Set) {
-      merged[prop] = new Set(sourceValue);
-    } else if ((0, _typeof2.default)(sourceValue) === 'object' && sourceValue !== null) {
-      merged[prop] = deepMerge(targetValue, sourceValue);
-    } else {
-      merged[prop] = sourceValue;
-    }
-  }
-  return merged;
-}
-
-/**
- * @description error提示
- * @param {*} err 错误内容
- */
-function error(err) {
-  // 开发环境才提示，生产环境不会提示
-  if (true) {
-    console.error("uvui\u63D0\u793A\uFF1A".concat(err));
-  }
-}
-
-/**
- * @description 打乱数组
- * @param {array} array 需要打乱的数组
- * @returns {array} 打乱后的数组
- */
-function randomArray() {
-  var array = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-  // 原理是sort排序,Math.random()产生0<= x < 1之间的数,会导致x-0.05大于或者小于0
-  return array.sort(function () {
-    return Math.random() - 0.5;
-  });
-}
-
-// padStart 的 polyfill，因为某些机型或情况，还无法支持es7的padStart，比如电脑版的微信小程序
-// 所以这里做一个兼容polyfill的兼容处理
-if (!String.prototype.padStart) {
-  // 为了方便表示这里 fillString 用了ES6 的默认参数，不影响理解
-  String.prototype.padStart = function (maxLength) {
-    var fillString = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : ' ';
-    if (Object.prototype.toString.call(fillString) !== '[object String]') {
-      throw new TypeError('fillString must be String');
-    }
-    var str = this;
-    // 返回 String(str) 这里是为了使返回的值是字符串字面量，在控制台中更符合直觉
-    if (str.length >= maxLength) return String(str);
-    var fillLength = maxLength - str.length;
-    var times = Math.ceil(fillLength / fillString.length);
-    while (times >>= 1) {
-      fillString += fillString;
-      if (times === 1) {
-        fillString += fillString;
-      }
-    }
-    return fillString.slice(0, fillLength) + str;
-  };
-}
-
-/**
- * @description 格式化时间
- * @param {String|Number} dateTime 需要格式化的时间戳
- * @param {String} fmt 格式化规则 yyyy:mm:dd|yyyy:mm|yyyy年mm月dd日|yyyy年mm月dd日 hh时MM分等,可自定义组合 默认yyyy-mm-dd
- * @returns {string} 返回格式化后的字符串
- */
-function timeFormat() {
-  var dateTime = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-  var formatStr = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'yyyy-mm-dd';
-  var date;
-  // 若传入时间为假值，则取当前时间
-  if (!dateTime) {
-    date = new Date();
-  }
-  // 若为unix秒时间戳，则转为毫秒时间戳（逻辑有点奇怪，但不敢改，以保证历史兼容）
-  else if (/^\d{10}$/.test(dateTime === null || dateTime === void 0 ? void 0 : dateTime.toString().trim())) {
-    date = new Date(dateTime * 1000);
-  }
-  // 若用户传入字符串格式时间戳，new Date无法解析，需做兼容
-  else if (typeof dateTime === 'string' && /^\d+$/.test(dateTime.trim())) {
-    date = new Date(Number(dateTime));
-  }
-  // 处理平台性差异，在Safari/Webkit中，new Date仅支持/作为分割符的字符串时间
-  // 处理 '2022-07-10 01:02:03'，跳过 '2022-07-10T01:02:03'
-  else if (typeof dateTime === 'string' && dateTime.includes('-') && !dateTime.includes('T')) {
-    date = new Date(dateTime.replace(/-/g, '/'));
-  }
-  // 其他都认为符合 RFC 2822 规范
-  else {
-    date = new Date(dateTime);
-  }
-  var timeSource = {
-    'y': date.getFullYear().toString(),
-    // 年
-    'm': (date.getMonth() + 1).toString().padStart(2, '0'),
-    // 月
-    'd': date.getDate().toString().padStart(2, '0'),
-    // 日
-    'h': date.getHours().toString().padStart(2, '0'),
-    // 时
-    'M': date.getMinutes().toString().padStart(2, '0'),
-    // 分
-    's': date.getSeconds().toString().padStart(2, '0') // 秒
-    // 有其他格式化字符需求可以继续添加，必须转化成字符串
-  };
-
-  for (var key in timeSource) {
-    var _ref3 = new RegExp("".concat(key, "+")).exec(formatStr) || [],
-      _ref4 = (0, _slicedToArray2.default)(_ref3, 1),
-      ret = _ref4[0];
-    if (ret) {
-      // 年可能只需展示两位
-      var beginIndex = key === 'y' && ret.length === 2 ? 2 : 0;
-      formatStr = formatStr.replace(ret, timeSource[key].slice(beginIndex));
-    }
-  }
-  return formatStr;
-}
-
-/**
- * @description 时间戳转为多久之前
- * @param {String|Number} timestamp 时间戳
- * @param {String|Boolean} format
- * 格式化规则如果为时间格式字符串，超出一定时间范围，返回固定的时间格式；
- * 如果为布尔值false，无论什么时间，都返回多久以前的格式
- * @returns {string} 转化后的内容
- */
-function timeFrom() {
-  var timestamp = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-  var format = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'yyyy-mm-dd';
-  if (timestamp == null) timestamp = Number(new Date());
-  timestamp = parseInt(timestamp);
-  // 判断用户输入的时间戳是秒还是毫秒,一般前端js获取的时间戳是毫秒(13位),后端传过来的为秒(10位)
-  if (timestamp.toString().length == 10) timestamp *= 1000;
-  var timer = new Date().getTime() - timestamp;
-  timer = parseInt(timer / 1000);
-  // 如果小于5分钟,则返回"刚刚",其他以此类推
-  var tips = '';
-  switch (true) {
-    case timer < 300:
-      tips = '刚刚';
-      break;
-    case timer >= 300 && timer < 3600:
-      tips = "".concat(parseInt(timer / 60), "\u5206\u949F\u524D");
-      break;
-    case timer >= 3600 && timer < 86400:
-      tips = "".concat(parseInt(timer / 3600), "\u5C0F\u65F6\u524D");
-      break;
-    case timer >= 86400 && timer < 2592000:
-      tips = "".concat(parseInt(timer / 86400), "\u5929\u524D");
-      break;
-    default:
-      // 如果format为false，则无论什么时间戳，都显示xx之前
-      if (format === false) {
-        if (timer >= 2592000 && timer < 365 * 86400) {
-          tips = "".concat(parseInt(timer / (86400 * 30)), "\u4E2A\u6708\u524D");
-        } else {
-          tips = "".concat(parseInt(timer / (86400 * 365)), "\u5E74\u524D");
-        }
-      } else {
-        tips = timeFormat(timestamp, format);
-      }
-  }
-  return tips;
-}
-
-/**
- * @description 去除空格
- * @param String str 需要去除空格的字符串
- * @param String pos both(左右)|left|right|all 默认both
- */
-function trim(str) {
-  var pos = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'both';
-  str = String(str);
-  if (pos == 'both') {
-    return str.replace(/^\s+|\s+$/g, '');
-  }
-  if (pos == 'left') {
-    return str.replace(/^\s*/, '');
-  }
-  if (pos == 'right') {
-    return str.replace(/(\s*$)/g, '');
-  }
-  if (pos == 'all') {
-    return str.replace(/\s+/g, '');
-  }
-  return str;
-}
-
-/**
- * @description 对象转url参数
- * @param {object} data,对象
- * @param {Boolean} isPrefix,是否自动加上"?"
- * @param {string} arrayFormat 规则 indices|brackets|repeat|comma
- */
-function queryParams() {
-  var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-  var isPrefix = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-  var arrayFormat = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'brackets';
-  var prefix = isPrefix ? '?' : '';
-  var _result = [];
-  if (['indices', 'brackets', 'repeat', 'comma'].indexOf(arrayFormat) == -1) arrayFormat = 'brackets';
-  var _loop = function _loop(key) {
-    var value = data[key];
-    // 去掉为空的参数
-    if (['', undefined, null].indexOf(value) >= 0) {
-      return "continue";
-    }
-    // 如果值为数组，另行处理
-    if (value.constructor === Array) {
-      // e.g. {ids: [1, 2, 3]}
-      switch (arrayFormat) {
-        case 'indices':
-          // 结果: ids[0]=1&ids[1]=2&ids[2]=3
-          for (var i = 0; i < value.length; i++) {
-            _result.push("".concat(key, "[").concat(i, "]=").concat(value[i]));
-          }
-          break;
-        case 'brackets':
-          // 结果: ids[]=1&ids[]=2&ids[]=3
-          value.forEach(function (_value) {
-            _result.push("".concat(key, "[]=").concat(_value));
-          });
-          break;
-        case 'repeat':
-          // 结果: ids=1&ids=2&ids=3
-          value.forEach(function (_value) {
-            _result.push("".concat(key, "=").concat(_value));
-          });
-          break;
-        case 'comma':
-          // 结果: ids=1,2,3
-          var commaStr = '';
-          value.forEach(function (_value) {
-            commaStr += (commaStr ? ',' : '') + _value;
-          });
-          _result.push("".concat(key, "=").concat(commaStr));
-          break;
-        default:
-          value.forEach(function (_value) {
-            _result.push("".concat(key, "[]=").concat(_value));
-          });
-      }
-    } else {
-      _result.push("".concat(key, "=").concat(value));
-    }
-  };
-  for (var key in data) {
-    var _ret = _loop(key);
-    if (_ret === "continue") continue;
-  }
-  return _result.length ? prefix + _result.join('&') : '';
-}
-
-/**
- * 显示消息提示框
- * @param {String} title 提示的内容，长度与 icon 取值有关。
- * @param {Number} duration 提示的延迟时间，单位毫秒，默认：2000
- */
-function toast(title) {
-  var duration = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 2000;
-  uni.showToast({
-    title: String(title),
-    icon: 'none',
-    duration: duration
-  });
-}
-
-/**
- * @description 根据主题type值,获取对应的图标
- * @param {String} type 主题名称,primary|info|error|warning|success
- * @param {boolean} fill 是否使用fill填充实体的图标
- */
-function type2icon() {
-  var type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'success';
-  var fill = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-  // 如果非预置值,默认为success
-  if (['primary', 'info', 'error', 'warning', 'success'].indexOf(type) == -1) type = 'success';
-  var iconName = '';
-  // 目前(2019-12-12),info和primary使用同一个图标
-  switch (type) {
-    case 'primary':
-      iconName = 'info-circle';
-      break;
-    case 'info':
-      iconName = 'info-circle';
-      break;
-    case 'error':
-      iconName = 'close-circle';
-      break;
-    case 'warning':
-      iconName = 'error-circle';
-      break;
-    case 'success':
-      iconName = 'checkmark-circle';
-      break;
-    default:
-      iconName = 'checkmark-circle';
-  }
-  // 是否是实体类型,加上-fill,在icon组件库中,实体的类名是后面加-fill的
-  if (fill) iconName += '-fill';
-  return iconName;
-}
-
-/**
- * @description 数字格式化
- * @param {number|string} number 要格式化的数字
- * @param {number} decimals 保留几位小数
- * @param {string} decimalPoint 小数点符号
- * @param {string} thousandsSeparator 千分位符号
- * @returns {string} 格式化后的数字
- */
-function priceFormat(number) {
-  var decimals = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-  var decimalPoint = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '.';
-  var thousandsSeparator = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : ',';
-  number = "".concat(number).replace(/[^0-9+-Ee.]/g, '');
-  var n = !isFinite(+number) ? 0 : +number;
-  var prec = !isFinite(+decimals) ? 0 : Math.abs(decimals);
-  var sep = typeof thousandsSeparator === 'undefined' ? ',' : thousandsSeparator;
-  var dec = typeof decimalPoint === 'undefined' ? '.' : decimalPoint;
-  var s = '';
-  s = (prec ? (0, _digit.round)(n, prec) + '' : "".concat(Math.round(n))).split('.');
-  var re = /(-?\d+)(\d{3})/;
-  while (re.test(s[0])) {
-    s[0] = s[0].replace(re, "$1".concat(sep, "$2"));
-  }
-  if ((s[1] || '').length < prec) {
-    s[1] = s[1] || '';
-    s[1] += new Array(prec - s[1].length + 1).join('0');
-  }
-  return s.join(dec);
-}
-
-/**
- * @description 获取duration值
- * 如果带有ms或者s直接返回，如果大于一定值，认为是ms单位，小于一定值，认为是s单位
- * 比如以30位阈值，那么300大于30，可以理解为用户想要的是300ms，而不是想花300s去执行一个动画
- * @param {String|number} value 比如: "1s"|"100ms"|1|100
- * @param {boolean} unit  提示: 如果是false 默认返回number
- * @return {string|number}
- */
-function getDuration(value) {
-  var unit = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-  var valueNum = parseInt(value);
-  if (unit) {
-    if (/s$/.test(value)) return value;
-    return value > 30 ? "".concat(value, "ms") : "".concat(value, "s");
-  }
-  if (/ms$/.test(value)) return valueNum;
-  if (/s$/.test(value)) return valueNum > 30 ? valueNum : valueNum * 1000;
-  return valueNum;
-}
-
-/**
- * @description 日期的月或日补零操作
- * @param {String} value 需要补零的值
- */
-function padZero(value) {
-  return "00".concat(value).slice(-2);
-}
-
-/**
- * @description 在uv-form的子组件内容发生变化，或者失去焦点时，尝试通知uv-form执行校验方法
- * @param {*} instance
- * @param {*} event
- */
-function formValidate(instance, event) {
-  var formItem = $parent.call(instance, 'uv-form-item');
-  var form = $parent.call(instance, 'uv-form');
-  // 如果发生变化的input或者textarea等，其父组件中有uv-form-item或者uv-form等，就执行form的validate方法
-  // 同时将form-item的pros传递给form，让其进行精确对象验证
-  if (formItem && form) {
-    form.validateField(formItem.prop, function () {}, event);
-  }
-}
-
-/**
- * @description 获取某个对象下的属性，用于通过类似'a.b.c'的形式去获取一个对象的的属性的形式
- * @param {object} obj 对象
- * @param {string} key 需要获取的属性字段
- * @returns {*}
- */
-function getProperty(obj, key) {
-  if (!obj) {
-    return;
-  }
-  if (typeof key !== 'string' || key === '') {
-    return '';
-  }
-  if (key.indexOf('.') !== -1) {
-    var keys = key.split('.');
-    var firstObj = obj[keys[0]] || {};
-    for (var i = 1; i < keys.length; i++) {
-      if (firstObj) {
-        firstObj = firstObj[keys[i]];
-      }
-    }
-    return firstObj;
-  }
-  return obj[key];
-}
-
-/**
- * @description 设置对象的属性值，如果'a.b.c'的形式进行设置
- * @param {object} obj 对象
- * @param {string} key 需要设置的属性
- * @param {string} value 设置的值
- */
-function setProperty(obj, key, value) {
-  if (!obj) {
-    return;
-  }
-  // 递归赋值
-  var inFn = function inFn(_obj, keys, v) {
-    // 最后一个属性key
-    if (keys.length === 1) {
-      _obj[keys[0]] = v;
-      return;
-    }
-    // 0~length-1个key
-    while (keys.length > 1) {
-      var k = keys[0];
-      if (!_obj[k] || (0, _typeof2.default)(_obj[k]) !== 'object') {
-        _obj[k] = {};
-      }
-      var _key = keys.shift();
-      // 自调用判断是否存在属性，不存在则自动创建对象
-      inFn(_obj[k], keys, v);
-    }
-  };
-  if (typeof key !== 'string' || key === '') {} else if (key.indexOf('.') !== -1) {
-    // 支持多层级赋值操作
-    var keys = key.split('.');
-    inFn(obj, keys, value);
-  } else {
-    obj[key] = value;
-  }
-}
-
-/**
- * @description 获取当前页面路径
- */
-function page() {
-  var _pages;
-  var pages = getCurrentPages();
-  var route = (_pages = pages[pages.length - 1]) === null || _pages === void 0 ? void 0 : _pages.route;
-  // 某些特殊情况下(比如页面进行redirectTo时的一些时机)，pages可能为空数组
-  return "/".concat(route ? route : '');
-}
-
-/**
- * @description 获取当前路由栈实例数组
- */
-function pages() {
-  var pages = getCurrentPages();
-  return pages;
-}
-
-/**
- * 获取页面历史栈指定层实例
- * @param back {number} [0] - 0或者负数，表示获取历史栈的哪一层，0表示获取当前页面实例，-1 表示获取上一个页面实例。默认0。
- */
-function getHistoryPage() {
-  var back = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-  var pages = getCurrentPages();
-  var len = pages.length;
-  return pages[len - 1 + back];
-}
-
-/**
- * @description 修改uvui内置属性值
- * @param {object} props 修改内置props属性
- * @param {object} config 修改内置config属性
- * @param {object} color 修改内置color属性
- * @param {object} zIndex 修改内置zIndex属性
- */
-function setConfig(_ref5) {
-  var _ref5$props = _ref5.props,
-    props = _ref5$props === void 0 ? {} : _ref5$props,
-    _ref5$config = _ref5.config,
-    config = _ref5$config === void 0 ? {} : _ref5$config,
-    _ref5$color = _ref5.color,
-    color = _ref5$color === void 0 ? {} : _ref5$color,
-    _ref5$zIndex = _ref5.zIndex,
-    zIndex = _ref5$zIndex === void 0 ? {} : _ref5$zIndex;
-  var deepMerge = uni.$uv.deepMerge;
-  uni.$uv.config = deepMerge(uni.$uv.config, config);
-  uni.$uv.props = deepMerge(uni.$uv.props, props);
-  uni.$uv.color = deepMerge(uni.$uv.color, color);
-  uni.$uv.zIndex = deepMerge(uni.$uv.zIndex, zIndex);
-}
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
-
-/***/ }),
-
-=======
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
 /***/ 23:
 /*!***************************************************************!*\
   !*** ./node_modules/@babel/runtime/helpers/classCallCheck.js ***!
@@ -4317,934 +3255,6 @@ module.exports = _classCallCheck, module.exports.__esModule = true, module.expor
 
 /***/ }),
 
-<<<<<<< HEAD
-/***/ 230:
-/*!**************************************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-ui-tools/libs/function/test.js ***!
-  \**************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.amount = amount;
-exports.array = array;
-exports.carNo = carNo;
-exports.chinese = chinese;
-exports.code = code;
-exports.contains = contains;
-exports.date = date;
-exports.dateISO = dateISO;
-exports.digits = digits;
-exports.email = email;
-exports.empty = empty;
-exports.enOrNum = enOrNum;
-exports.func = func;
-exports.idCard = idCard;
-exports.image = image;
-exports.jsonString = jsonString;
-exports.landline = landline;
-exports.letter = letter;
-exports.mobile = mobile;
-exports.number = number;
-exports.object = object;
-exports.promise = promise;
-exports.range = range;
-exports.rangeLength = rangeLength;
-exports.regExp = regExp;
-exports.string = string;
-exports.url = url;
-exports.video = video;
-var _typeof2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/typeof */ 13));
-/**
- * 验证电子邮箱格式
- */
-function email(value) {
-  return /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/.test(value);
-}
-
-/**
- * 验证手机格式
- */
-function mobile(value) {
-  return /^1([3589]\d|4[5-9]|6[1-2,4-7]|7[0-8])\d{8}$/.test(value);
-}
-
-/**
- * 验证URL格式
- */
-function url(value) {
-  return /^((https|http|ftp|rtsp|mms):\/\/)(([0-9a-zA-Z_!~*'().&=+$%-]+: )?[0-9a-zA-Z_!~*'().&=+$%-]+@)?(([0-9]{1,3}.){3}[0-9]{1,3}|([0-9a-zA-Z_!~*'()-]+.)*([0-9a-zA-Z][0-9a-zA-Z-]{0,61})?[0-9a-zA-Z].[a-zA-Z]{2,6})(:[0-9]{1,4})?((\/?)|(\/[0-9a-zA-Z_!~*'().;?:@&=+$,%#-]+)+\/?)$/.test(value);
-}
-
-/**
- * 验证日期格式
- */
-function date(value) {
-  if (!value) return false;
-  // 判断是否数值或者字符串数值(意味着为时间戳)，转为数值，否则new Date无法识别字符串时间戳
-  if (number(value)) value = +value;
-  return !/Invalid|NaN/.test(new Date(value).toString());
-}
-
-/**
- * 验证ISO类型的日期格式
- */
-function dateISO(value) {
-  return /^\d{4}[\/\-](0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])$/.test(value);
-}
-
-/**
- * 验证十进制数字
- */
-function number(value) {
-  return /^[\+-]?(\d+\.?\d*|\.\d+|\d\.\d+e\+\d+)$/.test(value);
-}
-
-/**
- * 验证字符串
- */
-function string(value) {
-  return typeof value === 'string';
-}
-
-/**
- * 验证整数
- */
-function digits(value) {
-  return /^\d+$/.test(value);
-}
-
-/**
- * 验证身份证号码
- */
-function idCard(value) {
-  return /^[1-9]\d{5}[1-9]\d{3}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}([0-9]|X)$/.test(value);
-}
-
-/**
- * 是否车牌号
- */
-function carNo(value) {
-  // 新能源车牌
-  var xreg = /^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领A-Z]{1}[A-Z]{1}(([0-9]{5}[DF]$)|([DF][A-HJ-NP-Z0-9][0-9]{4}$))/;
-  // 旧车牌
-  var creg = /^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领A-Z]{1}[A-Z]{1}[A-HJ-NP-Z0-9]{4}[A-HJ-NP-Z0-9挂学警港澳]{1}$/;
-  if (value.length === 7) {
-    return creg.test(value);
-  }
-  if (value.length === 8) {
-    return xreg.test(value);
-  }
-  return false;
-}
-
-/**
- * 金额,只允许2位小数
- */
-function amount(value) {
-  // 金额，只允许保留两位小数
-  return /^[1-9]\d*(,\d{3})*(\.\d{1,2})?$|^0\.\d{1,2}$/.test(value);
-}
-
-/**
- * 中文
- */
-function chinese(value) {
-  var reg = /^[\u4e00-\u9fa5]+$/gi;
-  return reg.test(value);
-}
-
-/**
- * 只能输入字母
- */
-function letter(value) {
-  return /^[a-zA-Z]*$/.test(value);
-}
-
-/**
- * 只能是字母或者数字
- */
-function enOrNum(value) {
-  // 英文或者数字
-  var reg = /^[0-9a-zA-Z]*$/g;
-  return reg.test(value);
-}
-
-/**
- * 验证是否包含某个值
- */
-function contains(value, param) {
-  return value.indexOf(param) >= 0;
-}
-
-/**
- * 验证一个值范围[min, max]
- */
-function range(value, param) {
-  return value >= param[0] && value <= param[1];
-}
-
-/**
- * 验证一个长度范围[min, max]
- */
-function rangeLength(value, param) {
-  return value.length >= param[0] && value.length <= param[1];
-}
-
-/**
- * 是否固定电话
- */
-function landline(value) {
-  var reg = /^\d{3,4}-\d{7,8}(-\d{3,4})?$/;
-  return reg.test(value);
-}
-
-/**
- * 判断是否为空
- */
-function empty(value) {
-  switch ((0, _typeof2.default)(value)) {
-    case 'undefined':
-      return true;
-    case 'string':
-      if (value.replace(/(^[ \t\n\r]*)|([ \t\n\r]*$)/g, '').length == 0) return true;
-      break;
-    case 'boolean':
-      if (!value) return true;
-      break;
-    case 'number':
-      if (value === 0 || isNaN(value)) return true;
-      break;
-    case 'object':
-      if (value === null || value.length === 0) return true;
-      for (var i in value) {
-        return false;
-      }
-      return true;
-  }
-  return false;
-}
-
-/**
- * 是否json字符串
- */
-function jsonString(value) {
-  if (typeof value === 'string') {
-    try {
-      var obj = JSON.parse(value);
-      if ((0, _typeof2.default)(obj) === 'object' && obj) {
-        return true;
-      }
-      return false;
-    } catch (e) {
-      return false;
-    }
-  }
-  return false;
-}
-
-/**
- * 是否数组
- */
-function array(value) {
-  if (typeof Array.isArray === 'function') {
-    return Array.isArray(value);
-  }
-  return Object.prototype.toString.call(value) === '[object Array]';
-}
-
-/**
- * 是否对象
- */
-function object(value) {
-  return Object.prototype.toString.call(value) === '[object Object]';
-}
-
-/**
- * 是否短信验证码
- */
-function code(value) {
-  var len = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 6;
-  return new RegExp("^\\d{".concat(len, "}$")).test(value);
-}
-
-/**
- * 是否函数方法
- * @param {Object} value
- */
-function func(value) {
-  return typeof value === 'function';
-}
-
-/**
- * 是否promise对象
- * @param {Object} value
- */
-function promise(value) {
-  return object(value) && func(value.then) && func(value.catch);
-}
-
-/** 是否图片格式
- * @param {Object} value
- */
-function image(value) {
-  var newValue = value.split('?')[0];
-  var IMAGE_REGEXP = /\.(jpeg|jpg|gif|png|svg|webp|jfif|bmp|dpg)/i;
-  return IMAGE_REGEXP.test(newValue);
-}
-
-/**
- * 是否视频格式
- * @param {Object} value
- */
-function video(value) {
-  var VIDEO_REGEXP = /\.(mp4|mpg|mpeg|dat|asf|avi|rm|rmvb|mov|wmv|flv|mkv|m3u8)/i;
-  return VIDEO_REGEXP.test(value);
-}
-
-/**
- * 是否为正则对象
- * @param {Object}
- * @return {Boolean}
- */
-function regExp(o) {
-  return o && Object.prototype.toString.call(o) === '[object RegExp]';
-}
-
-/***/ }),
-
-/***/ 231:
-/*!***************************************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-ui-tools/libs/function/digit.js ***!
-  \***************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-exports.divide = divide;
-exports.enableBoundaryChecking = enableBoundaryChecking;
-exports.minus = minus;
-exports.plus = plus;
-exports.round = round;
-exports.times = times;
-var _toArray2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/toArray */ 232));
-var _boundaryCheckingState = true; // 是否进行越界检查的全局开关
-
-/**
- * 把错误的数据转正
- * @private
- * @example strip(0.09999999999999998)=0.1
- */
-function strip(num) {
-  var precision = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 15;
-  return +parseFloat(Number(num).toPrecision(precision));
-}
-
-/**
- * Return digits length of a number
- * @private
- * @param {*number} num Input number
- */
-function digitLength(num) {
-  // Get digit length of e
-  var eSplit = num.toString().split(/[eE]/);
-  var len = (eSplit[0].split('.')[1] || '').length - +(eSplit[1] || 0);
-  return len > 0 ? len : 0;
-}
-
-/**
- * 把小数转成整数,如果是小数则放大成整数
- * @private
- * @param {*number} num 输入数
- */
-function float2Fixed(num) {
-  if (num.toString().indexOf('e') === -1) {
-    return Number(num.toString().replace('.', ''));
-  }
-  var dLen = digitLength(num);
-  return dLen > 0 ? strip(Number(num) * Math.pow(10, dLen)) : Number(num);
-}
-
-/**
- * 检测数字是否越界，如果越界给出提示
- * @private
- * @param {*number} num 输入数
- */
-function checkBoundary(num) {
-  if (_boundaryCheckingState) {
-    if (num > Number.MAX_SAFE_INTEGER || num < Number.MIN_SAFE_INTEGER) {
-      console.warn("".concat(num, " \u8D85\u51FA\u4E86\u7CBE\u5EA6\u9650\u5236\uFF0C\u7ED3\u679C\u53EF\u80FD\u4E0D\u6B63\u786E"));
-    }
-  }
-}
-
-/**
- * 把递归操作扁平迭代化
- * @param {number[]} arr 要操作的数字数组
- * @param {function} operation 迭代操作
- * @private
- */
-function iteratorOperation(arr, operation) {
-  var _arr = (0, _toArray2.default)(arr),
-    num1 = _arr[0],
-    num2 = _arr[1],
-    others = _arr.slice(2);
-  var res = operation(num1, num2);
-  others.forEach(function (num) {
-    res = operation(res, num);
-  });
-  return res;
-}
-
-/**
- * 高精度乘法
- * @export
- */
-function times() {
-  for (var _len = arguments.length, nums = new Array(_len), _key = 0; _key < _len; _key++) {
-    nums[_key] = arguments[_key];
-  }
-  if (nums.length > 2) {
-    return iteratorOperation(nums, times);
-  }
-  var num1 = nums[0],
-    num2 = nums[1];
-  var num1Changed = float2Fixed(num1);
-  var num2Changed = float2Fixed(num2);
-  var baseNum = digitLength(num1) + digitLength(num2);
-  var leftValue = num1Changed * num2Changed;
-  checkBoundary(leftValue);
-  return leftValue / Math.pow(10, baseNum);
-}
-
-/**
- * 高精度加法
- * @export
- */
-function plus() {
-  for (var _len2 = arguments.length, nums = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-    nums[_key2] = arguments[_key2];
-  }
-  if (nums.length > 2) {
-    return iteratorOperation(nums, plus);
-  }
-  var num1 = nums[0],
-    num2 = nums[1];
-  // 取最大的小数位
-  var baseNum = Math.pow(10, Math.max(digitLength(num1), digitLength(num2)));
-  // 把小数都转为整数然后再计算
-  return (times(num1, baseNum) + times(num2, baseNum)) / baseNum;
-}
-
-/**
- * 高精度减法
- * @export
- */
-function minus() {
-  for (var _len3 = arguments.length, nums = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
-    nums[_key3] = arguments[_key3];
-  }
-  if (nums.length > 2) {
-    return iteratorOperation(nums, minus);
-  }
-  var num1 = nums[0],
-    num2 = nums[1];
-  var baseNum = Math.pow(10, Math.max(digitLength(num1), digitLength(num2)));
-  return (times(num1, baseNum) - times(num2, baseNum)) / baseNum;
-}
-
-/**
- * 高精度除法
- * @export
- */
-function divide() {
-  for (var _len4 = arguments.length, nums = new Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
-    nums[_key4] = arguments[_key4];
-  }
-  if (nums.length > 2) {
-    return iteratorOperation(nums, divide);
-  }
-  var num1 = nums[0],
-    num2 = nums[1];
-  var num1Changed = float2Fixed(num1);
-  var num2Changed = float2Fixed(num2);
-  checkBoundary(num1Changed);
-  checkBoundary(num2Changed);
-  // 重要，这里必须用strip进行修正
-  return times(num1Changed / num2Changed, strip(Math.pow(10, digitLength(num2) - digitLength(num1))));
-}
-
-/**
- * 四舍五入
- * @export
- */
-function round(num, ratio) {
-  var base = Math.pow(10, ratio);
-  var result = divide(Math.round(Math.abs(times(num, base))), base);
-  if (num < 0 && result !== 0) {
-    result = times(result, -1);
-  }
-  // 位数不足则补0
-  return result;
-}
-
-/**
- * 是否进行边界检查，默认开启
- * @param flag 标记开关，true 为开启，false 为关闭，默认为 true
- * @export
- */
-function enableBoundaryChecking() {
-  var flag = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-  _boundaryCheckingState = flag;
-}
-var _default = {
-  times: times,
-  plus: plus,
-  minus: minus,
-  divide: divide,
-  round: round,
-  enableBoundaryChecking: enableBoundaryChecking
-};
-exports.default = _default;
-
-/***/ }),
-
-/***/ 232:
-/*!********************************************************!*\
-  !*** ./node_modules/@babel/runtime/helpers/toArray.js ***!
-  \********************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-var arrayWithHoles = __webpack_require__(/*! ./arrayWithHoles.js */ 6);
-var iterableToArray = __webpack_require__(/*! ./iterableToArray.js */ 20);
-var unsupportedIterableToArray = __webpack_require__(/*! ./unsupportedIterableToArray.js */ 8);
-var nonIterableRest = __webpack_require__(/*! ./nonIterableRest.js */ 10);
-function _toArray(arr) {
-  return arrayWithHoles(arr) || iterableToArray(arr) || unsupportedIterableToArray(arr) || nonIterableRest();
-}
-module.exports = _toArray, module.exports.__esModule = true, module.exports["default"] = module.exports;
-
-/***/ }),
-
-/***/ 233:
-/*!***********************************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-ui-tools/libs/util/route.js ***!
-  \***********************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {
-
-var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var _regenerator = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/regenerator */ 36));
-var _asyncToGenerator2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ 38));
-var _classCallCheck2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ 23));
-var _createClass2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/createClass */ 24));
-var _index = __webpack_require__(/*! @/uni_modules/uv-ui-tools/libs/function/index.js */ 229);
-/**
- * 路由跳转方法，该方法相对于直接使用uni.xxx的好处是使用更加简单快捷
- * 并且带有路由拦截功能
- */
-var Router = /*#__PURE__*/function () {
-  function Router() {
-    (0, _classCallCheck2.default)(this, Router);
-    // 原始属性定义
-    this.config = {
-      type: 'navigateTo',
-      url: '',
-      delta: 1,
-      // navigateBack页面后退时,回退的层数
-      params: {},
-      // 传递的参数
-      animationType: 'pop-in',
-      // 窗口动画,只在APP有效
-      animationDuration: 300,
-      // 窗口动画持续时间,单位毫秒,只在APP有效
-      intercept: false,
-      // 是否需要拦截
-      events: {} // 页面间通信接口，用于监听被打开页面发送到当前页面的数据。hbuilderx 2.8.9+ 开始支持。
-    };
-    // 因为route方法是需要对外赋值给另外的对象使用，同时route内部有使用this，会导致route失去上下文
-    // 这里在构造函数中进行this绑定
-    this.route = this.route.bind(this);
-  }
-
-  // 判断url前面是否有"/"，如果没有则加上，否则无法跳转
-  (0, _createClass2.default)(Router, [{
-    key: "addRootPath",
-    value: function addRootPath(url) {
-      return url[0] === '/' ? url : "/".concat(url);
-    }
-
-    // 整合路由参数
-  }, {
-    key: "mixinParam",
-    value: function mixinParam(url, params) {
-      url = url && this.addRootPath(url);
-
-      // 使用正则匹配，主要依据是判断是否有"/","?","="等，如“/page/index/index?name=mary"
-      // 如果有url中有get参数，转换后无需带上"?"
-      var query = '';
-      if (/.*\/.*\?.*=.*/.test(url)) {
-        // object对象转为get类型的参数
-        query = (0, _index.queryParams)(params, false);
-        // 因为已有get参数,所以后面拼接的参数需要带上"&"隔开
-        return url += "&".concat(query);
-      }
-      // 直接拼接参数，因为此处url中没有后面的query参数，也就没有"?/&"之类的符号
-      query = (0, _index.queryParams)(params);
-      return url += query;
-    }
-
-    // 对外的方法名称
-  }, {
-    key: "route",
-    value: function () {
-      var _route = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee() {
-        var options,
-          params,
-          mergeConfig,
-          isNext,
-          _args = arguments;
-        return _regenerator.default.wrap(function _callee$(_context) {
-          while (1) {
-            switch (_context.prev = _context.next) {
-              case 0:
-                options = _args.length > 0 && _args[0] !== undefined ? _args[0] : {};
-                params = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
-                // 合并用户的配置和内部的默认配置
-                mergeConfig = {};
-                if (typeof options === 'string') {
-                  // 如果options为字符串，则为route(url, params)的形式
-                  mergeConfig.url = this.mixinParam(options, params);
-                  mergeConfig.type = 'navigateTo';
-                } else {
-                  mergeConfig = (0, _index.deepMerge)(this.config, options);
-                  // 否则正常使用mergeConfig中的url和params进行拼接
-                  mergeConfig.url = this.mixinParam(options.url, options.params);
-                }
-                // 如果本次跳转的路径和本页面路径一致，不执行跳转，防止用户快速点击跳转按钮，造成多次跳转同一个页面的问题
-                if (!(mergeConfig.url === (0, _index.page)())) {
-                  _context.next = 6;
-                  break;
-                }
-                return _context.abrupt("return");
-              case 6:
-                if (params.intercept) {
-                  mergeConfig.intercept = params.intercept;
-                }
-                // params参数也带给拦截器
-                mergeConfig.params = params;
-                // 合并内外部参数
-                mergeConfig = (0, _index.deepMerge)(this.config, mergeConfig);
-                // 判断用户是否定义了拦截器
-                if (!(typeof mergeConfig.intercept === 'function')) {
-                  _context.next = 16;
-                  break;
-                }
-                _context.next = 12;
-                return new Promise(function (resolve, reject) {
-                  mergeConfig.intercept(mergeConfig, resolve);
-                });
-              case 12:
-                isNext = _context.sent;
-                // 如果isNext为true，则执行路由跳转
-                isNext && this.openPage(mergeConfig);
-                _context.next = 17;
-                break;
-              case 16:
-                this.openPage(mergeConfig);
-              case 17:
-              case "end":
-                return _context.stop();
-            }
-          }
-        }, _callee, this);
-      }));
-      function route() {
-        return _route.apply(this, arguments);
-      }
-      return route;
-    }() // 执行路由跳转
-  }, {
-    key: "openPage",
-    value: function openPage(config) {
-      // 解构参数
-      var url = config.url,
-        type = config.type,
-        delta = config.delta,
-        animationType = config.animationType,
-        animationDuration = config.animationDuration,
-        events = config.events;
-      if (config.type == 'navigateTo' || config.type == 'to') {
-        uni.navigateTo({
-          url: url,
-          animationType: animationType,
-          animationDuration: animationDuration,
-          events: events
-        });
-      }
-      if (config.type == 'redirectTo' || config.type == 'redirect') {
-        uni.redirectTo({
-          url: url
-        });
-      }
-      if (config.type == 'switchTab' || config.type == 'tab') {
-        uni.switchTab({
-          url: url
-        });
-      }
-      if (config.type == 'reLaunch' || config.type == 'launch') {
-        uni.reLaunch({
-          url: url
-        });
-      }
-      if (config.type == 'navigateBack' || config.type == 'back') {
-        uni.navigateBack({
-          delta: delta
-        });
-      }
-    }
-  }]);
-  return Router;
-}();
-var _default = new Router().route;
-exports.default = _default;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
-
-/***/ }),
-
-/***/ 234:
-/*!******************************************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-ui-tools/libs/function/debounce.js ***!
-  \******************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var timeout = null;
-
-/**
- * 防抖原理：一定时间内，只有最后一次操作，再过wait毫秒后才执行函数
- *
- * @param {Function} func 要执行的回调函数
- * @param {Number} wait 延时的时间
- * @param {Boolean} immediate 是否立即执行
- * @return null
- */
-function debounce(func) {
-  var wait = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 500;
-  var immediate = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-  // 清除定时器
-  if (timeout !== null) clearTimeout(timeout);
-  // 立即执行，此类情况一般用不到
-  if (immediate) {
-    var callNow = !timeout;
-    timeout = setTimeout(function () {
-      timeout = null;
-    }, wait);
-    if (callNow) typeof func === 'function' && func();
-  } else {
-    // 设置定时器，当最后一次操作后，timeout不会再被清除，所以在延时wait毫秒后执行func回调方法
-    timeout = setTimeout(function () {
-      typeof func === 'function' && func();
-    }, wait);
-  }
-}
-var _default = debounce;
-exports.default = _default;
-
-/***/ }),
-
-/***/ 235:
-/*!******************************************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-ui-tools/libs/function/throttle.js ***!
-  \******************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var timer;
-var flag;
-/**
- * 节流原理：在一定时间内，只能触发一次
- *
- * @param {Function} func 要执行的回调函数
- * @param {Number} wait 延时的时间
- * @param {Boolean} immediate 是否立即执行
- * @return null
- */
-function throttle(func) {
-  var wait = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 500;
-  var immediate = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
-  if (immediate) {
-    if (!flag) {
-      flag = true;
-      // 如果是立即执行，则在wait毫秒内开始时执行
-      typeof func === 'function' && func();
-      timer = setTimeout(function () {
-        flag = false;
-      }, wait);
-    }
-  } else if (!flag) {
-    flag = true;
-    // 如果是非立即执行，则在wait毫秒内的结束处执行
-    timer = setTimeout(function () {
-      flag = false;
-      typeof func === 'function' && func();
-    }, wait);
-  }
-}
-var _default = throttle;
-exports.default = _default;
-
-/***/ }),
-
-/***/ 236:
-/*!********************************************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-navbar/components/uv-navbar/props.js ***!
-  \********************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {
-
-var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
-var _uni$$uv, _uni$$uv$props;
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-var _default = {
-  props: _objectSpread({
-    // 是否开启顶部安全区适配
-    safeAreaInsetTop: {
-      type: Boolean,
-      default: true
-    },
-    // 固定在顶部时，是否生成一个等高元素，以防止塌陷
-    placeholder: {
-      type: Boolean,
-      default: false
-    },
-    // 是否固定在顶部
-    fixed: {
-      type: Boolean,
-      default: true
-    },
-    // 是否显示下边框
-    border: {
-      type: Boolean,
-      default: false
-    },
-    // 左边的图标
-    leftIcon: {
-      type: String,
-      default: 'arrow-left'
-    },
-    // 左边的提示文字
-    leftText: {
-      type: String,
-      default: ''
-    },
-    // 左右的提示文字
-    rightText: {
-      type: String,
-      default: ''
-    },
-    // 右边的图标
-    rightIcon: {
-      type: String,
-      default: ''
-    },
-    // 标题
-    title: {
-      type: [String, Number],
-      default: ''
-    },
-    // 背景颜色
-    bgColor: {
-      type: String,
-      default: '#ffffff'
-    },
-    imgMode: {
-      type: String,
-      default: 'aspectFill'
-    },
-    // 标题的宽度
-    titleWidth: {
-      type: [String, Number],
-      default: '400rpx'
-    },
-    // 导航栏高度
-    height: {
-      type: [String, Number],
-      default: '44px'
-    },
-    // 左侧返回图标的大小
-    leftIconSize: {
-      type: [String, Number],
-      default: 20
-    },
-    // 左侧返回图标的颜色
-    leftIconColor: {
-      type: String,
-      default: '#303133'
-    },
-    // 点击左侧区域(返回图标)，是否自动返回上一页
-    autoBack: {
-      type: Boolean,
-      default: false
-    },
-    // 标题的样式，对象或字符串
-    titleStyle: {
-      type: [String, Object],
-      default: ''
-    }
-  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.navbar)
-};
-exports.default = _default;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
-
-/***/ }),
-
-=======
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
 /***/ 24:
 /*!************************************************************!*\
   !*** ./node_modules/@babel/runtime/helpers/createClass.js ***!
@@ -5274,52 +3284,6 @@ module.exports = _createClass, module.exports.__esModule = true, module.exports[
 
 /***/ }),
 
-<<<<<<< HEAD
-/***/ 244:
-/*!****************************************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-grid/components/uv-grid/props.js ***!
-  \****************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {
-
-var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
-var _uni$$uv, _uni$$uv$props;
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-var _default = {
-  props: _objectSpread({
-    // 分成几列
-    col: {
-      type: [String, Number],
-      default: 3
-    },
-    // 是否显示边框
-    border: {
-      type: Boolean,
-      default: false
-    },
-    // 宫格对齐方式，表现为数量少的时候，靠左，居中，还是靠右
-    align: {
-      type: String,
-      default: 'left'
-    }
-  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.grid)
-};
-exports.default = _default;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
-
-/***/ }),
-
-=======
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
 /***/ 25:
 /*!******************************************************************************************!*\
   !*** ./node_modules/@dcloudio/vue-cli-plugin-uni/packages/mp-vue/dist/mp.runtime.esm.js ***!
@@ -10859,7 +8823,7 @@ function type(obj) {
 
 function flushCallbacks$1(vm) {
     if (vm.__next_tick_callbacks && vm.__next_tick_callbacks.length) {
-        if (Object({"NODE_ENV":"development","VUE_APP_DARK_MODE":"false","VUE_APP_NAME":"shopBIZ","VUE_APP_PLATFORM":"mp-weixin","BASE_URL":"/"}).VUE_APP_DEBUG) {
+        if (Object({"VUE_APP_DARK_MODE":"false","VUE_APP_NAME":"shopBIZ","VUE_APP_PLATFORM":"mp-weixin","NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_DEBUG) {
             var mpInstance = vm.$scope;
             console.log('[' + (+new Date) + '][' + (mpInstance.is || mpInstance.route) + '][' + vm._uid +
                 ']:flushCallbacks[' + vm.__next_tick_callbacks.length + ']');
@@ -10880,14 +8844,14 @@ function nextTick$1(vm, cb) {
     //1.nextTick 之前 已 setData 且 setData 还未回调完成
     //2.nextTick 之前存在 render watcher
     if (!vm.__next_tick_pending && !hasRenderWatcher(vm)) {
-        if(Object({"NODE_ENV":"development","VUE_APP_DARK_MODE":"false","VUE_APP_NAME":"shopBIZ","VUE_APP_PLATFORM":"mp-weixin","BASE_URL":"/"}).VUE_APP_DEBUG){
+        if(Object({"VUE_APP_DARK_MODE":"false","VUE_APP_NAME":"shopBIZ","VUE_APP_PLATFORM":"mp-weixin","NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_DEBUG){
             var mpInstance = vm.$scope;
             console.log('[' + (+new Date) + '][' + (mpInstance.is || mpInstance.route) + '][' + vm._uid +
                 ']:nextVueTick');
         }
         return nextTick(cb, vm)
     }else{
-        if(Object({"NODE_ENV":"development","VUE_APP_DARK_MODE":"false","VUE_APP_NAME":"shopBIZ","VUE_APP_PLATFORM":"mp-weixin","BASE_URL":"/"}).VUE_APP_DEBUG){
+        if(Object({"VUE_APP_DARK_MODE":"false","VUE_APP_NAME":"shopBIZ","VUE_APP_PLATFORM":"mp-weixin","NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_DEBUG){
             var mpInstance$1 = vm.$scope;
             console.log('[' + (+new Date) + '][' + (mpInstance$1.is || mpInstance$1.route) + '][' + vm._uid +
                 ']:nextMPTick');
@@ -10983,7 +8947,7 @@ var patch = function(oldVnode, vnode) {
     });
     var diffData = this.$shouldDiffData === false ? data : diff(data, mpData);
     if (Object.keys(diffData).length) {
-      if (Object({"NODE_ENV":"development","VUE_APP_DARK_MODE":"false","VUE_APP_NAME":"shopBIZ","VUE_APP_PLATFORM":"mp-weixin","BASE_URL":"/"}).VUE_APP_DEBUG) {
+      if (Object({"VUE_APP_DARK_MODE":"false","VUE_APP_NAME":"shopBIZ","VUE_APP_PLATFORM":"mp-weixin","NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_DEBUG) {
         console.log('[' + (+new Date) + '][' + (mpInstance.is || mpInstance.route) + '][' + this._uid +
           ']差量更新',
           JSON.stringify(diffData));
@@ -11403,9 +9367,9 @@ internalMixin(Vue);
 /***/ }),
 
 /***/ 251:
-/*!********************************************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/uni_modules/uv-ui-tools/libs/mixin/mpMixin.js ***!
-  \********************************************************************************/
+/*!*********************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-ui-tools/libs/mixin/mpMixin.js ***!
+  \*********************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -11427,14 +9391,9 @@ exports.default = _default;
 /***/ }),
 
 /***/ 252:
-<<<<<<< HEAD
-/*!*********************************************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-grid/components/uv-grid-item/props.js ***!
-  \*********************************************************************************/
-=======
-/*!******************************************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/uni_modules/uv-ui-tools/libs/mixin/mixin.js ***!
-  \******************************************************************************/
+/*!*******************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-ui-tools/libs/mixin/mixin.js ***!
+  \*******************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -11634,9 +9593,9 @@ exports.default = _default2;
 /***/ }),
 
 /***/ 253:
-/*!*********************************************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/uni_modules/uv-ui-tools/libs/function/index.js ***!
-  \*********************************************************************************/
+/*!**********************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-ui-tools/libs/function/index.js ***!
+  \**********************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -12433,9 +10392,9 @@ function setConfig(_ref5) {
 /***/ }),
 
 /***/ 254:
-/*!********************************************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/uni_modules/uv-ui-tools/libs/function/test.js ***!
-  \********************************************************************************/
+/*!*********************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-ui-tools/libs/function/test.js ***!
+  \*********************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -12734,9 +10693,9 @@ function regExp(o) {
 /***/ }),
 
 /***/ 255:
-/*!*********************************************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/uni_modules/uv-ui-tools/libs/function/digit.js ***!
-  \*********************************************************************************/
+/*!**********************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-ui-tools/libs/function/digit.js ***!
+  \**********************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -12955,9 +10914,9 @@ module.exports = _toArray, module.exports.__esModule = true, module.exports["def
 /***/ }),
 
 /***/ 257:
-/*!*****************************************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/uni_modules/uv-ui-tools/libs/util/route.js ***!
-  \*****************************************************************************/
+/*!******************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-ui-tools/libs/util/route.js ***!
+  \******************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -13148,9 +11107,9 @@ exports.default = _default;
 /***/ }),
 
 /***/ 258:
-/*!************************************************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/uni_modules/uv-ui-tools/libs/function/debounce.js ***!
-  \************************************************************************************/
+/*!*************************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-ui-tools/libs/function/debounce.js ***!
+  \*************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -13196,9 +11155,9 @@ exports.default = _default;
 /***/ }),
 
 /***/ 259:
-/*!************************************************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/uni_modules/uv-ui-tools/libs/function/throttle.js ***!
-  \************************************************************************************/
+/*!*************************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-ui-tools/libs/function/throttle.js ***!
+  \*************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -13246,9 +11205,9 @@ exports.default = _default;
 /***/ }),
 
 /***/ 26:
-/*!*********************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/pages.json ***!
-  \*********************************************/
+/*!**********************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/pages.json ***!
+  \**********************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 
@@ -13257,9 +11216,9 @@ exports.default = _default;
 /***/ }),
 
 /***/ 260:
-/*!**************************************************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/uni_modules/uv-navbar/components/uv-navbar/props.js ***!
-  \**************************************************************************************/
+/*!***************************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-navbar/components/uv-navbar/props.js ***!
+  \***************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -13369,9 +11328,9 @@ exports.default = _default;
 /***/ }),
 
 /***/ 268:
-/*!**********************************************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/uni_modules/uv-grid/components/uv-grid/props.js ***!
-  \**********************************************************************************/
+/*!***********************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-grid/components/uv-grid/props.js ***!
+  \***********************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -13412,10 +11371,9 @@ exports.default = _default;
 /***/ }),
 
 /***/ 276:
-/*!***************************************************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/uni_modules/uv-grid/components/uv-grid-item/props.js ***!
-  \***************************************************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!****************************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-grid/components/uv-grid-item/props.js ***!
+  \****************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -13450,28 +11408,10 @@ exports.default = _default;
 
 /***/ }),
 
-<<<<<<< HEAD
-/***/ 26:
-/*!***************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/pages.json ***!
-  \***************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-
-
-/***/ }),
-
-/***/ 260:
-/*!********************************************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-picker/components/uv-picker/props.js ***!
-  \********************************************************************************/
-=======
 /***/ 291:
-/*!**************************************************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/uni_modules/uv-picker/components/uv-picker/props.js ***!
-  \**************************************************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!***************************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-picker/components/uv-picker/props.js ***!
+  \***************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -13590,17 +11530,10 @@ exports.default = _default2;
 
 /***/ }),
 
-<<<<<<< HEAD
-/***/ 268:
-/*!****************************************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-icon/components/uv-icon/icons.js ***!
-  \****************************************************************************/
-=======
 /***/ 299:
-/*!**********************************************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/uni_modules/uv-icon/components/uv-icon/icons.js ***!
-  \**********************************************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!***********************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-icon/components/uv-icon/icons.js ***!
+  \***********************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -13775,12 +11708,6 @@ exports.default = _default;
 
 /***/ }),
 
-<<<<<<< HEAD
-/***/ 269:
-/*!****************************************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-icon/components/uv-icon/props.js ***!
-  \****************************************************************************/
-=======
 /***/ 3:
 /*!***********************************!*\
   !*** (webpack)/buildin/global.js ***!
@@ -13813,10 +11740,9 @@ module.exports = g;
 /***/ }),
 
 /***/ 300:
-/*!**********************************************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/uni_modules/uv-icon/components/uv-icon/props.js ***!
-  \**********************************************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!***********************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-icon/components/uv-icon/props.js ***!
+  \***********************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -13926,17 +11852,10 @@ exports.default = _default;
 
 /***/ }),
 
-<<<<<<< HEAD
-/***/ 277:
-/*!****************************************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-line/components/uv-line/props.js ***!
-  \****************************************************************************/
-=======
 /***/ 308:
-/*!**********************************************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/uni_modules/uv-line/components/uv-line/props.js ***!
-  \**********************************************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!***********************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-line/components/uv-line/props.js ***!
+  \***********************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -13990,17 +11909,10 @@ exports.default = _default;
 
 /***/ }),
 
-<<<<<<< HEAD
-/***/ 292:
-/*!********************************************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-sticky/components/uv-sticky/props.js ***!
-  \********************************************************************************/
-=======
 /***/ 316:
-/*!**************************************************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/uni_modules/uv-sticky/components/uv-sticky/props.js ***!
-  \**************************************************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!***************************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-sticky/components/uv-sticky/props.js ***!
+  \***************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -14055,48 +11967,10 @@ exports.default = _default;
 
 /***/ }),
 
-<<<<<<< HEAD
-/***/ 3:
-/*!***********************************!*\
-  !*** (webpack)/buildin/global.js ***!
-  \***********************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-var g;
-
-// This works in non-strict mode
-g = (function() {
-	return this;
-})();
-
-try {
-	// This works if eval is allowed (see CSP)
-	g = g || new Function("return this")();
-} catch (e) {
-	// This works if the window reference is available
-	if (typeof window === "object") g = window;
-}
-
-// g can still be undefined, but nothing to do about it...
-// We return undefined, instead of nothing here, so it's
-// easier to handle this case. if(!global) { ...}
-
-module.exports = g;
-
-
-/***/ }),
-
-/***/ 300:
-/*!********************************************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-search/components/uv-search/props.js ***!
-  \********************************************************************************/
-=======
 /***/ 324:
-/*!**************************************************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/uni_modules/uv-search/components/uv-search/props.js ***!
-  \**************************************************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!***************************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-search/components/uv-search/props.js ***!
+  \***************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -14249,17 +12123,10 @@ exports.default = _default2;
 
 /***/ }),
 
-<<<<<<< HEAD
-/***/ 308:
-/*!**************************************************************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-datetime-picker/components/uv-datetime-picker/props.js ***!
-  \**************************************************************************************************/
-=======
 /***/ 332:
-/*!********************************************************************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/uni_modules/uv-datetime-picker/components/uv-datetime-picker/props.js ***!
-  \********************************************************************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!*********************************************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-datetime-picker/components/uv-datetime-picker/props.js ***!
+  \*********************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -14409,17 +12276,10 @@ exports.default = _default;
 
 /***/ }),
 
-<<<<<<< HEAD
-/***/ 309:
-/*!***********************************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-ui-tools/libs/util/dayjs.js ***!
-  \***********************************************************************/
-=======
 /***/ 333:
-/*!*****************************************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/uni_modules/uv-ui-tools/libs/util/dayjs.js ***!
-  \*****************************************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!******************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-ui-tools/libs/util/dayjs.js ***!
+  \******************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -14765,17 +12625,10 @@ exports.default = _default;
 
 /***/ }),
 
-<<<<<<< HEAD
-/***/ 315:
-/*!******************************************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-input/components/uv-input/props.js ***!
-  \******************************************************************************/
-=======
 /***/ 339:
-/*!************************************************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/uni_modules/uv-input/components/uv-input/props.js ***!
-  \************************************************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!*************************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-input/components/uv-input/props.js ***!
+  \*************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -14970,161 +12823,6 @@ exports.default = _default;
 
 /***/ }),
 
-<<<<<<< HEAD
-/***/ 323:
-/*!************************************************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-collapse/components/uv-collapse/props.js ***!
-  \************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {
-
-var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
-var _uni$$uv, _uni$$uv$props;
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-var _default = {
-  props: _objectSpread({
-    // 当前展开面板的name，非手风琴模式：[<string | number>]，手风琴模式：string | number
-    value: {
-      type: [String, Number, Array, null],
-      default: null
-    },
-    // 是否手风琴模式
-    accordion: {
-      type: Boolean,
-      default: false
-    },
-    // 是否显示外边框
-    border: {
-      type: Boolean,
-      default: true
-    }
-  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.collapse)
-};
-exports.default = _default;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
-
-/***/ }),
-
-/***/ 329:
-/*!*****************************************************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-collapse/components/uv-collapse-item/props.js ***!
-  \*****************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {
-
-var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
-var _uni$$uv, _uni$$uv$props;
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-var _default = {
-  props: _objectSpread({
-    // 标题
-    title: {
-      type: String,
-      default: ''
-    },
-    // 标题右侧内容
-    value: {
-      type: String,
-      default: ''
-    },
-    // 标题下方的描述信息
-    label: {
-      type: String,
-      default: ''
-    },
-    // 是否禁用折叠面板
-    disabled: {
-      type: Boolean,
-      default: false
-    },
-    // 是否展示右侧箭头并开启点击反馈
-    isLink: {
-      type: Boolean,
-      default: true
-    },
-    // 是否开启点击反馈
-    clickable: {
-      type: Boolean,
-      default: true
-    },
-    // 是否显示内边框
-    border: {
-      type: Boolean,
-      default: true
-    },
-    // 标题的对齐方式
-    align: {
-      type: String,
-      default: 'left'
-    },
-    // 唯一标识符
-    name: {
-      type: [String, Number],
-      default: ''
-    },
-    // 标题左侧图片，可为绝对路径的图片或内置图标
-    icon: {
-      type: String,
-      default: ''
-    },
-    // 面板展开收起的过渡时间，单位ms
-    duration: {
-      type: Number,
-      default: 300
-    }
-  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.collapseItem)
-};
-exports.default = _default;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
-
-/***/ }),
-
-/***/ 337:
-/*!****************************************************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-status-bar/components/uv-status-bar/props.js ***!
-  \****************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var _default = {
-  props: {
-    bgColor: {
-      type: String,
-      default: 'transparent'
-    }
-  }
-};
-exports.default = _default;
-
-/***/ }),
-
-=======
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
 /***/ 34:
 /*!**********************************************************************************************************!*\
   !*** ./node_modules/@dcloudio/vue-cli-plugin-uni/packages/vue-loader/lib/runtime/componentNormalizer.js ***!
@@ -15257,17 +12955,10 @@ function normalizeComponent (
 
 /***/ }),
 
-<<<<<<< HEAD
-/***/ 345:
-/*!**********************************************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-toolbar/components/uv-toolbar/props.js ***!
-  \**********************************************************************************/
-=======
 /***/ 347:
-/*!******************************************************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/uni_modules/uv-collapse/components/uv-collapse/props.js ***!
-  \******************************************************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!*******************************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-collapse/components/uv-collapse/props.js ***!
+  \*******************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -15285,44 +12976,6 @@ function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (O
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 var _default = {
   props: _objectSpread({
-<<<<<<< HEAD
-    // 是否展示工具条
-    show: {
-      type: Boolean,
-      default: true
-    },
-    // 是否显示下边框
-    showBorder: {
-      type: Boolean,
-      default: false
-    },
-    // 取消按钮的文字
-    cancelText: {
-      type: String,
-      default: '取消'
-    },
-    // 确认按钮的文字
-    confirmText: {
-      type: String,
-      default: '确认'
-    },
-    // 取消按钮的颜色
-    cancelColor: {
-      type: String,
-      default: '#909193'
-    },
-    // 确认按钮的颜色
-    confirmColor: {
-      type: String,
-      default: '#3c9cff'
-    },
-    // 标题文字
-    title: {
-      type: String,
-      default: ''
-    }
-  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.toolbar)
-=======
     // 当前展开面板的name，非手风琴模式：[<string | number>]，手风琴模式：string | number
     value: {
       type: [String, Number, Array, null],
@@ -15339,7 +12992,6 @@ var _default = {
       default: true
     }
   }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.collapse)
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
 };
 exports.default = _default;
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
@@ -15347,15 +12999,9 @@ exports.default = _default;
 /***/ }),
 
 /***/ 35:
-<<<<<<< HEAD
-/*!**********************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/common/js/util.js ***!
-  \**********************************************/
-=======
-/*!****************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/common/js/util.js ***!
-  \****************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!*****************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/common/js/util.js ***!
+  \*****************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -16048,15 +13694,9 @@ exports.default = _default;
 /***/ }),
 
 /***/ 353:
-<<<<<<< HEAD
-/*!***********************************************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-ui-tools/libs/function/colorGradient.js ***!
-  \***********************************************************************************/
-=======
-/*!***********************************************************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/uni_modules/uv-collapse/components/uv-collapse-item/props.js ***!
-  \***********************************************************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!************************************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-collapse/components/uv-collapse-item/props.js ***!
+  \************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -16151,244 +13791,28 @@ module.exports = runtime;
 /***/ }),
 
 /***/ 368:
-/*!**********************************************************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/uni_modules/uv-status-bar/components/uv-status-bar/props.js ***!
-  \**********************************************************************************************/
+/*!***********************************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-status-bar/components/uv-status-bar/props.js ***!
+  \***********************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.colorGradient = colorGradient;
-exports.colorToRgba = colorToRgba;
-exports.hexToRgb = hexToRgb;
-exports.rgbToHex = rgbToHex;
-/**
- * 求两个颜色之间的渐变值
- * @param {string} startColor 开始的颜色
- * @param {string} endColor 结束的颜色
- * @param {number} step 颜色等分的份额
- * */
-function colorGradient() {
-  var startColor = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'rgb(0, 0, 0)';
-  var endColor = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'rgb(255, 255, 255)';
-  var step = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 10;
-  var startRGB = hexToRgb(startColor, false); // 转换为rgb数组模式
-  var startR = startRGB[0];
-  var startG = startRGB[1];
-  var startB = startRGB[2];
-  var endRGB = hexToRgb(endColor, false);
-  var endR = endRGB[0];
-  var endG = endRGB[1];
-  var endB = endRGB[2];
-  var sR = (endR - startR) / step; // 总差值
-  var sG = (endG - startG) / step;
-  var sB = (endB - startB) / step;
-  var colorArr = [];
-  for (var i = 0; i < step; i++) {
-    // 计算每一步的hex值
-    var hex = rgbToHex("rgb(".concat(Math.round(sR * i + startR), ",").concat(Math.round(sG * i + startG), ",").concat(Math.round(sB * i + startB), ")"));
-    // 确保第一个颜色值为startColor的值
-    if (i === 0) hex = rgbToHex(startColor);
-    // 确保最后一个颜色值为endColor的值
-    if (i === step - 1) hex = rgbToHex(endColor);
-    colorArr.push(hex);
-  }
-  return colorArr;
-}
-
-// 将hex表示方式转换为rgb表示方式(这里返回rgb数组模式)
-function hexToRgb(sColor) {
-  var str = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-  var reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/;
-  sColor = String(sColor).toLowerCase();
-  if (sColor && reg.test(sColor)) {
-    if (sColor.length === 4) {
-      var sColorNew = '#';
-      for (var i = 1; i < 4; i += 1) {
-        sColorNew += sColor.slice(i, i + 1).concat(sColor.slice(i, i + 1));
-      }
-      sColor = sColorNew;
-    }
-    // 处理六位的颜色值
-    var sColorChange = [];
-    for (var _i = 1; _i < 7; _i += 2) {
-      sColorChange.push(parseInt("0x".concat(sColor.slice(_i, _i + 2))));
-    }
-    if (!str) {
-      return sColorChange;
-    }
-    return "rgb(".concat(sColorChange[0], ",").concat(sColorChange[1], ",").concat(sColorChange[2], ")");
-  }
-  if (/^(rgb|RGB)/.test(sColor)) {
-    var arr = sColor.replace(/(?:\(|\)|rgb|RGB)*/g, '').split(',');
-    return arr.map(function (val) {
-      return Number(val);
-    });
-  }
-  return sColor;
-}
-
-// 将rgb表示方式转换为hex表示方式
-function rgbToHex(rgb) {
-  var _this = rgb;
-  var reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/;
-  if (/^(rgb|RGB)/.test(_this)) {
-    var aColor = _this.replace(/(?:\(|\)|rgb|RGB)*/g, '').split(',');
-    var strHex = '#';
-    for (var i = 0; i < aColor.length; i++) {
-      var hex = Number(aColor[i]).toString(16);
-      hex = String(hex).length == 1 ? "".concat(0, hex) : hex; // 保证每个rgb的值为2位
-      if (hex === '0') {
-        hex += hex;
-      }
-      strHex += hex;
-    }
-    if (strHex.length !== 7) {
-      strHex = _this;
-    }
-    return strHex;
-  }
-  if (reg.test(_this)) {
-    var aNum = _this.replace(/#/, '').split('');
-    if (aNum.length === 6) {
-      return _this;
-    }
-    if (aNum.length === 3) {
-      var numHex = '#';
-      for (var _i2 = 0; _i2 < aNum.length; _i2 += 1) {
-        numHex += aNum[_i2] + aNum[_i2];
-      }
-      return numHex;
-    }
-  } else {
-    return _this;
-  }
-}
-
-/**
-* JS颜色十六进制转换为rgb或rgba,返回的格式为 rgba（255，255，255，0.5）字符串
-* sHex为传入的十六进制的色值
-* alpha为rgba的透明度
-*/
-function colorToRgba(color, alpha) {
-  color = rgbToHex(color);
-  // 十六进制颜色值的正则表达式
-  var reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/;
-  /* 16进制颜色转为RGB格式 */
-  var sColor = String(color).toLowerCase();
-  if (sColor && reg.test(sColor)) {
-    if (sColor.length === 4) {
-      var sColorNew = '#';
-      for (var i = 1; i < 4; i += 1) {
-        sColorNew += sColor.slice(i, i + 1).concat(sColor.slice(i, i + 1));
-      }
-      sColor = sColorNew;
-    }
-    // 处理六位的颜色值
-    var sColorChange = [];
-    for (var _i3 = 1; _i3 < 7; _i3 += 2) {
-      sColorChange.push(parseInt("0x".concat(sColor.slice(_i3, _i3 + 2))));
-    }
-    // return sColorChange.join(',')
-    return "rgba(".concat(sColorChange.join(','), ",").concat(alpha, ")");
-  }
-  return sColor;
-}
-
-/***/ }),
-
-/***/ 354:
-/*!********************************************************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-loading-icon/components/uv-loading-icon/props.js ***!
-  \********************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {
-
-var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = void 0;
-var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
-var _uni$$uv, _uni$$uv$props;
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-var _default2 = {
-  props: _objectSpread({
-    // 是否显示组件
-    show: {
-      type: Boolean,
-      default: true
-    },
-    // 颜色
-    color: {
+var _default = {
+  props: {
+    bgColor: {
       type: String,
-      default: '#909193'
-    },
-    // 提示文字颜色
-    textColor: {
-      type: String,
-      default: '#909193'
-    },
-    // 文字和图标是否垂直排列
-    vertical: {
-      type: Boolean,
-      default: false
-    },
-    // 模式选择，circle-圆形，spinner-花朵形，semicircle-半圆形
-    mode: {
-      type: String,
-      default: 'spinner'
-    },
-    // 图标大小，单位默认px
-    size: {
-      type: [String, Number],
-      default: 24
-    },
-    // 文字大小
-    textSize: {
-      type: [String, Number],
-      default: 15
-    },
-    // 文字样式
-    textStyle: {
-      type: Object,
-      default: function _default() {
-        return {};
-      }
-    },
-    // 文字内容
-    text: {
-      type: [String, Number],
-      default: ''
-    },
-    // 动画模式 https://www.runoob.com/cssref/css3-pr-animation-timing-function.html
-    timingFunction: {
-      type: String,
-      default: 'linear'
-    },
-    // 动画执行周期时间
-    duration: {
-      type: [String, Number],
-      default: 1200
-    },
-    // mode=circle时的暗边颜色
-    inactiveColor: {
-      type: String,
-      default: ''
+      default: 'transparent'
     }
-  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.loadingIcon)
+  }
 };
-exports.default = _default2;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
+exports.default = _default;
 
 /***/ }),
 
@@ -16405,326 +13829,319 @@ function _regeneratorRuntime() {
 
   /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */
   module.exports = _regeneratorRuntime = function _regeneratorRuntime() {
-    return exports;
+    return e;
   }, module.exports.__esModule = true, module.exports["default"] = module.exports;
-  var exports = {},
-    Op = Object.prototype,
-    hasOwn = Op.hasOwnProperty,
-    defineProperty = Object.defineProperty || function (obj, key, desc) {
-      obj[key] = desc.value;
+  var t,
+    e = {},
+    r = Object.prototype,
+    n = r.hasOwnProperty,
+    o = Object.defineProperty || function (t, e, r) {
+      t[e] = r.value;
     },
-    $Symbol = "function" == typeof Symbol ? Symbol : {},
-    iteratorSymbol = $Symbol.iterator || "@@iterator",
-    asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator",
-    toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag";
-  function define(obj, key, value) {
-    return Object.defineProperty(obj, key, {
-      value: value,
+    i = "function" == typeof Symbol ? Symbol : {},
+    a = i.iterator || "@@iterator",
+    c = i.asyncIterator || "@@asyncIterator",
+    u = i.toStringTag || "@@toStringTag";
+  function define(t, e, r) {
+    return Object.defineProperty(t, e, {
+      value: r,
       enumerable: !0,
       configurable: !0,
       writable: !0
-    }), obj[key];
+    }), t[e];
   }
   try {
     define({}, "");
-  } catch (err) {
-    define = function define(obj, key, value) {
-      return obj[key] = value;
+  } catch (t) {
+    define = function define(t, e, r) {
+      return t[e] = r;
     };
   }
-  function wrap(innerFn, outerFn, self, tryLocsList) {
-    var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator,
-      generator = Object.create(protoGenerator.prototype),
-      context = new Context(tryLocsList || []);
-    return defineProperty(generator, "_invoke", {
-      value: makeInvokeMethod(innerFn, self, context)
-    }), generator;
+  function wrap(t, e, r, n) {
+    var i = e && e.prototype instanceof Generator ? e : Generator,
+      a = Object.create(i.prototype),
+      c = new Context(n || []);
+    return o(a, "_invoke", {
+      value: makeInvokeMethod(t, r, c)
+    }), a;
   }
-  function tryCatch(fn, obj, arg) {
+  function tryCatch(t, e, r) {
     try {
       return {
         type: "normal",
-        arg: fn.call(obj, arg)
+        arg: t.call(e, r)
       };
-    } catch (err) {
+    } catch (t) {
       return {
         type: "throw",
-        arg: err
+        arg: t
       };
     }
   }
-  exports.wrap = wrap;
-  var ContinueSentinel = {};
+  e.wrap = wrap;
+  var h = "suspendedStart",
+    l = "suspendedYield",
+    f = "executing",
+    s = "completed",
+    y = {};
   function Generator() {}
   function GeneratorFunction() {}
   function GeneratorFunctionPrototype() {}
-  var IteratorPrototype = {};
-  define(IteratorPrototype, iteratorSymbol, function () {
+  var p = {};
+  define(p, a, function () {
     return this;
   });
-  var getProto = Object.getPrototypeOf,
-    NativeIteratorPrototype = getProto && getProto(getProto(values([])));
-  NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol) && (IteratorPrototype = NativeIteratorPrototype);
-  var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype);
-  function defineIteratorMethods(prototype) {
-    ["next", "throw", "return"].forEach(function (method) {
-      define(prototype, method, function (arg) {
-        return this._invoke(method, arg);
+  var d = Object.getPrototypeOf,
+    v = d && d(d(values([])));
+  v && v !== r && n.call(v, a) && (p = v);
+  var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p);
+  function defineIteratorMethods(t) {
+    ["next", "throw", "return"].forEach(function (e) {
+      define(t, e, function (t) {
+        return this._invoke(e, t);
       });
     });
   }
-  function AsyncIterator(generator, PromiseImpl) {
-    function invoke(method, arg, resolve, reject) {
-      var record = tryCatch(generator[method], generator, arg);
-      if ("throw" !== record.type) {
-        var result = record.arg,
-          value = result.value;
-        return value && "object" == _typeof(value) && hasOwn.call(value, "__await") ? PromiseImpl.resolve(value.__await).then(function (value) {
-          invoke("next", value, resolve, reject);
-        }, function (err) {
-          invoke("throw", err, resolve, reject);
-        }) : PromiseImpl.resolve(value).then(function (unwrapped) {
-          result.value = unwrapped, resolve(result);
-        }, function (error) {
-          return invoke("throw", error, resolve, reject);
+  function AsyncIterator(t, e) {
+    function invoke(r, o, i, a) {
+      var c = tryCatch(t[r], t, o);
+      if ("throw" !== c.type) {
+        var u = c.arg,
+          h = u.value;
+        return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) {
+          invoke("next", t, i, a);
+        }, function (t) {
+          invoke("throw", t, i, a);
+        }) : e.resolve(h).then(function (t) {
+          u.value = t, i(u);
+        }, function (t) {
+          return invoke("throw", t, i, a);
         });
       }
-      reject(record.arg);
+      a(c.arg);
     }
-    var previousPromise;
-    defineProperty(this, "_invoke", {
-      value: function value(method, arg) {
+    var r;
+    o(this, "_invoke", {
+      value: function value(t, n) {
         function callInvokeWithMethodAndArg() {
-          return new PromiseImpl(function (resolve, reject) {
-            invoke(method, arg, resolve, reject);
+          return new e(function (e, r) {
+            invoke(t, n, e, r);
           });
         }
-        return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg();
+        return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg();
       }
     });
   }
-  function makeInvokeMethod(innerFn, self, context) {
-    var state = "suspendedStart";
-    return function (method, arg) {
-      if ("executing" === state) throw new Error("Generator is already running");
-      if ("completed" === state) {
-        if ("throw" === method) throw arg;
-        return doneResult();
+  function makeInvokeMethod(e, r, n) {
+    var o = h;
+    return function (i, a) {
+      if (o === f) throw Error("Generator is already running");
+      if (o === s) {
+        if ("throw" === i) throw a;
+        return {
+          value: t,
+          done: !0
+        };
       }
-      for (context.method = method, context.arg = arg;;) {
-        var delegate = context.delegate;
-        if (delegate) {
-          var delegateResult = maybeInvokeDelegate(delegate, context);
-          if (delegateResult) {
-            if (delegateResult === ContinueSentinel) continue;
-            return delegateResult;
+      for (n.method = i, n.arg = a;;) {
+        var c = n.delegate;
+        if (c) {
+          var u = maybeInvokeDelegate(c, n);
+          if (u) {
+            if (u === y) continue;
+            return u;
           }
         }
-        if ("next" === context.method) context.sent = context._sent = context.arg;else if ("throw" === context.method) {
-          if ("suspendedStart" === state) throw state = "completed", context.arg;
-          context.dispatchException(context.arg);
-        } else "return" === context.method && context.abrupt("return", context.arg);
-        state = "executing";
-        var record = tryCatch(innerFn, self, context);
-        if ("normal" === record.type) {
-          if (state = context.done ? "completed" : "suspendedYield", record.arg === ContinueSentinel) continue;
+        if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) {
+          if (o === h) throw o = s, n.arg;
+          n.dispatchException(n.arg);
+        } else "return" === n.method && n.abrupt("return", n.arg);
+        o = f;
+        var p = tryCatch(e, r, n);
+        if ("normal" === p.type) {
+          if (o = n.done ? s : l, p.arg === y) continue;
           return {
-            value: record.arg,
-            done: context.done
+            value: p.arg,
+            done: n.done
           };
         }
-        "throw" === record.type && (state = "completed", context.method = "throw", context.arg = record.arg);
+        "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg);
       }
     };
   }
-  function maybeInvokeDelegate(delegate, context) {
-    var methodName = context.method,
-      method = delegate.iterator[methodName];
-    if (undefined === method) return context.delegate = null, "throw" === methodName && delegate.iterator["return"] && (context.method = "return", context.arg = undefined, maybeInvokeDelegate(delegate, context), "throw" === context.method) || "return" !== methodName && (context.method = "throw", context.arg = new TypeError("The iterator does not provide a '" + methodName + "' method")), ContinueSentinel;
-    var record = tryCatch(method, delegate.iterator, context.arg);
-    if ("throw" === record.type) return context.method = "throw", context.arg = record.arg, context.delegate = null, ContinueSentinel;
-    var info = record.arg;
-    return info ? info.done ? (context[delegate.resultName] = info.value, context.next = delegate.nextLoc, "return" !== context.method && (context.method = "next", context.arg = undefined), context.delegate = null, ContinueSentinel) : info : (context.method = "throw", context.arg = new TypeError("iterator result is not an object"), context.delegate = null, ContinueSentinel);
+  function maybeInvokeDelegate(e, r) {
+    var n = r.method,
+      o = e.iterator[n];
+    if (o === t) return r.delegate = null, "throw" === n && e.iterator["return"] && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y;
+    var i = tryCatch(o, e.iterator, r.arg);
+    if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y;
+    var a = i.arg;
+    return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y);
   }
-  function pushTryEntry(locs) {
-    var entry = {
-      tryLoc: locs[0]
+  function pushTryEntry(t) {
+    var e = {
+      tryLoc: t[0]
     };
-    1 in locs && (entry.catchLoc = locs[1]), 2 in locs && (entry.finallyLoc = locs[2], entry.afterLoc = locs[3]), this.tryEntries.push(entry);
+    1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e);
   }
-  function resetTryEntry(entry) {
-    var record = entry.completion || {};
-    record.type = "normal", delete record.arg, entry.completion = record;
+  function resetTryEntry(t) {
+    var e = t.completion || {};
+    e.type = "normal", delete e.arg, t.completion = e;
   }
-  function Context(tryLocsList) {
+  function Context(t) {
     this.tryEntries = [{
       tryLoc: "root"
-    }], tryLocsList.forEach(pushTryEntry, this), this.reset(!0);
+    }], t.forEach(pushTryEntry, this), this.reset(!0);
   }
-  function values(iterable) {
-    if (iterable) {
-      var iteratorMethod = iterable[iteratorSymbol];
-      if (iteratorMethod) return iteratorMethod.call(iterable);
-      if ("function" == typeof iterable.next) return iterable;
-      if (!isNaN(iterable.length)) {
-        var i = -1,
-          next = function next() {
-            for (; ++i < iterable.length;) {
-              if (hasOwn.call(iterable, i)) return next.value = iterable[i], next.done = !1, next;
+  function values(e) {
+    if (e || "" === e) {
+      var r = e[a];
+      if (r) return r.call(e);
+      if ("function" == typeof e.next) return e;
+      if (!isNaN(e.length)) {
+        var o = -1,
+          i = function next() {
+            for (; ++o < e.length;) {
+              if (n.call(e, o)) return next.value = e[o], next.done = !1, next;
             }
-            return next.value = undefined, next.done = !0, next;
+            return next.value = t, next.done = !0, next;
           };
-        return next.next = next;
+        return i.next = i;
       }
     }
-    return {
-      next: doneResult
-    };
+    throw new TypeError(_typeof(e) + " is not iterable");
   }
-  function doneResult() {
-    return {
-      value: undefined,
-      done: !0
-    };
-  }
-  return GeneratorFunction.prototype = GeneratorFunctionPrototype, defineProperty(Gp, "constructor", {
+  return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", {
     value: GeneratorFunctionPrototype,
     configurable: !0
-  }), defineProperty(GeneratorFunctionPrototype, "constructor", {
+  }), o(GeneratorFunctionPrototype, "constructor", {
     value: GeneratorFunction,
     configurable: !0
-  }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction"), exports.isGeneratorFunction = function (genFun) {
-    var ctor = "function" == typeof genFun && genFun.constructor;
-    return !!ctor && (ctor === GeneratorFunction || "GeneratorFunction" === (ctor.displayName || ctor.name));
-  }, exports.mark = function (genFun) {
-    return Object.setPrototypeOf ? Object.setPrototypeOf(genFun, GeneratorFunctionPrototype) : (genFun.__proto__ = GeneratorFunctionPrototype, define(genFun, toStringTagSymbol, "GeneratorFunction")), genFun.prototype = Object.create(Gp), genFun;
-  }, exports.awrap = function (arg) {
+  }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) {
+    var e = "function" == typeof t && t.constructor;
+    return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name));
+  }, e.mark = function (t) {
+    return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t;
+  }, e.awrap = function (t) {
     return {
-      __await: arg
+      __await: t
     };
-  }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, asyncIteratorSymbol, function () {
+  }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () {
     return this;
-  }), exports.AsyncIterator = AsyncIterator, exports.async = function (innerFn, outerFn, self, tryLocsList, PromiseImpl) {
-    void 0 === PromiseImpl && (PromiseImpl = Promise);
-    var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl);
-    return exports.isGeneratorFunction(outerFn) ? iter : iter.next().then(function (result) {
-      return result.done ? result.value : iter.next();
+  }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) {
+    void 0 === i && (i = Promise);
+    var a = new AsyncIterator(wrap(t, r, n, o), i);
+    return e.isGeneratorFunction(r) ? a : a.next().then(function (t) {
+      return t.done ? t.value : a.next();
     });
-  }, defineIteratorMethods(Gp), define(Gp, toStringTagSymbol, "Generator"), define(Gp, iteratorSymbol, function () {
+  }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () {
     return this;
-  }), define(Gp, "toString", function () {
+  }), define(g, "toString", function () {
     return "[object Generator]";
-  }), exports.keys = function (val) {
-    var object = Object(val),
-      keys = [];
-    for (var key in object) {
-      keys.push(key);
+  }), e.keys = function (t) {
+    var e = Object(t),
+      r = [];
+    for (var n in e) {
+      r.push(n);
     }
-    return keys.reverse(), function next() {
-      for (; keys.length;) {
-        var key = keys.pop();
-        if (key in object) return next.value = key, next.done = !1, next;
+    return r.reverse(), function next() {
+      for (; r.length;) {
+        var t = r.pop();
+        if (t in e) return next.value = t, next.done = !1, next;
       }
       return next.done = !0, next;
     };
-  }, exports.values = values, Context.prototype = {
+  }, e.values = values, Context.prototype = {
     constructor: Context,
-    reset: function reset(skipTempReset) {
-      if (this.prev = 0, this.next = 0, this.sent = this._sent = undefined, this.done = !1, this.delegate = null, this.method = "next", this.arg = undefined, this.tryEntries.forEach(resetTryEntry), !skipTempReset) for (var name in this) {
-        "t" === name.charAt(0) && hasOwn.call(this, name) && !isNaN(+name.slice(1)) && (this[name] = undefined);
+    reset: function reset(e) {
+      if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) {
+        "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t);
       }
     },
     stop: function stop() {
       this.done = !0;
-      var rootRecord = this.tryEntries[0].completion;
-      if ("throw" === rootRecord.type) throw rootRecord.arg;
+      var t = this.tryEntries[0].completion;
+      if ("throw" === t.type) throw t.arg;
       return this.rval;
     },
-    dispatchException: function dispatchException(exception) {
-      if (this.done) throw exception;
-      var context = this;
-      function handle(loc, caught) {
-        return record.type = "throw", record.arg = exception, context.next = loc, caught && (context.method = "next", context.arg = undefined), !!caught;
+    dispatchException: function dispatchException(e) {
+      if (this.done) throw e;
+      var r = this;
+      function handle(n, o) {
+        return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o;
       }
-      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-        var entry = this.tryEntries[i],
-          record = entry.completion;
-        if ("root" === entry.tryLoc) return handle("end");
-        if (entry.tryLoc <= this.prev) {
-          var hasCatch = hasOwn.call(entry, "catchLoc"),
-            hasFinally = hasOwn.call(entry, "finallyLoc");
-          if (hasCatch && hasFinally) {
-            if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0);
-            if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc);
-          } else if (hasCatch) {
-            if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0);
+      for (var o = this.tryEntries.length - 1; o >= 0; --o) {
+        var i = this.tryEntries[o],
+          a = i.completion;
+        if ("root" === i.tryLoc) return handle("end");
+        if (i.tryLoc <= this.prev) {
+          var c = n.call(i, "catchLoc"),
+            u = n.call(i, "finallyLoc");
+          if (c && u) {
+            if (this.prev < i.catchLoc) return handle(i.catchLoc, !0);
+            if (this.prev < i.finallyLoc) return handle(i.finallyLoc);
+          } else if (c) {
+            if (this.prev < i.catchLoc) return handle(i.catchLoc, !0);
           } else {
-            if (!hasFinally) throw new Error("try statement without catch or finally");
-            if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc);
+            if (!u) throw Error("try statement without catch or finally");
+            if (this.prev < i.finallyLoc) return handle(i.finallyLoc);
           }
         }
       }
     },
-    abrupt: function abrupt(type, arg) {
-      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-        var entry = this.tryEntries[i];
-        if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) {
-          var finallyEntry = entry;
+    abrupt: function abrupt(t, e) {
+      for (var r = this.tryEntries.length - 1; r >= 0; --r) {
+        var o = this.tryEntries[r];
+        if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) {
+          var i = o;
           break;
         }
       }
-      finallyEntry && ("break" === type || "continue" === type) && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc && (finallyEntry = null);
-      var record = finallyEntry ? finallyEntry.completion : {};
-      return record.type = type, record.arg = arg, finallyEntry ? (this.method = "next", this.next = finallyEntry.finallyLoc, ContinueSentinel) : this.complete(record);
+      i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null);
+      var a = i ? i.completion : {};
+      return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a);
     },
-    complete: function complete(record, afterLoc) {
-      if ("throw" === record.type) throw record.arg;
-      return "break" === record.type || "continue" === record.type ? this.next = record.arg : "return" === record.type ? (this.rval = this.arg = record.arg, this.method = "return", this.next = "end") : "normal" === record.type && afterLoc && (this.next = afterLoc), ContinueSentinel;
+    complete: function complete(t, e) {
+      if ("throw" === t.type) throw t.arg;
+      return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y;
     },
-    finish: function finish(finallyLoc) {
-      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-        var entry = this.tryEntries[i];
-        if (entry.finallyLoc === finallyLoc) return this.complete(entry.completion, entry.afterLoc), resetTryEntry(entry), ContinueSentinel;
+    finish: function finish(t) {
+      for (var e = this.tryEntries.length - 1; e >= 0; --e) {
+        var r = this.tryEntries[e];
+        if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y;
       }
     },
-    "catch": function _catch(tryLoc) {
-      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-        var entry = this.tryEntries[i];
-        if (entry.tryLoc === tryLoc) {
-          var record = entry.completion;
-          if ("throw" === record.type) {
-            var thrown = record.arg;
-            resetTryEntry(entry);
+    "catch": function _catch(t) {
+      for (var e = this.tryEntries.length - 1; e >= 0; --e) {
+        var r = this.tryEntries[e];
+        if (r.tryLoc === t) {
+          var n = r.completion;
+          if ("throw" === n.type) {
+            var o = n.arg;
+            resetTryEntry(r);
           }
-          return thrown;
+          return o;
         }
       }
-      throw new Error("illegal catch attempt");
+      throw Error("illegal catch attempt");
     },
-    delegateYield: function delegateYield(iterable, resultName, nextLoc) {
+    delegateYield: function delegateYield(e, r, n) {
       return this.delegate = {
-        iterator: values(iterable),
-        resultName: resultName,
-        nextLoc: nextLoc
-      }, "next" === this.method && (this.arg = undefined), ContinueSentinel;
+        iterator: values(e),
+        resultName: r,
+        nextLoc: n
+      }, "next" === this.method && (this.arg = t), y;
     }
-  }, exports;
+  }, e;
 }
 module.exports = _regeneratorRuntime, module.exports.__esModule = true, module.exports["default"] = module.exports;
 
 /***/ }),
 
-<<<<<<< HEAD
-/***/ 362:
-/*!**********************************************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-overlay/components/uv-overlay/props.js ***!
-  \**********************************************************************************/
-=======
 /***/ 376:
-/*!****************************************************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/uni_modules/uv-overlay/components/uv-overlay/props.js ***!
-  \****************************************************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!*****************************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-overlay/components/uv-overlay/props.js ***!
+  \*****************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -16769,12 +14186,6 @@ exports.default = _default;
 
 /***/ }),
 
-<<<<<<< HEAD
-/***/ 37:
-/*!*******************************************************************!*\
-  !*** ./node_modules/@babel/runtime/helpers/regeneratorRuntime.js ***!
-  \*******************************************************************/
-=======
 /***/ 38:
 /*!*****************************************************************!*\
   !*** ./node_modules/@babel/runtime/helpers/asyncToGenerator.js ***!
@@ -16817,9 +14228,9 @@ module.exports = _asyncToGenerator, module.exports.__esModule = true, module.exp
 /***/ }),
 
 /***/ 384:
-/*!********************************************************************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/uni_modules/uv-transition/components/uv-transition/createAnimation.js ***!
-  \********************************************************************************************************/
+/*!*********************************************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-transition/components/uv-transition/createAnimation.js ***!
+  \*********************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -16952,10 +14363,9 @@ function createAnimation(option, _this) {
 /***/ }),
 
 /***/ 39:
-/*!******************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/common/js/config.js ***!
-  \******************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!*******************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/common/js/config.js ***!
+  \*******************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -16986,15 +14396,10 @@ exports.default = _default;
 
 /***/ }),
 
-<<<<<<< HEAD
-/***/ 370:
-/*!**************************************************************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-transition/components/uv-transition/createAnimation.js ***!
-=======
 /***/ 397:
-/*!****************************************************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/uni_modules/uv-toolbar/components/uv-toolbar/props.js ***!
-  \****************************************************************************************/
+/*!*****************************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-toolbar/components/uv-toolbar/props.js ***!
+  \*****************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -17071,9 +14476,9 @@ module.exports = _interopRequireDefault, module.exports.__esModule = true, modul
 /***/ }),
 
 /***/ 40:
-/*!****************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/common/js/http.js ***!
-  \****************************************************/
+/*!*****************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/common/js/http.js ***!
+  \*****************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -17161,9 +14566,9 @@ exports.default = _default;
 /***/ }),
 
 /***/ 405:
-/*!*****************************************************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/uni_modules/uv-ui-tools/libs/function/colorGradient.js ***!
-  \*****************************************************************************************/
+/*!******************************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-ui-tools/libs/function/colorGradient.js ***!
+  \******************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -17313,10 +14718,9 @@ function colorToRgba(color, alpha) {
 /***/ }),
 
 /***/ 406:
-/*!**************************************************************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/uni_modules/uv-loading-icon/components/uv-loading-icon/props.js ***!
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
-  \**************************************************************************************************/
+/*!***************************************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-loading-icon/components/uv-loading-icon/props.js ***!
+  \***************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -17327,125 +14731,6 @@ var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/inte
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-<<<<<<< HEAD
-exports.createAnimation = createAnimation;
-var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
-var _classCallCheck2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ 23));
-var _createClass2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/createClass */ 24));
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-// const defaultOption = {
-// 	duration: 300,
-// 	timingFunction: 'linear',
-// 	delay: 0,
-// 	transformOrigin: '50% 50% 0'
-// }
-var MPAnimation = /*#__PURE__*/function () {
-  function MPAnimation(options, _this) {
-    (0, _classCallCheck2.default)(this, MPAnimation);
-    this.options = options;
-    // 在iOS10+QQ小程序平台下，传给原生的对象一定是个普通对象而不是Proxy对象，否则会报parameter should be Object instead of ProxyObject的错误
-    this.animation = uni.createAnimation(_objectSpread({}, options));
-    this.currentStepAnimates = {};
-    this.next = 0;
-    this.$ = _this;
-  }
-  (0, _createClass2.default)(MPAnimation, [{
-    key: "_nvuePushAnimates",
-    value: function _nvuePushAnimates(type, args) {
-      var aniObj = this.currentStepAnimates[this.next];
-      var styles = {};
-      if (!aniObj) {
-        styles = {
-          styles: {},
-          config: {}
-        };
-      } else {
-        styles = aniObj;
-      }
-      if (animateTypes1.includes(type)) {
-        if (!styles.styles.transform) {
-          styles.styles.transform = '';
-        }
-        var unit = '';
-        if (type === 'rotate') {
-          unit = 'deg';
-        }
-        styles.styles.transform += "".concat(type, "(").concat(args + unit, ") ");
-      } else {
-        styles.styles[type] = "".concat(args);
-      }
-      this.currentStepAnimates[this.next] = styles;
-    }
-  }, {
-    key: "_animateRun",
-    value: function _animateRun() {
-      var styles = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-      var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-      var ref = this.$.$refs['ani'].ref;
-      if (!ref) return;
-      return new Promise(function (resolve, reject) {
-        nvueAnimation.transition(ref, _objectSpread({
-          styles: styles
-        }, config), function (res) {
-          resolve();
-        });
-      });
-    }
-  }, {
-    key: "_nvueNextAnimate",
-    value: function _nvueNextAnimate(animates) {
-      var _this2 = this;
-      var step = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-      var fn = arguments.length > 2 ? arguments[2] : undefined;
-      var obj = animates[step];
-      if (obj) {
-        var styles = obj.styles,
-          config = obj.config;
-        this._animateRun(styles, config).then(function () {
-          step += 1;
-          _this2._nvueNextAnimate(animates, step, fn);
-        });
-      } else {
-        this.currentStepAnimates = {};
-        typeof fn === 'function' && fn();
-        this.isEnd = true;
-      }
-    }
-  }, {
-    key: "step",
-    value: function step() {
-      var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-      this.animation.step(config);
-      return this;
-    }
-  }, {
-    key: "run",
-    value: function run(fn) {
-      this.$.animationData = this.animation.export();
-      this.$.timer = setTimeout(function () {
-        typeof fn === 'function' && fn();
-      }, this.$.durationTime);
-    }
-  }]);
-  return MPAnimation;
-}();
-var animateTypes1 = ['matrix', 'matrix3d', 'rotate', 'rotate3d', 'rotateX', 'rotateY', 'rotateZ', 'scale', 'scale3d', 'scaleX', 'scaleY', 'scaleZ', 'skew', 'skewX', 'skewY', 'translate', 'translate3d', 'translateX', 'translateY', 'translateZ'];
-var animateTypes2 = ['opacity', 'backgroundColor'];
-var animateTypes3 = ['width', 'height', 'left', 'right', 'top', 'bottom'];
-animateTypes1.concat(animateTypes2, animateTypes3).forEach(function (type) {
-  MPAnimation.prototype[type] = function () {
-    var _this$animation;
-    (_this$animation = this.animation)[type].apply(_this$animation, arguments);
-    return this;
-  };
-});
-function createAnimation(option, _this) {
-  if (!_this) return;
-  clearTimeout(_this.timer);
-  return new MPAnimation(option, _this);
-}
-=======
 exports.default = void 0;
 var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
 var _uni$$uv, _uni$$uv$props;
@@ -17518,62 +14803,14 @@ var _default2 = {
   }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.loadingIcon)
 };
 exports.default = _default2;
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
 
 /***/ }),
 
-<<<<<<< HEAD
-/***/ 38:
-/*!*****************************************************************!*\
-  !*** ./node_modules/@babel/runtime/helpers/asyncToGenerator.js ***!
-  \*****************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
-  try {
-    var info = gen[key](arg);
-    var value = info.value;
-  } catch (error) {
-    reject(error);
-    return;
-  }
-  if (info.done) {
-    resolve(value);
-  } else {
-    Promise.resolve(value).then(_next, _throw);
-  }
-}
-function _asyncToGenerator(fn) {
-  return function () {
-    var self = this,
-      args = arguments;
-    return new Promise(function (resolve, reject) {
-      var gen = fn.apply(self, args);
-      function _next(value) {
-        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);
-      }
-      function _throw(err) {
-        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);
-      }
-      _next(undefined);
-    });
-  };
-}
-module.exports = _asyncToGenerator, module.exports.__esModule = true, module.exports["default"] = module.exports;
-
-/***/ }),
-
-/***/ 383:
-/*!****************************************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-cell/components/uv-cell/props.js ***!
-  \****************************************************************************/
-=======
 /***/ 41:
-/*!*****************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/common/js/share.js ***!
-  \*****************************************************/
+/*!******************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/common/js/share.js ***!
+  \******************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -17637,10 +14874,9 @@ exports.default = _default;
 /***/ }),
 
 /***/ 414:
-/*!**********************************************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/uni_modules/uv-cell/components/uv-cell/props.js ***!
-  \**********************************************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!***********************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-cell/components/uv-cell/props.js ***!
+  \***********************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -17776,217 +15012,10 @@ exports.default = _default2;
 
 /***/ }),
 
-<<<<<<< HEAD
-/***/ 39:
-/*!************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/common/js/config.js ***!
-  \************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var config = {
-  // api请求地址
-  baseUrl: 'http://tuanshenghuo.xing-peng.com',
-  // 图片域名	
-  imgDomain: 'http://tuanshenghuo.xing-peng.com',
-  // /index.php/api
-  // H5端域名
-  h5Domain: 'http://tuanshenghuo.xing-peng.com',
-  // 腾讯地图key
-  mpKey: '',
-  //客服地址
-  webSocket: '',
-  //本地端主动给服务器ping的时间, 0 则不开启 , 单位秒
-  pingInterval: 1500
-};
-var _default = config;
-exports.default = _default;
-
-/***/ }),
-
-/***/ 4:
-/*!**********************************************************************!*\
-  !*** ./node_modules/@babel/runtime/helpers/interopRequireDefault.js ***!
-  \**********************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-function _interopRequireDefault(obj) {
-  return obj && obj.__esModule ? obj : {
-    "default": obj
-  };
-}
-module.exports = _interopRequireDefault, module.exports.__esModule = true, module.exports["default"] = module.exports;
-
-/***/ }),
-
-/***/ 40:
-/*!**********************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/common/js/http.js ***!
-  \**********************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {
-
-var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var _config = _interopRequireDefault(__webpack_require__(/*! ./config.js */ 39));
-var _util = _interopRequireDefault(__webpack_require__(/*! ./util.js */ 35));
-var app_type = 'weapp';
-var app_type_name = '微信小程序';
-var _default = {
-  sendRequest: function sendRequest(params) {
-    uni.showLoading({
-      title: '加载中'
-    });
-    var method = params.data != undefined ? 'POST' : 'GET',
-      // 请求方式
-
-      url = _config.default.baseUrl + params.url,
-      // 请求路径
-      data = {
-        // app_type,
-        // app_type_name
-      },
-      token = '';
-    // token
-    if (uni.getStorageSync('token')) token = uni.getStorageSync('token');
-
-    // 参数
-    if (params.data != undefined) Object.assign(data, params.data);
-    if (params.method) {
-      method = params.method;
-    }
-    uni.request({
-      url: url,
-      method: method,
-      data: data,
-      header: params.header || {
-        'content-type': 'application/json',
-        "token": token ? token : ''
-      },
-      dataType: params.dataType || 'json',
-      responseType: params.responseType || 'text',
-      success: function success(res) {
-        console.log(res, '+++++++++++');
-        uni.hideLoading();
-        if (res.data.msg == "请登录后操作" || res.data.code == "401" || res.msg == "请登录后操作" || res.msg == "401") {
-          uni.removeStorageSync('token');
-          uni.removeStorageSync('identity_key');
-          //登录失效页面返回
-          uni.showModal({
-            title: '登录过期',
-            content: '请前往登录',
-            success: function success(res) {
-              if (res.confirm) {
-                uni.navigateTo({
-                  url: '/pages/Home/Home'
-                });
-              } else if (res.cancel) {}
-            }
-          });
-        } else {
-          typeof params.success == 'function' && params.success(res.data);
-        }
-      },
-      fail: function fail(res) {
-        uni.hideLoading();
-        typeof params.fail == 'function' && params.fail(res);
-      },
-      complete: function complete(res) {
-        uni.hideLoading();
-        typeof params.complete == 'function' && params.complete(res);
-      }
-    });
-  }
-};
-exports.default = _default;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
-
-/***/ }),
-
-/***/ 41:
-/*!***********************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/common/js/share.js ***!
-  \***********************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {
-
-var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
-var MemberNO = uni.getStorageSync('MemberNO');
-var _default = (0, _defineProperty2.default)({
-  data: function data() {
-    return {
-      // 设置默认的分享参数
-      // 如果页面不设置share，就触发这个默认的分享
-      share: {
-        title: '快来和我一起体验吧~',
-        path: '/pages/index/index'
-      }
-    };
-  },
-  onShareAppMessage: function onShareAppMessage(res) {
-    var that = this;
-    return {
-      title: that.share.title,
-      path: that.share.path,
-      success: function success(res) {
-        uni.showToast({
-          title: '分享成功'
-        });
-      },
-      fail: function fail(res) {
-        uni.showToast({
-          title: '分享失败',
-          icon: 'none'
-        });
-      }
-    };
-  },
-  onShareTimeline: function onShareTimeline(res) {
-    // 分享到朋友圈
-    var that = this;
-    return {
-      title: that.share.title,
-      path: that.share.path
-    };
-  }
-}, "onShareAppMessage", function onShareAppMessage() {
-  var that = this;
-  return {
-    title: that.share.title,
-    path: that.share.path
-  };
-});
-exports.default = _default;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
-
-/***/ }),
-
-/***/ 442:
-/*!**********************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/utils/wxcharts.js ***!
-  \**********************************************/
+/***/ 460:
+/*!*****************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/utils/wxcharts.js ***!
+  \*****************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -19848,10 +16877,10 @@ module.exports = Charts;
 
 /***/ }),
 
-/***/ 448:
-/*!**********************************************************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/uni_modules/uv-line-progress/components/uv-line-progress/props.js ***!
-  \**********************************************************************************************/
+/***/ 466:
+/*!*****************************************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-line-progress/components/uv-line-progress/props.js ***!
+  \*****************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -19901,15 +16930,9 @@ exports.default = _default;
 /***/ }),
 
 /***/ 48:
-/*!***********************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/static/home/n1.png ***!
-  \***********************************************/
-=======
-/***/ 48:
-/*!*****************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/static/home/n1.png ***!
-  \*****************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!******************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/static/home/n1.png ***!
+  \******************************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 
@@ -19918,15 +16941,9 @@ module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATAAAAFQCAYAAAA4
 /***/ }),
 
 /***/ 49:
-<<<<<<< HEAD
-/*!***********************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/static/home/n2.png ***!
-  \***********************************************/
-=======
-/*!*****************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/static/home/n2.png ***!
-  \*****************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!******************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/static/home/n2.png ***!
+  \******************************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 
@@ -19953,15 +16970,9 @@ module.exports = _slicedToArray, module.exports.__esModule = true, module.export
 /***/ }),
 
 /***/ 50:
-<<<<<<< HEAD
-/*!***********************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/static/home/n3.png ***!
-  \***********************************************/
-=======
-/*!*****************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/static/home/n3.png ***!
-  \*****************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!******************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/static/home/n3.png ***!
+  \******************************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 
@@ -19970,15 +16981,9 @@ module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATAAAAFQCAYAAAA4
 /***/ }),
 
 /***/ 51:
-<<<<<<< HEAD
-/*!***********************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/static/home/n4.png ***!
-  \***********************************************/
-=======
-/*!*****************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/static/home/n4.png ***!
-  \*****************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!******************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/static/home/n4.png ***!
+  \******************************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 
@@ -19987,15 +16992,9 @@ module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATAAAAFQCAYAAAA4
 /***/ }),
 
 /***/ 52:
-<<<<<<< HEAD
-/*!************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/static/home/jy1.png ***!
-  \************************************************/
-=======
-/*!******************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/static/home/jy1.png ***!
-  \******************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!*******************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/static/home/jy1.png ***!
+  \*******************************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 
@@ -20003,16 +17002,292 @@ module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEsAAABLCAYAAAA4
 
 /***/ }),
 
+/***/ 526:
+/*!********************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-ui-tools/libs/mixin/button.js ***!
+  \********************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var _default = {
+  props: {
+    lang: String,
+    sessionFrom: String,
+    sendMessageTitle: String,
+    sendMessagePath: String,
+    sendMessageImg: String,
+    showMessageCard: Boolean,
+    appParameter: String,
+    formType: String,
+    openType: String
+  }
+};
+exports.default = _default;
+
+/***/ }),
+
+/***/ 527:
+/*!**********************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-ui-tools/libs/mixin/openType.js ***!
+  \**********************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var _default = {
+  props: {
+    openType: String
+  },
+  emits: ['getphonenumber', 'getuserinfo', 'error', 'opensetting', 'launchapp', 'contact', 'chooseavatar', 'addgroupapp', 'chooseaddress', 'subscribe', 'login', 'im'],
+  methods: {
+    onGetPhoneNumber: function onGetPhoneNumber(event) {
+      this.$emit('getphonenumber', event.detail);
+    },
+    onGetUserInfo: function onGetUserInfo(event) {
+      this.$emit('getuserinfo', event.detail);
+    },
+    onError: function onError(event) {
+      this.$emit('error', event.detail);
+    },
+    onOpenSetting: function onOpenSetting(event) {
+      this.$emit('opensetting', event.detail);
+    },
+    onLaunchApp: function onLaunchApp(event) {
+      this.$emit('launchapp', event.detail);
+    },
+    onContact: function onContact(event) {
+      this.$emit('contact', event.detail);
+    },
+    onChooseavatar: function onChooseavatar(event) {
+      this.$emit('chooseavatar', event.detail);
+    },
+    onAgreeprivacyauthorization: function onAgreeprivacyauthorization(event) {
+      this.$emit('agreeprivacyauthorization', event.detail);
+    },
+    onAddgroupapp: function onAddgroupapp(event) {
+      this.$emit('addgroupapp', event.detail);
+    },
+    onChooseaddress: function onChooseaddress(event) {
+      this.$emit('chooseaddress', event.detail);
+    },
+    onSubscribe: function onSubscribe(event) {
+      this.$emit('subscribe', event.detail);
+    },
+    onLogin: function onLogin(event) {
+      this.$emit('login', event.detail);
+    },
+    onIm: function onIm(event) {
+      this.$emit('im', event.detail);
+    }
+  }
+};
+exports.default = _default;
+
+/***/ }),
+
+/***/ 528:
+/*!***************************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-button/components/uv-button/props.js ***!
+  \***************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(uni) {
+
+var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
+var _uni$$uv, _uni$$uv$props;
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+var _default = {
+  props: _objectSpread({
+    // 是否细边框
+    hairline: {
+      type: Boolean,
+      default: true
+    },
+    // 按钮的预置样式，info，primary，error，warning，success
+    type: {
+      type: String,
+      default: 'info'
+    },
+    // 按钮尺寸，large，normal，small，mini
+    size: {
+      type: String,
+      default: 'normal'
+    },
+    // 按钮形状，circle（两边为半圆），square（带圆角）
+    shape: {
+      type: String,
+      default: 'square'
+    },
+    // 按钮是否镂空
+    plain: {
+      type: Boolean,
+      default: false
+    },
+    // 是否禁止状态
+    disabled: {
+      type: Boolean,
+      default: false
+    },
+    // 是否加载中
+    loading: {
+      type: Boolean,
+      default: false
+    },
+    // 加载中提示文字
+    loadingText: {
+      type: [String, Number],
+      default: ''
+    },
+    // 加载状态图标类型
+    loadingMode: {
+      type: String,
+      default: 'spinner'
+    },
+    // 加载图标大小
+    loadingSize: {
+      type: [String, Number],
+      default: 14
+    },
+    // 开放能力，具体请看uniapp稳定关于button组件部分说明
+    // https://uniapp.dcloud.io/component/button
+    openType: {
+      type: String,
+      default: ''
+    },
+    // 用于 <form> 组件，点击分别会触发 <form> 组件的 submit/reset 事件
+    // 取值为submit（提交表单），reset（重置表单）
+    formType: {
+      type: String,
+      default: ''
+    },
+    // 打开 APP 时，向 APP 传递的参数，open-type=launchApp时有效
+    // 只微信小程序、QQ小程序有效
+    appParameter: {
+      type: String,
+      default: ''
+    },
+    // 指定是否阻止本节点的祖先节点出现点击态，微信小程序有效
+    hoverStopPropagation: {
+      type: Boolean,
+      default: true
+    },
+    // 指定返回用户信息的语言，zh_CN 简体中文，zh_TW 繁体中文，en 英文。只微信小程序有效
+    lang: {
+      type: String,
+      default: 'en'
+    },
+    // 会话来源，open-type="contact"时有效。只微信小程序有效
+    sessionFrom: {
+      type: String,
+      default: ''
+    },
+    // 会话内消息卡片标题，open-type="contact"时有效
+    // 默认当前标题，只微信小程序有效
+    sendMessageTitle: {
+      type: String,
+      default: ''
+    },
+    // 会话内消息卡片点击跳转小程序路径，open-type="contact"时有效
+    // 默认当前分享路径，只微信小程序有效
+    sendMessagePath: {
+      type: String,
+      default: ''
+    },
+    // 会话内消息卡片图片，open-type="contact"时有效
+    // 默认当前页面截图，只微信小程序有效
+    sendMessageImg: {
+      type: String,
+      default: ''
+    },
+    // 是否显示会话内消息卡片，设置此参数为 true，用户进入客服会话会在右下角显示"可能要发送的小程序"提示，
+    // 用户点击后可以快速发送小程序消息，open-type="contact"时有效
+    showMessageCard: {
+      type: Boolean,
+      default: true
+    },
+    // 额外传参参数，用于小程序的data-xxx属性，通过target.dataset.name获取
+    dataName: {
+      type: String,
+      default: ''
+    },
+    // 节流，一定时间内只能触发一次
+    throttleTime: {
+      type: [String, Number],
+      default: 0
+    },
+    // 按住后多久出现点击态，单位毫秒
+    hoverStartTime: {
+      type: [String, Number],
+      default: 0
+    },
+    // 手指松开后点击态保留时间，单位毫秒
+    hoverStayTime: {
+      type: [String, Number],
+      default: 200
+    },
+    // 按钮文字，之所以通过props传入，是因为slot传入的话
+    // nvue中无法控制文字的样式
+    text: {
+      type: [String, Number],
+      default: ''
+    },
+    // 按钮图标
+    icon: {
+      type: String,
+      default: ''
+    },
+    // 按钮图标大小
+    iconSize: {
+      type: [String, Number],
+      default: ''
+    },
+    // 按钮图标颜色
+    iconColor: {
+      type: String,
+      default: '#000000'
+    },
+    // 按钮颜色，支持传入linear-gradient渐变色
+    color: {
+      type: String,
+      default: ''
+    },
+    // 自定义按钮文本样式
+    customTextStyle: {
+      type: [Object, String],
+      default: ''
+    }
+  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.button)
+};
+exports.default = _default;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
+
+/***/ }),
+
 /***/ 53:
-<<<<<<< HEAD
-/*!************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/static/home/jy2.png ***!
-  \************************************************/
-=======
-/*!******************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/static/home/jy2.png ***!
-  \******************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!*******************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/static/home/jy2.png ***!
+  \*******************************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 
@@ -20021,15 +17296,9 @@ module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEsAAABLCAYAAAA4
 /***/ }),
 
 /***/ 54:
-<<<<<<< HEAD
-/*!************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/static/home/jy3.png ***!
-  \************************************************/
-=======
-/*!******************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/static/home/jy3.png ***!
-  \******************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!*******************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/static/home/jy3.png ***!
+  \*******************************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 
@@ -20038,15 +17307,9 @@ module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEsAAABLCAYAAAA4
 /***/ }),
 
 /***/ 55:
-<<<<<<< HEAD
-/*!************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/static/home/jy4.png ***!
-  \************************************************/
-=======
-/*!******************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/static/home/jy4.png ***!
-  \******************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!*******************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/static/home/jy4.png ***!
+  \*******************************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 
@@ -20055,15 +17318,9 @@ module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEsAAABLCAYAAAA4
 /***/ }),
 
 /***/ 56:
-<<<<<<< HEAD
-/*!**************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/static/home/shop1.png ***!
-  \**************************************************/
-=======
-/*!********************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/static/home/shop1.png ***!
-  \********************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!*********************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/static/home/shop1.png ***!
+  \*********************************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 
@@ -20071,16 +17328,91 @@ module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEsAAABLCAYAAAA4
 
 /***/ }),
 
+/***/ 564:
+/*!***************************************************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/uni_modules/uv-switch/components/uv-switch/props.js ***!
+  \***************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(uni) {
+
+var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
+var _uni$$uv, _uni$$uv$props;
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+var _default = {
+  props: _objectSpread({
+    value: {
+      type: [Boolean, String, Number],
+      default: false
+    },
+    modelValue: {
+      type: [Boolean, String, Number],
+      default: false
+    },
+    // 是否为加载中状态
+    loading: {
+      type: Boolean,
+      default: false
+    },
+    // 是否为禁用装填
+    disabled: {
+      type: Boolean,
+      default: false
+    },
+    // 开关尺寸，单位px
+    size: {
+      type: [String, Number],
+      default: 25
+    },
+    // 打开时的背景颜色
+    activeColor: {
+      type: String,
+      default: '#2979ff'
+    },
+    // 关闭时的背景颜色
+    inactiveColor: {
+      type: String,
+      default: '#fff'
+    },
+    // switch打开时的值
+    activeValue: {
+      type: [String, Number, Boolean],
+      default: true
+    },
+    // switch关闭时的值
+    inactiveValue: {
+      type: [String, Number, Boolean],
+      default: false
+    },
+    // 是否开启异步变更，开启后需要手动控制输入值
+    asyncChange: {
+      type: Boolean,
+      default: false
+    },
+    // 圆点与外边框的距离
+    space: {
+      type: [String, Number],
+      default: 0
+    }
+  }, (_uni$$uv = uni.$uv) === null || _uni$$uv === void 0 ? void 0 : (_uni$$uv$props = _uni$$uv.props) === null || _uni$$uv$props === void 0 ? void 0 : _uni$$uv$props.switch)
+};
+exports.default = _default;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
+
+/***/ }),
+
 /***/ 57:
-<<<<<<< HEAD
-/*!**************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/static/home/shop2.png ***!
-  \**************************************************/
-=======
-/*!********************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/static/home/shop2.png ***!
-  \********************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!*********************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/static/home/shop2.png ***!
+  \*********************************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 
@@ -20088,16 +17420,21 @@ module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEsAAABLCAYAAAA4
 
 /***/ }),
 
+/***/ 574:
+/*!**********************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/static/home/other4.png ***!
+  \**********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEsAAABLCAYAAAA4TnrqAAAAAXNSR0IArs4c6QAADQFJREFUeF7tXHl4VNUV/903k32yEQjJhASSSQBRSOr2UYtWqtWvaG0pLRZcqIIrrX5YRa1apVi1FuWTWtEqWr9qVVqsUsHlE1PrArVFklgQTCYkk2SykYXJZDJJZt5tz83MMBOSzJt5d9g+zn/J3HvOub9373lnuecxHAXKrv7CYlTUsznjM8DZNAVsCgefCLAMgCcDMAJQAeYEeDcDa1XB6xiYFeBVYPjcXlS670irzo6EwHHVO9ISDImXMc7mAfgWgIkS5LYC+IAzvrXf697cWTLbIYHnmCxiBxbnSl5t5TzO2XVguBhAQgwX08+ALQxsQ6Ot4z3MneuJhSzpYBVXVyc4FddSA8PPOUdRLJQOw9MKjnVeEza05pT2ypQvD6zycmNeQeYyDnYPgEkylYySVzsY7rbXd74oa6dJActsrZgDsN8DmBXlwmI5rQrgy+2Wso/1CtEF1qSGT5PUgZQ1AG4EoOhVJobzPRz8d2oKu0/P0YwarJz6z2coHsNGAKfGcJGyWe9WVX55S0nZ7mgYRwWWuabq+2D8TwBM0Qg9unOYg4Nf22wp3RSpHhGDZa6pvAMMjxzjxy4cDio47rIXl/423MDg3yMCy2ytvP//kx+IRMAxPVZRHrAXzlylVUfNYJ1wQPkRigAwTWD5jt6jWp/AcTeOY6WWIxkWrFxr5QIG0FvvWHYN9D4fFZwtsBfPemMsRmOCNeQeGLcDPE2vNsfBfKeq8tljuRWjgjWxsjLFYMK/jjM/Su8z2a3E957VmH9O30iMRgUr11rxOANboVf6cTj/KbuldLlmsHyxXrkvCXccrleXyirAvzlSLHn4ziovN5oLxu08UkFxqqJgblIq5iSl4tSEROQb45FhMMAABofqRYtnEHsH3PjM3Yv3XT1o8AzoQkLj5Cq7rfOM4dmKw8Ay11YuBcdzGplGPWx6fCKuTx+P+aZMxLOwL+WAnO19Tqw/2I5trp6oZWuZyMBvarKUPT2qB+8z6vsBTNDCMJoxKYqCOzNz8JP0LLF7gskLjibPIDq9Q4nOFMWAfGMcEtnhXssOdy9WtjfCOtgfjRpa5jQmq8nFNSUlAQEh2pprKm8BwxNaOEUzZlZCEp7JnoyCuPjAdDpqm5zdeLv3IHa6XXBzNYQ1wTQtPhEXJKdhgSkDU+MTA7+7uIpVHXa85OiMRp2wc1RgeYul9Cn/wENgDdmqvQAsYblEMeDC5FSsnzgZyb5d0qN6sbarDS86Og4DaCz2FySn4r4sM0riDqX013W34TedLVFoNfYUxlDbVDirBIyJJxgAa5J11zwVyhbpEgF8I8mEl3MKEeezTXSElrfa0OIdDIgjQz8rIRmWuARkBhl42+AAqvr7QsbS8b0nKwc3pB+yFjEDDPy7TZayt0LAMlurXgf4fNlgTYmLxzt5JUhVDIL1JmcXVrQ1guwTGfZ5KelYnDoOs5NSDrNhwbp8OeDGG85uvNLTiQ6fTZtvysAT2fmBeSvaG7Cxp0vuEjg224tLvxcAi+p6iUpSm+xyFe2AzXkWlCVQ3RTY7OzG8jYbVU9xYXIaVmeZQ+yXllWSnXqyuw1PdrULwAmwddkFInDtVVVc2PgVbHLdi3632pdNdUlxDHNrK65knFHmUyotTR+PX2WZBU/aGZc21YhFPTjejMtTx+mStXugD8ta6gUwv8zKDRzJf7h6cEULvdDlEWf8quaispcEWGZr5Z8BLJLHHsKQ7yiYjiyDUeyAixur0egZFLbrjMShnaaXurweLGrZj30Dbrw3aWrA6P/QbsV2t9SS4at2S+kiP1j0KpFRUg+sf0laFh4anyf+Jjuy8kAj/ppbhDMTU/RiFDK/W/XikqZqFMcl4sWcKeK3910OLGmpkymn1W4pzWHm2spp4CCXQSptySsWtors07kNe3F9+gQQgLEgCocuaarB23nFwg8jmafX70G770UgQ6ZHHSxmZmslHT86htIoxxiHnQWnCH4UnqzpasUmc0zct4DOZPTJwf3FuFzxv9vaG/Faj1RndTEzWyseBthd0pACcHVaFh72HcGHOpuFe+B/I+qRQ2FQoqIEHNtgXgOcY0nLfrySO3S9gnYVBd/ru9uxq9+lR6yYyxl/kOVaKzcy4Ee6uQHCl3o6uwDnJ6cG2L3s6MQVafrefH5mtHsoJHrBZ5uG6/ySowOL07JC8t+DnOPHzbUgR1gPceAvLM9a9RkHP0sPI//ctRPysTA1UwarEXksba3DO70OAdZFydoz3f/s68GiZn3uBAP7N9msegAFMlZoLTxtxAyBDN50rGbb9oo4kuLCbflTx/T4g2VSDozm6iQbM1urDsoqSDQVxeYSDflp17TUheSw1mcX4DJThqb1ywGLOWhneWWVuWSDRS5AVb8LqzuaD7M5X0tIxlt5xUcQLHgILK5JooZBesAiYOoH+1HR3wcKZb7o7xMhkj9oHkn8J/nTQYF6OJKzswACi/IkdDtYN0UCFtmgD/t6sKffjaqBPvy334UeNTTxF06hVVlmLEsfH26YyNtLsFnqUbFZlH1Y0d4YUdJvJEQo4/Bkdvh3kxywhmyWtLehlp1VO9iP8xu+EsG1XqI4800NkYEcsGCT6mftL5wZtlLzYEezqM7IoMK4BHycPy0sK/Lk59utYceNNUD4WTI9eEq/BHvvIwm/uc2GN53duhT3Tw6OQel/lNenV3uGLyvrH3dtax3e7dXXUyA8+NzaitWMs3tlaJ9njMNruUWgJ05EmUtKBQeHOxRUr+2i5gj9lG0wYtfkGQFGFO684OjA3eNyRCaW5N9+oFFkaPUTe0R61oHy6ucmmWBSDPi0zyle/R8FveI/6XNiYXOtft0BFMcl4EPfMSQbeF7DPtQNDoAKuNsmTUW5qwdXysuaLmaTanYWq8xYLUX7UZhcmpKOZyZOFr9SduBs25cR55oon5+oMLFb/PSdlHQ85+NLu+rOA03ip1szs7EyM0fUFP9w8ICcpTFMj1mmdLiGtChaHNFjXa14fNhRpFLYaH4W2aA1EyaJI0Y700+Uy78mbTzsnkF8u/ErUNaUQN1eMA1kz86s/xJtchKAQ5lSEhyLHPxwsCh9s9lsEZlMStJ93bZXLM5PN2VMwJxEE95zOdDsGRQ1RqpclyUk4aLkdHzqduKKoMyBP8efpChYaK8N5KzISSVnlVLZVBqTRIdy8LGq7gxXlF4AG3MtIkQZvhiq+tyblSs88uF3ID7qc+K61nrxtvPT/Vm5uDItC1c312G7e2i3+WuUBsbETiP7JYNCqjuxqhuOpGiaYsCzEydjTpIJI7kRp8QnimzCFGM8OlQvqLT1gcsh8up+IhtIwN7YakOFLwtKO/cNs0UY9/s67Hhelq0CQuuG4ijWVL75/w7Ry2Q8iXA8aOfQLZob0sfj1raGiMpW9AakuWs6WwPHeILBiD/mTBGp6785u/HTNls4FTT/zoDXmyylC2hC4K5DnrXiUg72d81cJAwkw00LrdZxbYjuUaybkC8MOvl0t7Q1SAml/MtTwS5psczaGgIWqPN0f1X1UWqoDEBPb0XaIQe8HpGiGY3ouK3InAg6knREqTBBN2lkxJxBMq12W+d0/w3AkPtZOdW7blYUhfoGjwpRQo8KpVTFJtrSexA3tdoCAJDHTg7vD0yZOC85VRQmaFfec6ApxKWQpjzHrfbi0nV+fiFgUcuuS3HVHK1OVH9hNnix21wOUIVmRnxSyCUSKqySEX+1p0v2bvKLb/emoDC4P/Gwy5x51oobOdh6aU8nAkZ1hTMDd7iGT6NCxe5+Nz5xO7G196DIpMaUGJbZi0o3BMs46reVg5WhIJxcimC694AdtLvorqlkezQW1tpuKxMH3z34D2UVMrTuALrWTWHRaQlJIoYko/1ol/zrj2H08QB8rrZ78D5OZmslGfqbtS5U5rgcQxx6uTfinLwMHTj42mZL2W0j8Rr1AvpQs7jpPwA/lDCSoc0xzYPt8abws0drOh+7K6y64lRFYTuOz17oSJ8Kc6iqek5UXWF+Ub7mcWq+PqH7DTmwMFyTuaY+EHPNrjvAlJOdrFo3q7l61wNQFGooP9Fold1SqqlJXtPOChzJEw8wzUARBhGBJXywoSN58rsOWs/XUJM5e17WVSWtciWNc4Kzq8I1j0fkZ4VTLEe4FcrG48sPY3tUVV14RL9F4weS+hMVE1/NwH4m6yZOuIcU5e+U8npaie+9fbRmcS18I7ZZIzE9+f0sLVAHj6F+xcnjloDj4Vh2wkagViMD/3WTreu5Y+rLbMELEK3DKVgKhlti1eg5FmDUUOn1qo+ZYNoQ3LIbAcijDpVyDEfkXl5uzCnIuEiBYRnA6ZObMf2aJDjeZYw/21RUutXfeSoDoGAesQMrSMrJ75TqeGy+5qrTATaLg1uGfQGXUqUUtHsA5gr+Ai4Y38c422NQlc8aSmbqu50Whf7/A/dkS2K597/4AAAAAElFTkSuQmCC"
+
+/***/ }),
+
 /***/ 58:
-<<<<<<< HEAD
-/*!**************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/static/home/shop3.png ***!
-  \**************************************************/
-=======
-/*!********************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/static/home/shop3.png ***!
-  \********************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!*********************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/static/home/shop3.png ***!
+  \*********************************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 
@@ -20106,15 +17443,9 @@ module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEsAAABLCAYAAAA4
 /***/ }),
 
 /***/ 59:
-<<<<<<< HEAD
-/*!**************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/static/home/shop4.png ***!
-  \**************************************************/
-=======
-/*!********************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/static/home/shop4.png ***!
-  \********************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!*********************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/static/home/shop4.png ***!
+  \*********************************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 
@@ -20137,15 +17468,9 @@ module.exports = _arrayWithHoles, module.exports.__esModule = true, module.expor
 /***/ }),
 
 /***/ 60:
-<<<<<<< HEAD
-/*!***************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/static/home/other1.png ***!
-  \***************************************************/
-=======
-/*!*********************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/static/home/other1.png ***!
-  \*********************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!**********************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/static/home/other1.png ***!
+  \**********************************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 
@@ -20154,32 +17479,20 @@ module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEsAAABLCAYAAAA4
 /***/ }),
 
 /***/ 61:
-<<<<<<< HEAD
-/*!***************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/static/home/other2.png ***!
-  \***************************************************/
-=======
-/*!*********************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/static/home/other2.png ***!
-  \*********************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!**********************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/static/home/other2.png ***!
+  \**********************************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "data:image/png;base64,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"
+module.exports = "data:image/png;base64,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"
 
 /***/ }),
 
 /***/ 62:
-<<<<<<< HEAD
-/*!***************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/static/home/other3.png ***!
-  \***************************************************/
-=======
-/*!*********************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/static/home/other3.png ***!
-  \*********************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!**********************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/static/home/other3.png ***!
+  \**********************************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 
@@ -20194,33 +17507,33 @@ module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEsAAABLCAYAAAA4
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-function _iterableToArrayLimit(arr, i) {
-  var _i = null == arr ? null : "undefined" != typeof Symbol && arr[Symbol.iterator] || arr["@@iterator"];
-  if (null != _i) {
-    var _s,
-      _e,
-      _x,
-      _r,
-      _arr = [],
-      _n = !0,
-      _d = !1;
+function _iterableToArrayLimit(r, l) {
+  var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"];
+  if (null != t) {
+    var e,
+      n,
+      i,
+      u,
+      a = [],
+      f = !0,
+      o = !1;
     try {
-      if (_x = (_i = _i.call(arr)).next, 0 === i) {
-        if (Object(_i) !== _i) return;
-        _n = !1;
-      } else for (; !(_n = (_s = _x.call(_i)).done) && (_arr.push(_s.value), _arr.length !== i); _n = !0) {
+      if (i = (t = t.call(r)).next, 0 === l) {
+        if (Object(t) !== t) return;
+        f = !1;
+      } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0) {
         ;
       }
-    } catch (err) {
-      _d = !0, _e = err;
+    } catch (r) {
+      o = !0, n = r;
     } finally {
       try {
-        if (!_n && null != _i["return"] && (_r = _i["return"](), Object(_r) !== _r)) return;
+        if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return;
       } finally {
-        if (_d) throw _e;
+        if (o) throw n;
       }
     }
-    return _arr;
+    return a;
   }
 }
 module.exports = _iterableToArrayLimit, module.exports.__esModule = true, module.exports["default"] = module.exports;
@@ -20228,15 +17541,9 @@ module.exports = _iterableToArrayLimit, module.exports.__esModule = true, module
 /***/ }),
 
 /***/ 71:
-<<<<<<< HEAD
-/*!***************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/static/index/icon1.png ***!
-  \***************************************************/
-=======
-/*!*********************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/static/index/icon1.png ***!
-  \*********************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!**********************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/static/index/icon1.png ***!
+  \**********************************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 
@@ -20245,15 +17552,9 @@ module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEsAAABLCAYAAAA4
 /***/ }),
 
 /***/ 72:
-<<<<<<< HEAD
-/*!***************************************************!*\
-  !*** D:/项目/新项目的模版/shopBIZ/static/index/icon2.png ***!
-  \***************************************************/
-=======
-/*!*********************************************************!*\
-  !*** E:/兴鹏/wow-come-and-buyShop/static/index/icon2.png ***!
-  \*********************************************************/
->>>>>>> 9c67251d6b9925931ab7fbb28aaa4210ebe70c4b
+/*!**********************************************************!*\
+  !*** E:/ypz/wow-come-and-buyShop/static/index/icon2.png ***!
+  \**********************************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 

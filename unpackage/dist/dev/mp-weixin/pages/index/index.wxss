@@ -132,6 +132,29 @@ view.data-v-57280228 {
 text.data-v-57280228 {
   font-family: HarmonyOS Sans SC,PingFangSC-Medium, PingFang SC;
 }
+.wbg.data-v-57280228 {
+  background: #fff;
+}
+.popup2.data-v-57280228 {
+  width: 80vw;
+  text-align: center;
+}
+.business view.data-v-57280228 {
+  color: #1C274C;
+}
+.business .fcolor.data-v-57280228 {
+  color: #5D6581;
+}
+.business .fcolor1.data-v-57280228 {
+  color: #FF4D1A;
+}
+.business image.data-v-57280228 {
+  border-radius: 50%;
+}
+.business .on.data-v-57280228 {
+  color: #FF4D1A;
+  font-weight: bold;
+}
 .popupBoxHome.data-v-57280228 {
   background-image: linear-gradient(to top, #fff, #fff, #fff, #ffc1ae);
   text-align: center;

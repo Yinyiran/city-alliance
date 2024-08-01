@@ -30,7 +30,14 @@
         "billDetail/billDetail",
         "preview/preview",
         "employee/employee",
-        "sgdModel/sgdModel"
+        "sgdModel/sgdModel",
+        "information/information",
+        "signing/signing",
+        "authentication/authentication",
+        "courtesy/courtesy",
+        "download/download",
+        "settings/settings",
+        "contact/contact"
       ]
     }
   ],
