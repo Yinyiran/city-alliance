@@ -125,38 +125,52 @@
 				}
 			},
 			{
-				"path" : "transferRecord/transferRecord",
-				"style" : 
-				{
-					"navigationBarTitleText" : "到账记录"
+				"path": "transferRecord/transferRecord",
+				"style": {
+					"navigationBarTitleText": "到账记录"
 				}
 			},
 			{
-				"path" : "editPayAccount/editPayAccount",
-				"style" : 
-				{
-					"navigationBarTitleText" : "修改收款账户"
+				"path": "editPayAccount/editPayAccount",
+				"style": {
+					"navigationBarTitleText": "修改收款账户"
 				}
 			},
 			{
-				"path" : "businessEchars/businessEchars",
-				"style" : 
-				{
-					"navigationBarTitleText" : "生意报表"
+				"path": "businessEchars/businessEchars",
+				"style": {
+					"navigationBarTitleText": "生意报表"
 				}
 			},
 			{
-				"path" : "realTimeBill/realTimeBill",
-				"style" : 
-				{
-					"navigationBarTitleText" : "实时账单"
+				"path": "realTimeBill/realTimeBill",
+				"style": {
+					"navigationBarTitleText": "实时账单"
 				}
 			},
 			{
-				"path" : "billDetail/billDetail",
+				"path": "billDetail/billDetail",
+				"style": {
+					"navigationBarTitleText": "账单详情"
+				}
+			},
+			{
+				"path": "preview/preview",
+				"style": {
+					"navigationBarTitleText": ""
+				}
+			},
+			{
+				"path": "employee/employee",
+				"style": {
+					"navigationBarTitleText": "员工管理"
+				}
+			},
+			{
+				"path" : "sgdModel/sgdModel",
 				"style" : 
 				{
-					"navigationBarTitleText" : "账单详情"
+					"navigationBarTitleText" : "语音设备"
 				}
 			}
 		]

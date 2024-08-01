@@ -372,7 +372,8 @@ var _default = {
         title: '收款账户'
       }, {
         image: __webpack_require__(/*! ../../static/home/shop2.png */ 57),
-        title: '员工管理'
+        title: '员工管理',
+        router: '/otherpages/employee/employee'
       }, {
         image: __webpack_require__(/*! ../../static/home/shop3.png */ 58),
         title: '店铺资料'

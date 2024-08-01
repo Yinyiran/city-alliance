@@ -84,8 +84,8 @@
 		</view>
 		<view class="wbg p-20 m-t-30 m-r-20 m-l-20 bor-10">
 			<view class="font-30 font-weight-6 m-b-18">店铺管理</view>
-			<uv-grid :col="4" @click="click">
-				<uv-grid-item v-for="(item,index) in listC" :key="index">
+			<uv-grid :col="4">
+				<uv-grid-item v-for="(item,index) in listC" :key="index"  @click="goRouter(item)">
 					<image :src="item.image" class="w-74 h-74" mode="aspectFill"></image>
 					<view class="m-t-14 font-26">{{item.title}}</view>
 				</uv-grid-item>
@@ -192,7 +192,8 @@
 					},
 					{
 						image: require('../../static/home/shop2.png'),
-						title: '员工管理'
+						title: '员工管理',
+						router:'/otherpages/employee/employee'
 					},
 					{
 						image: require('../../static/home/shop3.png'),
