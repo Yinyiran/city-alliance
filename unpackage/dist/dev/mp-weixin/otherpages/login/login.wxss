@@ -150,6 +150,9 @@ page {
   padding-top: 50rpx;
   padding-bottom: 30rpx;
 }
+.center {
+  text-align: center;
+}
 .iptSty {
   width: 600rpx;
   height: 114rpx;

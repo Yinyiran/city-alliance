@@ -23,11 +23,11 @@
 		</view>
 		<view class="bodySty">
 			<view class="iptSty flex">
-				<input type="tel" placeholder="请输入手机号" maxlength="11" />
+				<input type="tel" placeholder="请输入手机号" v-model='mobile' maxlength="11" />
 			</view>
 			<view class="iptSty flex_b">
 				<input type="tel" placeholder="请输入验证码" maxlength="11" style="width: 445rpx;border-right: 1rpx solid #afb0b2;"/>
-				<view class="font-28 f-t">发送验证码</view>
+				<view class="font-28 f-t center" @click="getcode">{{code}}</view>
 			</view>
 			<view class="p-30">
 				<button type="primary">登录</button>
@@ -44,11 +44,54 @@
 </template>
 
 <script>
+	import {mobile} from '@/uni_modules/uv-ui-tools/libs/function/test.js';
 	export default {
 		data() {
 			return {
-
+				code:"发送验证码",
+				mobile:'',
+				is_send:false
 			};
+		},
+		methods:{
+			getcode(){
+				console.log(mobile(this.mobile));
+				if(!mobile(this.mobile)){
+					uni.showToast({
+						title:'手机号格式错误',
+						icon:'none'
+					})
+				}else{
+						let time=10
+						if(!this.is_send){
+							this.$api.sendRequest({
+								url:'/api/sms/send',
+								data:{
+									mobile:this.mobile,
+									event:'login'
+								},
+								success:res=>{
+									
+								}
+							})
+							setInterval(()=>{
+								time --;
+								if (time<1) {
+									this.code='获取验证码'
+									this.is_send=true
+									return
+								}
+								this.code=time+'s'
+							},1000)
+						}
+						
+						
+					
+				}
+				// if () {
+					
+				// }
+			},
 		}
 	}
 </script>
@@ -67,7 +110,9 @@
 		padding-top: 50rpx;
 		padding-bottom: 30rpx;
 	}
-
+	.center{
+		text-align: center;
+	}
 	.iptSty {
 		width: 600rpx;
 		height: 114rpx;
@@ -77,7 +122,6 @@
 		margin: 0 auto;
 		margin-bottom: 50rpx;
 		padding: 0 25rpx;
-
 		input {
 			width: 100%;
 		}

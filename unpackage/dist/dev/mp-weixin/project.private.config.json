@@ -8,6 +8,13 @@
     "miniprogram": {
       "list": [
         {
+          "name": "",
+          "pathName": "otherpages/login/login",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
           "name": "otherpages/submitGroupBuy/submitGroupBuy",
           "pathName": "otherpages/submitGroupBuy/submitGroupBuy",
           "query": "",
