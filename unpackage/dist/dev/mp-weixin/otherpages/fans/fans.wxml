@@ -1,1 +1,0 @@
-<view><view><block wx:for="{{10}}" wx:for-item="item" wx:for-index="index" wx:key="index"><view class="acea-row row-middle wbg m-20 p-20 bor-20"><image class="w-102 h-102 m-r-20" src="../../static/logo.png" mode></image><view class="h-102"><view class="p-t-12 font-32 font-weight-6">用户昵称</view><view class="p-t-6 fcolor">2024.07.30 邀请</view></view></view></block></view></view>

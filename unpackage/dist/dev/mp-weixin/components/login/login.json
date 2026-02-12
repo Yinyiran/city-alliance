@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "uv-popup": "/uni_modules/uv-popup/components/uv-popup/uv-popup"
+  },
+  "component": true
+}

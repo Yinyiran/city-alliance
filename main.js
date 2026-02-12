@@ -1,15 +1,13 @@
 import App from './App'
-import Util from './common/js/util.js'
-import Http from './common/js/http.js'
 import Config from './common/js/config.js'
 // #ifndef VUE3
 import Vue from 'vue'
 import share from '@/common/js/share.js';
+import Util from './common/js/util.js'
+Vue.prototype.$util = Util;
 Vue.mixin(share);
 Vue.config.productionTip = false
 App.mpType = 'app'
-Vue.prototype.$util = Util;
-Vue.prototype.$api = Http; 
 
 
 try {

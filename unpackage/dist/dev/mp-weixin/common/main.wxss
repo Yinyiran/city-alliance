@@ -138,14 +138,14 @@ view {
 text {
   font-family: HarmonyOS Sans SC,PingFangSC-Medium, PingFang SC;
 }
-view {
+view, text {
   line-height: 1.5;
   font-family: HarmonyOS Sans SC,PingFangSC-Medium, PingFang SC;
   font-size: 24rpx;
   color: #1C274C;
 }
 page {
-  background-color: #f5f5f5;
+  background-color: #F6F7FB;
 }
 .color_write {
   color: #fff;
@@ -261,11 +261,6 @@ button.button-hover[type='default'] {
 button.button-hover[type='default'][plain] {
   background-color: #ff4d1a;
   color: #fff;
-}
-button[disabled], button.disabled {
-  background: #ff4d1a !important;
-  color: #fff !important;
-  border-color: #ff4d1a !important;
 }
 .flex_b {
   display: flex;
@@ -414,7 +409,7 @@ scroll-view ::-webkit-scrollbar {
   color: #4D4D4D !important;
 }
 .color-bg {
-  background-color: #f5f5f5 !important;
+  background-color: #F6F7FB !important;
 }
 .color-line {
   color: #eeeeee !important;
@@ -20048,6 +20043,22 @@ button::after {
   background-color: #1C274C;
   color: #fff;
 }
+radio .wx-radio-input.wx-radio-input-checked {
+  background-color: #F55606 !important;
+  border-color: #F55606 !important;
+}
+checkbox.red[checked] .wx-checkbox-input,
+checkbox.red.checked .uni-checkbox-input {
+  background-color: #0C997D !important;
+  border-color: #0C997D !important;
+  color: #0C997D !important;
+}
+/**
+* 去除选中后的对号
+*/
+radio::before {
+  content: '' !important;
+}
 
 @charset "UTF-8";
 /**
@@ -20188,9 +20199,5 @@ view {
 }
 text {
   font-family: HarmonyOS Sans SC,PingFangSC-Medium, PingFang SC;
-}
-page {
-  margin: 0 auto;
-  padding-bottom: env(safe-area-inset-bottom);
 }
 

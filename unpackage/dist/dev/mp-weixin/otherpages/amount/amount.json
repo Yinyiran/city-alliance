@@ -1,9 +1,0 @@
-{
-  "navigationBarTitleText": "提现",
-  "usingComponents": {
-    "uv-sticky": "/uni_modules/uv-sticky/components/uv-sticky/uv-sticky",
-    "uv-icon": "/uni_modules/uv-icon/components/uv-icon/uv-icon",
-    "uv-line": "/uni_modules/uv-line/components/uv-line/uv-line",
-    "uv-datetime-picker": "/uni_modules/uv-datetime-picker/components/uv-datetime-picker/uv-datetime-picker"
-  }
-}

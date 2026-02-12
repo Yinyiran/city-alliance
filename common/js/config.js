@@ -1,11 +1,11 @@
 var config = {
 	// api请求地址
-	baseUrl: 'http://tuanshenghuo.xing-peng.com',
+	baseUrl: 'https://www.cmyx.top',
 	// 图片域名	
-	imgDomain: 'http://tuanshenghuo.xing-peng.com',
+	imgDomain: 'https://www.cmyx.top',
 	// /index.php/api
 	// H5端域名
-	h5Domain: 'http://tuanshenghuo.xing-peng.com',
+	h5Domain: 'https://www.cmyx.top',
 	// 腾讯地图key
 	mpKey: '', 
 	//客服地址

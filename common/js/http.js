@@ -1,74 +1,90 @@
 import Config from './config.js'
-import Util from './util.js'
 
 // #ifdef MP-WEIXIN
-const app_type = 'weapp';
-const app_type_name = '微信小程序';
+const app_type = 'weappqy';
+const app_type_name = '微信小程序(商家端)';
 // #endif
-export default {
-	sendRequest(params) {
-		uni.showLoading({
-			title: '加载中'
-		})
-		var method = params.data != undefined ? 'POST' : 'GET', // 请求方式
-
-			url = Config.baseUrl + params.url, // 请求路径
-			data = {
-				// app_type,
-				// app_type_name
-			},
-			token = '';
-		// token
-		if (uni.getStorageSync('token')) token = uni.getStorageSync('token');
-
-		// 参数
-		if (params.data != undefined) Object.assign(data, params.data);
-		if (params.method) {
-			method = params.method
+export function server(url, params, methods) {
+	uni.showLoading({
+		title: '加载中'
+	})
+	let promise = new Promise((resolve, reject) => {
+		// 这里是获取 token 
+		let token;
+		if (uni.getStorageSync('token')) {
+			token = uni.getStorageSync('token')
 		}
 		uni.request({
-			url: url,
-			method: method,
-			data: data,
-
-			header: params.header || {
-				'content-type': 'application/json',
-				"token": token ? token : ''
+			url: Config.baseUrl + url,
+			data: {
+				site_id:uni.getStorageSync('site_id')||'',
+				...params,
+				app_type:app_type,
+				app_type_name:app_type_name,
+				token,
 			},
-			dataType: params.dataType || 'json',
-			responseType: params.responseType || 'text',
-			success: (res) => {
-				console.log(res, '+++++++++++');
-				uni.hideLoading()
-				if (res.data.msg == "请登录后操作" || res.data.code == "401" || res.msg == "请登录后操作" || res.msg ==
-					"401") {
-					uni.removeStorageSync('token');
-					uni.removeStorageSync('identity_key');
-					//登录失效页面返回
-					uni.showModal({
-						title: '登录过期',
-						content: '请前往登录',
-						success: res => {
-							if (res.confirm) {
-								uni.navigateTo({
-									url: '/pages/Home/Home'
-								})
-							} else if (res.cancel) {}
-						}
-					});
+			method: methods || 'post',
+			dataType: "json",
+			header: {
+				'content-type': 'application/json; charset=utf-8',
+				'token': token
+			},
 
+			// 这里请求成功根据自己的 code 判断就好了
+			success: function (res) { // 当请求成功时调用的函数。这个函数会得到一个参数：从服务器返回的数据。当请求成功时调用函数，即status==200。
+				// console.log('数据请求响应', res.data.code)
+				if (res.data.code == 0) {
+					resolve(res.data)
+					uni.hideLoading();
+				}else if(res.data.code==-10016){
+					resolve(res.data)
+					uni.hideLoading();
+				}else if(res.data.code==-10001){
+					resolve(res.data)
+					uni.hideLoading();
+				}  else if (res.data.code == -10010) {
+					// uni.showModal({
+					// 	content: "你还没登录，请先登录",
+					// 	confirmColor: "#363636",
+					// 	cancelColor: '#666666',
+					// 	success: res => {
+					// 		if (res.confirm) {
+					// 			uni.navigateTo({
+					// 				url: '/otherpages/login/login'
+					// 			})
+					// 		}
+					// 	}
+					// })
+					uni.removeStorageSync('token')
+					uni.hideLoading();
 				} else {
-					typeof params.success == 'function' && params.success(res.data);
+					console.log(res.data);
+					uni.showToast({
+						title: res.data.msg||JSON.stringify(res.data),
+						icon: 'none',
+						duration: 3000,
+						success: res => {
+							setTimeout(()=>{
+								uni.hideLoading();
+							},3000)
+						}
+					})
 				}
+
 			},
-			fail: (res) => {
-				uni.hideLoading()
-				typeof params.fail == 'function' && params.fail(res);
-			},
-			complete: (res) => {
-				uni.hideLoading()
-				typeof params.complete == 'function' && params.complete(res);
+			fail: function (res) {
+				console.warn("请求异常", res)
+				// uni.showToast({
+				// 	title: res.data.msg,
+				// 	icon: 'none',
+				// 	duration: 3000,
+				// 	success: res => {
+						uni.hideLoading();
+				// 	}
+				// })
+				reject(res)
 			}
 		});
-	}
+	});
+	return promise;
 }

@@ -1,0 +1,12 @@
+{
+  "navigationBarTitleText": "我的",
+  "navigationBarBackgroundColor": "#101014",
+  "navigationBarTextStyle": "white",
+  "usingComponents": {
+    "uv-icon": "/uni_modules/uv-icon/components/uv-icon/uv-icon",
+    "uv-subsection": "/uni_modules/uv-subsection/components/uv-subsection/uv-subsection",
+    "uv-tabs": "/uni_modules/uv-tabs/components/uv-tabs/uv-tabs",
+    "uv-popup": "/uni_modules/uv-popup/components/uv-popup/uv-popup",
+    "login": "/components/login/login"
+  }
+}

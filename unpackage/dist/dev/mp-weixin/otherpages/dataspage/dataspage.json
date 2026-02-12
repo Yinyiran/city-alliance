@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "",
+  "usingComponents": {
+    "uv-count-to": "/uni_modules/uv-count-to/components/uv-count-to/uv-count-to"
+  }
+}

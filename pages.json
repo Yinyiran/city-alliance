@@ -4,253 +4,141 @@
 			"path": "pages/index/index",
 			"style": {
 				"navigationBarTitleText": "首页",
-				"navigationStyle": "custom"
+				"navigationBarBackgroundColor": "#101014",
+				"navigationBarTextStyle": "white"
 			}
 		},
 		{
-			"path": "pages/spread/spread",
+			"path": "pages/classify/classify",
 			"style": {
-				"navigationBarTitleText": "推广管理",
-				"navigationStyle": "custom"
+				"navigationBarTitleText": "签到",
+				"navigationBarBackgroundColor": "#E1AC7E",
+				"navigationBarTextStyle": "white"
+			}
+		},
+		{
+			"path": "pages/my/my",
+			"style": {
+				"navigationBarTitleText": "我的",
+				"navigationBarBackgroundColor": "#101014",
+				"navigationBarTextStyle": "white"
 			}
 		}
 	],
 	"subPackages": [{
 		"root": "otherpages",
 		"pages": [{
-				"path": "login/login",
-				"style": {
-					"navigationBarTitleText": "",
-					"navigationBarBackgroundColor": "#ff4d19",
-					"navigationBarTextStyle": "white"
-				}
-			},
+			"path" : "deposit/deposit",
+			"style" : 
 			{
-				"path": "selectShop/selectShop",
-				"style": {
-					"navigationBarTitleText": "选择店铺"
-				}
-			},
-			{
-				"path": "replacePhone/replacePhone",
-				"style": {
-					"navigationBarTitleText": "手机号换绑"
-				}
-			},
-			{
-				"path": "setUpShop/setUpShop",
-				"style": {
-					"navigationBarTitleText": "我要开店",
-					"navigationBarBackgroundColor": "#ff4d19",
-					"navigationBarTextStyle": "white"
-				}
-			},
-			{
-				"path": "setUpShopA/setUpShopA",
-				"style": {
-					"navigationBarTitleText": "我要开店",
-					"navigationBarBackgroundColor": "#ff4d19",
-					"navigationBarTextStyle": "white"
-				}
-			},
-			{
-				"path": "shopFrom/shopFrom",
-				"style": {
-					"navigationBarTitleText": "店铺资料"
-
-				}
-			},
-			{
-				"path": "extendOredr/extendOredr",
-				"style": {
-					"navigationBarTitleText": "推广订单"
-				}
-			},
-			{
-				"path": "fans/fans",
-				"style": {
-					"navigationBarTitleText": "我的粉丝"
-				}
-			},
-			{
-				"path": "amount/amount",
-				"style": {
-					"navigationBarTitleText": "提现"
-				}
-			},
-			{
-				"path": "withdraw/withdraw",
-				"style": {
-					"navigationBarTitleText": "立即提现"
-				}
-			},
-			{
-				"path": "bindAlipay/bindAlipay",
-				"style": {
-					"navigationBarTitleText": "绑定支付宝"
-				}
-			},
-			{
-				"path": "withdraw_detail/withdraw_detail",
-				"style": {
-					"navigationBarTitleText": "提现明细"
-				}
-			},
-			{
-				"path": "immediatelySign/immediatelySign",
-				"style": {
-					"navigationBarTitleText": "立即签署",
-					"navigationBarBackgroundColor": "#ff4d19",
-					"navigationBarTextStyle": "white"
-				}
-			},
-			{
-				"path": "payCode/payCode",
-				"style": {
-					"navigationBarTitleText": "收款码",
-					"navigationBarBackgroundColor": "#ff4d19",
-					"navigationBarTextStyle": "white"
-				}
-			},
-			{
-				"path": "editCode/editCode",
-				"style": {
-					"navigationBarTitleText": "设置收款码"
-				}
-			},
-			{
-				"path": "receiptnAccount/receiptnAccount",
-				"style": {
-					"navigationBarTitleText": "收款账户"
-				}
-			},
-			{
-				"path": "transferRecord/transferRecord",
-				"style": {
-					"navigationBarTitleText": "到账记录"
-				}
-			},
-			{
-				"path": "editPayAccount/editPayAccount",
-				"style": {
-					"navigationBarTitleText": "修改收款账户"
-				}
-			},
-			{
-				"path": "businessEchars/businessEchars",
-				"style": {
-					"navigationBarTitleText": "生意报表"
-				}
-			},
-			{
-				"path": "realTimeBill/realTimeBill",
-				"style": {
-					"navigationBarTitleText": "实时账单"
-				}
-			},
-			{
-				"path": "billDetail/billDetail",
-				"style": {
-					"navigationBarTitleText": "账单详情"
-				}
-			},
-			{
-				"path": "preview/preview",
-				"style": {
-					"navigationBarTitleText": ""
-				}
-			},
-			{
-				"path": "employee/employee",
-				"style": {
-					"navigationBarTitleText": "员工管理"
-				}
-			},
-			{
-				"path": "sgdModel/sgdModel",
-				"style": {
-					"navigationBarTitleText": "语音设备"
-				}
-			},
-			{
-				"path": "myGroupBuy/myGroupBuy",
-				"style": {
-					"navigationBarTitleText": ""
-				}
-			},
-			{
-				"path": "submitGroupBuy/submitGroupBuy",
-				"style": {
-					"navigationBarTitleText": "发布套餐"
-
-				}
-			},
-			{
-				"path": "information/information",
-				"style": {
-					"navigationBarTitleText": "收款账户"
-				}
-			},
-			{
-				"path": "signing/signing",
-				"style": {
-					"navigationBarTitleText": "签约信息"
-				}
-			},
-			{
-				"path": "authentication/authentication",
-				"style": {
-					"navigationBarTitleText": "微信认证码"
-				}
-			},
-			{
-				"path": "courtesy/courtesy",
-				"style": {
-					"navigationBarTitleText": "支付有礼"
-				}
-			},
-			{
-				"path": "download/download",
-				"style": {
-					"navigationBarTitleText": "下载中心"
-				}
-			},
-			{
-				"path": "settings/settings",
-				"style": {
-					"navigationBarTitleText": "设置"
-				}
-			},
-			{
-				"path": "contact/contact",
-				"style": {
-					"navigationBarTitleText": "在线客服"
-				}
+				"navigationBarTitleText" : "保证金充值",
+				"navigationStyle": "custom"
 			}
-		]
+		},
+		{
+			"path" : "writeOff/writeOff",
+			"style" : 
+			{
+				"navigationBarTitleText" : "扫码核销",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path" : "teamSize/teamSize",
+			"style" : 
+			{
+				"navigationBarTitleText" : "团队总人数",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path" : "points/points",
+			"style" : 
+			{
+				"navigationBarTitleText" : "关注列表",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path" : "order/order",
+			"style" : 
+			{
+				"navigationBarTitleText" : "总订单",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path" : "employee/employee",
+			"style" : 
+			{
+				"navigationBarTitleText" : "添加员工",
+				"navigationBarBackgroundColor": "#F5F5F5"
+			}
+		},
+		{
+			"path" : "deliveryOrder/deliveryOrder",
+			"style" : 
+			{
+				"navigationBarTitleText" : "待核销"
+			}
+		},
+		{
+			"path" : "dataspage/dataspage",
+			"style" : 
+			{
+				"navigationBarTitleText" : ""
+			}
+		},
+		{
+			"path" : "cashOUT/cashOUT",
+			"style" : 
+			{
+				"navigationBarTitleText" : "申请提现"
+			}
+		},
+		{
+			"path" : "bankinfo/bankinfo",
+			"style" : 
+			{
+				"navigationBarTitleText" : "企业开户"
+			}
+		},
+		{
+			"path" : "cashInfo/cashInfo",
+			"style" : 
+			{
+				"navigationBarTitleText" : "银行卡提现"
+			}
+		}]
 	}],
 	"tabBar": {
-		"color": "#999999",
-		"selectedColor": "#FF4D19",
+		"color": "#999",
+		"selectedColor": "#222222",
 		"borderStyle": "white",
 		"backgroundColor": "#fff",
 		"list": [{
 				"pagePath": "pages/index/index",
-				"iconPath": "static/tabbar/11.png",
-				"selectedIconPath": "static/tabbar/1.png",
+				"iconPath": "./static/tabbar/index.png",
+				"selectedIconPath": "./static/tabbar/index1.png",
 				"text": "首页"
 			},
 			{
-				"pagePath": "pages/spread/spread",
-				"iconPath": "static/tabbar/22.png",
-				"selectedIconPath": "static/tabbar/2.png",
-				"text": "推广管理"
+				"pagePath": "pages/classify/classify",
+				"iconPath": "./static/tabbar/classify.png",
+				"selectedIconPath": "./static/tabbar/classify1.png",
+				"text": "签到"
+			},
+			{
+				"pagePath": "pages/my/my",
+				"iconPath": "./static/tabbar/my.png",
+				"selectedIconPath": "./static/tabbar/my1.png",
+				"text": "我的"
 			}
 		]
 	},
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "蛙蛙来购",
+		"navigationBarTitleText": "厨师上门",
 		"navigationBarBackgroundColor": "#fff",
 		"backgroundColor": "#fff"
 	},

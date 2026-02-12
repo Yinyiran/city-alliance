@@ -332,7 +332,7 @@ export default {
 		if (url) {
 			var uploadUrl = Config.baseUrl + url
 		} else {
-			var uploadUrl = Config.baseUrl + '/api/localUpload'
+			var uploadUrl = Config.baseUrl + '/api/upload/apiUpload'
 		}
 		return new Promise((resolve, reject) => {
 			uni.uploadFile({

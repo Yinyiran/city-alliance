@@ -104,46 +104,7 @@
 /******/ 		var promises = [];
 /******/
 /******/
-/******/ 		// mini-css-extract-plugin CSS loading
-/******/ 		var cssChunks = {"uni_modules/uv-button/components/uv-button/uv-button":1,"uni_modules/uv-grid/components/uv-grid-item/uv-grid-item":1,"uni_modules/uv-grid/components/uv-grid/uv-grid":1,"uni_modules/uv-navbar/components/uv-navbar/uv-navbar":1,"uni_modules/uv-picker/components/uv-picker/uv-picker":1,"uni_modules/uv-popup/components/uv-popup/uv-popup":1,"uni_modules/uv-icon/components/uv-icon/uv-icon":1,"uni_modules/uv-line/components/uv-line/uv-line":1,"uni_modules/uv-search/components/uv-search/uv-search":1,"uni_modules/uv-sticky/components/uv-sticky/uv-sticky":1,"uni_modules/uv-input/components/uv-input/uv-input":1,"uni_modules/uv-collapse/components/uv-collapse-item/uv-collapse-item":1,"uni_modules/uv-line-progress/components/uv-line-progress/uv-line-progress":1,"components/timeSelectCom/timeSelectCom":1,"uni_modules/uv-radio/components/uv-radio-group/uv-radio-group":1,"uni_modules/uv-radio/components/uv-radio/uv-radio":1,"uni_modules/uv-switch/components/uv-switch/uv-switch":1,"uni_modules/uv-loading-icon/components/uv-loading-icon/uv-loading-icon":1,"uni_modules/uv-status-bar/components/uv-status-bar/uv-status-bar":1,"uni_modules/uv-toolbar/components/uv-toolbar/uv-toolbar":1,"uni_modules/uv-overlay/components/uv-overlay/uv-overlay":1,"uni_modules/uv-safe-bottom/components/uv-safe-bottom/uv-safe-bottom":1,"uni_modules/uv-cell/components/uv-cell/uv-cell":1};
-/******/ 		if(installedCssChunks[chunkId]) promises.push(installedCssChunks[chunkId]);
-/******/ 		else if(installedCssChunks[chunkId] !== 0 && cssChunks[chunkId]) {
-/******/ 			promises.push(installedCssChunks[chunkId] = new Promise(function(resolve, reject) {
-/******/ 				var href = "" + ({"uni_modules/uv-button/components/uv-button/uv-button":"uni_modules/uv-button/components/uv-button/uv-button","uni_modules/uv-grid/components/uv-grid-item/uv-grid-item":"uni_modules/uv-grid/components/uv-grid-item/uv-grid-item","uni_modules/uv-grid/components/uv-grid/uv-grid":"uni_modules/uv-grid/components/uv-grid/uv-grid","uni_modules/uv-navbar/components/uv-navbar/uv-navbar":"uni_modules/uv-navbar/components/uv-navbar/uv-navbar","uni_modules/uv-picker/components/uv-picker/uv-picker":"uni_modules/uv-picker/components/uv-picker/uv-picker","uni_modules/uv-popup/components/uv-popup/uv-popup":"uni_modules/uv-popup/components/uv-popup/uv-popup","uni_modules/uv-icon/components/uv-icon/uv-icon":"uni_modules/uv-icon/components/uv-icon/uv-icon","uni_modules/uv-line/components/uv-line/uv-line":"uni_modules/uv-line/components/uv-line/uv-line","uni_modules/uv-search/components/uv-search/uv-search":"uni_modules/uv-search/components/uv-search/uv-search","uni_modules/uv-sticky/components/uv-sticky/uv-sticky":"uni_modules/uv-sticky/components/uv-sticky/uv-sticky","uni_modules/uv-datetime-picker/components/uv-datetime-picker/uv-datetime-picker":"uni_modules/uv-datetime-picker/components/uv-datetime-picker/uv-datetime-picker","uni_modules/uv-input/components/uv-input/uv-input":"uni_modules/uv-input/components/uv-input/uv-input","uni_modules/uv-collapse/components/uv-collapse-item/uv-collapse-item":"uni_modules/uv-collapse/components/uv-collapse-item/uv-collapse-item","uni_modules/uv-collapse/components/uv-collapse/uv-collapse":"uni_modules/uv-collapse/components/uv-collapse/uv-collapse","uni_modules/uv-line-progress/components/uv-line-progress/uv-line-progress":"uni_modules/uv-line-progress/components/uv-line-progress/uv-line-progress","components/timeSelectCom/timeSelectCom":"components/timeSelectCom/timeSelectCom","uni_modules/uv-radio/components/uv-radio-group/uv-radio-group":"uni_modules/uv-radio/components/uv-radio-group/uv-radio-group","uni_modules/uv-radio/components/uv-radio/uv-radio":"uni_modules/uv-radio/components/uv-radio/uv-radio","uni_modules/uv-switch/components/uv-switch/uv-switch":"uni_modules/uv-switch/components/uv-switch/uv-switch","uni_modules/uv-loading-icon/components/uv-loading-icon/uv-loading-icon":"uni_modules/uv-loading-icon/components/uv-loading-icon/uv-loading-icon","uni_modules/uv-status-bar/components/uv-status-bar/uv-status-bar":"uni_modules/uv-status-bar/components/uv-status-bar/uv-status-bar","uni_modules/uv-toolbar/components/uv-toolbar/uv-toolbar":"uni_modules/uv-toolbar/components/uv-toolbar/uv-toolbar","uni_modules/uv-overlay/components/uv-overlay/uv-overlay":"uni_modules/uv-overlay/components/uv-overlay/uv-overlay","uni_modules/uv-transition/components/uv-transition/uv-transition":"uni_modules/uv-transition/components/uv-transition/uv-transition","uni_modules/uv-safe-bottom/components/uv-safe-bottom/uv-safe-bottom":"uni_modules/uv-safe-bottom/components/uv-safe-bottom/uv-safe-bottom","uni_modules/uv-cell/components/uv-cell/uv-cell":"uni_modules/uv-cell/components/uv-cell/uv-cell"}[chunkId]||chunkId) + ".wxss";
-/******/ 				var fullhref = __webpack_require__.p + href;
-/******/ 				var existingLinkTags = document.getElementsByTagName("link");
-/******/ 				for(var i = 0; i < existingLinkTags.length; i++) {
-/******/ 					var tag = existingLinkTags[i];
-/******/ 					var dataHref = tag.getAttribute("data-href") || tag.getAttribute("href");
-/******/ 					if(tag.rel === "stylesheet" && (dataHref === href || dataHref === fullhref)) return resolve();
-/******/ 				}
-/******/ 				var existingStyleTags = document.getElementsByTagName("style");
-/******/ 				for(var i = 0; i < existingStyleTags.length; i++) {
-/******/ 					var tag = existingStyleTags[i];
-/******/ 					var dataHref = tag.getAttribute("data-href");
-/******/ 					if(dataHref === href || dataHref === fullhref) return resolve();
-/******/ 				}
-/******/ 				var linkTag = document.createElement("link");
-/******/ 				linkTag.rel = "stylesheet";
-/******/ 				linkTag.type = "text/css";
-/******/ 				linkTag.onload = resolve;
-/******/ 				linkTag.onerror = function(event) {
-/******/ 					var request = event && event.target && event.target.src || fullhref;
-/******/ 					var err = new Error("Loading CSS chunk " + chunkId + " failed.\n(" + request + ")");
-/******/ 					err.code = "CSS_CHUNK_LOAD_FAILED";
-/******/ 					err.request = request;
-/******/ 					delete installedCssChunks[chunkId]
-/******/ 					linkTag.parentNode.removeChild(linkTag)
-/******/ 					reject(err);
-/******/ 				};
-/******/ 				linkTag.href = fullhref;
 /******/
-/******/ 				var head = document.getElementsByTagName("head")[0];
-/******/ 				head.appendChild(linkTag);
-/******/ 			}).then(function() {
-/******/ 				installedCssChunks[chunkId] = 0;
-/******/ 			}));
-/******/ 		}
 /******/
 /******/ 		// JSONP chunk loading for javascript
 /******/

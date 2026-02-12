@@ -1,0 +1,10 @@
+(global["webpackJsonp"]=global["webpackJsonp"]||[]).push([["uni_modules/uv-overlay/components/uv-overlay/uv-overlay"],{"16dc":function(t,n,e){"use strict";e.r(n);var u=e("5c0e"),i=e("3a49");for(var o in i)["default"].indexOf(o)<0&&function(t){e.d(n,t,(function(){return i[t]}))}(o);e("1c43");var c=e("828b"),r=Object(c["a"])(i["default"],u["b"],u["c"],!1,null,"19c9b517",null,!1,u["a"],void 0);n["default"]=r.exports},"1c43":function(t,n,e){"use strict";var u=e("d75c"),i=e.n(u);i.a},"3a49":function(t,n,e){"use strict";e.r(n);var u=e("e947"),i=e.n(u);for(var o in u)["default"].indexOf(o)<0&&function(t){e.d(n,t,(function(){return u[t]}))}(o);n["default"]=i.a},"5c0e":function(t,n,e){"use strict";e.d(n,"b",(function(){return i})),e.d(n,"c",(function(){return o})),e.d(n,"a",(function(){return u}));var u={uvTransition:function(){return Promise.all([e.e("common/vendor"),e.e("uni_modules/uv-transition/components/uv-transition/uv-transition")]).then(e.bind(null,"4407"))}},i=function(){var t=this.$createElement;this._self._c},o=[]},d75c:function(t,n,e){},e947:function(t,n,e){"use strict";var u=e("47a9");Object.defineProperty(n,"__esModule",{value:!0}),n.default=void 0;var i=u(e("ed34")),o=u(e("b279")),c=u(e("72a6")),r={name:"uv-overlay",emits:["click"],mixins:[i.default,o.default,c.default],watch:{show:function(t){}},computed:{overlayStyle:function(){var t={position:"fixed",top:0,left:0,right:0,zIndex:this.zIndex,bottom:0,"background-color":"rgba(0, 0, 0, ".concat(this.opacity,")")};return this.$uv.deepMerge(t,this.$uv.addStyle(this.customStyle))}},methods:{clickHandler:function(){this.$emit("click")},clear:function(){}}};n.default=r}}]);
+;(global["webpackJsonp"] = global["webpackJsonp"] || []).push([
+    'uni_modules/uv-overlay/components/uv-overlay/uv-overlay-create-component',
+    {
+        'uni_modules/uv-overlay/components/uv-overlay/uv-overlay-create-component':(function(module, exports, __webpack_require__){
+            __webpack_require__('df3c')['createComponent'](__webpack_require__("16dc"))
+        })
+    },
+    [['uni_modules/uv-overlay/components/uv-overlay/uv-overlay-create-component']]
+]);

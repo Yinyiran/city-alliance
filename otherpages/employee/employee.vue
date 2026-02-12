@@ -1,292 +1,255 @@
 <template>
 	<view>
-		<uv-sticky>
-			<view class="p-t-30 p-b-38 p-r-64 p-l-64 acea-row row-around row-middle wbg ">
-				<view v-for="(item,index) in list" :key="index" :class="['font-30','relative',check==index?'on':'']"
-					@click="check=index">
-					{{item}}
-					<image src="@/static/index/icon3.png" v-if="check==index" mode=""></image>
-				</view>
-			</view>
-			<view class="thead acea-row row-between" v-if="check==0">
-				<view class="font-30">账户名</view>
-				<view class="font-30">角色</view>
-				<view class="font-30">操作</view>
-			</view>
-			<view class="thead acea-row row-between" v-else>
-				<view class="font-30">角色</view>
-				<view class="font-30">数据权限</view>
-				<view class="font-30">操作</view>
-			</view>
-		</uv-sticky>
-		<view class="" v-if="check==0">
-			<view v-for="(item,index) in 10" :key="index" class="p-t-22 p-b-22 item">
-				<view class="acea-row row-between ">
-					<view class="font-30">账户名</view>
-					<view class="role bor-10">角色</view>
-					<view class="font-30 fcolor" @click="edit">编辑</view>
-				</view>
-				<view class="m-t-10 font-28 m-b-30 fcolor1">13087898312</view>
-				<uv-line color="#1c274c1a"></uv-line>
-			</view>
+
+
+		<view class="container">
+			<uv-input placeholder="请填写正确的ID" border="none" v-model='form.empid' :customStyle="customStyle">
+				<template v-slot:prefix>
+					<view class="font">会员ID</view>
+				</template>
+			</uv-input>
+			<uv-input placeholder="请填写姓名" v-model="form.username" border="none" :customStyle="customStyle">
+				<template v-slot:prefix>
+					<view class="font">姓名</view>
+				</template>
+			</uv-input>
+			<uv-input placeholder="请填写手机号码" type="number" v-model="form.mobile" maxlength="11" border="none"
+				:customStyle="customStyle">
+				<template v-slot:prefix>
+					<view class="font">手机号</view>
+				</template>
+			</uv-input>
+			<uv-input placeholder="请输入短信验证码" v-model="form.code" border="none" :customStyle="customStyle">
+				<template v-slot:prefix>
+					<view class="font">验证码</view>
+				</template>
+				<template v-slot:suffix>
+					<view class="getcode" v-if="!isend" @click="getcode">获取验证码</view>
+					<view class="getcode" style="color: #CCCCCC;" v-else>{{codetxt}}</view>
+				</template>
+			</uv-input>
 		</view>
-		<view class="" v-else>
-			<view v-for="(item,index) in 10" :key="index" class="p-t-22 p-b-22 item">
-				<view class="acea-row row-between m-b-30">
-					<view class="font-30">普通员工</view>
-					<view class="role bor-10">全部</view>
-					<view class="font-30 " @click="edit">
-						<text class="m-r-20 fcolor4">删除</text>
-						<text class="fcolor" @click="edit">编辑</text>
-					</view>
-				</view>
-				<uv-line color="#1c274c1a"></uv-line>
-			</view>
+		<view class="h-300"></view>
+		<view class="btms iphone-x">
+			<view class="" @click="submit">确认修改</view>
 		</view>
-		<view class="btm p-t-20 p-r-20 p-l-20 iphone-x acea-row row-between row-middle ">
-			<view class="bor-64 font-28" v-if="check==0" @click="employee(1)">添加员工</view>
-			<view class="bor-64 font-28" v-else @click="addemployee">添加角色</view>
-		</view>
-		<uv-popup ref="popup1" :round="10" closeable>
-			<view class="popup1">
-				<view class="m-b-30 bor-20 font-28 fcolor2" @click="employee(2)">修改员工信息</view>
-				<view class="bor-20 font-28 fcolor3">删除账号</view>
-			</view>
-		</uv-popup>
-		<uv-popup ref="popup2" :round="10" closeable>
-			<view class="popup2">
-				<view class="font-32 font-bold p-t-32 p-b-22">{{is_edit==1?'添加员工':'编辑员工'}}</view>
-				<view class="m-t-30 m-r-50 m-l-50">
-					<uv-input placeholder="输入员工姓名" fontSize='14px' inputAlign="right" border="surround"
-						:customStyle='customStyle'>
-						<template v-slot:prefix>
-							<text class="font-28 font-bold">姓名</text>
-						</template>
-					</uv-input>
-				</view>
-				<view class="m-t-30 m-r-50 m-l-50" @click="choserole">
-					<uv-input placeholder="输入员工姓名" fontSize='14px' readonly inputAlign="right" border="surround"
-						:customStyle='customStyle'>
-						<template v-slot:prefix>
-							<text class="font-28 font-bold">角色</text>
-						</template>
-						<template v-slot:suffix>
-							<uv-icon name="play-right-fill" color="#898FA3" size="10"></uv-icon>
-						</template>
-					</uv-input>
-				</view>
-				<view class="m-t-30 m-r-50 m-l-50">
-					<uv-input placeholder="输入手机号" fontSize='14px' inputAlign="right" border="surround"
-						:customStyle='customStyle'>
-						<template v-slot:prefix>
-							<text class="font-28 font-bold">手机号</text>
-						</template>
-					</uv-input>
-				</view>
-				<view class="m-t-30 m-r-50 m-l-50">
-					<uv-input placeholder="输入验证码" fontSize='14px' readonly inputAlign="right" border="surround"
-						:customStyle='customStyle'>
-						<template v-slot:prefix>
-							<text class="font-28 font-bold">验证码</text>
-						</template>
-						<template v-slot:suffix>
-							<text class="font-28 fcolor">获取验证码</text>
-						</template>
-					</uv-input>
-				</view>
-				<view class="btns acea-row row-between m-t-66 m-r-20 m-l-20">
-					<view class="font-28 font-weight-6 bor-80">取消</view>
-					<view class="font-28 font-weight-6 bor-80">确认添加</view>
-				</view>
-			</view>
-		</uv-popup>
-		<uv-popup ref="popup3" :round="10" closeable>
-			<view class="popup2">
-				<view class="font-32 font-bold p-t-32 p-b-22">{{is_edit==1?'添加员工':'编辑员工'}}</view>
-				<view class="m-t-30 m-r-50 m-l-50">
-					<uv-input placeholder="输入角色名称" fontSize='14px' inputAlign="right" border="surround"
-						:customStyle='customStyle'>
-						<template v-slot:prefix>
-							<text class="font-28 font-bold">角色名称</text>
-						</template>
-					</uv-input>
-				</view>
-				<view class="m-t-30 m-r-50 m-l-50">
-					<uv-input placeholder="请选择数据权限" fontSize='14px' readonly inputAlign="right" border="surround"
-						:customStyle='customStyle'>
-						<template v-slot:prefix>
-							<text class="font-28 font-bold">数据权限</text>
-						</template>
-						<template v-slot:suffix>
-							<uv-icon name="play-right-fill" color="#898FA3" size="10"></uv-icon>
-						</template>
-					</uv-input>
-				</view>
-				<view class="btns acea-row row-between m-t-66 m-r-20 m-l-20">
-					<view class="font-28 font-weight-6 bor-80">取消</view>
-					<view class="font-28 font-weight-6 bor-80">确认添加</view>
-				</view>
-			</view>
-		</uv-popup>
-		<uv-picker ref="picker" :columns="columns" @confirm="confirm"></uv-picker>
 	</view>
 </template>
 
 <script>
+	import {
+		employeeAdd,
+		mobliecode
+	} from "@/common/js/api.js"
+	import {
+		mobile
+	} from '@/uni_modules/uv-ui-tools/libs/function/test.js';
+	import validate from 'common/js/validate.js';
 	export default {
 		data() {
 			return {
-				list: ['员工管理', '角色管理'],
+				list: [],
 				check: 0,
-				is_edit: 1,
-				customStyle: 'padding:30rpx;border:1rpx solid #DDDFE4;border-radius:20rpx',
-				columns: [
-					['中国', '美国', '日本']
-				]
-			};
+				customStyle: "padding:28rpx",
+				form: {
+					empid: '',
+					username: '',
+					mobile: ''
+				},
+				isend: false,
+				codetxt: "60s后重新获取",
+				times: 60,
+
+			}
 		},
+		onLoad() {},
 		methods: {
-			choserole(){
-				this.$refs.picker.open()
+			getcode() {
+				if (!mobile(this.form.mobile)) {
+					uni.showToast({
+						title: '手机号格式错误',
+						icon: "none"
+					})
+					return
+				}
+				let params = {
+					mobile: this.form.mobile
+				}
+				if (!this.isend) {
+					mobliecode(params).then(res => {
+						this.isend = true
+						this.form.key = res.data.key
+						let time = setInterval(() => {
+							this.times--
+							this.codetxt = this.times + 's后重新获取'
+							if (this.times == 1) {
+								clearInterval(time)
+								this.times = 60
+								this.isend = false
+							}
+						}, 1000)
+					})
+				}
+
 			},
-			edit() {
-				this.$refs.popup1.open('bottom')
+			submit() {
+				var rule = [{
+						name: 'empid',
+						checkType: 'required',
+						errorMsg: '请输入会员ID'
+					}, {
+						name: 'username',
+						checkType: 'required',
+						errorMsg: '请输入姓名'
+					},
+					{
+						name: 'mobile',
+						checkType: 'required',
+						errorMsg: '请输入手机号'
+					},
+					{
+						name: 'mobile',
+						checkType: 'phoneno',
+						errorMsg: '请输入正确的手机号'
+					},
+					{
+						name: 'code',
+						checkType: 'required',
+						errorMsg: '请输入验证码'
+					}
+				];
+				var checkRes = validate.check(this.form, rule);
+				if (!checkRes) {
+					this.$util.showToast({
+						title: validate.error
+					});
+					return false;
+				}
+				let params = {
+					...this.form
+				}
+				employeeAdd(params).then(res => {
+					if (res.code == 0) {
+						uni.showToast({
+							title: '添加成功'
+						})
+					} else {
+						uni.showToast({
+							title: res.message,
+							icon: 'none'
+						})
+					}
+				})
 			},
-			employee(type) {
-				this.is_edit = type
-				this.$refs.popup2.open('bottom')
-			},
-			addemployee() {
-				this.$refs.popup3.open('bottom')
+			getcate() {
+				categoryList().then(res => {
+					this.list = res.data
+				})
 			},
 		}
 	}
 </script>
 
 <style lang="scss">
-	page {
-		padding-bottom: calc(env(safe-area-inset-bottom) + 120rpx);
-	}
-
-	page {
-		background: #fff;
-	}
-
-	.wbg {
-		background: #fff;
-	}
-
-	.fcolor {
-		color: #FF4D1A;
-	}
-
-	.fcolor1 {
-		color: #898FA3;
-	}
-
-	.fcolor2 {
-		color: #5F6680;
-	}
-
-	.fcolor3 {
-		color: #FF3333;
-	}
-
-	.fcolor4 {
-		color: #606882;
-	}
-
-	.relative {
-		position: relative;
-	}
-
-	view {
-		color: #1C274C;
-	}
-
-	.popup1 {
-		padding: 80rpx 40rpx;
-
-		view {
-			width: 100%;
-			text-align: center;
-			line-height: 100rpx;
-			background: #F8F9FA;
-		}
-
-	}
-
-	.popup2 {
-		>view:first-child {
-			text-align: center;
-		}
-
-		.btns {
-			view {
-				flex: 0 0 calc((100% - 28rpx)/2);
-				padding: 29rpx 0;
-				text-align: center;
-			}
-
-			>view:first-child {
-				border: 1rpx solid #BBBEC9;
-			}
-
-			>view:last-child {
-				background: #FF4D1A;
-				color: #fff;
-			}
-		}
-	}
-
-	.on {
-		font-weight: bold;
-		color: #FF4D1A;
-
-		image {
-			position: absolute;
-			left: 50%;
-			transform: translateX(-50%);
-			width: 27rpx;
-			height: 9rpx;
-			bottom: -20rpx;
-
-		}
-	}
-
-	.thead {
-		background: #F6F7FB;
-		padding: 22rpx 50rpx;
-		box-sizing: border-box;
-
-	}
-
-	.item {
-		padding: 22rpx 50rpx;
-
-		.role {
-			padding: 4rpx 12rpx;
-			border: 1rpx solid #BBBEC9;
-		}
-	}
-
-	.btm {
+	.btms {
 		position: fixed;
-		width: 100vw;
-		box-sizing: border-box;
-		left: 0;
 		bottom: 0;
-		text-align: center;
+		left: 0;
 		background: #fff;
-		z-index: 999;
-		box-shadow: 0 1rpx 0 0 #EBEBEB inset;
+		text-align: center;
+		width: 100vw;
+		z-index: 99;
 
 		>view {
-			background: #FF4D19;
-			line-height: 83rpx;
+			margin: 20rpx 40rpx;
+			line-height: 96rpx;
+			background: linear-gradient(90deg, #F5AB18 0%, #F55606 100%);
+			border-radius: 48rpx;
+			font-weight: 600;
+			font-size: 32rpx;
+			color: #FFFFFF;
+		}
+	}
+
+	radio {
+		transform: scale(0.7);
+	}
+
+	.container {
+		margin: 20rpx 32rpx;
+		background: #fff;
+		border-radius: 24rpx;
+
+		.font {
+			font-size: 32rpx;
+			color: #222222;
+			width: 128rpx;
+		}
+
+		.getcode {
+			font-weight: 400;
+			font-size: 32rpx;
+			color: #F55606;
+		}
+	}
+
+	.part {
+		margin: 0 32rpx;
+		background: #fff;
+		border-radius: 24rpx;
+
+		>view:last-child {
+			>view {
+				display: inline-block;
+				width: calc((100% - 32rpx)/3);
+				height: 64rpx;
+				background: #F5F5F5;
+				border-radius: 8rpx;
+				margin-top: 24rpx;
+				margin-right: 16rpx;
+				text-align: center;
+				box-sizing: border-box;
+				line-height: 64rpx;
+				font-weight: 400;
+				font-size: 26rpx;
+				color: #222200;
+			}
+
+			>view:nth-child(3n) {
+				margin-right: 0;
+			}
+
+			.on {
+				border: 1rpx solid #F55606;
+				position: relative;
+				color: #F55606;
+
+				>image {
+					position: absolute;
+					right: 0;
+					bottom: 0;
+					width: 28rpx;
+					height: 28rpx;
+				}
+			}
+		}
+	}
+
+	.bgs {
+		width: 100vw;
+		height: 556rpx;
+		position: fixed;
+		top: 0;
+		left: 0;
+		z-index: -1;
+	}
+
+	.bans {
+		margin: 12rpx 32rpx 20rpx 32rpx;
+
+		image {
 			width: 100%;
-			margin-bottom: 20rpx;
-			color: #fff;
+			height: 330rpx;
 		}
 	}
 </style>

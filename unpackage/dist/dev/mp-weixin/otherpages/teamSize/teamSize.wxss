@@ -1,0 +1,225 @@
+@charset "UTF-8";
+/**
+ * 这里是uni-app内置的常用样式变量
+ *
+ * uni-app 官方扩展插件及插件市场（https://ext.dcloud.net.cn）上很多三方插件均使用了这些样式变量
+ * 如果你是插件开发者，建议你使用scss预处理，并在插件代码中直接使用这些变量（无需 import 这个文件），方便用户通过搭积木的方式开发整体风格一致的App
+ *
+ */
+/**
+ * 如果你是App开发者（插件使用者），你可以通过修改这些变量来定制自己的插件主题，实现自定义主题功能
+ *
+ * 如果你的项目同样使用了scss预处理，你也可以直接在你的 scss 代码中使用如下变量，同时无需 import 这个文件
+ */
+/* 颜色变量 */
+@font-face {
+  font-family: "iconfont";
+  /* Project id 4633945 */
+  src: url("//at.alicdn.com/t/c/font_4633945_yra4hx6rc3e.woff2?t=1722496541777") format("woff2"), url("//at.alicdn.com/t/c/font_4633945_yra4hx6rc3e.woff?t=1722496541777") format("woff"), url("//at.alicdn.com/t/c/font_4633945_yra4hx6rc3e.ttf?t=1722496541777") format("truetype");
+}
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.icon-zengjia:before {
+  content: "\e634";
+}
+.icon-jianshao-:before {
+  content: "\e660";
+}
+.icon-xiazai:before {
+  content: "\e610";
+}
+.icon-xiajiantou1:before {
+  content: "\e603";
+}
+.icon-shangjiantou:before {
+  content: "\e602";
+}
+.icon-xiajiantou:before {
+  content: "\e615";
+}
+.icon-shijianfang:before {
+  content: "\e99c";
+}
+.icon-qianbao:before {
+  content: "\e685";
+}
+.icon-zhanghuyue:before {
+  content: "\e652";
+}
+.icon-shijian:before {
+  content: "\e65c";
+}
+.icon-zhuanzhang:before {
+  content: "\e619";
+}
+.icon-lianxi2hebing_jilu:before {
+  content: "\e630";
+}
+.icon-bangzhu:before {
+  content: "\e620";
+}
+.icon-shoukuan:before {
+  content: "\e616";
+}
+.icon-yincang:before {
+  content: "\e605";
+}
+.icon-weixinzhifu2:before {
+  content: "\e624";
+}
+.icon-guanbi:before {
+  content: "\e677";
+}
+.icon-tupian:before {
+  content: "\e67f";
+}
+.icon-icon-:before {
+  content: "\e627";
+}
+.icon-qiehuan:before {
+  content: "\e608";
+}
+.icon-weixinzhifu:before {
+  content: "\e650";
+}
+.icon-weixinzhifu1:before {
+  content: "\e639";
+}
+.icon-xuanzhong:before {
+  content: "\e65b";
+}
+.icon-choose:before {
+  content: "\e63b";
+}
+.icon-weixuanzhong:before {
+  content: "\e8bb";
+}
+.icon-qianming:before {
+  content: "\e60e";
+}
+.icon-shanchu:before {
+  content: "\e626";
+}
+.icon-saoyisao:before {
+  content: "\e673";
+}
+.icon-plus-circle-fill:before {
+  content: "\e70b";
+}
+.icon-yousanjiao:before {
+  content: "\e614";
+}
+.icon-youjiantou:before {
+  content: "\e601";
+}
+.icon-zhifubao:before {
+  content: "\e607";
+}
+.icon-h:before {
+  content: "\e819";
+}
+.icon-tianjia:before {
+  content: "\e644";
+}
+.icon-shouji:before {
+  content: "\e600";
+}
+.icon-jingxuan:before {
+  content: "\e661";
+}
+view {
+  font-family: HarmonyOS Sans SC,PingFangSC-Medium, PingFang SC;
+}
+text {
+  font-family: HarmonyOS Sans SC,PingFangSC-Medium, PingFang SC;
+}
+.container {
+  margin: 32rpx;
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 24rpx;
+}
+.container .titles text {
+  font-weight: 400;
+  font-size: 24rpx;
+  color: #999999;
+}
+.container .my {
+  font-weight: 600;
+  font-size: 28rpx;
+  color: #F55606;
+}
+.container .defas {
+  border-radius: 12rpx;
+  height: 104rpx;
+  padding: 0 24rpx;
+  background: #F5F5F5;
+}
+.container .rankbg1 {
+  background: linear-gradient(90deg, #FFF1D6 0%, #F6F8FC 100%);
+}
+.container .rankbg2 {
+  background: linear-gradient(90deg, #E3EFFC 0%, #F6F8FC 100%);
+}
+.container .rankbg3 {
+  background: linear-gradient(90deg, #FFF0E6 0%, #FFFCFA 100%);
+}
+.container .ranks {
+  width: 58rpx;
+  height: 64rpx;
+  position: relative;
+}
+.container .ranks > text {
+  font-weight: 400;
+  font-size: 32rpx;
+  color: #222222;
+  position: absolute;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+          transform: translateX(-50%);
+  bottom: 12rpx;
+}
+.container .ranks > image {
+  width: 100%;
+  height: 100%;
+}
+.nums {
+  padding: 24rpx 32rpx;
+  background: #fff;
+  position: relative;
+  margin: 32rpx;
+  border-radius: 24rpx;
+}
+.nums > view:first-child {
+  font-weight: 400;
+  font-size: 24rpx;
+  color: #999999;
+}
+.nums > view:nth-child(2) {
+  font-size: 40rpx;
+  color: #222222;
+  font-weight: bold;
+}
+.nums > image {
+  position: absolute;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+          transform: translateY(-50%);
+  width: 204rpx;
+  height: 60rpx;
+  right: 32rpx;
+}
+.search {
+  font-weight: 400;
+  font-size: 30rpx;
+  color: #222222;
+  padding: 0 28rpx;
+  border-left: #DDDDDD 1rpx solid;
+  height: 42rpx;
+}
+

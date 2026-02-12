@@ -1,625 +1,531 @@
 <template>
-	<view class="content">
-		<!-- 头部 -->
-		<uv-navbar bgColor="#ff4d19" :placeholder="true">
-			<view class="flex" slot="left">
-				<image class="navImg" src="/static/image/userNone.png" mode="aspectFill"></image>
-				<view class="font-32 font-weight white m-l-20 m-r-20">白苏叶店铺</view>
-				<view class="flex_center changeShopSty" @click="$util.redirectTo('/otherpages/selectShop/selectShop')">
-					<view class="iconfont icon-qiehuan lh-24 white"></view>
-					<view class="lh-24 white">切换店铺</view>
+	<view>
+		<view class="" style="position: relative;">
+			<view class="part1">
+				<view class="acea-row row-middle row-between">
+					<view class="acea-row row-middle row-center" @click="gonext('deliveryOrder')">
+						<image src="/static/img1.png" class="w-88 h-88 m-r-20" mode=""></image>
+						<view class="acea-row row-middle font-32 fcolor1">
+							待核销订单
+							<image src="/static/go.png" class="w-16 h-16 m-l-4" mode=""></image>
+						</view>
+					</view>
+					<view class="acea-row row-middle row-center" @click="sancode">
+						<image src="/static/img2.png" class="w-88 h-88 m-r-20" mode=""></image>
+						<view class="acea-row row-middle font-32 fcolor1">
+							扫码核销
+							<image src="/static/go.png" class="w-16 h-16 m-l-4" mode=""></image>
+						</view>
+					</view>
+				</view>
+				<view class="line1 m-t-32"></view>
+				<view class="acea-row row-middle row-between m-t-32">
+					<view class="acea-row row-middle" style="color: #CCCCCC;">团队总人数 (人)：<text style="color: #F5B67F;"
+							class="font-40">{{total_count}}</text></view>
+					<view class="acea-row row-middle" @click="gonext('teamSize',0)" style="color: #CCCCCC;">查看明细
+						<image src="/static/go1.png" class="w-16 h-16 m-l-4" mode=""></image>
+					</view>
 				</view>
 			</view>
-			<view class="" slot="center">
-			</view>
-		</uv-navbar>
-		<view class="shopBodyBg ">
-			<view class="flex_b p-30">
-				<view v-for="(item,index) in listA" @click="goRouter(item)" class="listASty" :key="index"
-					:style="'backgroundImage: url('+item.image+')'">
-					<view class="Atitle font-26 white">{{item.title}}</view>
-				</view>
-			</view>
-			<view class="certifySty flex_b">
-				<view class="flex">
-					<image src="../../static/home/b.png" mode="aspectFill"></image>
-					<view class="f-t font-30 m-r-20">收款认证</view>
-					<view class="font-28 graycolor">折扣买单待认证</view>
-				</view>
-				<view class="iconfont icon-yousanjiao graycolor"></view>
-			</view>
-
-		</view>
-		<view class="flex_b " style="padding: 30rpx 20rpx;padding-bottom: 0;">
-			<view class="infoBox flex_c">
+			<image src="/static/bg1.png" class="bg1" mode=""></image>
+			<view class="members acea-row row-middle row-between">
 				<view class="">
-					<view class="flex_b">
-						<view class="flex">
-							<text class="font-28 f-tA">今日交易额(元)</text>
-							<text @click.stop="show=!show" v-if="show" class="iconfont icon-icon- m-l-4"></text>
-							<text @click.stop="show=!show" v-else class="iconfont icon-yincang m-l-4"></text>
-						</view>
-						<view class="iconfont icon-yousanjiao grey"></view>
-					</view>
-					<view class="font-weight font-48 f-tA">{{show?0.00:'***'}} </view>
-				</view>
-				<view class="flex">
-					<view class="m-r-50">
-						<view class="font-28 grey">收款笔数</view>
-						<view class="font-40 font-weight graycolor">{{show?0:'***'}}</view>
-					</view>
 					<view class="">
-						<view class="font-28 grey">顾客数</view>
-						<view class="font-40 font-weight graycolor">{{show?0:'***'}}</view>
-					</view>
-				</view>
-			</view>
-			<view class="infoBox flex_c" @click="$util.redirectTo('/otherpages/realTimeBill/realTimeBill')">
-				<view class="flex_b m-b-10">
-					<view class="flex">
-						<text class="font-28 f-tA ">实时账单</text>
-					</view>
-					<view class="iconfont icon-yousanjiao"></view>
-				</view>
-				<view v-for="(item,index) in 3" :key="index" class="flex_b">
-					<view class="flex">
-						<view v-if="index!==1" style="color: #39af37;" class="iconfont icon-weixinzhifu2 font-40">
+						<image src="/static/vb1.png" mode=""></image>
+						<view class="bga acea-row row-middle">
+							<image src="/static/vip1.png" class="w-32 h-32 m-r-8 m-l-16" mode=""></image>
+							<text style="color: #FFFFFF;">{{leveltotal[1].level_name}}</text>
 						</view>
-						<view v-else style="color: #06b4fd;" class="iconfont icon-zhifubao font-40"></view>
-						<view class="font-32 font-weight f-tA m-l-12">+10.00</view>
+						<view class="" style="color: #fff;"><text style="color: #fff;"
+								class="font-48">{{leveltotal[1].counts||0}}</text>人
+						</view>
 					</view>
-					<view class="grey font-26">07-03</view>
-				</view>
-			</view>
-		</view>
-
-		<view class="wbg p-20 m-t-30 m-r-20 m-l-20 bor-10">
-			<view class="font-30 font-weight-6 m-b-18">经营工具</view>
-			<uv-grid :col="4" @click="click">
-				<uv-grid-item v-for="(item,index) in listB" :key="index" @click="goRouter(item)">
-					<image :src="item.image" class="w-74 h-74" mode="aspectFill"></image>
-					<view class="m-t-14 font-26">{{item.title}}</view>
-				</uv-grid-item>
-			</uv-grid>
-		</view>
-		<view class="wbg p-20 m-t-30 m-r-20 m-l-20 bor-10">
-			<view class="font-30 font-weight-6 m-b-18">店铺管理</view>
-			<uv-grid :col="4">
-				<uv-grid-item v-for="(item,index) in listC" :key="index" @click="goRouter(item)">
-					<image :src="item.image" class="w-74 h-74" mode="aspectFill"></image>
-					<view class="m-t-14 font-26">{{item.title}}</view>
-				</uv-grid-item>
-			</uv-grid>
-		</view>
-		<view class="wbg p-20 m-t-30 m-r-20 m-l-20 bor-10">
-			<view class="font-30 font-weight-6 m-b-18">营销推广</view>
-			<uv-grid :col="4" @click="click">
-				<uv-grid-item @click="$util.redirectTo('/otherpages/courtesy/courtesy')">
-					<image src="../../static/home/yx1.png" class="w-74 h-74" mode="aspectFill"></image>
-					<view class="m-t-14 font-26">支付有礼</view>
-				</uv-grid-item>
-			</uv-grid>
-		</view>
-		<view class="wbg p-20 m-t-30 m-r-20 m-l-20 bor-10">
-			<view class="font-30 font-weight-6 m-b-18">其他服务</view>
-			<uv-grid :col="4" @click="click">
-				<uv-grid-item v-for="(item,index) in listD" :key="index" @click="goRouter(item)">
-					<image :src="item.image" class="w-74 h-74" mode="aspectFill"></image>
-					<view class="m-t-14 font-26">{{item.title}}</view>
-				</uv-grid-item>
-			</uv-grid>
-		</view>
-
-		<view class="h-400">
-
-		</view>
-		<uv-popup ref="popup" round="10">
-			<view class="popupBoxHome">
-				<view class="font-36 font-weight f-t textC">添加官方客服</view>
-				<view class="font-36 font-weight f-t textC">申请更高的收款额度</view>
-				<image src="../../static/logo.png" mode="aspectFill"></image>
-				<view class="font-28 f-tA">长按扫码添加官方客服</view>
-			</view>
-		</uv-popup>
-		<uv-popup ref="popup1" round="10" bgColor="#F6F7FB">
-			<view class="business p-t-36">
-				<view class="acea-row row-middle row-around font-32">
-					<text class="on">地推商务</text>
-					<text class="">区域经理</text>
-				</view>
-				<view class="wbg m-t-64 bor-20 m-r-20 m-l-20 p-20 acea-row row-middle">
-					<image src="../../static/logo.png" class="w-102 h-102 m-r-20" mode=""></image>
-					<view class="h-102">
-						<view class="m-t-12 font-32 font-bold">白苏叶</view>
-						<view class="font-24 fcolor m-t-6">18327327831 <text class="fcolor1 m-l-20">复制</text></view>
+					<view class="acea-row row-middle row-center p-t-12 p-b-12" style="color: #B2B6C2;"
+						@click="gonext('teamSize',1)">
+						查看明细
+						<image src="/static/go2.png" class="w-18 h-18 m-l-6" mode=""></image>
 					</view>
 				</view>
-				<view class="m-t-56 m-r-30 m-l-30">
-					<uv-button text="我知道了" shape="circle" color="#FF4D1A"></uv-button>
+				<view class="">
+					<view class="">
+						<image src="/static/vb2.png" mode=""></image>
+						<view class="bgb acea-row row-middle">
+							<image src="/static/vip2.png" class="w-32 h-32 m-r-8 m-l-16" mode=""></image>
+							<text style="color: #222;">{{leveltotal[2].level_name}}</text>
+						</view>
+						<view class="" style="color: #FAD5B4;"><text style="color: #FAD5B4;"
+								class="font-48">{{leveltotal[2].counts||0}}</text>人
+						</view>
+					</view>
+					<view class="acea-row row-middle row-center p-t-12 p-b-12" style="color: #B2B6C2;"
+						@click="gonext('teamSize',2)">
+						查看明细
+						<image src="/static/go2.png" class="w-18 h-18 m-l-6" mode=""></image>
+					</view>
+				</view>
+				<view class="">
+					<view class="">
+						<image src="/static/vb3.png" mode=""></image>
+						<view class="bgc acea-row row-middle">
+							<image src="/static/vip3.png" class="w-32 h-32 m-r-8 m-l-16" mode=""></image>
+							<text style="color: #FFD685;">{{leveltotal[3].level_name}}</text>
+						</view>
+						<view class="" style="color: #FFD685;"><text style="color: #FFD685;"
+								class="font-48">{{leveltotal[3].counts||0}}</text>人
+						</view>
+					</view>
+					<view class="acea-row row-middle row-center p-t-12 p-b-12" style="color: #B2B6C2;"
+						@click="gonext('teamSize',3)">
+						查看明细
+						<image src="/static/go2.png" class="w-18 h-18 m-l-6" mode=""></image>
+					</view>
 				</view>
 			</view>
-		</uv-popup>
-		<uv-popup ref="popup2" round="10" bgColor="#F6F7FB" closeable>
-			<view class="popup2 p-b-102 p-t-40">
-				<view class="font-32 font-bold">添加客服</view>
-				<image src="../../static/logo.png" show-menu-by-longpress class="w-340 h-340 m-t-66" mode=""></image>
+		</view>
+		<view class="acea-row row-middle row-between jifenUM">
+			<text>积分数量</text>
+			<text>{{points||0}}</text>
+		</view>
+		<view class="container">
+			<view class="acea-row row-middle row-between m-b-32">
+				<view v-for="(item,index) in tablist" :class="{'on':check==index}" @click="cuts(index)" :key="index">
+					{{item}}
+					<image src="/static/down1.png" class="w-24 h-8" v-if="check==index" mode=""></image>
+				</view>
 			</view>
-		</uv-popup>
-		<uv-picker ref="picker" :columns="columns" keyName="Name" @confirm="confirm"></uv-picker>
-		<TabBar :current-page="0" />
+			<uv-subsection :list="list1" :current="current" activeColor='#1D1E24'
+				custom-style="height: 60rpx;border-radius: 30rpx;" custom-item-style="border-radius: 30rpx;"
+				@change="change"></uv-subsection>
+			<view class="h-24"></view>
+			<view class="defas acea-row row-middle row-between" v-if="check==0&&token&&myinfo">
+				<view class="acea-row row-middle">
+					<view class="ranks">
+						<image src="/static/rank.png" mode=""></image>
+						<text>{{myinfo.rank}}</text>
+					</view>
+					<image :src="$util.img(myinfo.info.site_logo)" v-if="myinfo.info.site_logo" class="w-102 h-52 m-l-24" mode=""></image>
+					<text class="font-28 m-l-12" style="color: #222;">{{myinfo.info.site_name}}</text>
+					<text class="my">(我)</text>
+				</view>
+				<view class="font-28" style="color: #222;">{{myinfo.info.account_points||0}}</view>
+			</view>
+			<view class="acea-row row-middle row-between p-24 titles" v-if="check==0">
+				<view class="acea-row row-middle">
+					<text class="m-r-20">排名</text>
+					<text>品牌</text>
+				</view>
+				<text>热度</text>
+			</view>
+			<view class="acea-row row-middle row-between p-24 titles" v-else>
+				<view class="acea-row row-middle">
+					<text class="m-r-20">排名</text>
+					<text>名称</text>
+				</view>
+				<text>积分</text>
+			</view>
+			<template v-if="check==0">
+				<view v-for="(item,index) in list" class="m-b-20 defas acea-row row-middle row-between"
+					:class="{'rankbg1':index==0,'rankbg2':index==1,'rankbg3':index==2}" :key="index">
+					<view class="acea-row row-middle" style="flex-wrap: nowrap;">
+						<view class="ranks">
+							<image src="/static/rank1.png" v-if="index==0" mode=""></image>
+							<image src="/static/rank2.png" v-else-if="index==1" mode=""></image>
+							<image src="/static/rank3.png" v-else-if="index==2" mode=""></image>
+							<image src="/static/rank.png" v-else mode=""></image>
+							<text v-if="index>2">{{index+1}}</text>
+						</view>
+						<image :src="$util.img(item.site_logo)" v-if="item.site_logo" class="w-102 h-52 m-l-24" mode=""></image>
+						<text class="font-28 m-l-12 text-more w-280" style="color: #222;">{{item.site_name}}</text>
+					</view>
+					<view class="font-28" style="color: #222;">{{item.account_points||0}}</view>
+				</view>
+			</template>
+			<template v-else>
+				<view v-for="(item,index) in list2" class="m-b-20 defas acea-row row-middle row-between"
+					:class="{'rankbg1':index==0,'rankbg2':index==1,'rankbg3':index==2}" :key="index">
+					<view class="acea-row row-middle">
+						<view class="ranks">
+							<image src="/static/rank1.png" v-if="index==0" mode=""></image>
+							<image src="/static/rank2.png" v-else-if="index==1" mode=""></image>
+							<image src="/static/rank3.png" v-else-if="index==2" mode=""></image>
+							<image src="/static/rank.png" v-else mode=""></image>
+							<text v-if="index>2">{{index+1}}</text>
+						</view>
+						<image :src="$util.img(item.memberinfo.headimg)" v-if="item.memberinfo.headimg"
+							class="w-52 h-52 bor-50 m-l-24" mode=""></image>
+						<image src="/static/avatar.png" v-else class="w-52 h-52 bor-50 m-l-24" mode=""></image>
+						<text class="font-28 m-l-12" style="color: #222;">{{item.memberinfo.nickname}}</text>
+					</view>
+					<view class="font-28" style="color: #222;">{{item.account_points||0}}</view>
+				</view>
+			</template>
+		</view>
+		<login ref="login" @loginsuccess='loginsuccess'></login>
 	</view>
 </template>
 
 <script>
+	import {
+		getnum,
+		getmemberranklist,
+		getRankList,
+		getInfo
+	} from "@/common/js/api.js"
 	export default {
 		data() {
 			return {
-				shopList: [],
-				textList: [],
-				columns: [
-					[]
-				],
-				columnsA: [
-					[{
-						label: '雪月夜',
-						// 其他属性值
-						id: 2021
-						// ...
-					}, {
-						label: '冷夜雨',
-						id: 804
-					}]
-				],
-				addressVal: {},
-				activeId: 0,
-				show: false,
-				listA: [{
-						image: require('../../static/home/n1.png'),
-						title: '收款码',
-						router: '/otherpages/payCode/payCode'
-					},
-					{
-						image: require('../../static/home/n2.png'),
-						title: '团购核销'
-					},
-					{
-						image: require('../../static/home/n3.png'),
-						title: '收款账户',
-						router: '/otherpages/receiptnAccount/receiptnAccount'
-					},
-					{
-						image: require('../../static/home/n4.png'),
-						title: '生意报表',
-						router: '/otherpages/businessEchars/businessEchars'
-					},
-				],
-				listB: [{
-						image: require('../../static/home/jy1.png'),
-						title: '收款码'
-					},
-					{
-						image: require('../../static/home/jy2.png'),
-						title: '语音设备'
-					},
-					{
-						image: require('../../static/home/jy3.png'),
-						title: '我的团购',
-						router:'/otherpages/myGroupBuy/myGroupBuy'
-					},
-					{
-						image: require('../../static/home/jy4.png'),
-						title: '团购核销'
-					},
-				],
-				listC: [{
-						image: require('../../static/home/shop1.png'),
-						title: '收款账户'
-					},
-					{
-						image: require('../../static/home/shop2.png'),
-						title: '员工管理',
-						router: '/otherpages/employee/employee'
-					},
-					{
-						image: require('../../static/home/shop3.png'),
-						title: '店铺资料',
-						router: '/otherpages/information/information'
-					},
-					{
-						image: require('../../static/home/shop4.png'),
-						title: '地推商务'
-					},
-				],
-				listD: [{
-						image: require('../../static/home/other1.png'),
-						title: '下载中心',
-						router: '/otherpages/download/download'
-					},
-					{
-						image: require('../../static/home/other2.png'),
-						title: '在线客服',
-						router: '/otherpages/contact/contact'
-					},
-					{
-						image: require('../../static/home/other4.png'),
-						title: '人工客服'
-					},
-					{
-						image: require('../../static/home/other3.png'),
-						title: '设置',
-						router: "/otherpages/settings/settings"
-					}
-				],
-				bannerList: [],
-				type: 0,
-				homeInfo: {},
-				classList: [],
-				keywords: '',
-				typeList: [{
-					name: '最新消息',
-					id: 0
-				}]
+				tablist: ['品牌积分排行榜', '员工积分排行榜'],
+				check: 0,
+				list1: ['年度排行榜', '月度排行榜'],
+				current: 0,
+				points: 0,
+				total_count: 0,
+				leveltotal: [],
+				list: [],
+				list2: [],
+				myinfo: {},
+				token: '',
+				page: 1,
+				last_page: 1
 			}
 		},
 		onLoad(res) {
-			if (res.invite_code) {
-				uni.setStorage({
-					key: 'invite_code',
-					data: res.invite_code,
-					success: () => {}
-				});
+
+		},
+		onReachBottom() {
+			if (this.last_page > this.page) {
+				this.page++
+				if (this.check == 1) {
+					this.getmemberranklist()
+				} else {
+					this.getRankList()
+				}
 			}
-			if (res.scene) {
-				// var sceneParams = decodeURIComponent(res.scene);
-				// console.log(sceneParams, 'sss');
+		},
+		onShow() {
+			this.token = uni.getStorageSync('token') || ''
+			if (!uni.getStorageSync('token')) {
+				// this.$refs.login.open()
+			} else {
+				this.getnum()
+				this.getRankList()
+				// this.getmemberranklist()
 			}
 		},
 		onPullDownRefresh() {
 
 
 		},
-		onShow() {
-
-		},
 		methods: {
-			goRouter(item) {
-				if (item.title == '地推商务') {
-					this.$refs.popup1.open('bottom');
-				} else if (item.title == '人工客服') {
-					this.$refs.popup2.open('center');
+			sancode() {
+				if (!uni.getStorageSync('token')) {
+					this.$refs.login.open()
+					return
+				}
+				uni.scanCode({
+					success: res => {
+						console.log(res);
+					}
+				})
+			},
+			loginsuccess() {
+				this.getnum()
+				getInfo().then(res => {
+					uni.setStorageSync('site_id', res.data.site_id)
+				})
+				if (this.check == 1) {
+					this.getmemberranklist()
 				} else {
-					this.$util.redirectTo(item.router)
+					this.getRankList()
 				}
 			},
-			addressFn() {
-				this.$refs.picker.open();
+			change(e) {
+				if (!uni.getStorageSync('token')) {
+					this.$refs.login.open()
+					return
+				}
+				this.current = e
+				this.page = 1
+				if (this.check == 1) {
+					this.getmemberranklist()
+				} else {
+					this.getRankList()
+				}
+			},
+			cuts(e) {
+				if (!uni.getStorageSync('token')) {
+					this.$refs.login.open()
+					return
+				}
+				this.check = e
+				this.page = 1
+				if (e == 1) {
+					this.getmemberranklist()
+				} else {
+					this.getRankList()
+				}
+			},
+			getRankList() {
+				let params = {
+					sortby: this.current == 0 ? 'year' : 'month',
+					page: this.page
+				}
+				getRankList(params).then(res => {
+					this.myinfo = res.data.myinfo
+					this.list = this.page > 1 ? this.list.concat(...res.data.list) : res.data.list
+					this.last_page = res.data.page_count
+				})
+			},
+			getmemberranklist() {
+				let params = {
+					sortby: this.current == 0 ? 'year' : 'month',
+					page: this.page
+				}
+				getmemberranklist(params).then(res => {
+					this.list2 = this.page > 1 ? this.list2.concat(...res.data.list) : res.data.list
+					this.last_page = res.data.page_count
+				})
+			},
+			gonext(e, n) {
+				if (!uni.getStorageSync('token')) {
+					this.$refs.login.open()
+					return
+				}
+				uni.navigateTo({
+					url: `/otherpages/${e}/${e}?current=${n}`
+				})
+			},
+			getnum() {
+				getnum().then(res => {
+					this.points = res.data.points
+					this.total_count = res.data.team_total.total_count
+					this.leveltotal = res.data.team_total.leveltotal
+				})
 			},
 		}
 	}
 </script>
 
-<style scoped lang="scss">
-	.wbg {
-		background: #fff;
-	}
+<style lang="scss">
+	.container {
+		margin: 32rpx;
+		background: #FFFFFF;
+		border-radius: 24rpx;
+		padding: 24rpx;
 
-	.popup2 {
-		width: 80vw;
-		text-align: center;
-	}
-
-	.business {
-		view {
-			color: #1C274C;
-		}
-
-		.fcolor {
-			color: #5D6581;
-		}
-
-		.fcolor1 {
-			color: #FF4D1A;
-		}
-
-		image {
-			border-radius: 50%;
-		}
-
-		.on {
-			color: #FF4D1A;
-			font-weight: bold;
-		}
-	}
-
-	.popupBoxHome {
-		background-image: linear-gradient(to top, #fff, #fff, #fff, #ffc1ae);
-		text-align: center;
-		padding-top: 40rpx;
-
-		view {
-			text-align: center;
-		}
-
-		image {
-			margin-top: 50rpx;
-			margin-bottom: 50rpx;
-			text-align: center;
-			width: 339rpx;
-			height: 344rpx;
-		}
-	}
-
-	.infoBox {
-		box-sizing: border-box;
-		padding: 30rpx;
-		width: 345rpx;
-		height: 308rpx;
-		background-color: #fff;
-		border-radius: 20rpx;
-	}
-
-	.navImg {
-		width: 53rpx;
-		height: 53rpx;
-		border-radius: 50%;
-		border: 1rpx solid #fff;
-	}
-
-	.listASty {
-		width: 151rpx;
-		height: 167rpx;
-		background-size: cover;
-		position: relative;
-
-		.Atitle {
-			position: absolute;
-			bottom: 0;
-			width: 151rpx;
-			text-align: center;
-			bottom: 15rpx;
-		}
-	}
-
-	.wbg {
-		background: #fff;
-	}
-
-	.shopBodyBg {
-		height: 350rpx;
-		background-color: #ff4d19;
-		position: relative;
-
-		.certifySty {
-			position: absolute;
-			bottom: 0;
-			width: 690rpx;
-			padding: 0 20rpx;
-			box-sizing: border-box;
-			height: 108rpx;
-			border-radius: 20rpx 20rpx 0 0;
-			opacity: 1;
-
-			left: 50%;
-			margin-left: -345rpx;
-			background: #ffffff;
-
-			image {
-				width: 66rpx;
-				height: 66rpx;
-			}
-		}
-	}
-
-	.changeShopSty {
-		width: 167rpx;
-		height: 46rpx;
-		flex-shrink: 0;
-		border-radius: 47rpx;
-		background: #FF8765;
-	}
-
-	.tabsList {
-		padding: 18rpx 0;
-		flex-wrap: wrap;
-
-		view {
-			padding: 0 10rpx;
-			height: 42rpx;
-			background: #F5E2DC;
-			border-radius: 21rpx;
-			font-weight: 400;
-			font-size: 22rpx;
-			color: #F43C04;
-			line-height: 42rpx;
-			text-align: center;
-			margin-right: 20rpx;
-		}
-	}
-
-	.infoFun {
-		view {
-			height: 36rpx;
-			border: 3rpx solid #3079FF;
-			padding: 0 10rpx;
-			line-height: 36rpx;
-			border-radius: 8rpx;
-			font-weight: 400;
-			font-size: 22rpx;
-			color: #3079FF;
-			line-height: 36rpx;
-			margin-left: 20rpx;
-		}
-
-		view:nth-child(2) {
-			color: #F33B04;
-			border: 3rpx solid #F33B04;
-		}
-	}
-
-
-
-
-
-	.infoItem {
-		border-bottom: 1rpx solid #f3f3f3;
-		padding-bottom: 20rpx;
-	}
-
-
-
-	.userSty {
-		image {
-			width: 52rpx;
-			height: 52rpx;
-			border-radius: 50%;
-		}
-	}
-
-	.boxSty {
-		padding: 25rpx;
-		background-color: #fff;
-
-		.boxStyTitle {
-			display: flex;
-			align-items: center;
-			justify-content: space-between;
-
-		}
-
-		.boxItem {
-			font-family: HarmonyOS Sans SC, HarmonyOS Sans SC;
-			font-weight: 600;
-			font-size: 28rpx;
-			color: #808080;
-			position: relative;
-		}
-
-		.itemActive {
-			font-size: 32rpx;
-			color: #000;
-			z-index: 99;
-		}
-
-		.avtiveBg {
-			position: absolute;
-			z-index: -1;
-			top: -10rpx;
-			left: -10rpx;
-			width: 62rpx;
-			height: 62rpx;
-			border-radius: 50%;
-			background: linear-gradient(123deg, #FFE0C2 0%, rgba(255, 232, 156, 0) 100%);
-		}
-	}
-
-	.towModel {
-		width: 690rpx;
-		margin: 20rpx auto;
-		display: flex;
-		justify-content: space-between;
-
-		image {
-			width: 330rpx;
-			height: 174rpx;
-		}
-	}
-
-	.dengJi {
-		position: relative;
-		width: 690rpx;
-
-		image {
-			width: 690rpx;
-			height: 136rpx;
-			border-radius: 10rpx;
-		}
-
-		margin: 20rpx auto;
-
-		.dengJiTxt {
-			position: absolute;
-			left: 30rpx;
-			top: 0rpx;
-			height: 136rpx;
-			display: flex;
-			flex-direction: column;
-			justify-content: space-evenly;
-
-			:nth-child(1) {
-				color: #ED783E;
-			}
-
-			:nth-child(2) {
-				width: 128rpx;
-				height: 40rpx;
-				background: #ED783E;
-				font-family: HarmonyOS Sans SC, HarmonyOS Sans SC;
+		.titles {
+			text {
 				font-weight: 400;
 				font-size: 24rpx;
-				color: #FFFFFF;
-				line-height: 40rpx;
+				color: #999999;
+			}
+		}
+
+		.my {
+			font-weight: 600;
+			font-size: 28rpx;
+			color: #F55606;
+		}
+
+		>view:first-child {
+			>view {
+				width: calc((100% - 16rpx)/2);
+				line-height: 72rpx;
+				background: #F5F5F5;
+				border-radius: 16rpx;
 				text-align: center;
-				border-radius: 20rpx;
+				box-sizing: border-box;
+				position: relative;
+				font-weight: 400;
+				font-size: 28rpx;
+				color: #222222;
+			}
+
+			.on {
+				border: 2rpx solid #F55606;
+				font-weight: 600;
+				font-size: 28rpx;
+				color: #F55606;
+
+				>image {
+					position: absolute;
+					left: 50%;
+					transform: translateX(-50%);
+					bottom: -10rpx;
+				}
+			}
+		}
+
+		.defas {
+			border-radius: 12rpx;
+			height: 104rpx;
+			padding: 0 24rpx;
+			background: #F5F5F5;
+		}
+
+		.rankbg1 {
+			background: linear-gradient(90deg, #FFF1D6 0%, #F6F8FC 100%);
+		}
+
+		.rankbg2 {
+			background: linear-gradient(90deg, #E3EFFC 0%, #F6F8FC 100%);
+		}
+
+		.rankbg3 {
+			background: linear-gradient(90deg, #FFF0E6 0%, #FFFCFA 100%);
+		}
+
+		.ranks {
+			width: 58rpx;
+			height: 64rpx;
+			position: relative;
+
+			>text {
+				font-weight: 400;
+				font-size: 32rpx;
+				color: #222222;
+				position: absolute;
+				left: 50%;
+				transform: translateX(-50%);
+				bottom: 12rpx;
+			}
+
+			>image {
+				width: 100%;
+				height: 100%;
 			}
 		}
 	}
 
-	.fonList {
-		display: flex;
-		align-items: center;
-		flex-wrap: wrap;
-
-		.fonItem {
-			width: 20%;
-			text-align: center;
-
-			image {
-				width: 84rpx;
-				height: 84rpx;
-				margin-top: 14rpx;
-			}
-		}
-	}
-
-
-	.swiperSty {
-		height: 247px;
+	.jifenUM {
+		height: 80rpx;
+		background: #272A33;
+		margin: 32rpx;
+		border-radius: 16rpx;
 		position: relative;
+		padding: 0 32rpx;
 
-		.swiperStyTxtA {
+		&::before {
+			content: '';
 			position: absolute;
-			top: 170rpx;
-			right: 30rpx;
-			height: 52rpx;
-			background: #EAF1FF;
-			opacity: 0.9;
-			padding: 0 10rpx;
-			border-radius: 10rpx;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			border-radius: 16rpx;
+			padding: 1rpx;
+			background: linear-gradient(90deg, rgba(250, 213, 180, 0), rgba(250, 213, 180, 1));
+			-webkit-mask:
+				linear-gradient(#fff 0 0) content-box,
+				linear-gradient(#fff 0 0);
+			-webkit-mask-composite: xor;
+			mask-composite: exclude;
+			pointer-events: none;
 		}
 
-		.swiperStyTxtB {
-			position: absolute;
-			bottom: 24rpx;
-			left: 30rpx;
-			// height: 52rpx;
-			// background: #EAF1FF;
-			// opacity: 0.9;
-			// padding: 0 10rpx;
-			border-radius: 20rpx;
-			width: 560rpx;
-			// image {
-			// 	width: 36rpx;
-			// 	height: 36rpx;
-			// 	border-radius: 50%;
-			// }
+		text:first-child {
+			color: #CCCCCC;
+			font-size: 28rpx;
+		}
+
+		text:last-child {
+			color: #F5B67F;
+			font-size: 48rpx;
+			font-weight: 700;
 		}
 	}
 
-	.inputBox {
-		width: 326rpx;
-		height: 62rpx;
-		opacity: 1;
-		border-radius: 32rpx;
-		border: 2rpx solid rgba(227, 230, 235, 1);
+	.members {
+		margin: 0 32rpx;
+		margin-top: 85rpx;
+
+		>view {
+			width: calc((100% - 32rpx)/3);
+			// height: 208rpx;
+			background: #272A33;
+			border-radius: 16rpx;
+			overflow: hidden;
+
+			>view:first-child {
+				width: 100%;
+				height: 158rpx;
+				position: relative;
+
+				>image {
+					width: 100%;
+					height: 100%;
+				}
+
+				>view:nth-child(2) {
+					width: 176rpx;
+					height: 50rpx;
+					position: absolute;
+					left: 0;
+					top: 0;
+					z-index: 3;
+					clip-path: polygon(0% 0%, 100% 0%, 95% 100%, 0% 100%);
+					border-radius: 0 0 20rpx 0;
+				}
+
+				.bga {
+					background: linear-gradient(90deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.28) 100%);
+				}
+
+				.bgb {
+					background: linear-gradient(90deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.28) 100%);
+				}
+
+				.bgc {
+					background: linear-gradient(90deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.28) 100%);
+				}
+
+				>view:nth-child(3) {
+					position: absolute;
+					left: 20rpx;
+					bottom: 32rpx;
+				}
+			}
+		}
+	}
+
+	.bg1 {
+		position: absolute;
+		width: 100vw;
+		height: 350rpx;
+		top: 220rpx;
+		left: 0;
+		z-index: -1;
+	}
+
+	.line1 {
+		border: 1rpx dashed #555555;
+	}
+
+	.wbg {
+		background: #fff;
+	}
+
+	page {
+		background: #101014;
+	}
+
+	.part1 {
+		height: 279rpx;
+		background: linear-gradient(180deg, #272A33 0%, #18181F 100%);
+		border-radius: 24rpx;
+		margin: 0 32rpx;
+		margin-top: 20rpx;
+		box-sizing: border-box;
+		padding: 32rpx;
+
+		>view:first-child {
+			>view {
+				width: calc((100% - 46rpx)/2);
+			}
+		}
+	}
+
+	.fcolor1 {
+		color: #fff;
 	}
 </style>

@@ -1,1 +1,0 @@
-<view class="p-t-70"><view class="font-40 font-weight textC">添加设备</view><view class="font-28 graycolor textC">扫描设备背面二维码以绑定设备</view><image class="w-750" src="http://tuanshenghuo.xing-peng.com/mobile/img/D.png" mode="widthFix"></image><view class="p-50"><button type="primary">扫描设备码</button><view class="textC font-28 graycolor m-t-20">联系地推商务，获取设备</view></view></view>

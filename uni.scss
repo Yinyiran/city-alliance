@@ -20,7 +20,7 @@ $color-sub: #ff4d1a; // 副标题 主色调调的颜色
 $color-subA: #1C274C; // 辅助标题
 
 $color-tip: #4D4D4D; // 辅助提示色
-$color-bg: #f5f5f5; // 背景色
+$color-bg: #F6F7FB; // 背景色
 $color-line: #eeeeee; //分割线
 $color-disabled: #cccccc; // 禁用色
 $color-btn: #ff4d1a; //按钮颜色
@@ -185,12 +185,12 @@ text {
 			}
 		}
 
-		&[disabled],
-		&.disabled {
-			background: $color-btn !important;
-			color: $color-btnColor !important;
-			border-color: $color-btn !important;
-		}
+		// &[disabled],
+		// &.disabled {
+		// 	background: $color-btn !important;
+		// 	color: $color-btnColor !important;
+		// 	border-color: $color-btn !important;
+		// }
 	}
 
 	.flex_b {

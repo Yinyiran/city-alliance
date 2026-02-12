@@ -1,16 +1,32 @@
 <script>
 	export default {
-		globalData: {
-			// 保存客户发票信息
-			userdata: {
-				bank_name: '',
-				bank_number: '',
-				bank_open: '',
-				bank_account: '',
-			}
-		},
 		onLaunch: function() {
 			console.log('App Launch')
+			let _this = this
+			uni.getSystemInfo({
+				success: function(e) {
+					// #ifndef MP
+					_this.globalData.StatusBar = e.statusBarHeight;
+					if (e.platform == 'android') {
+						_this.globalData.CustomBar = e.statusBarHeight + 50;
+					} else {
+						_this.globalData.CustomBar = e.statusBarHeight + 45;
+					};
+					// #endif
+
+					// #ifdef MP-WEIXIN
+					_this.globalData.StatusBar = e.statusBarHeight;
+					let custom = uni.getMenuButtonBoundingClientRect();
+					_this.globalData.Custom = custom;
+					_this.globalData.CustomBar = custom.bottom + custom.top - e.statusBarHeight;
+					// #endif		
+
+					// #ifdef MP-ALIPAY
+					_this.globalData.StatusBar = e.statusBarHeight;
+					_this.globalData.CustomBar = e.statusBarHeight + e.titleBarHeight;
+					// #endif
+				}
+			})
 			// 小程序版本更新
 			// #ifdef MP
 			const updateManager = uni.getUpdateManager();
@@ -35,8 +51,7 @@
 			});
 			// #endif
 		},
-		onLoad: function() {
-		},
+		onLoad: function() {},
 		onHide: function() {
 			console.log('App Hide')
 		}
@@ -46,10 +61,28 @@
 <style lang="scss">
 	@import './common/css/main.scss';
 	@import './common/css/common.scss';
+	radio .wx-radio-input.wx-radio-input-checked {
+		background-color: #F55606 !important;
+		border-color: #F55606 !important;
+		// box-sizing: border-box;
+	}
+	
+	checkbox.red[checked] .wx-checkbox-input,
+	checkbox.red.checked .uni-checkbox-input {
+		background-color: #0C997D !important;
+		border-color: #0C997D !important;
+		color: #0C997D !important;
+	}
+	
+	/**
+	* 去除选中后的对号
+	*/
+	radio::before {
+		content: '' !important;
+	}
 </style>
 <style lang="scss">
-	page {
-		margin: 0 auto;
-		padding-bottom: env(safe-area-inset-bottom);
-	}
+	// page {
+	// 	padding-bottom: env(safe-area-inset-bottom);
+	// }
 </style>

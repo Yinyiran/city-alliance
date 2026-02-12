@@ -1,7 +1,0 @@
-{
-  "navigationBarTitleText": "推广订单",
-  "usingComponents": {
-    "uv-sticky": "/uni_modules/uv-sticky/components/uv-sticky/uv-sticky",
-    "uv-search": "/uni_modules/uv-search/components/uv-search/uv-search"
-  }
-}
