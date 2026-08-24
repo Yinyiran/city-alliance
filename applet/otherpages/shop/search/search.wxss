@@ -1,0 +1,39 @@
+@charset "UTF-8";
+/**
+ * 你可以通过修改这些变量来定制自己的插件主题，实现自定义主题功能
+ * 建议使用scss预处理，并在插件代码中直接使用这些变量（无需 import 这个文件），方便用户通过搭积木的方式开发整体风格一致的App
+ */
+.shop-info {
+  width: 100%;
+  padding: 20rpx;
+  box-sizing: border-box;
+  background: #fff;
+}
+.search-content {
+  background-color: #F4F4F4;
+}
+.shop-search .search-box {
+  position: relative;
+  background: #fff;
+}
+.shop-search .search-box input {
+  display: block;
+  height: 64rpx;
+  width: 590rpx;
+  padding: 0 20rpx;
+  background: #f4f4f4;
+  color: #333333;
+}
+.shop-search .search-box .iconfont {
+  position: absolute;
+  top: 50%;
+  right: 20rpx;
+  -webkit-transform: translateY(-50%);
+          transform: translateY(-50%);
+  font-size: 40rpx;
+  z-index: 10;
+  color: #89899a;
+  width: 80rpx;
+  text-align: center;
+}
+

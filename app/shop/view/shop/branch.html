@@ -1,0 +1,153 @@
+{extend name="base"/}
+{block name="resources"}
+<style>
+    .ns-screen {
+        margin-top: 15px;
+    }
+</style>
+{/block}
+{block name="body"}
+<div class="ns-screen layui-collapse" lay-filter="selection_panel">
+    <div class="layui-colla-item">
+        <h2 class="layui-colla-title"></h2>
+        <form class="layui-colla-content layui-form layui-show">
+            <div class="layui-form-item">
+
+                <div class="layui-inline">
+                    <label class="layui-form-label">支行名称：</label>
+                    <div class="layui-input-inline">
+                        <input type="text" id="serial_name" name="serial_name" placeholder="请输入支行名称" class="layui-input">
+                    </div>
+                </div>
+
+                <!--<div class="layui-inline">
+                    <label class="layui-form-label">银行：</label>
+                    <div class="layui-input-inline">
+                        <select name="bank_num" lay-filter="bank_num">
+                            <option value="">全部</option>
+                            {volist name="$bank_list" id="group"}
+                            <option value="{$group.code}" title="{$group.name}">{$group.name}</option>
+                            {/volist}
+                        </select>
+                    </div>
+                </div>-->
+
+            </div>
+
+
+
+            <div class="ns-form-row">
+                <button class="layui-btn ns-bg-color" lay-submit lay-filter="search">筛选</button>
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<table id="fenxiao_list" lay-filter="fenxiao_list"></table>
+
+<input type="hidden" value="" id="param" />
+
+
+<!-- 工具栏操作 -->
+<script type="text/html" id="operation">
+    <div class="ns-table-btn">
+        <a class="layui-btn" lay-event="confirm">确认</a>
+    </div>
+</script>
+{/block}
+
+{block name="script"}
+<script>
+    var repeat_flag = false;
+    layui.use(['form', 'laydate'], function() {
+        var table,
+            form = layui.form,
+            laydate = layui.laydate;
+        form.render();
+
+        //渲染时间
+        laydate.render({
+            elem: '#start_time',
+            type: 'datetime'
+        });
+
+        laydate.render({
+            elem: '#end_time',
+            type: 'datetime'
+        });
+
+        table = new Table({
+            elem: '#fenxiao_list',
+            url: ns.url("shop/shop/branch"),
+            where:{
+                bank_num : "{$bank_code}"
+            },
+            cols: [
+                [{
+                    field: 'serial_name',
+                    title: '支行名称',
+                    unresize: 'false',
+                    width: '30%'
+                },{
+                    field: 'serial_number',
+                    title: '联行号',
+                    unresize: 'false',
+                    width: '15%'
+                },{
+                    field: 'bank_name',
+                    title: '银行名称',
+                    unresize: 'false',
+                    width: '15%'
+                }, {
+                    title: '操作',
+                    toolbar: '#operation',
+                    unresize: 'false',
+                    width: '10%'
+                }]
+            ]
+        });
+
+        /**
+         * 搜索功能
+         */
+        form.on('submit(search)', function(data) {
+            table.reload({
+                page: {
+                    curr: 1
+                },
+                where: data.field
+            });
+            return false;
+        });
+
+        /**
+         * 监听工具栏操作
+         */
+        table.tool(function(obj) {
+            var data = obj.data,
+                event = obj.event;
+            switch (event) {
+
+                case 'confirm': //确认更改上下级关系
+                    //console.error(data)
+                    closeAndSendData(data);
+                    //parent.layer.close();
+                    break;
+            }
+        });
+    });
+
+    function fun(callback) {
+        var param = $("#param").val();
+        callback(param);
+    }
+    // 假设你想在某个事件发生后关闭弹框并返回数据
+    function closeAndSendData(data) {
+        //var dataToSend = data;
+        // 关闭弹框并传递数据
+        window.parent.postMessage(data, '*'); // 使用postMessage传递数据
+        window.parent.layer.closeAll(); // 关闭所有弹框，你也可以指定关闭特定的某个
+    }
+</script>
+{/block}

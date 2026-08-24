@@ -1,0 +1,16 @@
+[OK] returned, len=7074
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>系统发生错误</title>
+    <meta name="robots" content="noindex,nofollow" />
+    <style>
+        /* Base */
+        body {
+            color: #333;
+            font: 16px Verdana, "Helvetica Neue", helvetica, Arial, 'Microsoft YaHei', sans-serif;
+            margin: 0;
+            padding: 0 20px 20px;
+        }
+

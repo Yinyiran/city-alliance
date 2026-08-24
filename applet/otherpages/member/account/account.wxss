@@ -1,0 +1,126 @@
+@charset "UTF-8";
+/**
+ * 你可以通过修改这些变量来定制自己的插件主题，实现自定义主题功能
+ * 建议使用scss预处理，并在插件代码中直接使用这些变量（无需 import 这个文件），方便用户通过搭积木的方式开发整体风格一致的App
+ */
+ .fixed {
+  position: relative;
+  top: 0;
+}
+ .empty {
+  margin-top: 0 !important;
+}
+.cart-empty {
+  padding-top: 104px !important;
+}
+.add-account {
+  margin-top: 5vh;
+  height: 80rpx;
+  line-height: 80rpx;
+}
+.zw {
+  margin-top: 250rpx;
+}
+.list-item {
+  margin: 0 30rpx;
+  padding: 30rpx;
+  box-sizing: border-box;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+          flex-direction: column;
+  background-color: #fff;
+  margin-bottom: 18rpx;
+  border-radius: 10rpx;
+  overflow: hidden;
+  position: relative;
+}
+.list-item:first-child {
+  margin-top: 18rpx;
+}
+.list-item .item-mr {
+  font-size: 20rpx;
+  color: #fff;
+  height: 150rpx;
+  width: 150rpx;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: end;
+  -webkit-align-items: flex-end;
+          align-items: flex-end;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+          justify-content: center;
+  position: absolute;
+  right: -90rpx;
+  top: -90rpx;
+  -webkit-transform: rotate(45deg);
+          transform: rotate(45deg);
+}
+.list-item .item-top {
+  border-bottom: 1px solid #eeeeee;
+  padding-bottom: 26rpx;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+          flex-direction: column;
+}
+.list-item .item-top view {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+  margin-bottom: 30rpx;
+}
+.list-item .item-top view .top-title {
+  font-size: 28rpx;
+  font-weight: 500;
+}
+.list-item .item-top view .top-num {
+  font-size: 24rpx;
+  font-weight: 500;
+  margin-right: 10rpx;
+}
+.list-item .item-top text {
+  color: #606266;
+  font-size: 24rpx;
+}
+.list-item .item-bottom {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+  margin-top: 26rpx;
+}
+.list-item .item-bottom text {
+  font-size: 24rpx;
+  color: #606266;
+}
+.list-item .item-bottom view text {
+  font-size: 24rpx;
+  color: #909399;
+  margin-left: 50rpx;
+}
+
+
+ .mescroll-upwarp {
+	padding-bottom: 150rpx;
+}
+

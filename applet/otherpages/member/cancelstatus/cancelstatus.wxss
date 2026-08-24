@@ -1,0 +1,83 @@
+@charset "UTF-8";
+/**
+ * 你可以通过修改这些变量来定制自己的插件主题，实现自定义主题功能
+ * 建议使用scss预处理，并在插件代码中直接使用这些变量（无需 import 这个文件），方便用户通过搭积木的方式开发整体风格一致的App
+ */
+.cancelstatus-wrap .cancelstatus-block.data-v-79915357 {
+  padding: 50rpx;
+}
+.cancelstatus-wrap .cancelstatus-box.data-v-79915357 {
+  position: relative;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  height: 200rpx;
+}
+.cancelstatus-wrap .cancelstatus-box .cancelstatus-box-sort.data-v-79915357 {
+  width: 36rpx;
+  height: 36rpx;
+  text-align: center;
+  line-height: 36rpx;
+  border-radius: 50%;
+  color: #ffffff;
+  margin-right: 17rpx;
+  font-size: 24rpx;
+}
+.cancelstatus-wrap .cancelstatus-box .opacity.data-v-79915357 {
+  opacity: 1;
+}
+.cancelstatus-wrap .cancelstatus-box .opacity-4.data-v-79915357 {
+  opacity: 0.4;
+}
+.cancelstatus-wrap .cancelstatus-box .cancelstatus-box-name.data-v-79915357 {
+  font-size: 32rpx;
+  line-height: 32rpx;
+  margin-top: 3rpx;
+}
+.cancelstatus-wrap .cancelstatus-box .cancelstatus-box-info.data-v-79915357 {
+  margin-top: 15rpx;
+  color: #666666;
+  font-size: 28rpx;
+}
+.cancelstatus-wrap .cancelstatus-box .cancelstatus-box-line.data-v-79915357 {
+  position: absolute;
+  width: 2rpx;
+  height: 164rpx;
+  top: 36rpx;
+  left: 18rpx;
+}
+.cancelstatus-wrap .cancelstatus-box.cancelstatus-box-last.data-v-79915357 {
+  height: 80rpx;
+}
+.cancelstatus-wrap .cancelstatus-btn.data-v-79915357 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+          justify-content: center;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 150rpx;
+}
+.cancelstatus-wrap .cancelstatus-btn button.data-v-79915357 {
+  width: 300rpx;
+  height: 80rpx;
+  font-size: 28rpx;
+  line-height: 80rpx;
+  margin: 0 15rpx;
+  border-radius: 40rpx;
+}
+.cancelstatus-wrap .cancelstatus-btn button[type='primary'].data-v-79915357 {
+  background-color: unset !important;
+  color: #333333;
+  border: 2rpx solid #dddddd;
+}
+.cancelstatus-wrap .cancelstatus-btn button.data-v-79915357:nth-child(2) {
+  color: #ffffff;
+}
+

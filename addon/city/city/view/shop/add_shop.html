@@ -1,0 +1,819 @@
+{extend name="base"/}
+{block name="resources"}
+<style>
+	.required { margin-right: 3px; }
+	.ns-check-member { position: relative; }
+	.ns-check-member .layui-btn { position: absolute; top: 0; right: 1px; border-color: #e5e5e5; padding: 0 10px; border-right: 0; }
+
+	.ns-store-company, .ns-pay-company, .ns-pay-alipay, .ns-shop-own { display: none; }
+
+	/* 关联会员 */
+	.ns-search-result { border: 1px solid; padding: 15px 30px 15px 15px; display: flex; align-items: center; position: relative;margin-top:10px; }
+	.ns-search-res-img { width: 50px; height: 50px; margin-right: 5px; text-align: center; line-height: 50px; }
+	.ns-search-res-img img { max-width: 100%; max-height: 100%; }
+	.ns-search-res-intro p { line-height: 24px; }
+	.ns-search-res-close { position: absolute; top: 5px; right: 5px; }
+
+	.ns-card-common:first-of-type {margin-top: 0;}
+	.ns-form-row {margin-top: 0;}
+	.ns-check-member .layui-input:focus+.layui-btn {border-color: #4685FD;}
+	.ns-store-company, .ns-pay-company{margin-top: 10px;}
+	#container{ width: 650px; height: 500px; }
+	#container > div {z-index: 500!important}
+	.empty-address{ display: none; }
+	.address-content {display: inline-block;vertical-align: top;}
+	.ns-form {margin-top: 0;}
+</style>
+{/block}
+{block name="main"}
+<div class="layui-form">
+	<!-- 商家信息 -->
+	<div class="layui-card ns-card-common ns-card-brief">
+		<div class="layui-card-header">
+			<span class="ns-card-title">商家信息</span>
+		</div>
+		<div class="layui-card-body">
+			<div class="layui-form-item">
+				<label class="layui-form-label"><span class="required">*</span>商家名称：</label>
+				<div class="layui-input-block">
+					<input name="site_name" type="text" lay-verify="site_name" class="layui-input ns-len-long" autocomplete="off">
+				</div>
+				<div class="ns-word-aux">后台显示的商家的名称</div>
+			</div>
+
+			<div class="layui-form-item">
+				<label class="layui-form-label">商家描述：</label>
+				<div class="layui-input-block">
+					<input name="store_desc" type="text" lay-verify="" class="layui-input ns-len-long" autocomplete="off">
+				</div>
+<!--				<div class="ns-word-aux">显示的商家描述</div>-->
+			</div>
+
+			<div class="layui-form-item" >
+				<label class="layui-form-label"><span class="required">*</span>主营行业：</label>
+				<div class="layui-input-block ns-len-mid">
+					<select class="ns-category" name="category_id" lay-verify="category_id">
+						<option value="">选择主营行业</option>
+						{volist name="$shop_category_list" id="category"}
+						<option value="{$category.category_id}">{$category.category_name}</option>
+						{/volist}
+					</select>
+				</div>
+			</div>
+
+			<div class="layui-form-item" >
+				<label class="layui-form-label">是否平台品牌：</label>
+				<div class="layui-input-block" >
+					<input type="radio" name="is_own" lay-filter="is_own" value="0" title="否" checked>
+					<input type="radio" name="is_own" lay-filter="is_own" value="1" title="是" >
+				</div>
+			</div>
+
+			<div class="layui-form-item">
+				<label class="layui-form-label">商家关联手机号：</label>
+				<div class="layui-input-ns">
+					<input name="shop_mobile" type="text" lay-verify="" class="layui-input ns-len-long" autocomplete="off">
+				</div>
+				<span class="ns-word-aux">关联手机号相同，企业端可多个企业之间切换</span>
+			</div>
+
+			<!--<div class="layui-form-item">
+				<label class="layui-form-label"><span class="required">*</span>所属城市：</label>
+				<div class="layui-input-block ns-len-mid">
+					<select class="ns-category2" name="region_id" lay-verify="region_id" autocomplete="off" lay-search="">
+						<option value="">选择城市</option>
+						{volist name="$shop_region" id="value"}
+						<option value="{$value['id']}">{$value['name']}</option>
+						{/volist}
+					</select>
+				</div>
+				&lt;!&ndash;				<div class="ns-word-aux"></div>&ndash;&gt;
+			</div>-->
+
+			<!--<div class="layui-form-item">
+				<label class="layui-form-label"><span class="required">*</span>所属商会：</label>
+				<div class="layui-input-block ns-len-mid">
+					<select class="ns-category3" name="can_id" lay-verify="can_id" autocomplete="off" lay-search="">
+						<option value="">选择商会</option>
+						{volist name="$shop_can" id="value"}
+						<option value="{$value['id']}">{$value['name']}</option>
+						{/volist}
+					</select>
+				</div>
+				&lt;!&ndash;				<div class="ns-word-aux"></div>&ndash;&gt;
+			</div>-->
+
+
+
+			<!--是否为自营 在商家分类设置不需要了-->
+			<!--<div class="layui-form-item" style="display: none">
+				<label class="layui-form-label">是否自营：</label>
+				<div class="layui-input-block" id="is_own">
+					<input type="radio" name="is_own" lay-filter="is_own" value="0" title="否" checked>
+					<input type="radio" name="is_own" lay-filter="is_own" value="1" title="是" >
+				</div>
+&lt;!&ndash;				<input name="is_own" value="1">&ndash;&gt;
+			</div>-->
+
+			<!-- 商家主营等级 -->
+			<div class="layui-form-item ns-shop-is-own" style="display: none">
+				<label class="layui-form-label"><span class="required">*</span>开店套餐：</label>
+				<div class="layui-input-block ns-len-mid">
+					<select class="ns-group" name="no_group_id" lay-verify="required" lay-filter="group">
+						<option value=""></option>
+						{volist name="$shop_group_list" id="group"}
+						<option value="{$group.group_id}" title="{$group.is_own}">{$group.group_name}</option>
+						{/volist}
+					</select>
+				</div>
+				<input name="no_group_id" value="1">
+			</div>
+
+			<!-- 商家自营等级 -->
+			<!--<div class="layui-form-item ns-shop-own">
+				<label class="layui-form-label"><span class="required">*</span>开店套餐：</label>
+				<div class="layui-input-block ns-len-mid">
+					<select class="ns-group" name="group_id" lay-filter="group">
+						<option value=""></option>
+						{volist name="$shop_own_group" id="group"}
+						<option value="{$group.group_id}" title="{$group.is_own}">{$group.group_name}</option>
+						{/volist}
+					</select>
+				</div>
+			</div>-->
+
+
+
+		</div>
+	</div>
+
+	<!--商家信息-->
+	<div class="layui-card ns-card-common ns-card-brief" lay-filter="editselffetch">
+		<div class="layui-card-header">
+			<span class="ns-card-title">详细信息</span>
+		</div>
+		<div class="layui-form ns-form" lay-filter="editselffetch">
+			<!-- <div class="layui-form-item">
+                 <label class="layui-form-label"><span class="required">*</span>商家名称：</label>
+                 <div class="layui-input-block">
+                     <input type="text" name="store_name" autocomplete="off" lay-verify="store_name"
+                            class="layui-input ns-len-long">
+                 </div>
+                 <div class="ns-word-aux">商家的名称（招牌）</div>
+             </div>-->
+
+			<div class="layui-form-item">
+				<label class="layui-form-label"> <span class="required">*</span>商家图片：</label>
+				<div class="layui-input-block">
+					<div class="upload-img-block img-upload">
+						<div class="upload-img-box">
+							<div class="ns-upload-default" id="imgUpload">
+								<div class="upload">
+									<img src="CITY_IMG/upload_img.png"/>
+									<p>点击上传</p>
+								</div>
+							</div>
+							<div class="operation">
+								<div>
+									<i title="图片预览" class="iconfont iconreview js-preview" style="margin-right: 20px;"></i>
+									<i title="删除图片" class="layui-icon layui-icon-delete js-delete"></i>
+								</div>
+
+								<div class="replace_img js-replace">点击替换</div>
+							</div>
+							<input type="hidden" name="store_image" value="">
+						</div>
+					</div>
+				</div>
+				<div class="ns-word-aux">
+					<p>建议图片尺寸：225px * 180px。图片格式：jpg、png、jpeg。</p>
+				</div>
+			</div>
+
+			<div class="layui-form-item">
+				<label class="layui-form-label"><span class="required">*</span>商家LOGO：</label>
+				<div class="layui-input-block">
+					<div class="upload-img-block img-upload">
+						<div class="upload-img-box">
+							<div class="ns-upload-default" id="imgUpload2">
+								<div class="upload">
+									<img src="CITY_IMG/upload_img.png"/>
+									<p>点击上传</p>
+								</div>
+							</div>
+							<div class="operation">
+								<div>
+									<i title="图片预览" class="iconfont iconreview js-preview" style="margin-right: 20px;"></i>
+									<i title="删除图片" class="layui-icon layui-icon-delete js-delete"></i>
+								</div>
+
+								<div class="replace_img js-replace">点击替换</div>
+							</div>
+							<input type="hidden" name="store_logo" value="">
+						</div>
+					</div>
+				</div>
+				<div class="ns-word-aux">
+					<p>建议图片尺寸：148px * 52px。图片格式：jpg、png、jpeg。</p>
+				</div>
+			</div>
+
+			<div class="layui-form-item">
+				<label class="layui-form-label">商家电话：</label>
+				<div class="layui-input-block">
+					<input type="text" name="telphone" autocomplete="off" class="layui-input  ns-len-long" autocomplete="off"
+						   lay-verify="tel">
+				</div>
+				<div class="ns-word-aux">请输入正确的电话号码或者手机号</div>
+			</div>
+
+			<div class="layui-form-item">
+				<label class="layui-form-label">营业状态：</label>
+				<div class="layui-input-block">
+					<input type="checkbox" name="status" value="1" lay-skin="switch" checked>
+				</div>
+				<div class="ns-word-aux">是否开启营业，关闭即停业</div>
+			</div>
+
+			<!--自提点地址-->
+			<div class="layui-form-item">
+				<label class="layui-form-label"><span class="required">*</span>商家地址：</label>
+				<div class="layui-input-inline ns-len-mid area-select">
+					<select name="province_id" lay-filter="province_id" lay-verify="province_id" autocomplete="off">
+						<option value="">请选择省份</option>
+						{foreach $province_list as $k => $v}
+						<option value="{$v.id}">{$v.name}</option>
+						{/foreach}
+					</select>
+				</div>
+
+				<div class="layui-input-inline ns-len-mid area-select">
+					<select name="city_id" lay-filter="city_id" lay-verify="city_id" autocomplete="off">
+						<option value="">请选择城市</option>
+					</select>
+				</div>
+
+				<div class="layui-input-inline ns-len-mid area-select">
+					<select name="district_id" lay-filter="district_id" lay-verify="district_id" autocomplete="off">
+						<option value="">请选择区/县</option>
+					</select>
+				</div>
+			</div>
+
+			<div class="layui-form-item">
+				<label class="layui-form-label"></label>
+				<div class="layui-input-block">
+					<input type="text" name="address" placeholder="请填写商家的具体地址。" lay-verify="required" autocomplete="off"
+						   class="layui-input ns-len-long address-content" value="">
+					<input type="hidden" name="longitude" lay-verify="required" class="layui-input"/>
+					<input type="hidden" name="latitude" lay-verify="required" class="layui-input"/>
+					<button class='layui-btn-primary layui-btn' onclick="refreshFrom();">查找地址</button>
+				</div>
+				<div class="ns-word-aux">点击查找地址可在地图上显示输入的地理位置</div>
+			</div>
+
+			<div class="layui-form-item">
+				<label class="layui-form-label">地图定位：</label>
+				<div class="layui-input-block ns-special-length">
+					<div id="container" class="selffetch-map"></div>
+				</div>
+				<div class="ns-word-aux empty-address">请选择地理位置！在地图上点击得到的地理位置会自动填入到对应的输入框中</div>
+			</div>
+
+			<div class="layui-form-item">
+				<label class="layui-form-label">营业时间：</label>
+				<div class="layui-input-block">
+					<input type="text" name="open_date" class="layui-input ns-len-long" autocomplete="off">
+
+				</div>
+				<div class="ns-word-aux ">例：上午9:00-12:00，下午2:00-6:00</div>
+			</div>
+		</div>
+	</div>
+
+
+
+
+
+
+
+	<!-- 个人信息 -->
+	<div class="layui-card ns-card-common ns-card-brief">
+		<div class="layui-card-header">
+			<span class="ns-card-title">用户信息</span>
+		</div>
+		<div class="layui-card-body">
+			<div class="layui-form-item">
+				<label class="layui-form-label"><span class="required">*</span>商家登录用户名：</label>
+				<div class="layui-input-ns">
+					<input name="username" type="text" lay-verify="required" class="layui-input ns-len-long" autocomplete="off">
+				</div>
+<!--				<span class="ns-word-aux">请填写手机号</span>-->
+			</div>
+
+			<div class="layui-form-item">
+				<label class="layui-form-label"><span class="required">*</span>商家登录密码：</label>
+				<div class="layui-input-inline">
+					<input name="password" type="text" lay-verify="required" class="layui-input ns-len-long" autocomplete="off">
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="ns-single-filter-box">
+		<div class="ns-form-row">
+			<button class="layui-btn ns-bg-color" lay-submit lay-filter="save">保存</button>
+			<button class="layui-btn layui-btn-primary" onclick="back()">返回</button>
+		</div>
+	</div>
+
+
+</div>
+{/block}
+{block name="script"}
+<script type="text/javascript">
+	window._AMapSecurityConfig = {
+		securityJsCode:'07add53a1ab6db7259096d2963734804',
+	}
+</script>
+<script type="text/javascript" src="{:get_http_type()}://webapi.amap.com/maps?v=1.4.6&amp;key={if empty($map_key['gaode_map_key'])}8747768d2ff43ead9d72f7ef7a4666fd{else/}{$map_key['gaode_map_key']}{/if}"></script>
+<script type="text/javascript" src="SHOP_JS/address.js"></script>
+<script type="text/javascript" src="STATIC_JS/map_address.js"></script>
+<!--<script src="ADMIN_JS/address.js"></script>-->
+<script>
+	var form, repeat_flag, map_class; //新增加
+	layui.use(['form'], function() {
+		var form = layui.form,
+				$ = layui.jquery,
+				payType = 1, //结算类型
+				autotrophy = 0,//自营类型
+				repeat_flag = false; //防重复标识
+
+		form.render();
+
+		// 普通图片上传
+		var imgUpload_upload = new Upload({
+			elem: '#imgUpload'
+		});
+		var imgUpload_upload2 = new Upload({
+			elem: '#imgUpload2'
+		});
+
+		//新增加开始
+		//地图展示
+		map_class = new mapClass("container", {lat: '', lng: ''});
+		form.render();
+
+		/**
+		 * 验证码
+		 */
+		form.verify({
+			required: function (value, item) {
+				var msg = $(item).attr("site_name") != undefined ? $(item).attr("site_name") : '';
+				if (value == '') return msg;
+				var msg = $(item).attr("placeholder") != undefined ? $(item).attr("placeholder") : '';
+				if (value == '') return msg;
+			},
+			province_id: function (value, item) {
+				if (value == '') {
+					return '请选择省份';
+				}
+			},
+			city_id: function (value, item) {
+				if (value == '') {
+					return '请选择城市';
+				}
+			},
+			district_id: function (value, item) {
+				if (value == '') {
+					return '请选择区/县';
+				}
+			},
+			store_name: function (value, item) {
+				if (value == "") {
+					// return '请输入商家名称';
+				}
+			},
+			site_name: function (value, item) {
+				if (value == "") {
+					return '请输入商家名称';
+				}
+			},
+			category_id: function (value, item) {
+				if (value == "") {
+					return '请选择主营行业';
+				}
+			},
+			/*region_id: function (value, item) {
+				if (value == "") {
+					return '请选择区域';
+				}
+			},*/
+			/*can_id: function (value, item) {
+				if (value == "") {
+					return '请选择商会';
+				}
+			},*/
+
+			username: function (value, item) {
+				if (value == "") {
+					return '请输入商家登录用户名';
+				}
+			},
+			password: function (value, item) {
+				if (value == "") {
+					return '请输入商家登录密码';
+				}
+			}
+		});
+		//新增加结束
+
+		// initArea(form); //三级联动初始化
+
+		// 申请人身份证正面
+		var idCardPicFront_upload = new Upload({
+			elem: '#idCardPicFront',
+			url: ns.url("admin/upload/upload")
+		});
+
+		// 申请人身份证反面
+		var idCardPicBack_upload = new Upload({
+			elem: '#idCardPicBack',
+			url: ns.url("admin/upload/upload")
+		});
+
+		// 营业执照电子版
+		var license_upload = new Upload({
+			elem: '#license',
+			url: ns.url("admin/upload/upload")
+		});
+
+		//税务登记证电子版
+		var taxlicense = new Upload({
+			elem: '#taxlicense',
+			url: ns.url("admin/upload/upload")
+		});
+
+		form.on('submit(save)', function(data) {
+			var bank_address = '', settlement_bank_address = '';
+
+			data.field.category_name = $("select[name=category_id] option:selected").text();
+			data.field.group_name = $("select[name=group_id] option:selected").text();
+			if(autotrophy == 0){
+				data.field.group_name = $("select[name=no_group_id] option:selected").text();
+				data.field.group_id = data.field.no_group_id;
+			}
+
+			//对公账户
+			bank_address += $("select[lay-filter=bankProvince] option:selected").text();
+			bank_address += $("select[lay-filter=bankCity] option:selected").text();
+			bank_address += $("select[lay-filter=bankDistrict] option:selected").text();
+			data.field.bank_address = bank_address;
+			//结算账户
+			bankType = data.field.bank_type;
+			if(parseInt(bankType) == 2){
+				data.field.settlement_bank_account_name = data.field.zfb_settlement_bank_account_name;
+				data.field.settlement_bank_account_number = data.field.zfb_settlement_bank_account_number;
+				data.field.settlement_bank_address = "";
+				data.field.settlement_bank_name = "";
+			}else if(parseInt(bankType) == 3){
+				if (!data.field.weixin_settlement_bank_account_number){
+					layer.msg("请先与微信进行绑定");
+					return false;
+				}
+				data.field.settlement_bank_account_name = data.field.weixin_settlement_bank_account_name;
+				data.field.settlement_bank_account_number = data.field.weixin_settlement_bank_account_number; //openid
+				data.field.settlement_bank_address = data.field.weixin_settlement_bank_address;
+				data.field.settlement_bank_name = data.field.weixin_settlement_bank_name;
+			}
+
+
+			//删除图片
+			if(!data.field.contacts_card_electronic_2) idCardPicFront_upload.delete();
+			if(!data.field.contacts_card_electronic_3) idCardPicBack_upload.delete();
+			if(!data.field.business_licence_number_electronic) license_upload.delete();
+
+			//新增加内容
+			if( data.field.longitude == "" || data.field.latitude == ""){
+				layer.msg('请确认地理位置!');
+				$(".empty-address").show();
+				return;
+			}else{
+				$(".empty-address").hide();
+			}
+
+			var full_address  = [];
+			full_address.push($("select[name=province_id] option:selected").text());
+			full_address.push($("select[name=city_id] option:selected").text());
+			full_address.push($("select[name=district_id] option:selected").text());
+
+			data.field.full_address = full_address.toString();
+
+			if (repeat_flag) return false;
+			repeat_flag = true;
+			//新增加结束
+
+			//添加
+			$.ajax({
+				type: 'POST',
+				url: ns.url("city://city/shop/addShop"),
+				data: data.field,
+				dataType: 'JSON',
+				success: function(res) {
+					repeat_flag = false;
+					if (res.code == 0) {
+						layer.confirm('添加成功', {
+							title:'操作提示',
+							btn: ['返回列表', '继续添加'],
+							yes: function(){
+								location.href = ns.url("city://city/shop/lists")
+							},
+							btn2: function() {
+								location.href = ns.url("city://city/shop/addShop")
+							}
+						});
+					} else {
+						layer.msg(res.message);
+					}
+				}
+			});
+		});
+
+		/**
+		 * select监听
+		 */
+		/*form.on('radio(is_own)', function(data) { //商家等级中如果is_own=1，则入驻时长可以不填，否则必选
+			autotrophy = data.value;
+			//判断入驻时长是否必填,如果分组is_own=1 不必填 0 必填
+			if (autotrophy == 0) {
+				$(".ns-shop-time").show();
+				$(".ns-shop-is-own").show();
+				$(".ns-shop-own").hide();
+				$(".ns-shop-time select").attr("lay-verify", "required");
+				$(".ns-shop-is-own .ns-group").attr("lay-verify", "required");
+				$(".ns-shop-own .ns-group").removeAttr("lay-verify");
+			} else {
+				$(".ns-shop-time").hide();
+				$(".ns-shop-is-own").hide();
+				$(".ns-shop-own").show();
+				$(".ns-shop-time select").removeAttr("lay-verify");
+				$(".ns-shop-is-own .ns-group").removeAttr("lay-verify");
+				$(".ns-shop-own .ns-group").attr("lay-verify", "required");
+			}
+		});*/
+
+		form.on('radio(certType)', function(data) { //为企业商家时，显示企业独有部分，否则隐藏
+			var value = data.value;
+			if (value == 1) {
+				$(".ns-store-company").hide();
+				$(".ns-pay-company").hide();
+				$(".ns-company-person").text("联系人信息");
+				$(".ns-company-name").text("联系人姓名");
+				$(".ns-company-phone").text("联系人电话");
+				$(".ns-company-identity").text("联系人身份证件");
+				$(".ns-company-ident").text("联系人身份证号");
+				$(".ns-company-pic-front").text("申请人身份证正面");
+				$(".ns-company-pic-back").text("申请人身份证反面");
+			} else {
+				$(".ns-store-company").show();
+				$(".ns-pay-company").show();
+				$(".ns-company-person").text("法人代表信息：");
+				$(".ns-company-name").text("法人姓名：");
+				$(".ns-company-phone").text("法人联系电话：");
+				$(".ns-company-identity").text("法人身份证件：");
+				$(".ns-company-ident").text("法人身份证号：");
+				$(".ns-company-pic-front").text("法人身份证正面：");
+				$(".ns-company-pic-back").text("法人身份证反面：");
+			}
+		});
+
+		form.on('radio(payType)', function(data) { //判断支付方式，显示对应的表单
+			payType = data.value;
+			if (payType == 1) {
+				$(".ns-pay-zfb").hide();
+				$(".ns-pay-bank").show();
+				$(".ns-pay-win").hide();
+
+				$("#settlement_bank_account_name").attr("lay-verify", "required");
+				$("#settlement_bank_account_number").attr("lay-verify", "required");
+				$("#settlement_bank_name").attr("lay-verify", "required");
+				$("#settlement_bank_address").attr("lay-verify", "required");
+
+				$("#settlement_zfb_account_name").attr("lay-verify", "");
+				$("#settlement_zfb_account_number").attr("lay-verify", "");
+
+				$("#weixin_settlement_bank_account_name").attr("lay-verify", "");
+				$("#weixin_settlement_bank_name").attr("lay-verify", "");
+				form.render("select");
+			} else if(payType == 2){
+				$(".ns-pay-zfb").show();
+				$(".ns-pay-bank").hide();
+				$(".ns-pay-win").hide();
+
+				$("#settlement_zfb_account_name").attr("lay-verify", "required");
+				$("#settlement_zfb_account_number").attr("lay-verify", "required");
+
+				$("#settlement_bank_name").attr("lay-verify", "");
+				$("#settlement_bank_address").attr("lay-verify", "");
+				$("#settlement_bank_account_name").attr("lay-verify", "");
+				$("#settlement_bank_account_number").attr("lay-verify", "");
+
+				$("#weixin_settlement_bank_account_name").attr("lay-verify", "");
+				$("#weixin_settlement_bank_name").attr("lay-verify", "");
+			}else if(payType == 3){
+				$(".ns-pay-win").show();
+				$(".ns-pay-bank").hide();
+				$(".ns-pay-zfb").hide();
+
+				$("#settlement_bank_account_name").attr("lay-verify", "");
+				$("#settlement_bank_account_number").attr("lay-verify", "");
+				$("#settlement_bank_name").attr("lay-verify", "");
+				$("#settlement_bank_address").attr("lay-verify", "");
+
+				$("#settlement_zfb_account_name").attr("lay-verify", "");
+				$("#settlement_zfb_account_number").attr("lay-verify", "");
+
+				$("#weixin_settlement_bank_account_name").attr("lay-verify", "required");
+				$("#weixin_settlement_bank_name").attr("lay-verify", "required");
+
+				var intervalId;
+				shopBind();
+
+				function shopBind() {
+					intervalId = window.setInterval(
+							function () {
+								$.ajax({
+									async: 'false',
+									type: 'POST',
+									dataType: 'JSON',
+									url: "{:url('city://city/shop/checkShopBind')}",
+									success: function (res) {
+										if (res.code == -10001 && res.data.is_expire == 1){
+											$(".ns-pay-win .img-load").removeClass("layui-hide");
+											clearInterval(intervalId);
+											return false;
+										}
+
+										if (res.code >= 0){
+											$(".ns-pay-win .img-load").removeClass("layui-hide");
+											$(".ns-pay-win .img-load").html('恭喜您绑定成功！<p class="ns-text-color">重新绑定</p>');
+											$("input[name='weixin_settlement_bank_account_number']").val(res.data.openid)
+											$(".weixin-nickname input").val(res.data.userinfo.nickName);
+											$(".weixin-nickname").attr("data-state", res.code);
+											$(".weixin-nickname").removeClass("layui-hide");
+											clearInterval(intervalId);
+											return false;
+										}
+									}
+								});
+							}, 500
+					);
+				}
+
+				$('body').on("click",".ns-pay-win .img-load",function () {
+					if(parseInt($(".weixin-nickname").attr("data-state")) >= 0){
+						$(".weixin-nickname").addClass("layui-hide");
+					}
+					$(".ns-pay-win img").attr('src',"{:addon_url('city://city/shop/shopBindQrcode')}?time="+ Math.random());
+					$(".ns-pay-win .img-load").addClass("layui-hide");
+					shopBind();
+				});
+			}
+		});
+
+
+
+	});
+
+	/**
+	 * 点击搜索
+	 */
+	var repeat_flag = false;
+	var html, val;
+
+	function checkMember() {
+		var parent = $(".ns-check-member");
+		var con = parent.find(".ns-member-name").val();
+		$(".layui-word-aux").remove();
+		$(".ns-search-result").remove();
+
+		if (repeat_flag) return false;
+		repeat_flag = true;
+
+		if (con == "" || con == null || con.trim() == "") {
+			repeat_flag = false;
+		} else {
+			$.ajax({
+				type: 'POST',
+				url: ns.url("admin/member/searchMember"),
+				data: {
+					'search_text': con
+				},
+				dataType: 'JSON',
+				success: function(res) {
+					layer.msg(res.message);
+					repeat_flag = false;
+
+					if (res.data == null) {
+						html = '<span class="layui-word-aux">未找到该用户</span>';
+						val = res.data;
+					} else {
+						html = '<div class="ns-search-result layui-input-inline ns-border-color-gray">' +
+								'<div class="ns-search-res-img">' +
+								'<img src="' + ns.img(res.data.headimg) + '" />' +
+								'</div>' +
+								'<div class="ns-search-res-intro">' +
+								'<p>用户名：' + res.data.username + '</p>' +
+								'<p>电话：' + res.data.mobile + '</p>' +
+								'</div>' +
+								'<div class="ns-search-res-close" onclick="closeMember()">' +
+								'<i class="iconfont iconclose_light"></i>' +
+								'</div>' +
+								'</div>';
+						val = res.data.member_id;
+					}
+
+					$(".ns-member-id").attr("value", val);
+					$(".ns-check-member").append(html);
+				}
+			});
+		}
+	}
+
+	function closeMember() {
+		$(".ns-search-result").hide();
+	}
+
+	function back() {
+		location.href = ns.url("city://city/shop/lists");
+	}
+
+	//新增加开始
+	/**
+	 * 重新渲染表单
+	 */
+	function refreshFrom() {
+		form.render();
+		orderAddressChange();//改变地址
+		map_class.mapChange();
+	}
+
+	//动态改变订单地址赋值
+	function orderAddressChange(){
+		map_class.address.province = $("select[name=province_id]").val();
+		map_class.address.province_name = $("select[name=province_id] option:selected").text();
+		map_class.address.city = $("select[name=city_id]").val();
+		map_class.address.city_name = $("select[name=city_id] option:selected").text();
+		map_class.address.district = $("select[name=district_id]").val();
+		map_class.address.district_name = $("select[name=district_id] option:selected").text();
+		map_class.address.address = $("input[name=address]").val()
+	}
+
+	/**
+	 * 地址下拉框（主要用于坐标记录）
+	 */
+	function selectCallBack(){
+		$("input[name=longitude]").val(map_class.address.longitude);//坐标
+		$("input[name=latitude]").val(map_class.address.latitude);//坐标
+	}
+
+	//地图点击回调事件
+	function mapChangeCallBack() {
+		$("input[name=address]").val(map_class.address.address);//详细地址
+		$("input[name=longitude]").val(map_class.address.longitude);//坐标
+		$("input[name=latitude]").val(map_class.address.latitude);//坐标
+
+		$.ajax({
+			type: "POST",
+			dataType: 'JSON',
+			url: ns.url("shop/address/getGeographicId"),
+			async: true,
+			data: {
+				"address": map_class.address.area
+			},
+			success: function (data) {
+				map_class.address.province = data.province_id;
+				map_class.address.city = data.city_id;
+				map_class.address.district = data.district_id;
+				map_class.address.township = data.subdistrict_id;
+				map_class.map_change = false;
+				form.val("editselffetch", {
+					"province_id": data.province_id
+				});
+				$("select[name=province_id]").change();
+				form.val("editselffetch", {
+					"city_id": data.city_id
+				});
+				$("select[name=city_id]").change();
+				form.val("editselffetch", {
+					"district_id": data.district_id
+				});
+				refreshFrom();//重新渲染form
+				map_class.map_change = true;
+			}
+		});
+	}
+
+	//新增加结束
+</script>
+{/block}

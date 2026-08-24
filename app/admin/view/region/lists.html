@@ -1,0 +1,785 @@
+{extend name="base"/}
+{block name="resources"}
+<style>
+    .ns-reason-box {
+        display: none;
+        width: 350px;
+        box-sizing: border-box;
+        padding: 20px;
+        border: 1px solid #aaa;
+        border-radius: 5px;
+        background-color: #FFF;
+        position: absolute;
+        top: 50px;
+        z-index: 999;
+        color: #666;
+        line-height: 30px;
+        left: 0px;
+        font-weight: normal;
+    }
+
+    .ns-balance-box {
+        text-align: left;
+        left: unset;
+        right: -270px;
+    }
+
+    .ns-reason-box:before, .ns-reason-box:after {
+        content: "";
+        border: solid transparent;
+        height: 0;
+        position: absolute;
+        width: 0;
+    }
+
+    .ns-reason-box:before {
+        border-width: 12px;
+        border-bottom-color: #aaa;
+        top: -12px;
+        left: 43px;
+        border-top: none;
+    }
+
+    .ns-reason-growth:before {
+        left: 56px;
+    }
+
+    .ns-reason-box:after {
+        border-width: 10px;
+        border-bottom-color: #FFF;
+        top: -20px;
+        left: 45px;
+    }
+
+    .ns-reason-growth:after {
+        left: 58px;
+    }
+
+    .ns-reason-box p {
+        white-space: normal;
+        line-height: 1.5;
+    }
+
+    .layui-table-header {
+        overflow: inherit;
+    }
+
+    .layui-table-header .layui-table-cell {
+        overflow: inherit;
+    }
+
+    .ns-prompt .iconfont {
+        font-size: 16px;
+        color: rgba(0, 0, 0, 0.7);
+        cursor: pointer;
+        font-weight: 500;
+        margin-left: 3px;
+    }
+
+    .ns-prompt-block.balance {
+        justify-content: flex-end;
+    }
+
+    .layui-form-item .layui-form-checkbox[lay-skin=primary] {
+        margin-top: 0;
+    }
+
+    .blacklist {
+        background: #333;
+        color: #fff;
+        line-height: 1;
+        padding: 3px 6px;
+        border-radius: 3px;
+        font-size: 12px;
+    }
+
+    .layui-table-cell {
+        text-align: center;
+    }
+
+    .ns-prompt-box {
+        margin: auto;
+    }
+
+    .ns-table-tuwen-box .ns-img-box img {
+        width: 100%;
+        max-width: auto;
+    }
+
+    .layui_input_block {
+        margin-left: 110px !important;
+    }
+
+    /*    去掉多选框*/
+    .layui-form-checkbox[lay-skin=primary] i {
+        right: auto;
+        left: 0;
+        width: 16px;
+        height: 16px;
+        line-height: 16px;
+        border: 1px solid #d2d2d2;
+        font-size: 12px;
+        border-radius: 2px;
+        background-color: #fff;
+        -webkit-transition: .1s linear;
+        transition: .1s linear;
+        border: none;
+    }
+</style>
+<link rel="stylesheet" type="text/css" href="ADMIN_CSS/member.css"/>
+<link rel="stylesheet" type="text/css" href="ADMIN_CSS/member_coupon.css"/>
+
+{/block}
+{block name="main"}
+<!--<div class="layui-collapse ns-tips">
+    <div class="layui-colla-item">
+        <h2 class="layui-colla-title">操作提示</h2>
+        <ul class="layui-colla-content layui-show">
+            <li>城市端管理中心：<a href="{:url('city/city/index/index')}" target="_blank" class="ns-text-color">{:url('city/city/index/index')}</a></li>
+        </ul>
+    </div>
+</div>-->
+<!-- 添加城市 -->
+<div class="ns-single-filter-box">
+    <button type="button" class="layui-btn ns-bg-color" onclick="window.location.href='{:addon_url("admin/region/addRegion")}'">添加城市</button>
+</div>
+
+<div class="ns-screen layui-collapse" lay-filter="selection_panel">
+    <div class="layui-colla-item">
+        <h2 class="layui-colla-title"></h2>
+        <form class="layui-colla-content layui-form layui-show">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">城市名称</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="name" placeholder="城市名称" autocomplete="off" class="layui-input ">
+                    </div>
+                </div>
+                <div class="layui-inline" style="display: none">
+                    <label class="layui-form-label">类型：</label>
+                    <div class="layui-input-inline">
+                        <select name="type" lay-filter="type">
+                            <option value="">全部</option>
+                            <option value="1">省区域</option>
+                            <option value="2">市区域</option>
+                            <option value="3">区（县）区域</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline" style="display: none">
+                    <label class="layui-form-label">账号</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="username" placeholder="账号" autocomplete="off" class="layui-input ">
+                    </div>
+                </div>
+
+                <!-- <div class="layui-inline">
+                     <label class="layui-form-label">状态</label>
+                     <div class="layui-input-inline">
+                         <select name="status">
+                             <option value="all">全部</option>
+                             <option value="0">申请中</option>
+                             <option value="1">成功</option>
+                             <option value="-1">已拒绝</option>
+                         </select>
+                     </div>
+                 </div>-->
+            </div>
+
+            <div class="ns-form-row">
+                <button class="layui-btn ns-bg-color" lay-submit lay-filter="search">筛选</button>
+<!--                <button class="layui-btn ns-bg-color" lay-submit lay-filter="export">导出</button>-->
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<table id="member_list" lay-filter="member_list"></table>
+
+<!-- 用户信息 -->
+<script type="text/html" id="userdetail">
+    <div class='ns-table-tuwen-box'>
+        <div class='ns-img-box'>
+            {{# if (d.headimg != ""){ }}
+            <img layer-src src="{{ns.img(d.headimg)}}">
+            {{# } else { }}
+            <img layer-src src="{:img($default_img.default_headimg)}">
+            {{# } }}
+        </div>
+        <div class='ns-font-box'>
+            <p class="layui-elip">{{d.nickname}}</p>
+            {{# if (d.status == 0){ }}
+            <div>
+                <span class="blacklist">黑名单</span>
+            </div>
+            {{# } }}
+        </div>
+    </div>
+</script>
+
+<!-- 会员标签 -->
+<script id="member_label" type="text/html">
+    {{# if (d.member_label_name != null) { }}
+    {{# var arr = d.member_label_name.substring(0,d.member_label_name.length-1).split(",") }}
+    <div id="member_label_dl">
+        {{# for (var index in arr) { }}
+        {{'<span>' + arr[index] + '</span>'}}
+        {{# } }}
+    </div>
+    {{# } }}
+</script>
+
+<!-- 状态 -->
+<script type="text/html" id="status">
+    {{ d.status == 1 ? '正常' : '锁定' }}
+</script>
+
+<!-- 工具栏操作 -->
+<script type="text/html" id="action">
+    <div class="ns-table-btn">
+        <a class="layui-btn" lay-event="edit">编辑</a>
+        <a class="layui-btn" lay-event="delete">删除</a>
+        <!--        <a class="layui-btn" lay-event="more">更多</a>-->
+        <div class="more-operation">
+            <!--			<a class="operation" lay-event="delete">删除</a>-->
+        </div>
+    </div>
+</script>
+{/block}
+{block name="script"}
+<script type='text/javascript' src='ADMIN_JS/coupon_list.js'></script>
+
+<script type="text/javascript">
+    var table, form, laytpl, laydate,
+        repeat_flag = false,
+        currentDate = new Date(),
+        minDate = "",
+        layer_pass,
+        layer_label;
+
+    layui.use(['form', 'laytpl', 'laydate'], function () {
+        form = layui.form;
+        laytpl = layui.laytpl;
+        laydate = layui.laydate;
+        currentDate.setDate(currentDate.getDate() - 7);
+        form.render();
+
+        //注册开始时间
+        laydate.render({
+            elem: '#reg_start_date',
+            type: 'datetime'
+        });
+
+        //注册结束时间
+        laydate.render({
+            elem: '#reg_end_date',
+            type: 'datetime'
+        });
+
+        /**
+         * 重新渲染结束时间
+         * */
+        function reRender() {
+            $("#reg_end_date").remove();
+            $(".end-time").html('<input type="text" class="layui-input" name="reg_end_date" id="reg_end_date" placeholder="请输入结束时间">');
+            laydate.render({
+                elem: '#reg_end_date',
+                min: minDate
+            });
+        }
+
+        table = new Table({
+            elem: '#member_list',
+            url: ns.url("admin/region/lists"),
+            where: {"cluster_id": "{$cluster_id}"},
+            cols: [
+                [
+                    /*{
+                        width: "3%",
+                        type: 'checkbox',
+                        unresize: 'false'
+                    },*/
+                    {
+                        field: 'name',
+                        title: '城市名称',
+                        width: '10%',
+                        unresize: 'false',
+                    },
+                    /*{
+                        field: 'type',
+                        title: '类型',
+                        width: '10%',
+                        unresize: 'false',
+                        templet: function (data) {
+                            if (data.type == 1) {
+                                return '省区域';
+                            } else if (data.type == 2) {
+                                return '市区域';
+                            } else if (data.type == 3) {
+                                return '区区域';
+                            }
+                        }
+                    },*/
+                    {
+                        field: 'address',
+                        title: '城市地址',
+                        width: '15%',
+                        unresize: 'false',
+                    },
+                   /* {
+                        field: 'username',
+                        title: '账号',
+                        width: '10%',
+                        unresize: 'false',
+                    },*/
+                    /*{
+                        field: 'mobile',
+                        title: '手机号',
+                        width: '15%',
+                        unresize: 'false',
+                    },
+
+                    {
+                        field: 'store_count',
+                        title: '门店数量',
+                        width: '10%',
+                        unresize: 'false',
+                    },*/
+
+                    {
+                        field: 'create_time',
+                        title: '创建时间',
+                        width: '20%',
+                        unresize: 'false',
+                        templet: function (data) {
+                            return ns.time_to_date(data.create_time);
+                        }
+                    }, {
+                    title: '操作',
+                    width: '7%',
+                    unresize: 'false',
+                    toolbar: '#action'
+                }
+                ]
+            ],
+            toolbar: "#toolbarOperation",
+            bottomToolbar: "#batchOperation"
+        });
+
+        /**
+         * 监听工具栏操作
+         */
+        table.tool(function (obj) {
+            var data = obj.data;
+            switch (obj.event) {
+                case 'edit': //编辑
+                    location.href = ns.url("admin/region/editRegion?id=" + data.id);
+                    break;
+                case 'delete': //删除
+                    delMember(data.id);
+                    break;
+                case 'reset_pass': //重置密码
+                    resetPassword(data);
+                    break;
+                case 'set_label': //设置标签
+                    settingLabels({member_id: data.member_id, label: data.member_label});
+                    break;
+                case 'more': //更多
+                    $('.more-operation').css('display', 'none');
+                    $(obj.tr).find('.more-operation').css('display', 'block');
+                    break;
+                case 'change':
+                    var url = ns.url("fenxiao://admin/fenxiao/change", {member_id: data.member_id});
+                    //iframe层-父子操作
+                    var layerIndex = layer.open({
+                        title: "变更上级分销商",
+                        type: 2,
+                        area: ['1200px', '800px'],
+                        // btn: '保存',
+                        content: url,
+                        end: function () {
+                            location.reload();
+                        }
+                    });
+                    break;
+
+                case 'recive_coupon': //发放优惠券
+                    selectCoupon(data);
+                    break;
+                case 'blacklist': // 黑名单
+                    addBlacklist(data.member_id);
+                    break;
+                case 'remove_blacklist': // 移除黑名单
+                    removeBlacklist(data.member_id);
+                    break;
+
+            }
+        });
+
+        $(document).click(function (event) {
+            if ($(event.target).attr('lay-event') != 'more' && $('.more-operation').not(':hidden').length) {
+                $('.more-operation').css('display', 'none');
+            }
+        });
+
+        /**
+         * 批量操作
+         */
+        table.toolbar(function (obj) {
+
+            if (obj.data.length < 1) {
+                layer.msg('请选择要操作的数据');
+                return;
+            }
+
+            switch (obj.event) {
+                case "del":
+                    var id_array = new Array();
+                    for (i in obj.data) id_array.push(obj.data[i].member_id);
+                    delMember(id_array.toString());
+                    break;
+                case "setlabel":
+                    var id_array = new Array();
+                    for (i in obj.data) id_array.push(obj.data[i].member_id);
+                    settingLabels({member_id: id_array.toString()});
+                    break;
+            }
+        });
+        table.bottomToolbar(function (obj) {
+
+            if (obj.data.length < 1) {
+                layer.msg('请选择要操作的数据');
+                return;
+            }
+
+            switch (obj.event) {
+                case "del":
+                    var id_array = new Array();
+                    for (i in obj.data) id_array.push(obj.data[i].member_id);
+                    delMember(id_array.toString());
+                    break;
+                case "setlabel":
+                    var id_array = new Array();
+                    for (i in obj.data) id_array.push(obj.data[i].member_id);
+                    settingLabels({member_id: id_array.toString()});
+                    break;
+            }
+        });
+
+        /**
+         * 删除
+         */
+        function delMember(id) {
+
+            // if (repeat_flag) return false;
+            // repeat_flag = true;
+
+            layer.confirm('确定要删除该城市吗？', function () {
+                $.ajax({
+                    url: ns.url("admin/region/deleteRegion"),
+                    data: {id: id},
+                    dataType: 'JSON',
+                    type: 'POST',
+                    success: function (res) {
+                        layer.msg(res.message);
+                        if (res.code == 0) {
+                            table.reload({
+                                page: {
+                                    curr: $(".layui-laypage-em").next().html()  //主要代码行
+                                },
+                            });
+                        }
+                    }
+                });
+            });
+        }
+
+        /**
+         * 重置密码
+         */
+        function resetPassword(data) {
+            laytpl($("#pass_change").html()).render(data, function (html) {
+                layer_pass = layer.open({
+                    title: '重置密码',
+                    skin: 'layer-tips-class',
+                    type: 1,
+                    area: ['550px'],
+                    content: html,
+                });
+            });
+        }
+
+        form.on('submit(repass)', function (data) {
+
+            if (repeat_flag) return false;
+            repeat_flag = true;
+
+            $.ajax({
+                type: "POST",
+                url: ns.url("admin/member/modifyPassword"),
+                data: data.field,
+                dataType: 'JSON',
+                success: function (res) {
+                    layer.msg(res.message);
+                    repeat_flag = false;
+
+                    if (res.code == 0) {
+                        layer.closeAll('page');
+                    }
+                }
+            });
+        });
+
+        /**
+         * 设置标签
+         */
+        function settingLabels(data) {
+
+            laytpl($("#label_change").html()).render(data, function (html) {
+                layer_label = layer.open({
+                    title: '设置标签',
+                    skin: 'layer-tips-class',
+                    type: 1,
+                    area: ['450px'],
+                    content: html,
+                    success: function () {
+                        if (data.label) {
+                            var label = data.label.split(',');
+                            label.forEach(function (i) {
+                                $('#reset_label [name="label_id' + i + '"]').prop('checked', true);
+                                form.render();
+                            })
+
+                        }
+                    }
+                });
+            });
+
+            form.render();
+        }
+
+        form.on('submit(setlabel)', function (obj) {
+            if (repeat_flag) return false;
+            repeat_flag = true;
+            var field = obj.field;
+            var arr_id = [];
+            for (var prop in field) {
+                if (prop == 'member_ids') {
+                    continue;
+                }
+                arr_id.push(field[prop]);
+            }
+            $.ajax({
+                type: "POST",
+                url: ns.url("admin/member/modifyLabel"),
+                data: {
+                    'member_ids': field.member_ids,
+                    'label_ids': arr_id.toString()
+                },
+                dataType: 'JSON',
+                success: function (res) {
+                    layer.msg(res.message);
+                    repeat_flag = false;
+                    if (res.code == 0) {
+                        table.reload();
+                        layer.closeAll('page');
+                    }
+                }
+            });
+        });
+
+        /**
+         * 搜索功能
+         */
+        form.on('submit(search)', function (data) {
+            table.reload({
+                page: {
+                    curr: 1
+                },
+                where: data.field
+            });
+            return false;
+        });
+
+        /**
+         *  导出
+         */
+        form.on('submit(export)', function (data) {
+            location.href = ns.url("admin/region/regionExport", data.field);
+            return false;
+        });
+
+        $(".search-form").click(function () {
+            $(".layui-form-search").show();
+            $(this).hide();
+        });
+
+        $(".form-hide-btn").click(function () {
+            $(".layui-form-search").hide();
+            $(".search-form").show();
+        });
+
+        /**
+         * 表单验证
+         */
+        form.verify({
+            repass: function (value) {
+                if (value != $(".new_pass").val()) {
+                    return "输入错误,两次密码不一致!";
+                }
+            }
+        });
+
+        /**
+         * 发放优惠券
+         */
+        function selectCoupon(data) {
+            laytpl($("#recive_coupon").html()).render(data, function (html) {
+                layer_coupon = layer.open({
+                    title: '选择优惠券',
+                    skin: 'layer-tips-class',
+                    type: 1,
+                    area: ['700px', '542px'],
+                    content: html,
+                });
+                renderCoupon("", data.member_id);
+            });
+        }
+
+        /**
+         * 加入黑名单
+         * @param member_ids
+         */
+        function addBlacklist(member_ids) {
+            layer.confirm('加入黑名单后用户将强制退出无法登录，您确认要将用户加入黑名单吗？', function () {
+                $.ajax({
+                    url: ns.url("admin/member/modifyStatus"),
+                    data: {member_ids: member_ids},
+                    dataType: 'JSON',
+                    type: 'POST',
+                    success: function (res) {
+                        layer.msg(res.message);
+                        if (res.code == 0) {
+                            table.reload();
+                        }
+                    }
+                });
+            }, function () {
+                layer.close();
+            });
+        }
+
+        /**
+         * 移除黑名单
+         * @param member_ids
+         */
+        function removeBlacklist(member_ids) {
+            layer.confirm('确定要移除黑名单？', function () {
+                $.ajax({
+                    url: ns.url("admin/member/modifyStatus"),
+                    data: {
+                        member_ids: member_ids,
+                        status: 1
+                    },
+                    dataType: 'JSON',
+                    type: 'POST',
+                    success: function (res) {
+                        layer.msg(res.message);
+                        if (res.code == 0) {
+                            table.reload();
+                        }
+                    }
+                });
+            }, function () {
+                layer.close();
+            });
+        }
+    });
+
+    function closePass() {
+        layer.close(layer_pass);
+    }
+
+    function closeLabel() {
+        layer.close(layer_label);
+    }
+</script>
+<!-- 发放优惠券弹框 -->
+<script type="text/html" id="recive_coupon">
+    <div class="recive-coupon">
+        <div class="coupon-modal">
+            <div class="coupon-list all-coupon">
+                <div class="title ns-bg-color-gray">可选优惠券</div>
+                <div class="box"></div>
+            </div>
+            <button class="add">添加</button>
+            <div class="coupon-list selected-coupon">
+                <div class="title ns-bg-color-gray">已选优惠券</div>
+                <div class="box"></div>
+            </div>
+        </div>
+        <div class="modal-operation">
+            <button class="layui-btn ns-bg-color save-btn">确定</button>
+            <button class="layui-btn layui-btn-primary" onclick="back()">返回</button>
+        </div>
+    </div>
+</script>
+
+<!-- 重置密码弹框html -->
+<script type="text/html" id="pass_change">
+    <div class="layui-form" id="reset_pass" lay-filter="form">
+
+        <div class="layui-form-item">
+            <label class="layui-form-label mid"><span class="required">*</span>新密码：</label>
+            <div class="layui-input-block">
+                <input type="password" name="password" lay-verify="required" class="layui-input ns-len-mid new_pass"
+                       maxlength="18">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label mid"><span class="required">*</span>确认新密码：</label>
+            <div class="layui-input-block">
+                <input type="password" name="password" lay-verify="repass|required" class="layui-input ns-len-mid"
+                       maxlength="18">
+            </div>
+            <div class="ns-word-aux mid">请再一次输入密码，两次输入密码须一致</div>
+        </div>
+
+        <div class="ns-form-row mid">
+            <button class="layui-btn ns-bg-color" lay-submit lay-filter="repass">确定</button>
+            <button class="layui-btn layui-btn-primary" onclick="closePass()">返回</button>
+        </div>
+
+        <input class="reset-pass-id" type="hidden" name="member_ids" value="{{d.member_id}}"/>
+    </div>
+</script>
+
+<!-- 设置标签弹框html -->
+<script type="text/html" id="label_change">
+    <div class="layui-form member-form" id="reset_label" lay-filter="form">
+        <div class="layui-form-item">
+            <label class="layui-form-label sm">标签：</label>
+            <div class="layui-input-block layui_input_block">
+
+            </div>
+        </div>
+
+        <div class="ns-form-row sm">
+            <button class="layui-btn ns-bg-color" lay-submit lay-filter="setlabel">确定</button>
+            <button class="layui-btn layui-btn-primary" onclick="closeLabel()">返回</button>
+        </div>
+
+        <input class="reset-label-id" type="hidden" name="member_ids" value="{{d.member_id}}"/>
+    </div>
+</script>
+
+<script type="text/html" id="toolbarOperation">
+    <button class="layui-btn layui-btn-primary" lay-event="setlabel" style="display: none">设置标签</button>
+</script>
+<script type="text/html" id="batchOperation">
+    <button class="layui-btn layui-btn-primary" lay-event="setlabel" style="display: none">设置标签</button>
+</script>
+
+{/block}

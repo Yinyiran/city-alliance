@@ -1,0 +1,1024 @@
+{extend name="base"/}
+{block name="resources"}
+<style>
+	.required {
+		margin-right: 3px;
+	}
+
+	/* 关联会员 */
+	.ns-check-member {
+		position: relative;
+	}
+
+	.ns-check-member .layui-btn {
+		position: absolute;
+		top: 0;
+		right: 1px;
+		border-color: #e5e5e5;
+		padding: 0 10px;
+		border-right: 0;
+	}
+
+	.ns-search-result {
+		border: 1px solid;
+		padding: 15px 30px 15px 15px;
+		display: flex;
+		align-items: center;
+		position: relative;
+	}
+
+	.ns-search-res-img {
+		width: 50px;
+		height: 50px;
+		margin-right: 5px;
+		text-align: center;
+		line-height: 50px;
+	}
+
+	.ns-search-res-img img {
+		max-width: 100%;
+		max-height: 100%;
+	}
+
+	.ns-search-res-intro p {
+		line-height: 24px;
+	}
+
+	.ns-search-res-close {
+		position: absolute;
+		top: 5px;
+		right: 5px;
+	}
+
+	.reset_pass {
+		height: 23px;
+		border-radius: 50px;
+		background-color: transparent;
+		font-size: 13px;
+		color: #4685FD;
+		padding: 2px 8px 2px 0;
+		margin: 5px 0 5px 5px;
+	}
+
+	#container {
+		width: 650px;
+		height: 500px;
+	}
+
+	#container > div {
+		z-index: 500 !important
+	}
+
+	.empty-address {
+		display: none;
+	}
+
+	.address-content {
+		display: inline-block;
+		vertical-align: top;
+	}
+
+	.ns-form {
+		margin-top: 0;
+	}
+</style>
+{/block}
+{block name="main"}
+<div class="layui-form ns-form">
+	<div class="layui-form-item">
+		<label class="layui-form-label"><span class="required">*</span>商家名称：</label>
+		<div class="layui-input-block">
+			<input name="site_name" type="text" value="{$shop_info.site_name}" lay-verify="site_name"
+				   class="layui-input ns-len-long" autocomplete="off">
+		</div>
+		<!--        <p class="ns-word-aux">商家名称不可编辑</p>-->
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label">商家描述：</label>
+		<div class="layui-input-block">
+			<input name="store_desc" value="{$info.store_desc}" type="text" lay-verify="" class="layui-input ns-len-long" autocomplete="off">
+		</div>
+		<!--				<div class="ns-word-aux">显示的商家描述</div>-->
+	</div>
+
+	<div class="layui-form-item" hidden>
+		<label class="layui-form-label">到期时间：</label>
+		<div class="layui-input-block">
+			<input name="expire_time" type="text" id="laydate"
+				   value="{if condition='$shop_info.expire_time'}{:date('Y-m-d', $shop_info.expire_time)}{/if}"
+				   class="layui-input ns-len-mid" autocomplete="off">
+		</div>
+		<div class="ns-word-aux">
+			<p>商家关闭时间，与入驻时长相关联</p>
+		</div>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label">商家账号：</label>
+		<div class="layui-input-block ns-input-text">
+			<?php $shop_info_json = json_encode($shop_info);?>
+			<!--            {$shop_info.username} <a class="reset_pass" href="javascript:resetPass({$shop_info_json})">重置密码</a>-->
+			<input name="username" type="text" value="{$shop_info.username}" lay-verify="username"
+				   class="layui-input ns-len-long" autocomplete="off">
+		</div>
+		<span class="ns-word-aux">请填写手机号</span>
+		<div class="ns-word-aux"><a class="reset_pass" href="javascript:resetPass({$shop_info_json})">重置密码</a></div>
+	</div>
+
+	<!--<div class="layui-form-item">
+        <label class="layui-form-label">是否自营：</label>
+        <div class="layui-input-block">
+            <input type="checkbox" name="is_own" value="1" lay-filter="whether_autotrophy" lay-skin="switch" {if condition="$shop_info.is_own == 1"} checked {/if} />
+        </div>
+    </div>-->
+
+	<div class="layui-form-item" style="display: none">
+		<label class="layui-form-label"><span class="required">*</span>商家分类：</label>
+		<div class="layui-input-block ns-len-mid">
+			<select class="ns-category" name="category_id" lay-verify="required" lay-filter="shop_category" autocomplete="off">
+				<option value="0">请选择</option>
+				{volist name="shop_category_list" id="category"}
+				<option value="{$category.category_id}" {$shop_info.category_id==$category.category_id ?
+				'selected' : '' }>{$category.category_name}</option>
+				{/volist}
+			</select>
+		</div>
+	</div>
+
+	<div class='layui-form-item {if condition="$is_addon_city != 1"}layui-hide{/if} '>
+		<label class="layui-form-label"><span class="required">*</span>城市：</label>
+		<div class="layui-input-block ns-len-mid">
+			<select class="ns-group" name="website_id" lay-verify="website_id" lay-filter="shop_website">
+				<option value="">请选择</option>
+				{volist name="shop_website_list" id="website"}
+				<option value="{$website.site_id}" {$shop_info.website_id==$website.site_id ? 'selected' : '' }>{$website.site_area_name}</option>
+				{/volist}
+			</select>
+		</div>
+	</div>
+
+	<!--<div class="layui-form-item">
+		<label class="layui-form-label"><span class="required">*</span>所属区域：</label>
+		<div class="layui-input-block ns-len-mid">
+			<select class="ns-category2" name="region_id" lay-verify="region_id" autocomplete="off" lay-search="">
+				<option value="">选择区域</option>
+				{volist name="$shop_region" id="value"}
+				<option value="{$value['id']}" {$shop_info.region_id==$value.id ?
+				'selected' : '' }>{$value['name']}</option>
+				{/volist}
+			</select>
+		</div>
+		&lt;!&ndash;				<div class="ns-word-aux"></div>&ndash;&gt;
+	</div>-->
+
+	<!--<div class="layui-form-item">
+		<label class="layui-form-label"><span class="required">*</span>所属商会：</label>
+		<div class="layui-input-block ns-len-mid">
+			<select class="ns-category3" name="can_id" lay-verify="can_id" autocomplete="off" lay-search="">
+				<option value="">选择商会</option>
+				{volist name="$shop_can" id="value"}
+				<option value="{$value['id']}" {$shop_info.can_id==$value.id ?
+				'selected' : '' }>{$value['name']}</option>
+				{/volist}
+			</select>
+		</div>
+		&lt;!&ndash;				<div class="ns-word-aux"></div>&ndash;&gt;
+	</div>-->
+
+
+
+	<!-- 非自营 -->
+	<!--<div style="display: none" class="layui-form-item {if condition="$shop_info.is_own == 1"}layui-hide{/if}">
+        <label class="layui-form-label"><span class="required">*</span>开店套餐：</label>
+        <div class="layui-input-block ns-len-mid">
+            <select class="ns-group" name="group_id" lay-verify="required" lay-filter="shop_group">
+                <option value="">请选择</option>
+                {volist name="shop_group_list" id="group"}
+                <option value="{$group.group_id}" {$shop_info.group_id==$group.group_id ? 'selected' : '' }>{$group.group_name}</option>
+                {/volist}
+            </select>
+        </div>
+    </div>-->
+
+	<!-- 自营 -->
+	<!--<div style="display: none" class='layui-form-item {if condition="$shop_info.is_own != 1"}layui-hide{/if} '>
+        <label class="layui-form-label"><span class="required">*</span>开店套餐：</label>
+        <div class="layui-input-block ns-len-mid">
+            <select class="ns-group" name="own_group_id" lay-verify="required" lay-filter="shop_group">
+                <option value="">请选择</option>
+                {volist name="shop_own_group_list" id="group"}
+                <option value="{$group.group_id}" {$shop_info.group_id==$group.group_id ? 'selected' : '' }>{$group.group_name}</option>
+                {/volist}
+            </select>
+        </div>
+    </div>-->
+	<!-- 城市分站 -->
+
+
+
+	<!--<div class="layui-form-item ns-check-member-box">-->
+	<!--<label class="layui-form-label">关联前台会员：</label>-->
+	<!--<div class="layui-input-inline ns-check-member">-->
+	<!--<input type="text" id="search_text" name="search_text" value="" placeholder="请输入会员名或手机" class="layui-input ns-len-mid ns-member-name" autocomplete="off">-->
+	<!--<button type="button" class="layui-btn layui-btn-primary" onclick="checkMember()">-->
+	<!--<i class="layui-icon">&#xe615;</i>-->
+	<!--</button>-->
+	<!--<input class="ns-member-id" type="text" name="member_id" hidden value="" />-->
+	<!--</div>-->
+	<!---->
+	<!--{if condition="!empty($shop_info.member_id) && !empty($member_info)"}-->
+	<!--<div class="ns-search-result layui-input-inline ns-border-color-gray">-->
+	<!--<div class="ns-search-res-img">-->
+	<!--{if condition="$member_info.headimg"}-->
+	<!--<img src="{:img($member_info.headimg)}" />-->
+	<!--{/if}-->
+	<!--</div>-->
+	<!--<div class="ns-search-res-intro">-->
+	<!--<p>用户名：{$member_info.username}</p>-->
+	<!--<p>电话：{$member_info.mobile}</p>-->
+	<!--</div>-->
+	<!--<div class="ns-search-res-close" onclick="closeMember()">-->
+	<!--<i class="iconfont iconclose_light"></i>-->
+	<!--</div>-->
+	<!--</div>-->
+	<!--{/if}-->
+	<!--</div>-->
+
+	<div class="layui-form-item" hidden>
+		<label class="layui-form-label">商家状态：</label>
+		<div class="layui-input-block">
+			<input type="radio" name="shop_status" lay-filter="shop_status" value="1" title="正常" {if
+				   condition="$shop_info.shop_status == 1" } checked {/if}>
+			<input type="radio" name="shop_status" lay-filter="shop_status" value="0" title="关闭" {if
+				   condition="$shop_info.shop_status != 1" } checked {/if}>
+		</div>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label">排序号：</label>
+		<div class="layui-input-block">
+			<input name="sort" type="number" class="layui-input ns-len-short" lay-verify="int"
+				   value="{$shop_info.sort}">
+		</div>
+		<div class="ns-word-aux">
+			<p>排序值必须是整数</p>
+		</div>
+	</div>
+
+	<div class="layui-form-item" hidden>
+		<label class="layui-form-label img-upload-lable">商家logo：</label>
+		<div class="layui-input-block">
+			<div class="upload-img-block img-upload">
+				<div class="upload-img-box {if condition=" $shop_info[
+				'logo']"}hover{/if}">
+				<div class="ns-upload-default" id="logoImg">
+					{if condition="$shop_info.logo"}
+					<div id="preview_logoImg" class="preview_img">
+						<img layer-src src="{:img($shop_info.logo)}" class="img_prev"/>
+					</div>
+					{else/}
+					<div class="upload">
+						<img src="ADMIN_IMG/upload_img.png"/>
+						<p>点击上传</p>
+					</div>
+					{/if}
+				</div>
+				<div class="operation">
+					<div>
+						<i title="图片预览" class="iconfont iconreview js-preview" style="margin-right: 20px;"></i>
+						<i title="删除图片" class="layui-icon layui-icon-delete js-delete"></i>
+					</div>
+					<div class="replace_img js-replace">点击替换</div>
+				</div>
+				<input type="hidden" name="logo" value="{$shop_info.logo}">
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="layui-form-item" hidden>
+	<label class="layui-form-label img-upload-lable">商家头像（大图）：</label>
+	<div class="layui-input-block">
+		<div class="upload-img-block img-upload">
+			<div class="upload-img-box {if condition=" $shop_info[
+			'avatar']"}hover{/if}">
+			<div class="ns-upload-default" id="avatarImg">
+				{if condition="$shop_info.avatar"}
+				<div id="preview_avatarImg" class="preview_img">
+					<img layer-src src="{:img($shop_info.avatar)}" class="img_prev"/>
+				</div>
+				{else/}
+				<div class="upload">
+					<img src="ADMIN_IMG/upload_img.png"/>
+					<p>点击上传</p>
+				</div>
+				{/if}
+			</div>
+			<div class="operation">
+				<div>
+					<i title="图片预览" class="iconfont iconreview js-preview" style="margin-right: 20px;"></i>
+					<i title="删除图片" class="layui-icon layui-icon-delete js-delete"></i>
+				</div>
+				<div class="replace_img js-replace">点击替换</div>
+			</div>
+			<input type="hidden" name="avatar" value="{$shop_info.avatar}">
+		</div>
+	</div>
+</div>
+</div>
+
+<div class="layui-form-item" hidden>
+	<label class="layui-form-label img-upload-lable">商家条幅：</label>
+	<div class="layui-input-block">
+		<div class="upload-img-block img-upload">
+			<div class="upload-img-box {if condition=" $shop_info[
+			'banner']"}hover{/if}">
+			<div class="ns-upload-default" id="bannerImg">
+				{if condition="$shop_info.banner"}
+				<div id="preview_bannerImg" class="preview_img">
+					<img layer-src src="{:img($shop_info.banner)}" class="img_prev"/>
+				</div>
+				{else/}
+				<div class="upload">
+					<img src="ADMIN_IMG/upload_img.png"/>
+					<p>点击上传</p>
+				</div>
+				{/if}
+			</div>
+			<div class="operation">
+				<div>
+					<i title="图片预览" class="iconfont iconreview js-preview" style="margin-right: 20px;"></i>
+					<i title="删除图片" class="layui-icon layui-icon-delete js-delete"></i>
+				</div>
+				<div class="replace_img js-replace">点击替换</div>
+			</div>
+			<input type="hidden" name="banner" value="{$shop_info.banner}">
+		</div>
+	</div>
+</div>
+</div>
+
+<div class="layui-form-item" hidden>
+	<label class="layui-form-label">商家关键字：</label>
+	<div class="layui-input-block">
+		<input name="seo_keywords" type="text" value="{$shop_info.seo_keywords}" class="layui-input ns-len-long"
+			   autocomplete="off">
+	</div>
+	<div class="ns-word-aux">
+		<p>关键字之间请用英文逗号分隔</p>
+	</div>
+</div>
+
+<div class="layui-form-item" hidden>
+	<label class="layui-form-label">商家简介：</label>
+	<div class="layui-input-inline ns-len-long">
+		<textarea name="seo_description" class="layui-textarea">{$shop_info.seo_description}</textarea>
+	</div>
+</div>
+
+<div class="layui-form-item" hidden>
+	<label class="layui-form-label">联系电话：</label>
+	<div class="layui-input-block">
+		<input name="telephone" type="text" value="{$shop_info.telephone}" lay-verify="mobile"
+			   class="layui-input ns-len-mid" autocomplete="off">
+	</div>
+</div>
+
+<div class="layui-form-item" hidden>
+	<label class="layui-form-label">是否推荐：</label>
+	<div class="layui-input-block">
+		<input type="radio" name="is_recommend" lay-filter="is_recommend" value="1" title="开启" {if
+			   condition="$shop_info.is_recommend == 1" } checked {/if}>
+		<input type="radio" name="is_recommend" lay-filter="is_recommend" value="0" title="关闭" {if
+			   condition="$shop_info.is_recommend == 0" } checked {/if}>
+	</div>
+	<p class="ns-word-aux">开启后，会在客户端商家列表优先展示</p>
+</div>
+
+<div class="layui-form-item" hidden>
+	<label class="layui-form-label">服务保障：</label>
+	<div class="layui-input-block">
+		<input type="checkbox" name="shop_qtian" title="7天退换" lay-skin="primary" value="1" lay-filter="service" {if
+			   condition="$shop_info.shop_qtian == 1" } checked {/if}>
+		<input type="checkbox" name="shop_zhping" title="正品保障" lay-skin="primary" value="1" lay-filter="service" {if
+			   condition="$shop_info.shop_zhping == 1" } checked {/if}>
+		<input type="checkbox" name="shop_erxiaoshi" title="两小时发货" lay-skin="primary" value="1" lay-filter="service" {if
+			   condition="$shop_info.shop_erxiaoshi == 1" } checked {/if}>
+		<input type="checkbox" name="shop_tuihuo" title="退货承诺" lay-skin="primary" value="1" lay-filter="service" {if
+			   condition="$shop_info.shop_tuihuo == 1" } checked {/if}>
+		<input type="checkbox" name="shop_shiyong" title="试用中心" lay-skin="primary" value="1" lay-filter="service" {if
+			   condition="$shop_info.shop_shiyong == 1" } checked {/if}>
+		<input type="checkbox" name="shop_shiti" title="实体验证" lay-skin="primary" value="1" lay-filter="service" {if
+			   condition="$shop_info.shop_shiti == 1" } checked {/if}>
+		<input type="checkbox" name="shop_xiaoxie" title="消协保证" lay-skin="primary" value="1" lay-filter="service" {if
+			   condition="$shop_info.shop_xiaoxie == 1" } checked {/if}>
+	</div>
+</div>
+
+<!-- 商家信息 -->
+<div class="layui-form" lay-filter="storeform">
+	<!--<div class="layui-form-item">
+        <label class="layui-form-label"><span class="required">*</span>商家名称：</label>
+        <div class="layui-input-block">
+            <input type="text" name="store_name" autocomplete="off" lay-verify="store_name"
+                   class="layui-input ns-len-mid" value="{$info.store_name}">
+        </div>
+        <div class="ns-word-aux">商家的名称（招牌）</div>
+    </div>-->
+	<div class="layui-form-item" >
+		<label class="layui-form-label img-upload-lable">商家图片：</label>
+		<div class="layui-input-block img-upload">
+			<div class="upload-img-block">
+				<div class="upload-img-box {notempty name=" $shop_info[
+				'store_image']"}hover{/notempty}">
+				<div class="ns-upload-default" id="storeUpload">
+					{notempty name="$shop_info.store_image"}
+					<div id="preview_storeUpload" class="preview_img">
+						<img layer-src src="{:img($shop_info.store_image)}" class="img_prev"/>
+					</div>
+					{else/}
+					<div class="upload">
+						<img src="ADMIN_IMG/upload_img.png" data-id="storeUpload"/>
+						<p>点击上传</p>
+					</div>
+					{/notempty}
+				</div>
+				<div class="operation">
+					<div>
+						<i title="图片预览" class="iconfont iconreview js-preview" style="margin-right: 20px;"></i>
+						<i title="删除图片" class="layui-icon layui-icon-delete js-delete"></i>
+					</div>
+					<div class="replace_img js-replace">点击替换</div>
+				</div>
+				<input type="hidden" name="store_image" value="{$shop_info.store_image}"/>
+			</div>
+		</div>
+	</div>
+	<div class="ns-word-aux">
+		<p>建议图片尺寸：225 * 180像素，图片格式：jpg、png、jpeg。</p>
+	</div>
+</div>
+
+<div class="layui-form-item" >
+	<label class="layui-form-label img-upload-lable">商家LOGO：</label>
+	<div class="layui-input-block img-upload">
+		<div class="upload-img-block">
+			<div class="upload-img-box {notempty name=" $shop_info[
+			'store_logo']"}hover{/notempty}">
+			<div class="ns-upload-default" id="storeUpload2">
+				{notempty name="$shop_info.store_logo"}
+				<div id="preview_storeUpload2" class="preview_img">
+					<img layer-src src="{:img($shop_info.store_logo)}" class="img_prev"/>
+				</div>
+				{else/}
+				<div class="upload">
+					<img src="ADMIN_IMG/upload_img.png" data-id="storeUpload"/>
+					<p>点击上传</p>
+				</div>
+				{/notempty}
+			</div>
+			<div class="operation">
+				<div>
+					<i title="图片预览" class="iconfont iconreview js-preview" style="margin-right: 20px;"></i>
+					<i title="删除图片" class="layui-icon layui-icon-delete js-delete"></i>
+				</div>
+				<div class="replace_img js-replace">点击替换</div>
+			</div>
+			<input type="hidden" name="store_logo" value="{$shop_info.store_logo}"/>
+		</div>
+	</div>
+</div>
+<div class="ns-word-aux">
+	<p>建议图片尺寸：148 * 52像素，图片格式：jpg、png、jpeg。</p>
+</div>
+</div>
+
+<div lay-filter="storeform">
+	<div class="layui-form-item">
+		<label class="layui-form-label">商家电话：</label>
+		<div class="layui-input-block">
+			<input type="text" name="telphone" value="{$info.telphone}" lay-verify="tel" autocomplete="off"
+				   class="layui-input ns-len-mid">
+		</div>
+		<div class="ns-word-aux">请输入合法的手机号</div>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label">营业状态：</label>
+		<div class="layui-input-block">
+			<input type="checkbox" name="status" value="1" lay-skin="switch" {if !empty($info) && $info.status==1 }checked{/if}>
+		</div>
+		<div class="ns-word-aux">是否开启营业，关闭即停业</div>
+	</div>
+
+	<!--自提点地址-->
+	<div class="layui-form-item">
+		<label class="layui-form-label"><span class="required">* </span>商家地址：</label>
+		<div class="layui-input-inline area-select">
+			<select name="province_id" lay-filter="province_id" lay-verify="province_id" autocomplete="off">
+				{foreach $province_list as $k => $v}
+				<option value="{$v.id}" {if $info.province_id== $v.id}select{
+				/if}>{$v.name}</option>
+				{/foreach}
+			</select>
+		</div>
+
+		<div class="layui-input-inline area-select">
+			<select name="city_id" lay-filter="city_id" lay-verify="city_id" autocomplete="off">
+				<option value="">请选择城市</option>
+			</select>
+		</div>
+
+		<div class="layui-input-inline area-select">
+			<select name="district_id" lay-filter="district_id" lay-verify="district_id" autocomplete="off">
+				<option value="">请选择区/县</option>
+			</select>
+		</div>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label"></label>
+		<div class="layui-input-block">
+			<input type="text" name="address" placeholder="请填写商家的具体地址。" value="{$info.address}" lay-verify="required"
+				   autocomplete="off" class="layui-input ns-len-long address-content" value="">
+			<input type="hidden" name="longitude" lay-verify="required" class="layui-input" value="{$info.longitude}"/>
+			<input type="hidden" name="latitude" lay-verify="required" class="layui-input" value="{$info.latitude}"/>
+			<button class='layui-btn-primary layui-btn' onclick="refreshFrom();">查找地址</button>
+		</div>
+		<div class="ns-word-aux">点击查找地址可在地图上显示输入的地理位置</div>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label">地图定位：</label>
+		<div class="layui-input-block">
+			<div id="container" class="selffetch-map"></div>
+		</div>
+		<span class="layui-word-aux empty-address">请选择地理位置！在地图上点击得到的地理位置会自动填入到对应的输入框中</span>
+	</div>
+
+	<div class="layui-form-item layui-hide">
+		<label class="layui-form-label">是否启用外卖配送：</label>
+		<div class="layui-input-block">
+			<input type="checkbox" value="1" name="is_o2o" lay-skin="switch" {if !empty($info) && $info.is_o2o==1 }checked{/if}>
+		</div>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label">营业时间：</label>
+		<div class="layui-input-block">
+			<input type="text" name="open_date" value="{$info.open_date}" class="layui-input ns-len-long" autocomplete="off">
+		</div>
+		<div class="ns-word-aux ">例：上午9:00-12:00，下午2:00-6:00</div>
+	</div>
+
+
+
+</div>
+
+
+<div class="ns-form-row">
+	<button class="layui-btn ns-bg-color" lay-submit lay-filter="save">保存</button>
+	<button class="layui-btn layui-btn-primary" onclick="back()">返回</button>
+</div>
+
+<!-- 隐藏域 -->
+<input type="hidden" value="{$shop_info.site_id}" name="site_id"/>
+<!--	<input type="hidden" value="{$shop_info.logo}" name="logo" />-->
+<!--	<input type="hidden" value="{$shop_info.avatar}" name="avatar" />-->
+<!--	<input type="hidden" value="{$shop_info.banner}" name="banner" />-->
+</div>
+{/block}
+{block name="script"}
+<script type="text/javascript">
+	window._AMapSecurityConfig = {
+		securityJsCode:'07add53a1ab6db7259096d2963734804',
+	}
+</script>
+<script type="text/javascript" src="{:get_http_type()}://webapi.amap.com/maps?v=1.4.6&amp;key={if empty($map_key['gaode_map_key'])}8747768d2ff43ead9d72f7ef7a4666fd{else/}{$map_key['gaode_map_key']}{/if}"></script>
+<script type="text/javascript" src="SHOP_JS/address.js"></script>
+<script type="text/javascript" src="STATIC_JS/map_address.js"></script>
+<script>
+	var form, repeat_flag, map_class; //新增加
+	var laytpl;
+	layui.use(['form', 'laydate', 'laytpl'], function () {
+		var form = layui.form,
+				laydate = layui.laydate,
+				autotrphyChecked = parseInt("{$shop_info.is_own}"),
+				repeat_flag = false; //防重复标识
+
+		laytpl = layui.laytpl;
+		form.render();
+
+		laydate.render({
+			elem: '#laydate'
+		});
+
+		form.render();
+
+		// 普通图片上传
+		var imgUploadAdv_upload = new Upload({
+			elem: '#storeUpload'
+		});
+		var imgUploadAdv_upload2 = new Upload({
+			elem: '#storeUpload2'
+		});
+
+		//新增加
+		var initdata = {
+			province_id: '{$info.province_id}',
+			city_id: '{$info.city_id}',
+			district_id: '{$info.district_id}'
+		};
+		initAddress(initdata, "storeform");
+
+		if ('{$info.latitude}' == "" || '{$info.longitude}' == "") {
+			var latlng = {lat: '', lng: ''};
+		} else {
+			var latlng = {lat: '{$info.latitude}', lng: '{$info.longitude}'};
+		}
+
+		//地图展示
+		map_class = new mapClass("container", latlng);
+		/**
+		 * 验证码
+		 */
+		form.verify({
+			required: function (value, item) {
+				var msg = $(item).attr("placeholder") != undefined ? $(item).attr("placeholder") : '';
+				if (value == '') return msg;
+			},
+			/*region_id: function (value, item) {
+				if (value == "") {
+					return '请选择城市';
+				}
+			},*/
+			/*can_id: function (value, item) {
+				if (value == "") {
+					return '请选择商会';
+				}
+			},*/
+			website_id: function (value, item) {
+				if (value == "") {
+					return '请选择城市';
+				}
+			},
+			province_id: function (value, item) {
+				if (value == '') {
+					return '请选择省份';
+				}
+			},
+			city_id: function (value, item) {
+				if (value == '') {
+					return '请选择城市';
+				}
+			},
+			district_id: function (value, item) {
+				if (value == '') {
+					return '请选择区/县';
+				}
+			},
+			site_name: function (value, item) {
+				if (value == "") {
+					return '请输入商家名称';
+				}
+			},
+			username: function(value, item) {
+				if (value == "") {
+					return '请输入商家账号';
+				}
+			},
+			store_name: function (value, item) {
+				if (value == "") {
+					// return '请输入商家名称';
+				}
+			}
+		});
+		//新增加结束
+
+		// logo上传
+		var logo_upload = new Upload({
+			elem: '#logoImg'
+		});
+
+		// 商家头像上传
+		var avatar_upload = new Upload({
+			elem: '#avatarImg'
+		});
+
+		// 商家横幅上传
+		var banner_upload = new Upload({
+			elem: '#bannerImg'
+		});
+
+		/**
+		 * 表单验证
+		 */
+		form.verify({
+			int: function (value) {
+				if (value == "") {
+					return false;
+				}
+				if (value < 0 || value > 100 || !(value % 1 === 0)) {
+					return '请输入0-100之间的整数'
+				}
+			}
+		});
+
+		// 是否自营
+		form.on('switch(whether_autotrophy)', function (data) {
+			autotrphyChecked = data.elem.checked ? 1 : 0;
+			autotrophy();
+		});
+
+		autotrophy();
+
+		function autotrophy() {
+			if (autotrphyChecked == 1) {
+				$('select[name="own_group_id"]').attr("lay-verify", 'required').parents('.layui-form-item').removeClass("layui-hide");
+				$('select[name="group_id"]').attr("lay-verify", '').parents('.layui-form-item').addClass("layui-hide");
+			} else {
+				$('select[name="group_id"]').attr("lay-verify", 'required').parents('.layui-form-item').removeClass("layui-hide");
+				$('select[name="own_group_id"]').attr("lay-verify", '').parents('.layui-form-item').addClass("layui-hide");
+			}
+		}
+
+		/**
+		 * 监听保存
+		 */
+		form.on('submit(save)', function (data) {
+			//新增加
+			if (data.field.longitude == "" || data.field.latitude == "") {
+				layer.msg('请确认地理位置!');
+				$(".empty-address").show();
+				return;
+			} else {
+				$(".empty-address").hide();
+			}
+
+			var full_address = [];
+			full_address.push($("select[name=province_id] option:selected").text());
+			full_address.push($("select[name=city_id] option:selected").text());
+			full_address.push($("select[name=district_id] option:selected").text());
+
+			data.field.full_address = full_address.toString();
+
+			// if (repeat_flag) return;
+			// repeat_flag = true;
+			//新增加结束
+			if (autotrphyChecked == 1) {
+				data.field.group_id = data.field.own_group_id;
+			}
+
+			var group_id = data.field.group_id,
+					group_name = $(".ns-group").find("option[value=" + group_id + "]").text(),
+					category_id = data.field.category_id,
+					category_name = $(".ns-category").find("option[value=" + category_id + "]").text();
+
+			data.field.group_name = group_name;
+			data.field.category_name = category_name;
+
+			if (repeat_flag) return false;
+			repeat_flag = true;
+
+			// 删除图片
+			if (!data.field.logo) logo_upload.delete();
+			if (!data.field.avatar) avatar_upload.delete();
+			if (!data.field.banner) banner_upload.delete();
+
+			$.ajax({
+				url: ns.url("admin/shop/basicInfo"),
+				data: data.field,
+				type: "POST",
+				dataType: "JSON",
+				success: function (res) {
+					repeat_flag = false;
+					if (res.code == 0) {
+						layer.confirm('编辑成功', {
+							title: '操作提示',
+							btn: ['返回列表', '继续操作'],
+							yes: function () {
+								location.href = ns.url("admin/shop/lists")
+							},
+							btn2: function () {
+								location.reload();
+							}
+						});
+					} else {
+						layer.msg(res.message);
+					}
+				}
+			});
+		});
+
+		form.on('submit(repass)', function (data) {
+			if (repeat_flag) return false;
+			repeat_flag = true;
+
+			$.ajax({
+				type: "POST",
+				dataType: 'JSON',
+				url: ns.url("admin/shopuser/modifyPassword"),
+				data: data.field,
+				success: function (res) {
+					layer.msg(res.message);
+					repeat_flag = false;
+
+					if (res.code == 0) {
+						layer.closeAll('page');
+					}
+				}
+			});
+		});
+
+		/**
+		 * 表单验证
+		 */
+		form.verify({
+			repass: function (value) {
+				if (value != $("#user_new_pass").val()) {
+					return "输入错误,两次密码不一致!";
+				}
+			}
+		});
+
+	});
+
+	/**
+	 * 点击搜索
+	 */
+	var repeat_flag = false;
+	var html, val;
+
+	function checkMember() {
+		var parent = $(".ns-check-member");
+		var con = parent.find(".ns-member-name").val();
+		$(".layui-word-aux").remove();
+		$(".ns-search-result").remove();
+
+		if (repeat_flag) return false;
+		repeat_flag = true;
+
+		if (con == "" || con == null || con.trim() == "") {
+			repeat_flag = false;
+		} else {
+			$.ajax({
+				type: 'POST',
+				url: ns.url("admin/member/searchMember"),
+				data: {
+					'search_text': con
+				},
+				dataType: 'JSON',
+				success: function (res) {
+					layer.msg(res.message);
+					repeat_flag = false;
+
+					if (res.data == null) {
+						html = '<span class="layui-word-aux">未找到该用户</span>';
+						val = res.data;
+					} else {
+						html = '<div class="ns-search-result layui-input-inline ns-border-color-gray">' +
+								'<div class="ns-search-res-img">' +
+								'<img src="' + ns.img(res.data.headimg) + '" />' +
+								'</div>' +
+								'<div class="ns-search-res-intro">' +
+								'<p>用户名：' + res.data.username + '</p>' +
+								'<p>电话：' + res.data.mobile + '</p>' +
+								'</div>' +
+								'<div class="ns-search-res-close" onclick="closeMember()">' +
+								'<i class="iconfont iconclose_light"></i>' +
+								'</div>' +
+								'</div>';
+						val = res.data.member_id;
+					}
+
+					$(".ns-member-id").attr("value", val);
+					$(".ns-check-member-box").append(html);
+				}
+			});
+		}
+	}
+
+	function closeMember() {
+		$(".ns-search-result").hide();
+	}
+
+	function back() {
+		location.href = ns.url("admin/shop/lists");
+	}
+
+	function closePass() {
+		layer.close(layer_pass);
+	}
+
+	function resetPass(data) {
+		laytpl($("#pass_change").html()).render(data, function (html) {
+			layer_pass = layer.open({
+				title: '重置密码',
+				skin: 'layer-tips-class',
+				type: 1,
+				area: ['550px'],
+				content: html,
+			});
+		});
+	}
+
+	/**
+	 * 重新渲染表单
+	 */
+	function refreshFrom(){
+		form.render();
+		orderAddressChange();//改变地址
+		map_class.mapChange();
+	}
+
+	//动态改变订单地址赋值
+	function orderAddressChange(){
+		map_class.address.province = $("select[name=province_id]").val();
+		map_class.address.province_name = $("select[name=province_id] option:selected").text();
+		map_class.address.city = $("select[name=city_id]").val();
+		map_class.address.city_name = $("select[name=city_id] option:selected").text();
+		map_class.address.district = $("select[name=district_id]").val();
+		map_class.address.district_name = $("select[name=district_id] option:selected").text();
+		map_class.address.address = $("input[name=address]").val()
+	}
+
+	/**
+	 * 地址下拉框（主要用于坐标记录）
+	 */
+	function selectCallBack(){
+		$("input[name=longitude]").val(map_class.address.longitude);//坐标
+		$("input[name=latitude]").val(map_class.address.latitude);//坐标
+	}
+
+	//地图点击回调事件
+	function mapChangeCallBack(){
+		$("input[name=address]").val(map_class.address.address);//详细地址
+		$("input[name=longitude]").val(map_class.address.longitude);//坐标
+		$("input[name=latitude]").val(map_class.address.latitude);//坐标
+
+		$.ajax({
+			type : "POST",
+			dataType: 'JSON',
+			url : ns.url("shop/address/getGeographicId"),
+			async : true,
+			data : {
+				"address" : map_class.address.area
+			},
+			success : function(data) {
+				map_class.address.province = data.province_id;
+				map_class.address.city = data.city_id;
+				map_class.address.district = data.district_id;
+				map_class.address.township = data.subdistrict_id;
+				map_class.map_change = false;
+				form.val("storeform", {
+					"province_id": data.province_id
+				});
+				$("select[name=province_id]").change();
+				form.val("storeform", {
+					"city_id": data.city_id
+				});
+				$("select[name=city_id]").change();
+				form.val("storeform", {
+					"district_id": data.district_id
+				});
+				refreshFrom();//重新渲染form
+				map_class.map_change = true;
+			}
+		})
+
+	}
+
+</script>
+<!-- 重置密码弹框html -->
+<script type="text/html" id="pass_change">
+	<div class="layui-form" id="reset_pass">
+		<div class="layui-form-item">
+			<label class="layui-form-label mid"><span class="required">*</span>新密码</label>
+			<div class="layui-input-block">
+				<input type="password" id="user_new_pass" name="password" required class="layui-input ns-len-mid"
+					   maxlength="18" autocomplete="off" readonly onfocus="this.removeAttribute('readonly');"
+					   onblur="this.setAttribute('readonly',true);">
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label mid"><span class="required">*</span>确认新密码</label>
+			<div class="layui-input-block">
+				<input type="password" name="password" required lay-verify="repass" class="layui-input ns-len-mid"
+					   maxlength="18" autocomplete="off" readonly onfocus="this.removeAttribute('readonly');"
+					   onblur="this.setAttribute('readonly',true);">
+			</div>
+			<span class="ns-word-aux mid">请再一次输入密码，两次输入密码须一致</span>
+		</div>
+
+		<div class="ns-form-row mid">
+			<button class="layui-btn ns-bg-color" lay-submit lay-filter="repass">确定</button>
+			<button class="layui-btn layui-btn-primary" onclick="closePass()">返回</button>
+		</div>
+
+		<input class="reset-pass-id" type="hidden" name="site_id" value="{{d.site_id}}"/>
+		<input class="reset-pass-id" type="hidden" name="username" value="{{d.username}}"/>
+	</div>
+</script>
+
+{/block}

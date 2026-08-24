@@ -1,0 +1,141 @@
+@charset "UTF-8";
+/**
+ * 你可以通过修改这些变量来定制自己的插件主题，实现自定义主题功能
+ * 建议使用scss预处理，并在插件代码中直接使用这些变量（无需 import 这个文件），方便用户通过搭积木的方式开发整体风格一致的App
+ */
+.single-graph.data-v-50154e40 {
+  width: 100%;
+  line-height: 0;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+          justify-content: center;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+}
+.single-graph text.data-v-50154e40 {
+  background: rgba(0, 0, 0, 0.3);
+  position: absolute;
+  bottom: 0;
+  color: #ffffff;
+  font-size: 24rpx;
+  width: 100%;
+  left: 0;
+  line-height: 40rpx;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  padding: 0 10rpx;
+  box-sizing: border-box;
+}
+.item.active text.data-v-50154e40 {
+  background: rgba(0, 0, 0, 0.3);
+  position: absolute;
+  bottom: 0;
+  color: #ffffff;
+  font-size: 24rpx;
+  width: 100%;
+  left: 0;
+  line-height: 40rpx;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  padding: 0 10rpx;
+  text-align: center;
+}
+.swiper-box.data-v-50154e40 {
+  max-height: 330rpx;
+  overflow: hidden;
+}
+.swiper.data-v-50154e40 {
+  width: 690rpx;
+  margin: 0 auto;
+  overflow: hidden;
+  -webkit-transform: translateY(0);
+          transform: translateY(0);
+}
+.swiper-item.data-v-50154e40 {
+  width: 100%;
+  height: auto !important;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+          justify-content: center;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+          flex-direction: column;
+}
+.swiper-item .item.data-v-50154e40 {
+  width: 100%;
+  height: auto;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.swiper-item .item image.data-v-50154e40 {
+  height: 0;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+}
+.vertically-images.data-v-50154e40 {
+  width: 100%;
+}
+.vertically-images view.data-v-50154e40 {
+  height: auto;
+  position: relative;
+}
+.vertically-images view image.data-v-50154e40 {
+  height: 0;
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.vertically-images view text.data-v-50154e40 {
+  bottom: 0;
+  box-sizing: border-box;
+  text-align: center;
+}
+.horizontal-sliding.data-v-50154e40 {
+  overflow-x: scroll;
+  white-space: nowrap;
+}
+.horizontal-sliding.data-v-50154e40::-webkit-scrollbar {
+  display: none;
+}
+.horizontal-sliding .item.data-v-50154e40 {
+  display: inline-block;
+  vertical-align: middle;
+  height: 330rpx;
+  position: relative;
+}
+.horizontal-sliding .item.data-v-50154e40:last-child {
+  margin-right: 0 !important;
+}
+.horizontal-sliding .item image.data-v-50154e40 {
+  height: 330rpx;
+}
+.data-v-50154e40 .uni-scroll-view::-webkit-scrollbar {
+  /* 隐藏滚动条，但依旧具备可以滚动的功能 */
+  display: none;
+}
+.swiper.data-v-50154e40 .uni-swiper-dots-horizontal {
+  bottom: 25rpx;
+}
+.swiper.ns-indicator-dots.data-v-50154e40 .uni-swiper-dot {
+  width: 20rpx;
+  height: 6rpx;
+  border-radius: 6rpx;
+}
+

@@ -1,0 +1,4 @@
+@CHARSET "UTF-8";
+/*辅助线组件*/
+.draggable-element .auxiliary-line .preview-box div {height: 0;}
+.draggable-element .auxiliary-line .preview-draggable .preview-box {margin: 0 15px;}

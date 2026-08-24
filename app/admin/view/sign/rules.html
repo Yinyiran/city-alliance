@@ -1,0 +1,285 @@
+{extend name="base"/}
+{block name="resources"}
+<style>
+	.ns-flex {
+		display: flex;
+	}
+
+	.layui-form-select {
+		width: 120px;
+		height: 30px;
+	}
+	.goodsdiv{
+		display:none;
+	}
+</style>
+
+{/block}
+{block name="main"}
+
+
+<!-- 添加签到规则 -->
+
+<div class="ns-single-filter-box">
+	<button type="button" class="layui-btn ns-bg-color" onclick="addrules();">添加签到规则</button>
+</div>
+
+
+<table id="rules_list" lay-filter="rules_list"></table>
+<!-- 添加编辑规则弹窗 -->
+<script type="text/html" id="rules_add">
+	<div class="layui-form member-form" id="rules_add_form" lay-filter="form">
+
+		<div class="layui-form-item">
+			<label class="layui-form-label sm">家数</label>
+			<div class="layui-input-block ns-len-mid ns-flex">
+				<span>第</span>
+				<input type="number" name="title" lay-verify="required|number" autocomplete="off" class="layui-input" style="width:60px;height:30px;margin:0 5px;">
+				<span>家</span>
+
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label sm">奖励</label>
+			<div class="layui-input-block ns-len-mid rewards ns-flex">
+				<input type="number" name="reward_value" lay-verify="number" value="0" autocomplete="off" class="layui-input" style="width:80px;height:34px;float:left;">
+				<div style="float:left"  class="layui-input-inline" >
+					<select name="reward_type" lay-filter="reward_type" style="width:120px;height:30px;">
+						{foreach $rules_type as $key => $value}
+						<option value="{$value['type_id']}" data-typename="{$value['type_name']}">{$value['type_name']}</option>
+						{/foreach}
+					</select>
+					
+				</div>
+			<div style="float:left;" class="goodsdiv layui-input-inline">
+				<select name="goods_id" lay-filter="goods_id" style="width:120px;height:30px;" >
+						{foreach $goodslist as $key => $value}
+						<option value="{$value['goods_id']}" data-typename="{$value['goods_name']}">{$value['goods_name']}</option>
+						{/foreach}
+					</select>
+			</div>
+			</div>
+		</div>
+		<div class="ns-form-row sm">
+			<button class="layui-btn ns-bg-color" lay-submit lay-filter="setrules_add">确定</button>
+		</div>
+	</div>
+</script>
+<script type="text/html" id="rules_edit">
+	<div class="layui-form member-form" id="rules_add_form" lay-filter="form">
+		<div class="layui-form-item">
+			<label class="layui-form-label sm">家数</label>
+			<div class="layui-input-block ns-len-mid ns-flex">
+				<span>第</span>
+				<input type="number" name="title" lay-verify="required" autocomplete="off" class="layui-input" style="width:60px;height:30px;margin:0 5px;" value="{{d.title}}">
+
+				<span>家</span>
+
+			</div>
+		</div>
+		<div class="layui-form-item editbox">
+			<label class="layui-form-label sm">奖励</label>
+			<div class="layui-input-block ns-len-mid rewards ns-flex">
+				<input type="number" name="reward_value" lay-verify="required" autocomplete="off" class="layui-input" style="width:80px;height:34px;float:left;" value="{{d.reward_value}}">
+
+				<div style="float:left" class="layui-input-inline">
+					<select name="reward_type" lay-filter="reward_type" style="width:120px;height:30px;">
+						{foreach $rules_type as $key => $value}
+						<option value="{$value['type_id']}" data-typename="{$value['type_name']}" {if condition="$value['type_id'] eq d.reward_type" selected}>{$value['type_name']}</option>
+						{/foreach}
+					</select>
+					
+				</div>
+				<div style="float:left;" class="goodsdiv layui-input-inline">
+					<select name="goods_id"  class="selecttypename" lay-filter="goods_id" style="width:120px;height:30px;" >
+						{foreach $goodslist as $key => $value}
+						<option value="{$value['goods_id']}" data-typename="{$value['goods_name']}" {if condition="$value['goods_id'] eq d.goods_id" selected}>{$value['goods_name']}</option>
+						{/foreach}
+					</select>
+				</div>
+			</div>
+		</div>
+		<div class="ns-form-row sm">
+			<button class="layui-btn ns-bg-color" lay-submit lay-filter="setrules_edit">确定</button>
+		</div>
+		<input class="reset-label-id" type="hidden" name="rules_id" value="{{d.rules_id}}" />
+	</div>
+</script>
+<!-- 工具栏操作 -->
+<script type="text/html" id="action">
+	<div class="ns-table-btn">
+		<a class="layui-btn" lay-event="edits">编辑</a>
+	</div>
+</script>
+{/block}
+{block name="script"}
+<script type='text/javascript' src='ADMIN_JS/coupon_list.js'></script>
+
+<script type="text/javascript">
+	var table, form, laytpl, laydate,
+		repeat_flag = false,
+		currentDate = new Date(),
+		minDate = "",
+		layer_adds,
+		layer_edits;
+
+	$("select[name='goods_id']").hide();
+	layui.use(['form', 'laytpl', 'laydate'], function () {
+		form = layui.form;
+		laytpl = layui.laytpl;
+		laydate = layui.laydate;
+		currentDate.setDate(currentDate.getDate() - 7);
+		form.render();
+
+		table = new Table({
+			elem: '#rules_list',
+			url: ns.url("admin/sign/rules"),
+			cols: [
+				[
+					{
+						field: 'title',
+						title: '签到家数',
+						width: '20%',
+						unresize: 'false',
+						templet: function (data) {
+							return "第" + data.title + "家"
+
+						}
+					},
+					{
+						field: 'reward_value',
+						title: '奖励',
+						width: '20%',
+						unresize: 'false',
+						templet: function (data) {
+							console.log(data);
+							if(data.reward_type!=3){
+								return data.reward_value + data.reward_typename;
+							}else{
+								return data.goods_name;
+							}
+						}
+					}, {
+						title: '操作',
+						width: '7%',
+						unresize: 'false',
+						toolbar: '#action'
+					}
+				]
+			]
+		});
+
+		/**
+		 * 监听工具栏操作
+		 */
+		table.tool(function (obj) {
+			var data = obj.data;
+			switch (obj.event) {
+				case 'edits': //编辑
+					console.log(data);
+					$("#goods_id").hide();
+					editrules(data);
+					break;
+
+			}
+		});
+
+		$(document).click(function (event) {
+			if ($(event.target).attr('lay-event') != 'more' && $('.more-operation').not(':hidden').length) {
+				$('.more-operation').css('display', 'none');
+			}
+		});
+
+
+
+		form.on('submit(setrules_add)', function (data) {
+			$.ajax({
+				type: "POST",
+				url: ns.url("admin/sign/addrules"),
+				data: data.field,
+				dataType: 'JSON',
+				success: function (res) {
+					console.log(res);
+					layer.msg(res.message);
+					if (res.code == 0) {
+						table.reload();
+						layer.closeAll('page');
+					}
+				}
+			});
+		});
+		form.on('submit(setrules_edit)', function (data) {
+			console.log(data);
+			$.ajax({
+				type: "POST",
+				url: ns.url("admin/sign/edits"),
+				data: data.field,
+				dataType: 'JSON',
+				success: function (res) {
+					layer.msg(res.message);
+					if (res.code == 0) {
+						table.reload();
+						layer.closeAll('page');
+					}
+				}
+			});
+		});
+		form.on('select(reward_type)', function (data) {
+			conoole.log(data.value);
+			if (data.value == 3) {
+				$(this).parents(".rewards").find(".goodsdiv").show();
+				$(this).parents(".rewards").find("input[name='reward_value']").hide();
+			} else {
+				$(this).parents(".rewards").find("input[name='reward_value']").show();
+				$(this).parents(".rewards").find(".goodsdiv").hide();
+			}
+			form.render();
+		});
+	});
+	function addrules() {
+		layer_adds = layer.open({
+			title: '添加签到规则',
+			type: 1,
+			area: ['450px'],
+			content: $('#rules_add').html(),
+			success: function () {
+				//$("#rules_add_form").find(".goodsdiv").hide();
+				form.render();
+			}
+		});
+
+	}
+	function editrules(data) {
+		laytpl($("#rules_edit").html()).render(data, function (html) {
+			layer_edits = layer.open({
+				title: '编辑签到规则',
+				type: 1,
+				area: ['450px'],
+				content: html,
+				success: function () {
+					console.log(data);
+					$("select[name='reward_type']").val(data.reward_type);
+					console.log(data.reward_type);
+					if (data.reward_type == 3) {
+						$(".editbox").find(".goodsdiv").show();
+						$(".editbox").find("input[name='reward_value']").hide();
+					} else {
+						$(".editbox").find(".goodsdiv").hide();
+						$(".editbox").find("input[name='reward_value']").show();
+
+					}
+					form.render();
+				}
+
+			});
+		})
+
+	}
+
+	function rewardtypechange() {
+		console.log("rewardtypechange");
+	}
+
+</script>
+
+{/block}

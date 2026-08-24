@@ -1,0 +1,72 @@
+@charset "UTF-8";
+/**
+ * 你可以通过修改这些变量来定制自己的插件主题，实现自定义主题功能
+ * 建议使用scss预处理，并在插件代码中直接使用这些变量（无需 import 这个文件），方便用户通过搭积木的方式开发整体风格一致的App
+ */
+.container {
+  width: 100vw;
+  height: 100vh;
+  background: #fff;
+}
+.container .image-wrap {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+          justify-content: center;
+  padding: 200rpx 0 40rpx 0;
+}
+.container .image-wrap .result-image {
+  width: 166rpx;
+  height: 132rpx;
+}
+.container .msg {
+  text-align: center;
+  line-height: 1;
+  margin-bottom: 50rpx;
+  font-size: 28rpx;
+  color: #000;
+}
+.container .pay-amount {
+  color: #999;
+  text-align: center;
+  line-height: 1;
+  margin-bottom: 30rpx;
+}
+.container .action {
+  width: 90%;
+  margin: 0 auto;
+  text-align: center;
+  margin-top: 150rpx;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+}
+.container .action .btn {
+  width: 310rpx;
+  height: 78rpx;
+  border: 2rpx solid #ffffff;
+  border-radius: 80rpx;
+  font-size: 24rpx;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+          justify-content: center;
+}
+.container .action .alone {
+  margin-left: 0;
+  width: 60%;
+}
+.container .action .go-home {
+  color: #fff;
+}
+

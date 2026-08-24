@@ -1,0 +1,198 @@
+{extend name="base"/}
+{block name="resources"}
+<style>
+    .ns-form {margin-top: 0;}
+</style>
+{/block}
+{block name="main"}
+
+<div class="layui-form ns-form" >
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span class="required">*</span>城市名称：</label>
+        <div class="layui-input-inline">
+            <input name="name" type="text" lay-verify="required" class="layui-input ns-len-long">
+        </div>
+    </div>
+
+    <!--	增加城市类型-->
+    <div class="layui-form-item" style="display: none">
+        <label class="layui-form-label"><span class="required">*</span>区域类型：</label>
+        <div class="layui-input-inline ns-len-mid">
+            <select class="member_level" name="type" lay-verify="required" lay-filter="select-type">
+<!--                <option value="">请选择</option>-->
+                <option value="1">省区域</option>
+                <option value="2" selected>市区域</option>
+                <option value="3" >区（县）区域</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span class="required">*</span>城市地址：</label>
+        <div class="layui-input-inline ns-len-mid area-select">
+            <select name="province_id" lay-filter="province_id" lay-verify="province_id">
+                <option value="">请选择省份</option>
+                {foreach $province_list as $k => $v}
+                <option value="{$v.id}">{$v.name}</option>
+                {/foreach}
+            </select>
+        </div>
+
+        <div class="layui-input-inline ns-len-mid area-select" id="select-type1">
+            <select name="city_id" lay-filter="city_id" lay-verify="city_id">
+                <option value="">请选择城市</option>
+            </select>
+        </div>
+
+        <div class="layui-input-inline ns-len-mid area-select" id="select-type2">
+            <select name="district_id"  lay-filter="district_id" lay-verify="district_id">
+                <option value="">请选择区/县</option>
+            </select>
+        </div>
+
+    </div>
+
+
+
+    <!--<div class="layui-form-item">
+        <label class="layui-form-label img-upload-lable"><span class="required">*</span>图片：</label>
+        <div class="layui-input-block img-upload">
+            <div class="upload-img-block">
+                <div class="upload-img-box">
+                    <div class="ns-upload-default" id="bannerUpload">
+                        <div class="upload">
+                            <img src="ADMIN_IMG/upload_img.png" data-id="bannerUpload"/>
+                            <p>点击上传</p>
+                        </div>
+                    </div>
+                    <div class="operation">
+                        <div>
+                            <i title="图片预览" class="iconfont iconreview js-preview" style="margin-right: 20px;"></i>
+                            <i title="删除图片" class="layui-icon layui-icon-delete js-delete"></i>
+                        </div>
+                        <div class="replace_img js-replace">点击替换</div>
+                    </div>
+                    <input type="hidden" name="image" value=""/>
+                </div>
+            </div>
+        </div>
+        &lt;!&ndash;<div class="ns-word-aux">
+            <p>建议图片高度：150像素；图片格式：jpg、png、jpeg。</p>
+        </div>&ndash;&gt;
+    </div>-->
+
+    <div class="layui-form-item" style="display: none">
+        <label class="layui-form-label"><span class="required">*</span>区域账号：</label>
+        <div class="layui-input-ns">
+            <input name="username" type="text" lay-verify="" value="" class="layui-input ns-len-long"
+                   autocomplete="off" >
+        </div>
+        <span class="ns-word-aux">请填写手机号</span>
+    </div>
+
+    <div class="layui-form-item" style="display: none">
+        <label class="layui-form-label"><span class="required">*</span>区域登录密码：</label>
+        <div class="layui-input-inline">
+            <input name="password" type="text" lay-verify="" class="layui-input ns-len-long" autocomplete="off">
+        </div>
+    </div>
+
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">排序：</label>
+        <div class="layui-input-block">
+            <input type="number" name="sort" lay-verify="required" value="0" class="layui-input ns-len-long">
+        </div>
+    </div>
+
+
+    <div class="ns-form-row">
+        <button class="layui-btn ns-bg-color" lay-submit lay-filter="save">保存</button>
+        <button class="layui-btn layui-btn-primary" onclick="back()">返回</button>
+    </div>
+</div>
+{/block}
+{block name="script"}
+<script type="text/javascript" src="SHOP_JS/address.js"></script>
+
+<script>
+    layui.use('form', function() {
+        var form = layui.form,
+            repeat_flag = false;//防重复标识
+        form.render();
+        $("#select-type2").hide();
+
+        form.on('submit(save)', function(data) {
+            if(!data.field.image) banner_upload.delete();
+            if (repeat_flag) return;
+            repeat_flag = true;
+
+            $.ajax({
+                type: 'POST',
+                dataType: 'JSON',
+                url: ns.url("admin/region/addRegion"),
+                data: data.field,
+                success: function(res){
+                    repeat_flag = false;
+
+                    if (res.code == 0) {
+                        layer.confirm('添加成功', {
+                            title:'操作提示',
+                            btn: ['返回列表', '继续添加'],
+                            yes: function(){
+                                location.href = ns.url("admin/region/lists")
+                            },
+                            btn2: function() {
+                                location.href = ns.url("admin/region/addRegion")
+                            }
+                        })
+                    }else{
+                        layer.msg(res.message);
+                    }
+                }
+            });
+        });
+
+        form.on('select(select-type)', function (data) {
+            // console.log(data);
+            // console.log('---------------------')
+            if (data.value == 1) { //省区域
+                $("#select-type2").hide();
+                $("#select-type1").hide();
+            } else if (data.value == 2) { //市区域
+                $("#select-type2").hide();
+                $("#select-type1").show();
+            } else if (data.value == 3) {
+                $("#select-type1").show();
+                $("#select-type2").show();
+            }
+        })
+
+        //表单验证
+        form.verify({
+
+
+        });
+
+        var banner_upload = new Upload({
+            elem: '#bannerUpload'
+        });
+    });
+
+    function back() {
+        location.href = ns.url("admin/region/lists");
+    }
+
+    function selectedLink() {
+        ns.select_link('', '', function (data) {
+            for (var o in data) {
+                if (data[o] == null) delete data[o];
+            }
+
+            $("input[name='banner_url']").val(JSON.stringify(data));
+            $(".nav-url-show").text(data.title);
+        }, 'admin/diy/link');
+    }
+</script>
+{/block}
