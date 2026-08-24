@@ -1,7 +1,1 @@
-{
-  "navigationBarTitleText": "活动优惠",
-  "usingComponents": {
-    "loading-cover": "/components/loading-cover/loading-cover",
-    "left-slide-operation": "/components/left-slide-operation/left-slide-operation"
-  }
-}
+{"navigationBarTitleText":"活动优惠","usingComponents":{"loading-cover":"/components/loading-cover/loading-cover","left-slide-operation":"/otherpages/components/left-slide-operation/left-slide-operation"}}

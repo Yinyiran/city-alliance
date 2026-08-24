@@ -1,7 +1,1 @@
-{
-  "component": true,
-  "usingComponents": {
-    "uni-popup": "/components/uni-popup/uni-popup",
-    "register-reward": "/components/register-reward/register-reward"
-  }
-}
+{"component":true,"usingComponents":{"uni-popup":"/components/uni-popup/uni-popup","register-reward":"/components/register-reward/register-reward"}}

@@ -1,6 +1,1 @@
-{
-  "softinputMode": "adjustResize",
-  "usingComponents": {
-    "chat-message": "/components/chat-message/chat-message"
-  }
-}
+{"softinputMode":"adjustResize","usingComponents":{"chat-message":"/otherpages/components/chat-message/chat-message"}}

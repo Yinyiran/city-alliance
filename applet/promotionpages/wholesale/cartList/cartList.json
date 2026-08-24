@@ -1,8 +1,1 @@
-{
-  "usingComponents": {
-    "uni-number-box": "/components/uni-number-box/uni-number-box",
-    "loading-cover": "/components/loading-cover/loading-cover",
-    "ns-login": "/components/ns-login/ns-login",
-    "to-top": "/components/toTop/toTop"
-  }
-}
+{"usingComponents":{"uni-number-box":"/components/uni-number-box/uni-number-box","loading-cover":"/components/loading-cover/loading-cover","ns-login":"/components/ns-login/ns-login","to-top":"/components/toTop/toTop"}}

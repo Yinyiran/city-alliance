@@ -1,6 +1,1 @@
-{
-  "component": true,
-  "usingComponents": {
-    "ns-empty": "/components/ns-empty/ns-empty"
-  }
-}
+{"component":true,"usingComponents":{"ns-empty":"/components/ns-empty/ns-empty"}}

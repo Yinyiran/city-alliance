@@ -1,8 +1,1 @@
-{
-  "usingComponents": {
-    "l-time": "/components/l-time/l-time",
-    "uni-popup": "/components/uni-popup/uni-popup",
-    "loading-cover": "/components/loading-cover/loading-cover",
-    "ns-login": "/components/ns-login/ns-login"
-  }
-}
+{"usingComponents":{"l-time":"/otherpages/components/l-time/l-time","uni-popup":"/components/uni-popup/uni-popup","loading-cover":"/components/loading-cover/loading-cover","ns-login":"/components/ns-login/ns-login"}}

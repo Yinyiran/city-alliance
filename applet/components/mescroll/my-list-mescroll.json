@@ -1,6 +1,1 @@
-{
-  "component": true,
-  "usingComponents": {
-    "mescroll": "/components/mescroll/mescroll-uni"
-  }
-}
+{"component":true,"usingComponents":{"mescroll":"/components/mescroll/mescroll-uni"}}

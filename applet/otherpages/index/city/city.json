@@ -1,6 +1,1 @@
-{
-  "disableScroll": true,
-  "usingComponents": {
-    "city-select": "/components/city-select/city-select"
-  }
-}
+{"disableScroll":true,"usingComponents":{"city-select":"/otherpages/components/city-select/city-select"}}

@@ -1,7 +1,1 @@
-{
-  "navigationStyle": "custom",
-  "navigationBarTitleText": "",
-  "usingComponents": {
-    "myp-one": "/components/myp-one/myp-one"
-  }
-}
+{"navigationStyle":"custom","navigationBarTitleText":"","usingComponents":{"myp-one":"/otherpages/components/myp-one/myp-one"}}

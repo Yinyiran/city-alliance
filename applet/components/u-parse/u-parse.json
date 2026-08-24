@@ -1,6 +1,1 @@
-{
-  "component": true,
-  "usingComponents": {
-    "weixin-parse-template": "/components/u-parse/components/wxParseTemplate0"
-  }
-}
+{"component":true,"usingComponents":{"weixin-parse-template":"/components/u-parse/components/wxParseTemplate0"}}

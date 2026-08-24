@@ -1,6 +1,1 @@
-{
-  "usingComponents": {
-    "loading-cover": "/components/loading-cover/loading-cover",
-    "img-cropping": "/components/img-cropping/cropping"
-  }
-}
+{"usingComponents":{"loading-cover":"/components/loading-cover/loading-cover","img-cropping":"/otherpages/components/img-cropping/cropping"}}

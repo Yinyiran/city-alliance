@@ -1,7 +1,1 @@
-{
-  "navigationBarTitleText": "订单详情",
-  "usingComponents": {
-    "loading-cover": "/components/loading-cover/loading-cover",
-    "ns-payment": "/components/payment/payment"
-  }
-}
+{"navigationBarTitleText":"订单详情","usingComponents":{"loading-cover":"/components/loading-cover/loading-cover","ns-payment":"/components/payment/payment"}}

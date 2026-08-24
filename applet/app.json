@@ -1,4 +1,5 @@
 {
+  "lazyCodeLoading": "requiredComponents",
   "pages": [
     "pages/index/index/index",
     "pages/login/login/login",
@@ -10,15 +11,6 @@
     "pages/member/index/index",
     "pages/member/info/info",
     "pages/member/info_edit/info_edit",
-    "pages/order/payment/payment",
-    "pages/order/list/list",
-    "pages/order/detail/detail",
-    "pages/order/detail_local_delivery/detail_local_delivery",
-    "pages/order/detail_pickup/detail_pickup",
-    "pages/order/detail_virtual/detail_virtual",
-    "pages/order/logistics/logistics",
-    "pages/order/activist/activist",
-    "pages/order/complain/complain",
     "pages/pay/result/result"
   ],
   "subPackages": [
@@ -147,7 +139,16 @@
         "fenxiao/bill/bill",
         "live/list/list",
         "chat/room/room",
-        "webview/webview"
+        "webview/webview",
+        "order/payment/payment",
+        "order/list/list",
+        "order/detail/detail",
+        "order/detail_local_delivery/detail_local_delivery",
+        "order/detail_pickup/detail_pickup",
+        "order/detail_virtual/detail_virtual",
+        "order/logistics/logistics",
+        "order/activist/activist",
+        "order/complain/complain"
       ]
     }
   ],
@@ -187,7 +188,12 @@
     "pages/index/index/index": {
       "network": "all",
       "packages": [
-        "promotionpages",
+        "promotionpages"
+      ]
+    },
+    "pages/goods/cart/cart": {
+      "network": "all",
+      "packages": [
         "otherpages"
       ]
     }
