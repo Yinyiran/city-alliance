@@ -1,0 +1,179 @@
+<template>
+	<view ref="circleRef" class="l-circle" :class="classes" :style="[styles]">
+		<!-- #ifndef APP -->
+		<view class="check"></view>
+		<view v-if="!useCanvas" class="l-circle__trail" :style="trailStyles">
+			<view class="cap start"></view>
+			<view class="cap end"></view>
+		</view>
+		<view v-if="!useCanvas" class="l-circle__stroke" :style="strokeStyles">
+			<view class="l-circle__stroke-line"></view>
+			<view class="cap start" v-if="current"></view>
+			<view class="cap end" v-if="current"></view>
+		</view>
+		<canvas v-if="useCanvas" :id="innerCanvasId" :canvas-id="innerCanvasId"  class="l-circle__canvas"></canvas>
+		<!-- #endif -->
+		<view class="l-circle__inner" :style="contentStyles">
+			<slot></slot>
+		</view>
+	</view>
+</template>
+
+<script lang="uts" setup>
+	import {CircleProps} from './type'
+	import { unitConvert } from '@/uni_modules/lime-shared/unitConvert';
+	import { addUnit } from '@/uni_modules/lime-shared/addUnit';
+	import { useTransition, UseTransitionOptions } from '@/uni_modules/lime-shared/animation/useTransition';
+	
+	// #ifndef APP
+	import { Circle } from './circle.esm'
+	import { getCircleStyle } from './utils';
+	import { isCanvas2d } from './getCanvas';
+	// #endif
+	// #ifdef APP
+	import { Circle, CircleOptions } from './circle.uts'
+	// #endif
+	
+	const emits = defineEmits(['update:current'])
+	const props = withDefaults(defineProps<CircleProps>(), {
+		size: '120px',
+		percent: 0,
+		lineCap: 'round',
+		strokeWidth: 6,
+		strokeColor: '#2db7f5',
+		trailWidth: 6,
+		trailColor: '#eaeef2',
+		dashboard: false,
+		clockwise: true,
+		duration: 300,
+		max: 100,
+		gapDegree: 90,
+		gapPosition: 'bottom'
+	})
+	const instance = getCurrentInstance()!
+	const context = instance.proxy!
+	const uuid = Math.random().toString(16).slice(2)
+	const innerCanvasId = `l-circle-${props.canvasId ?? (instance.uid + uuid)}`;
+	
+	const classes = computed<Map<string, boolean>>(() :Map<string, boolean> => {
+		const cls = new Map<string, boolean>()
+		cls.set('clockwise', !props.clockwise)
+		cls.set('is-'+props.lineCap, true)
+		return cls //!props.clockwise ? 'clockwise' : ''
+	})
+	const contentStyles = computed<string>(() : string => {
+		return !props.clockwise ? `transform: scale(-1,1)` : ''
+	})
+	const styles = computed<Map<string, string>>(() : Map<string, string> => {
+		const style = new Map<string, string>()
+		const size = addUnit(props.size)
+		if(size!=null){
+			style.set('width', size)
+			style.set('height', size)
+		}
+		return style
+	})
+	
+	const circleRef = ref<UniElement | null>(null)
+	let circle : Circle | null = null
+	
+	// #ifndef APP
+	const useCanvas = ref(props.canvas)
+	// #endif
+	
+	const percent = ref<number>(0)
+	const current = useTransition(percent, {
+		duration: props.duration,
+		immediate: true,
+	} as UseTransitionOptions);
+	
+	const stopCurrent = watch(current, (v:number) =>{
+		const value = Math.floor(v*100)/100;
+		// #ifdef APP
+		circle?.play(value)
+		// #endif
+		//.toFixed(2)
+		emits('update:current', value)
+	})
+	
+	
+	const stopPercent = watch(():number => props.percent, (v:number) => {
+		percent.value = Math.min(v, props.max)
+		// #ifndef APP
+		circle && circle.play(v)
+		// #endif
+	})
+	// #ifndef APP
+	const trailStyles = computed(() => {
+		const { size, trailWidth, trailColor, dashboard, gapDegree, gapPosition } = props
+		return getCircleStyle('trail', unitConvert(props.size), 1, dashboard ? gapDegree : 0, gapPosition, trailColor, unitConvert(trailWidth))
+	})
+	const strokeStyles = computed(() => {
+		const { size, strokeWidth, strokeColor, dashboard, max, gapDegree, gapPosition } = props
+		return getCircleStyle('stroke', unitConvert(props.size), Math.min(current.value / props.max, 1), dashboard ? gapDegree : 0, gapPosition, strokeColor, unitConvert(strokeWidth))
+	})
+	const widths = computed(()=>{
+		return [
+			unitConvert(props.trailWidth),
+			unitConvert(props.strokeWidth)
+		]
+	})
+	
+	const getProps = () => {
+		// const { strokeWidth, trailWidth } = props
+		return Object.assign({}, props, { trailWidth: widths.value[0], strokeWidth: widths.value[1] })
+	}
+	// #endif
+	onMounted(() => {
+		nextTick(() => {
+			//  #ifdef APP
+			const ctx = circleRef.value!.getDrawableContext()
+			circle = new Circle(ctx!)
+			circle!.setOption({
+				size: unitConvert(props.size),
+				lineCap: props.lineCap,
+				strokeWidth: unitConvert(props.strokeWidth),
+				strokeColor: props.strokeColor,
+				trailWidth: unitConvert(props.trailWidth),
+				trailColor: props.trailColor,
+				dashboard: props.dashboard,
+				max: props.max,
+				gapDegree: props.gapDegree,
+				gapPosition: props.gapPosition,
+			} as CircleOptions)
+			// #endif
+			//  #ifndef APP
+			uni.createSelectorQuery().in(context).select('.check').boundingClientRect((res)=>{
+				useCanvas.value = !(res['height'] > 0 && !props.canvas)
+				if(!useCanvas.value) return
+				nextTick(()=>{
+					uni.createCanvasContextAsync({
+					    id: innerCanvasId,
+					    component: context,
+					    success: (context : CanvasContext) => {
+							const canvasContext = context.getContext('2d')!;
+							const canvas = canvasContext.canvas;
+							circle = new Circle(canvas, {
+								size: unitConvert(props.size),
+								run: (v : number) => current.value = v,
+								pixelRatio: isCanvas2d ? uni.getDeviceInfo().devicePixelRatio : 1,
+							})
+							circle!.setOption(getProps())
+							circle!.play(props.percent)
+					    }
+					})
+				})
+			}).exec()
+			// #endif
+			percent.value = props.percent
+		})
+	})
+	
+	onUnmounted(()=>{
+		stopCurrent()
+		stopPercent()
+	})
+</script>
+<style lang="scss">
+	@import './index-x.scss';
+</style>
