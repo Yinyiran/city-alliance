@@ -1,11 +1,11 @@
 var config = {
 	// api请求地址
-	baseUrl: 'https://www.cmyx.top',
+	baseUrl: 'https://mall.cmyx.top',
 	// 图片域名	
-	imgDomain: 'https://www.cmyx.top',
+	imgDomain: 'https://mall.cmyx.top',
 	// /index.php/api
 	// H5端域名
-	h5Domain: 'https://www.cmyx.top',
+	h5Domain: 'https://mall.cmyx.top',
 	// 腾讯地图key
 	mpKey: '', 
 	//客服地址

@@ -1,5 +1,6 @@
 <script>
 	export default {
+		globalData: {},
 		onLaunch: function() {
 			console.log('App Launch')
 			let _this = this
