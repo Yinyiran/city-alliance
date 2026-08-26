@@ -1,3 +1,6 @@
 allowBuilds:
   '@parcel/watcher': true
+  core-js: true
   ejs: true
+overrides:
+  postcss-urlrewrite: 0.3.0
