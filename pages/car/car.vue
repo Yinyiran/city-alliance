@@ -132,6 +132,7 @@
 				check1: 0,
 				type: 3,
 				website_id: '',
+				site_id: '',
 				banner: [],
 				token: "",
 				point: "",
@@ -143,14 +144,22 @@
 				list: []
 			};
 		},
-		async onShow() {
-			try {
-				await this.benefitOption()
-			} catch (e) {}
-			if (uni.getStorageSync('website_id')) {
-				this.website_id = uni.getStorageSync('website_id')
+		onLoad(options) {
+			// 支持从分享链接等渠道携带 site_id 进入，按区域获取门店福利数据
+			if (options && options.site_id) {
+				uni.setStorageSync('site_id', options.site_id)
+			}
+			this.site_id = uni.getStorageSync('site_id') || ''
+		},
+		onShow() {
+			// 与点击 tablist 逻辑保持一致：不等待其他请求，直接请求门店福利兑换区数据
+			this.website_id = uni.getStorageSync('website_id') || ''
+			this.page = 1
+			this.getlist()
+			// 积分区间配置并行加载，不阻塞商品列表请求
+			this.benefitOption()
+			if (this.website_id) {
 				this.bannerList()
-				await this.getlist()
 			}
 			if (uni.getStorageSync('token')) {
 				this.token = uni.getStorageSync('token')
@@ -203,7 +212,8 @@
 					min_point: ben.min,
 					max_point: ben.max,
 					platform: this.check,
-					site_id: ''
+					// 有 site_id 按区域获取数据，没有则与点击 tablist 逻辑一致
+					site_id: this.site_id || ''
 				}
 				try {
 					await goodslist(params).then(res => {

@@ -18,7 +18,7 @@
 					修改
 				</view> -->
 			</view>
-			<view class="nos m-t-20" v-if="cashInfo||cashInfo">当前未绑定提现账户，请前往绑定</view>
+			<view class="nos m-t-20" v-if="!cashInfo||cashInfo.apply_status==3">当前未绑定提现账户，请前往绑定</view>
 			<view class="nos1 m-t-20 acea-row row-middle" v-else>
 				<view class="">
 					<view class="">账户账号</view>
@@ -36,7 +36,16 @@
 				<text @click="alls">全部提现</text>
 			</view>
 			<view class="m-t-20" style="color: #999999;"> 当前可提现金额 <text>{{balance_money}}元</text>，一天最高可提现额度为{{max}}元</view>
-			<view class="m-t-56" style="color: #999999;" v-html="introduction">
+			<view class="rules m-t-40" v-if="rules.length">
+				<view class="rules-title acea-row row-middle">
+					<text class="rules-icon"></text>提现规则
+				</view>
+				<view class="rule-item acea-row row-middle row-between" v-for="(item,index) in rules" :key="index">
+					<text class="rule-label">{{item.label}}</text>
+					<text class="rule-value">{{item.value}}</text>
+				</view>
+			</view>
+			<view class="m-t-40" style="color: #999999;" v-if="introduction" v-html="introduction">
 				
 			</view>
 			<view class="btms iphone-x">
@@ -55,6 +64,7 @@
 				introduction:'',
 				apply_money:'',
 				max:"",
+				rules:[],
 				cashInfo:{},
 				balance_money:""
 			};
@@ -75,12 +85,61 @@
 			},
 			memberwithdrawconfig(){
 				memberwithdrawconfig().then(res=>{
-					this.introduction=res.data.value.introduction
-					this.max=res.data.value.max
-					this.balance_money=res.data.balance_money
+					let data=res.data||{}
+					this.setRules(data.value||{}, data.balance_money)
+				}).catch(()=>{
+					// 接口异常时展示默认规则，保证提现页面始终有规则说明
+					this.setRules({}, '')
 				})
 			},
+			setRules(cfg,balanceMoney){
+				this.introduction=cfg.introduction||''
+				this.balance_money=balanceMoney
+				// 单日最高可提现额度（元）
+				let max=Number(cfg.max)>0?Number(cfg.max):5000
+				this.max=max
+				// 最低提现金额（元）
+				let min=Number(cfg.min)>0?Number(cfg.min):1
+				// 每日提现次数
+				let dayNum=Number(cfg.day_num||cfg.times||cfg.withdraw_num)>0?Number(cfg.day_num||cfg.times||cfg.withdraw_num):1
+				// 提现时间
+				let startTime=cfg.start_time||'09:00'
+				let endTime=cfg.end_time||'21:00'
+				// 到账时间
+				let arriveTime=cfg.arrive_time||cfg.arrive_desc||'审核通过后1-3个工作日内到账'
+				// 提现手续费
+				let feeText=(cfg.fee!==undefined&&cfg.fee!==null&&Number(cfg.fee)>0)?('按提现金额收取'+cfg.fee+'%手续费'):'免手续费'
+				this.rules=[
+					{label:'可提现额度',value:'最低'+min+'元，单日最高可提现'+max+'元'},
+					{label:'每日提现次数',value:'每日限'+dayNum+'次'},
+					{label:'提现时间',value:'每日 '+startTime+' - '+endTime},
+					{label:'到账时间',value:arriveTime},
+					{label:'提现手续费',value:feeText}
+				]
+			},
 			submit(){
+				let money=Number(this.apply_money)
+				if(!this.apply_money||isNaN(money)||money<=0){
+					uni.showToast({
+						title:'请输入正确的提现金额',
+						icon:'none'
+					})
+					return
+				}
+				if(money>Number(this.balance_money)){
+					uni.showToast({
+						title:'提现金额不能超过当前可提现金额',
+						icon:'none'
+					})
+					return
+				}
+				if(Number(this.max)>0&&money>Number(this.max)){
+					uni.showToast({
+						title:'单日最高可提现金额为'+this.max+'元',
+						icon:'none'
+					})
+					return
+				}
 				let params ={
 					apply_money:this.apply_money,
 					// transfer_type:this.cashInfo.withdraw_type,
@@ -95,6 +154,7 @@
 							success:()=>{
 								setTimeout(()=>{
 									this.apply_money=''
+									this.memberwithdrawconfig()
 								},2000)
 							}
 						})
@@ -145,14 +205,14 @@
 		text:first-child {
 			height: 68rpx;
 			width: 29rpx;
-			font-size: 48rpx;
+			font-size: 40rpx;
 			margin-right: 20rpx;
 		}
 
 		input {
-			height: 136rpx;
+			height: 106rpx;
 			background: #FFFFFF;
-			font-size: 72rpx;
+			font-size: 38rpx;
 			color: #222222;
 			flex: 1;
 		}
@@ -215,5 +275,44 @@
 		color: #555555;
 		text-align: center;
 		line-height: 100rpx;
+	}
+
+	.rules {
+		background: #FBFBFB;
+		border: 1rpx solid #F0F0F0;
+		border-radius: 16rpx;
+		padding: 24rpx 28rpx;
+
+		.rules-title {
+			font-weight: 600;
+			font-size: 30rpx;
+			color: #222222;
+			margin-bottom: 16rpx;
+
+			.rules-icon {
+				width: 8rpx;
+				height: 28rpx;
+				background: linear-gradient(180deg, #F5AB18 0%, #F55606 100%);
+				border-radius: 4rpx;
+				margin-right: 14rpx;
+			}
+		}
+
+		.rule-item {
+			padding: 14rpx 0;
+
+			.rule-label {
+				font-size: 26rpx;
+				color: #999999;
+				flex-shrink: 0;
+			}
+
+			.rule-value {
+				font-size: 26rpx;
+				color: #333333;
+				margin-left: 32rpx;
+				text-align: right;
+			}
+		}
 	}
 </style>

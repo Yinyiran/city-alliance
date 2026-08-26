@@ -124,7 +124,7 @@
 						custom-style="height: 60rpx;border-radius: 30rpx;" custom-item-style="border-radius: 30rpx;"
 						@change="change"></uv-subsection>
 				</view>
-				<view class=" m-r-24 m-l-24">
+				<view class="rank-list m-r-24 m-l-24">
 					<view class="defas acea-row row-middle row-between m-t-24" style="background: #FFF1EB;"
 						v-if="check==0&&token&&member_data">
 						<view class="acea-row row-middle">
@@ -171,6 +171,7 @@
 						</view>
 						<view class="font-28" style="color: #222;">{{item.real_point}}</view>
 					</view>
+					<uv-empty v-if="check==0&&!loading&&!pointlist.length" text="暂无数据" mode="list" marginTop="80"></uv-empty>
 					<template v-if="check==1">
 						<view v-for="(item,index) in shoplist" class="m-b-20 defas acea-row row-middle row-between"
 						 :class="{'rankbg1':index==0,'rankbg2':index==1,'rankbg3':index==2}" :key="index">
@@ -188,6 +189,7 @@
 							</view>
 							<view class="font-28" style="color: #222;">{{item.real_heat}}</view>
 						</view>
+						<uv-empty v-if="!loading&&!shoplist.length" text="暂无数据" mode="list" marginTop="80"></uv-empty>
 					</template>
 				</view>
 			</view>
@@ -273,7 +275,8 @@
 				pointlist: [],
 				shoplist: [],
 				page:1,
-				last_page:1
+				last_page:1,
+				loading:false
 			};
 		},
 		onReachBottom() {
@@ -318,11 +321,15 @@
 					type: this.current + 1,
 					page:this.page
 				}
+				this.loading=true
 				pointRanking(params).then(res => {
 					this.member_data = res.data.member_data
 					this.last_page=res.data.page_count
 					this.pointlist = this.page>1?this.pointlist.concat(...res.data.list):res.data.list
 					this.ranking = res.data.ranking
+					this.loading=false
+				}).catch(()=>{
+					this.loading=false
 				})
 			},
 			shopRanking() {
@@ -330,9 +337,13 @@
 					type: this.current + 1,
 					page:this.page
 				}
+				this.loading=true
 				shopRanking(params).then(res => {
 					this.last_page=res.data.page_count
 					this.shoplist = this.page>1?this.shoplist.concat(...res.data.list):res.data.list
+					this.loading=false
+				}).catch(()=>{
+					this.loading=false
 				})
 			},
 			loginsuccess() {
@@ -398,6 +409,10 @@
 			background: #fff;
 			padding-bottom: 24rpx;
 			border-radius: 24rpx;
+		}
+
+		.rank-list {
+			min-height: 400rpx;
 		}
 
 		.cuts {
