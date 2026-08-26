@@ -127,13 +127,13 @@
 					"navigationBarTitleText": "个人信息"
 				}
 			},
-			{
-				"path": "settle/settle",
-				"style": {
-					"navigationBarTitleText": "入驻城盟",
-					"navigationStyle": "custom"
-				}
-			},
+			// {
+			// 	"path": "settle/settle",
+			// 	"style": {
+			// 		"navigationBarTitleText": "入驻城盟",
+			// 		"navigationStyle": "custom"
+			// 	}
+			// },
 			{
 				"path": "cateGoods/cateGoods",
 				"style": {

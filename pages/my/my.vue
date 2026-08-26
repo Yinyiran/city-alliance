@@ -257,11 +257,11 @@
 						title: '收货地址',
 						path: 'address'
 					},
-					{
-						icon: '/static/order7.png',
-						title: '入驻城盟',
-						path: 'settle'
-					},
+					// {
+					// 	icon: '/static/order7.png',
+					// 	title: '入驻城盟',
+					// 	path: 'settle'
+					// },
 					{
 						icon: '/static/order8.png',
 						title: '全部订单',

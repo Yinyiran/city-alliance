@@ -110,7 +110,7 @@
 				// 提现手续费
 				let feeText=(cfg.fee!==undefined&&cfg.fee!==null&&Number(cfg.fee)>0)?('按提现金额收取'+cfg.fee+'%手续费'):'免手续费'
 				this.rules=[
-					{label:'可提现额度',value:'最低'+min+'元，单日最高可提现'+max+'元'},
+					{label:'可提现额度',value:'单日最高可提现'+max+'元'},
 					{label:'每日提现次数',value:'每日限'+dayNum+'次'},
 					{label:'提现时间',value:'每日 '+startTime+' - '+endTime},
 					{label:'到账时间',value:arriveTime},
