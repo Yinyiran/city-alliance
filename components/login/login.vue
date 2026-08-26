@@ -60,7 +60,7 @@
 		mobileauth,
 		getAgreement,
 		Synopsis
-	} from '../../common/js/api';
+	} from '@/common/js/api.js';
 	export default {
 		name: "authbox",
 		data() {

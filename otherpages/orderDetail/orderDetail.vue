@@ -157,7 +157,7 @@
 	import {
 		orderDetail,
 		huifupay
-	} from '../../common/js/api';
+	} from '@/common/js/api.js';
 	export default {
 		data() {
 			return {

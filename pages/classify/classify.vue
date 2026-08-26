@@ -68,7 +68,7 @@
 		</view>
 		<uv-popup ref="popup1" :round='10' :closeable="true">
 			<view class="orders">
-				<view class="p-b-32">共{{list[current].order_num}} 条订单</view>
+				<view class="p-b-32">共{{list[current]?list[current].order_num:0}} 条订单</view>
 				<scroll-view scroll-y="true">
 					<view v-for="(item,index) in listB" class="orderitems acea-row m-b-32 row-between" :key="index">
 						<image :src="$util.img(item.headimg)" class="w-72 h-72 bor-32 m-r-20" mode=""></image>

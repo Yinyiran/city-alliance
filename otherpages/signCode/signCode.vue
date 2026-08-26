@@ -25,7 +25,7 @@
 </template>
 
 <script>
-	import { userinfo,getqrcode,dosignin } from '../../common/js/api';
+	import { userinfo,getqrcode,dosignin } from '@/common/js/api.js';
 	export default {
 		data() {
 			return {

@@ -53,7 +53,7 @@
 </template>
 
 <script>
-	import { userinfo,moneyAccount } from '../../common/js/api';
+	import { userinfo,moneyAccount } from '@/common/js/api.js';
 	export default {
 		data() {
 			return {

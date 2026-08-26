@@ -223,45 +223,45 @@
 				list1: ['年度排行榜', '月度排行榜'],
 				current: 0,
 				gaidlist: [{
-						icon: require("@/static/order1.png"),
+						icon: '/static/order1.png',
 						title: '待支付',
 						num:0,
 						path:"waitpay"
 					},
 					{
-						icon: require("@/static/order2.png"),
+						icon: '/static/order2.png',
 						title: '待核销',
 						num:0,
 						path:'waitstock'
 					},
 					{
-						icon: require("@/static/order3.png"),
+						icon: '/static/order3.png',
 						title: '购物车',
 						path: 'buyCar',
 						num:0
 					},
 					{
-						icon: require("@/static/order4.png"),
+						icon: '/static/order4.png',
 						title: '退款/售后',
 						path:'after'
 					},
 					{
-						icon: require("@/static/order5.png"),
+						icon: '/static/order5.png',
 						title: '我的钱包',
 						path: 'wallet'
 					},
 					{
-						icon: require("@/static/order6.png"),
+						icon: '/static/order6.png',
 						title: '收货地址',
 						path: 'address'
 					},
 					{
-						icon: require("@/static/order7.png"),
+						icon: '/static/order7.png',
 						title: '入驻城盟',
 						path: 'settle'
 					},
 					{
-						icon: require("@/static/order8.png"),
+						icon: '/static/order8.png',
 						title: '全部订单',
 						path:'all'
 					}
