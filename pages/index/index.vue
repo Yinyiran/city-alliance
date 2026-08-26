@@ -204,11 +204,10 @@
 		},
 		onShow() {
 			this.token = uni.getStorageSync('token') || ''
-			if (!uni.getStorageSync('token')) {
-				// this.$refs.login.open()
-			} else {
+			// 品牌积分排行榜属于公开数据，未登录也拉取
+			this.getRankList()
+			if (uni.getStorageSync('token')) {
 				this.getnum()
-				this.getRankList()
 				// this.getmemberranklist()
 			}
 		},

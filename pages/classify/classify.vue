@@ -91,16 +91,10 @@
 			};
 		},
 		onLoad() {
-			if (!uni.getStorageSync('token')) {
-				// this.$refs.login.open()
-			} else {
-				this.signlist()
-				this.signIndex()
-				this.getInfo()
-			}
-			// this.signlist()
-			// this.signIndex()
-			// this.getInfo()
+			// 签到统计、明细、商家信息属于公开数据，未登录也拉取
+			this.signlist()
+			this.signIndex()
+			this.getInfo()
 		},
 		methods: {
 			getInfo() {
