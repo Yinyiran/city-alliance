@@ -580,7 +580,7 @@ export default {
 			}
 		}
 		if (jump) {
-			this.$util.diyRedirectTo(url);
+			this.diyRedirectTo(url);
 		}
 	},
 	// 计算两个经纬度之间的距离

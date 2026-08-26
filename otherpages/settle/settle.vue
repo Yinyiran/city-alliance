@@ -68,12 +68,12 @@
 
 <script>
 	import {
-		categoryList,
-		mobileCode,
-		shopJoin
-	} from "@/common/js/api.js"
-	import { mobile } from '@/uni_modules/uv-ui-tools/libs/function/test.js';
-	import validate from 'common/js/validate.js';
+    categoryList,
+    mobileCode,
+    shopJoin
+} from "@/common/js/api.js";
+import validate from '@/common/js/validate.js';
+import { mobile } from '@/uni_modules/uv-ui-tools/libs/function/test.js';
 	export default {
 		data() {
 			return {

@@ -12,7 +12,7 @@
 		</view>
 		<view class="circle-container">
 			<!-- <l-circle :strokeWidth='3' :trailWidth='3' :duration='1000' :size='50' strokeColor='#FED83D' :canvas='true'
-				:current.sync="modelVale" :percent="target">
+				:current="modelVale" @update:current="modelVale = $event" :percent="target">
 				<view class="a1s">
 					<image src="/static/bag1.png" v-if='!showitem' class="w-52 h-52" mode=""></image>
 					<image src="/static/bag2.png" v-else class="w-52 h-52" mode=""></image>

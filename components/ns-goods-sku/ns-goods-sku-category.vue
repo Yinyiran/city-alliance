@@ -71,7 +71,7 @@
 
 <script>
 import uniPopup from '@/components/uni-popup/uni-popup-sku-new.vue';
-import htmlParser from '@/common/js/html-parser';
+import { useAppStore } from '@/store';
 // 商品SKU
 export default {
 	name: 'ns-goods-sku-category',
@@ -461,7 +461,7 @@ export default {
 					if (res.code >= 0) {
 						this.cartData[this.skuId] = num;
 						// this.calculationTotalPrice();
-						this.$store.dispatch('getCartNumber');
+						useAppStore().getCartNumber();
 					} else {
 						// this.$util.showToast({ title: res.message });
 					}
@@ -479,7 +479,7 @@ export default {
 				data: { cart_id: this.cartIdArr[this.skuId] },
 				success: res => {
 					if (res.code >= 0) {
-						this.$store.dispatch('getCartNumber');
+						useAppStore().getCartNumber();
 						this.getCartData();
 					} else {
 						// this.$util.showToast({ title: res.message });
@@ -752,19 +752,19 @@ export default {
 	line-height: 36rpx;
 	text-align: center;
 }
-/deep/ .uni-popup__wrapper {
+::v-deep .uni-popup__wrapper {
 	background: transparent !important;
 }
-/deep/ .sku-layer .uni-popup__wrapper.uni-custom .uni-popup__wrapper-box {
+::v-deep .sku-layer .uni-popup__wrapper.uni-custom .uni-popup__wrapper-box {
 	background: transparent !important;
 }
-/deep/ .uni-popup__wrapper.uni-custom .uni-popup__wrapper-box {
+::v-deep .uni-popup__wrapper.uni-custom .uni-popup__wrapper-box {
 	background: transparent !important;
 }
 </style>
 
 <style scoped>
-/deep/ .reward-popup .uni-popup__wrapper-box {
+::v-deep .reward-popup .uni-popup__wrapper-box {
 	background: none !important;
 	max-width: unset !important;
 	max-height: unset !important;

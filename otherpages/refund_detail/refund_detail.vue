@@ -132,10 +132,9 @@
 </template>
 
 <script>
+import { orderrefundDetail } from "@/common/js/api.js";
 import refundMethod from '@/common/js/refundMethod.js';
-import validate from 'common/js/validate.js';
-import globalConfig from 'common/js/golbalConfig.js'
-import {orderrefundDetail} from "@/common/js/api.js"
+import validate from '@/common/js/validate.js';
 
 export default {
 	data() {

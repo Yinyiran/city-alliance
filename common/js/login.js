@@ -1,3 +1,5 @@
+import { useAppStore } from '@/store';
+
 export default {
 	data() {
 		return {
@@ -26,7 +28,7 @@ export default {
 								key: 'token',
 								data: res.data.access_token,
 								success: () => {
-									_this.$store.commit('setToken', res.data.access_token);
+									useAppStore().setToken(res.data.access_token);
 								}
 							});
 							//移除邀请人id
@@ -105,7 +107,7 @@ export default {
 							key: 'token',
 							data: res.data.access_token,
 							success: () => {
-								this.$store.commit('setToken', res.data.access_token);
+								useAppStore().setToken(res.data.access_token);
 							}
 						});
 						//移除邀请人id

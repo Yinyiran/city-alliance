@@ -9,7 +9,7 @@
 					<view style="flex-direction: row; justify-content: space-between;">
 						<!-- #ifdef VUE3 -->
 						<l-circle dashboard gapPosition="bottom" :gapDegree="90" v-model:current="modelValue1"
-							:percent="target1">
+							:percent="target1" size="200rpx">
 							<text>{{modelValue1}}%</text>
 						</l-circle>
 
@@ -51,7 +51,7 @@
 				<view class="demo-block__body">
 					<view style="flex-direction: row; justify-content: center">
 						<!-- #ifdef VUE3 -->
-						<l-circle v-model:current="modelValue2" :percent="target4" :max="60" :dashboard="false"
+						<l-circle v-model:current="modelValue2" :percent="target4" :max="60" :dashboard="false" :clockwise="false"
 							:clockwise="true">
 							<text>{{modelValue2}}</text>
 						</l-circle>

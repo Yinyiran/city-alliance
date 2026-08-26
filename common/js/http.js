@@ -111,3 +111,17 @@ export function server(url, params, methods) {
   });
   return promise;
 }
+
+export default {
+  sendRequest({ url, data, method, success, fail }) {
+    return server(url, data, method)
+      .then((response) => {
+        success && success(response);
+        return response;
+      })
+      .catch((error) => {
+        fail && fail(error);
+        throw error;
+      });
+  },
+};

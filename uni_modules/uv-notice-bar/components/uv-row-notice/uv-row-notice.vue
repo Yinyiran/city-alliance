@@ -52,9 +52,9 @@
 	</view>
 </template>
 <script>
-	import mpMixin from '@/uni_modules/uv-ui-tools/libs/mixin/mpMixin.js'
-	import mixin from '@/uni_modules/uv-ui-tools/libs/mixin/mixin.js'
-	import props from './props.js';
+	import mixin from '@/uni_modules/uv-ui-tools/libs/mixin/mixin.js';
+import mpMixin from '@/uni_modules/uv-ui-tools/libs/mixin/mpMixin.js';
+import props from './props.js';
 	// #ifdef APP-NVUE
 	const animation = uni.requireNativePlugin('animation')
 	const dom = uni.requireNativePlugin('dom')
@@ -274,7 +274,7 @@
 		},
 		// #ifdef APP-NVUE
 		// #ifdef VUE2
-		beforeDestroy() {
+		beforeUnmount() {
 			this.stopAnimation = true
 		},
 		// #endif

@@ -132,7 +132,7 @@
 								<image src="/static/rank.png" mode=""></image>
 								<text>{{ranking}}</text>
 							</view>
-							<image :src="$util.img(member_data.headimg)" v-if="member_data&&member_data.headimg" class="w-52 h-52 bor-50 m-l-24" mode="">
+							<image :src="$util.img(member_data.headimg)" v-if="member_data&&member_data.headimg" class="w-52 h-52 bor-50 m-l-24" mode=""></image>
 							<image src="/static/avatar.png" v-else class="w-52 h-52 bor-50 m-l-24" mode="">
 							</image>
 							<text class="font-28 m-l-12" style="color: #222;">{{member_data.nickname}}</text>
@@ -200,11 +200,11 @@
 
 <script>
 	import {
-		userinfo,
-		pointRanking,
-		shopRanking,
-		orderNum
-	} from "@/common/js/api.js"
+    orderNum,
+    pointRanking,
+    shopRanking,
+    userinfo
+} from "@/common/js/api.js";
 	export default {
 		watch: {
 			check(news) {

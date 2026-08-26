@@ -128,8 +128,7 @@ export default {
 			}, res => {
 				let arr = this.imgList[e]
 				arr = arr.concat(res);
-				this.imgList[e] = [];
-				this.$set(this.imgList, e, arr)
+				this.imgList[e] = arr;
 				if (this.isEvaluate) {
 					this.goodsEvalList[e].again_images = this.imgList[e].toString()
 				} else {

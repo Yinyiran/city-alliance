@@ -1,56 +1,19 @@
-import App from './App'
-import Config from './common/js/config.js'
-// #ifndef VUE3
-import Vue from 'vue'
 import share from '@/common/js/share.js';
-import Util from './common/js/util.js'
-Vue.prototype.$util = Util;
-Vue.mixin(share);
-Vue.config.productionTip = false
-App.mpType = 'app'
-import VueCompositionAPI from '@vue/composition-api'
-Vue.use(VueCompositionAPI)
+import { createSSRApp } from 'vue';
+import { createPinia } from 'pinia';
+import App from './App';
+import Util from './common/js/util.js';
+import Http from './common/js/http.js';
+import uvUiTools from '@/uni_modules/uv-ui-tools/index.js';
 
-try {
-  function isPromise(obj) {
-    return (
-      !!obj &&
-      (typeof obj === "object" || typeof obj === "function") &&
-      typeof obj.then === "function"
-    );
-  }
-
-  // 统一 vue2 API Promise 化返回格式与 vue3 保持一致
-  uni.addInterceptor({
-    returnValue(res) {
-      if (!isPromise(res)) {
-        return res;
-      }
-      return new Promise((resolve, reject) => {
-        res.then((res) => {
-          if (res[0]) {
-            reject(res[0]);
-          } else {
-            resolve(res[1]);
-          }
-        });
-      });
-    },
-  });
-} catch (error) { }
-
-const app = new Vue({
-  ...App
-})
-app.$mount()
-// #endif
-
-// #ifdef VUE3
-import { createSSRApp } from 'vue'
 export function createApp() {
-  const app = createSSRApp(App)
+  const app = createSSRApp(App);
+  app.config.globalProperties.$util = Util;
+  app.config.globalProperties.$api = Http;
+  app.use(createPinia());
+  app.use(uvUiTools);
+  app.mixin(share);
   return {
-    app
-  }
+    app,
+  };
 }
-// #endif

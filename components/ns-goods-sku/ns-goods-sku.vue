@@ -165,12 +165,9 @@
 </template>
 
 <script>
-	import uniPopup from '@/components/uni-popup/uni-popup-sku.vue';
-	import htmlParser from '@/common/js/html-parser';
-	import {cartAdd} from "@/common/js/api.js"
-	import {
-		goodsskuinfo
-	} from "@/common/js/api.js"
+	import { cartAdd, goodsskuinfo } from "@/common/js/api.js";
+import uniPopup from '@/components/uni-popup/uni-popup-sku.vue';
+import { useAppStore } from '@/store';
 	// 商品SKU
 	export default {
 		name: 'ns-goods-sku',
@@ -1210,7 +1207,7 @@
 										title: '加入进货单成功'
 									});
 									if (this.callback) this.callback();
-									this.$store.dispatch('getWholeSaleNumber');
+									useAppStore().getWholeSaleNumber();
 								}
 								this.$refs.skuPopup.close();
 								this.btnSwitch = false;
@@ -1517,7 +1514,7 @@
 	}
 </style>
 <style scoped>
-	/deep/ .reward-popup .uni-popup__wrapper-box {
+	::v-deep .reward-popup .uni-popup__wrapper-box {
 		background: none !important;
 		max-width: unset !important;
 		max-height: unset !important;

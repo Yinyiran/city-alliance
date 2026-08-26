@@ -10,9 +10,9 @@
 </template>
 
 <script>
-	import mpMixin from '@/uni_modules/uv-ui-tools/libs/mixin/mpMixin.js'
-	import mixin from '@/uni_modules/uv-ui-tools/libs/mixin/mixin.js'
-	import props from './props.js';
+	import mixin from '@/uni_modules/uv-ui-tools/libs/mixin/mixin.js';
+import mpMixin from '@/uni_modules/uv-ui-tools/libs/mixin/mpMixin.js';
+import props from './props.js';
 /**
  * countTo 数字滚动
  * @description 该组件一般用于需要滚动数字到某一个值的场景，目标要求是一个递增的值。
@@ -168,7 +168,7 @@ export default {
 			}
 			return x1 + x2;
 		},
-		destroyed() {
+		unmounted() {
 			this.cancelAnimationFrame(this.rAF);
 		}
 	}

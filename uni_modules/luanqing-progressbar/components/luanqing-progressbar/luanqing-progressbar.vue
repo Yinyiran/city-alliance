@@ -107,7 +107,7 @@
 				finish: false, //结束标识 true结束 false未开始
 			}
 		},
-		destroyed() {
+		unmounted() {
 			if(timerCount){
 				clearInterval(timerCount)
 			}

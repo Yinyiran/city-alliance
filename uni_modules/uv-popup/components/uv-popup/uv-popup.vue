@@ -269,7 +269,7 @@
 		},
 		// #ifndef VUE3
 		// TODO vue2
-		destroyed() {
+		unmounted() {
 			this.setH5Visible()
 		},
 		// #endif

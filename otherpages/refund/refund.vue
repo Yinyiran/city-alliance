@@ -101,13 +101,12 @@
 </template>
 
 <script>
-	import uniPopup from '@/components/uni-popup/uni-popup.vue';
-	import globalConfig from '@/common/js/golbalConfig.js';
 	import {
-		refundData,
-		orderrefund,
-		messagetmplids
-	} from "@/common/js/api.js"
+    messagetmplids,
+    orderrefund,
+    refundData
+} from "@/common/js/api.js";
+import uniPopup from '@/components/uni-popup/uni-popup.vue';
 	export default {
 		components: {
 			uniPopup
@@ -334,7 +333,7 @@
 	@import './public/css/refund.scss';
 </style>
 <style scoped>
-	/deep/ .uni-popup__wrapper.uni-custom .uni-popup__wrapper-box {
+	::v-deep .uni-popup__wrapper.uni-custom .uni-popup__wrapper-box {
 		background: none;
 		max-height: unset !important;
 		overflow-y: hidden !important;

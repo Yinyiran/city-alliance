@@ -37,9 +37,8 @@
 	</view>
 </template>
 <script>
-	import { hexToRgb } from '@/uni_modules/uv-ui-tools/libs/function/colorGradient.js'
-	import mpMixin from '@/uni_modules/uv-ui-tools/libs/mixin/mpMixin.js'
-	import mixin from '@/uni_modules/uv-ui-tools/libs/mixin/mixin.js'
+	import mixin from '@/uni_modules/uv-ui-tools/libs/mixin/mixin.js';
+import mpMixin from '@/uni_modules/uv-ui-tools/libs/mixin/mpMixin.js';
 	// #ifdef APP-NVUE
 	const dom = uni.requireNativePlugin('dom')
 	// #endif
@@ -223,7 +222,7 @@
 			}
 		},
 		// #ifdef VUE2
-		beforeDestroy() {
+		beforeUnmount() {
 			this.clearTimer()
 		},
 		// #endif

@@ -13,7 +13,7 @@
  */
 
 /* 颜色变量 */
-@import "@/styles/iconfont.scss";
+@use "sass:color";
 // 颜色
 $color-title: #1C274C; // 主标题
 $color-sub: #ff4d1a; // 副标题 主色调调的颜色
@@ -43,12 +43,6 @@ $margin-both: 30rpx; //外边距 左右
 $margin-updown: 20rpx; // 外边距 上下
 $border-radius: 10rpx; //圆角
 $padding: 25rpx; //内边距
-view {
-	font-family: HarmonyOS Sans SC,PingFangSC-Medium, PingFang SC;
-}
-text {
-	font-family: HarmonyOS Sans SC,PingFangSC-Medium, PingFang SC;
-}
 @mixin base($baseColor, $baseHelpColor) {
 	$base-color: $baseColor;
 	$base-help-color: $baseHelpColor; //辅助颜色
@@ -80,7 +74,7 @@ text {
 
 	// 浅主色调背景
 	.color-base-bg-light {
-		background-color: lighten($base-color, 35%) !important;
+		background-color: color.adjust($base-color, $lightness: 35%) !important;
 	}
 
 	.color-base-text-before {

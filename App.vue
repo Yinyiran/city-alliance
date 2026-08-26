@@ -1,5 +1,6 @@
 <script>
 	export default {
+		globalData: {},
 		onLaunch: function() {
 			let _this = this
 			uni.getSystemInfo({
@@ -60,6 +61,14 @@
 <style lang="scss">
 	@import './common/css/main.scss';
 	@import './common/css/common.scss';
+	@import './styles/iconfont.scss';
+
+	view {
+		font-family: HarmonyOS Sans SC, PingFangSC-Medium, PingFang SC;
+	}
+	text {
+		font-family: HarmonyOS Sans SC, PingFangSC-Medium, PingFang SC;
+	}
 
 	radio .wx-radio-input.wx-radio-input-checked {
 		background-color: #F55606 !important;

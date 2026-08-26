@@ -33,9 +33,9 @@
 </template>
 
 <script>
-	import mpMixin from '@/uni_modules/uv-ui-tools/libs/mixin/mpMixin.js'
-	import mixin from '@/uni_modules/uv-ui-tools/libs/mixin/mixin.js'
-	import props from './props.js';
+	import mixin from '@/uni_modules/uv-ui-tools/libs/mixin/mixin.js';
+import mpMixin from '@/uni_modules/uv-ui-tools/libs/mixin/mpMixin.js';
+import props from './props.js';
 	/**
 	 * notify 顶部提示
 	 * @description 该组件一般用于页面顶部向下滑出一个提示，尔后自动收起的场景
@@ -163,7 +163,7 @@
 			}
 		},
 		// #ifdef VUE2
-		beforeDestroy() {
+		beforeUnmount() {
 			this.clearTimer()
 		},
 		// #endif

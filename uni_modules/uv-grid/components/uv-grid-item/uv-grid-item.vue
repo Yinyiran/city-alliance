@@ -25,9 +25,9 @@
 </template>
 
 <script>
-	import mpMixin from '@/uni_modules/uv-ui-tools/libs/mixin/mpMixin.js'
-	import mixin from '@/uni_modules/uv-ui-tools/libs/mixin/mixin.js'
-	import props from './props.js';
+	import mixin from '@/uni_modules/uv-ui-tools/libs/mixin/mixin.js';
+import mpMixin from '@/uni_modules/uv-ui-tools/libs/mixin/mpMixin.js';
+import props from './props.js';
 	/**
 	 * gridItem 提示
 	 * @description 宫格组件一般用于同时展示多个同类项目的场景，可以给宫格的项目设置徽标组件(badge)，或者图标等，也可以扩展为左右滑动的轮播形式。搭配uv-grid使用
@@ -160,7 +160,7 @@
 			}
 		},
 		// #ifdef VUE2
-		beforeDestroy() {
+		beforeUnmount() {
 			// 移除事件监听，释放性能
 			uni.$off('$uvGridItem')
 		},

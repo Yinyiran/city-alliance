@@ -4,9 +4,9 @@
 	</view>
 </template>
 <script>
-	import mpMixin from '@/uni_modules/uv-ui-tools/libs/mixin/mpMixin.js'
-	import mixin from '@/uni_modules/uv-ui-tools/libs/mixin/mixin.js'
-	import props from './props.js';
+	import mixin from '@/uni_modules/uv-ui-tools/libs/mixin/mixin.js';
+import mpMixin from '@/uni_modules/uv-ui-tools/libs/mixin/mpMixin.js';
+import props from './props.js';
 	/**
 	 * Code 验证码倒计时
 	 * @description 考虑到用户实际发送验证码的场景，可能是一个按钮，也可能是一段文字，提示语各有不同，所以本组件不提供界面显示，只提供倒计时文本，由用户将文本嵌入到具体的场景
@@ -118,7 +118,7 @@
 		},
 		// #ifdef VUE2
 		// 组件销毁的时候，清除定时器，否则定时器会继续存在，系统不会自动清除
-		beforeDestroy() {
+		beforeUnmount() {
 			this.setTimeToStorage()
 			clearTimeout(this.timer)
 			this.timer = null

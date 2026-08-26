@@ -8,14 +8,14 @@
 	</view>
 </template>
 <script>
-	import mpMixin from '@/uni_modules/uv-ui-tools/libs/mixin/mpMixin.js'
-	import mixin from '@/uni_modules/uv-ui-tools/libs/mixin/mixin.js'
-	import props from './props.js';
-	import {
-		isSameSecond,
-		parseFormat,
-		parseTimeData
-	} from './utils';
+	import mixin from '@/uni_modules/uv-ui-tools/libs/mixin/mixin.js';
+import mpMixin from '@/uni_modules/uv-ui-tools/libs/mixin/mpMixin.js';
+import props from './props.js';
+import {
+    isSameSecond,
+    parseFormat,
+    parseTimeData
+} from './utils';
 	/**
 	 * uv-count-down 倒计时
 	 * @description 该组件一般使用于某个活动的截止时间上，通过数字的变化，给用户明确的时间感受，提示用户进行某一个行为操作。
@@ -142,7 +142,7 @@
 			}
 		},
 		// #ifdef VUE2
-		beforeDestroy() {
+		beforeUnmount() {
 			this.clearTimeout()
 		},
 		// #endif

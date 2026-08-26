@@ -59,14 +59,14 @@
 </template>
 
 <script>
-	import validate from 'common/js/validate.js';
 	import {
-		memberaddressAdd,
-		arealists,
-		memberaddressInfo,
-		memberaddressEdt,
-		memberaddressDelete
-	} from "@/common/js/api.js"
+    arealists,
+    memberaddressAdd,
+    memberaddressDelete,
+    memberaddressEdt,
+    memberaddressInfo
+} from "@/common/js/api.js";
+import validate from '@/common/js/validate.js';
 	export default {
 		data() {
 			return {

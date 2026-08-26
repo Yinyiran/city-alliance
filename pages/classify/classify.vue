@@ -129,18 +129,18 @@
 
 <script>
 	import {
-		videoList,
-		shopmemberAdd,
-		issubscribe,
-		commentLists,
-		commentCreate,
-		commcollect,
-		vorderList,
-		pointAdd,
-		vDetail,
-		shareAdd,
-		reviewStatus
-	} from "@/common/js/api.js"
+    commcollect,
+    commentCreate,
+    commentLists,
+    issubscribe,
+    pointAdd,
+    reviewStatus,
+    shareAdd,
+    shopmemberAdd,
+    vDetail,
+    videoList,
+    vorderList
+} from "@/common/js/api.js";
 	export default {
 		data() {
 			return {
@@ -768,11 +768,6 @@
 			// 	transform: translateY(-50%);
 			// }
 		}
-	}
-
-	* {
-		margin: 0;
-		padding: 0;
 	}
 
 	swiper {
