@@ -1,21 +1,23 @@
+import { useAppStore } from '@/store';
+
 export default {
 	computed: {
 		//全局主题样式
 		themeStyleScore() {
-			return this.$store.state.themeStyle;
+			return useAppStore().themeStyle;
 		},
 		themeStyle() {
-			return 'theme-' + this.$store.state.themeStyle
+			return 'theme-' + useAppStore().themeStyle
 		},
 		//插件是否存在
 		addonIsExit() {
-			return this.$store.state.addonIsExit
+			return useAppStore().addonIsExit
 		},
 		showToastValue() {
-			return this.$store.state.showToastValue
+			return useAppStore().showToastValue
 		},
 		diySeckillInterval() {
-			return this.$store.state.diySeckillInterval
+			return useAppStore().diySeckillInterval
 		}
 	}
 }

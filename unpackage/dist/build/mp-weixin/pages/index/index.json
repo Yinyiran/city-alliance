@@ -1,9 +1,0 @@
-{
-  "navigationBarTitleText": "首页",
-  "navigationBarBackgroundColor": "#101014",
-  "navigationBarTextStyle": "white",
-  "usingComponents": {
-    "uv-subsection": "/uni_modules/uv-subsection/components/uv-subsection/uv-subsection",
-    "login": "/components/login/login"
-  }
-}

@@ -133,7 +133,7 @@
 	import {
 		timeFormat
 	} from '@/uni_modules/uv-ui-tools/libs/function/index.js';
-	import validate from 'common/js/validate.js';
+	import validate from '@/common/js/validate.js';
 	export default {
 		data() {
 			return {

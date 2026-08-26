@@ -1,9 +1,0 @@
-{
-  "navigationBarTitleText": "关注列表",
-  "navigationStyle": "custom",
-  "usingComponents": {
-    "nvabar": "/components/nvabar/nvabar",
-    "uv-subsection": "/uni_modules/uv-subsection/components/uv-subsection/uv-subsection",
-    "uv-line": "/uni_modules/uv-line/components/uv-line/uv-line"
-  }
-}

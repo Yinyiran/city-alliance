@@ -111,7 +111,7 @@
 </script>
 
 <style lang="scss">
-	::v-deep .uv-subsection--button__bar {
+	:deep(.uv-subsection--button__bar) {
 		background-color: #FFEDE9 !important;
 	}
 

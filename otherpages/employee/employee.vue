@@ -44,7 +44,7 @@
 	import {
 		mobile
 	} from '@/uni_modules/uv-ui-tools/libs/function/test.js';
-	import validate from 'common/js/validate.js';
+	import validate from '@/common/js/validate.js';
 	export default {
 		data() {
 			return {

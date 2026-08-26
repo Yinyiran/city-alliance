@@ -1,7 +1,0 @@
-{
-  "navigationBarTitleText": "保证金充值",
-  "navigationStyle": "custom",
-  "usingComponents": {
-    "nvabar": "/components/nvabar/nvabar"
-  }
-}
