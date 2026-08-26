@@ -239,7 +239,12 @@
 				// this.$emit('loginsuccess')
 			},
 			async open() {
-				await this.index()
+				try {
+					await this.index()
+				} catch (e) {
+					// 登录态检测接口异常时也允许打开授权弹窗
+					this.beforelog = false
+				}
 				this.is_show=false
 				// await this.Synopsis()
 				this.$refs.showpopref.open()

@@ -2,22 +2,22 @@
 	<view>
 		<view class="tops">
 			<image src="/static/a.png" mode=""></image>
-			<view class="acea-row row-middle row-center cash" @click="caches" v-if="info.myinfo.is_manager==1">提现
+			<view class="acea-row row-middle row-center cash" @click="caches" v-if="(info.myinfo||{}).is_manager==1">提现
 				<uv-icon name="arrow-right" color="#fff" size="10"></uv-icon>
 			</view>
 			<view class="acea-row row-middle relative">
 				<image :src="$util.img(info.logo)" v-if="info.logo" class="w-102 h-52  m-r-16" mode=""></image>
 				<text class="font-32 text-more" style="width: 60%;">{{info.site_name}}</text>
-				<view class="cutsa m-l-18" v-if="info.myinfo.is_manager==1" @click="open">
+				<view class="cutsa m-l-18" v-if="(info.myinfo||{}).is_manager==1" @click="open">
 					<image src="/static/icon5.png" class="w-20 h-20 m-r-6" mode=""></image>
 					切换
 				</view>
 			</view>
 			<view class="acea-row row-middle m-t-12 relative">
-				<text class="font-28 font-weight-6 m-r-12">{{info.myinfo.username}}</text>
+				<text class="font-28 font-weight-6 m-r-12">{{(info.myinfo||{}).username}}</text>
 				<view class="mans acea-row row-middle row-center">
 					<image src="/static/icon4.png" class="w-22 h-22 m-r-4" mode=""></image>
-					{{info.myinfo.is_manager==1?'主理人':'员工'}}
+					{{(info.myinfo||{}).is_manager==1?'主理人':'员工'}}
 				</view>
 			</view>
 			<view class="checkes acea-row row-middle row-center row-between m-t-24">
@@ -86,7 +86,7 @@
 				</view>
 			</view>
 		</view>
-		<view class="btns acea-row row-middle row-between" v-if="info.myinfo.is_manager==1">
+		<view class="btns acea-row row-middle row-between" v-if="(info.myinfo||{}).is_manager==1">
 			<view class="acea-row row-middle row-center" @click="gonext('deposit')">
 				<image src="/static/icon3.png" class="w-40 h-40" mode=""></image>
 				<text>保证金充值</text>
@@ -238,10 +238,26 @@
 				this.myIndex()
 				this.getInfo1()
 				this.qiehuan()
+			} else {
+				this.showLoginModal()
 			}
 
 		},
 		methods: {
+			// 未登录弹窗提示（可取消），点"去登录"打开登录授权弹窗
+			showLoginModal() {
+				uni.showModal({
+					title: '提示',
+					content: '您还未登录，是否前往登录？',
+					confirmText: '去登录',
+					cancelText: '取消',
+					success: (res) => {
+						if (res.confirm) {
+							this.$refs.login.open()
+						}
+					}
+				})
+			},
 			async loginsuccess() {
 				this.token = uni.getStorageSync('token')
 				// getInfo().then(res => {

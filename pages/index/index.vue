@@ -34,10 +34,10 @@
 						<image src="/static/vb1.png" mode=""></image>
 						<view class="bga acea-row row-middle">
 							<image src="/static/vip1.png" class="w-32 h-32 m-r-8 m-l-16" mode=""></image>
-							<text style="color: #FFFFFF;">{{leveltotal[1].level_name}}</text>
+							<text style="color: #FFFFFF;">{{(leveltotal[1]||{}).level_name}}</text>
 						</view>
 						<view class="" style="color: #fff;"><text style="color: #fff;"
-								class="font-48">{{leveltotal[1].counts||0}}</text>人
+								class="font-48">{{(leveltotal[1]||{}).counts||0}}</text>人
 						</view>
 					</view>
 					<view class="acea-row row-middle row-center p-t-12 p-b-12" style="color: #B2B6C2;"
@@ -51,10 +51,10 @@
 						<image src="/static/vb2.png" mode=""></image>
 						<view class="bgb acea-row row-middle">
 							<image src="/static/vip2.png" class="w-32 h-32 m-r-8 m-l-16" mode=""></image>
-							<text style="color: #222;">{{leveltotal[2].level_name}}</text>
+							<text style="color: #222;">{{(leveltotal[2]||{}).level_name}}</text>
 						</view>
 						<view class="" style="color: #FAD5B4;"><text style="color: #FAD5B4;"
-								class="font-48">{{leveltotal[2].counts||0}}</text>人
+								class="font-48">{{(leveltotal[2]||{}).counts||0}}</text>人
 						</view>
 					</view>
 					<view class="acea-row row-middle row-center p-t-12 p-b-12" style="color: #B2B6C2;"
@@ -68,10 +68,10 @@
 						<image src="/static/vb3.png" mode=""></image>
 						<view class="bgc acea-row row-middle">
 							<image src="/static/vip3.png" class="w-32 h-32 m-r-8 m-l-16" mode=""></image>
-							<text style="color: #FFD685;">{{leveltotal[3].level_name}}</text>
+							<text style="color: #FFD685;">{{(leveltotal[3]||{}).level_name}}</text>
 						</view>
 						<view class="" style="color: #FFD685;"><text style="color: #FFD685;"
-								class="font-48">{{leveltotal[3].counts||0}}</text>人
+								class="font-48">{{(leveltotal[3]||{}).counts||0}}</text>人
 						</view>
 					</view>
 					<view class="acea-row row-middle row-center p-t-12 p-b-12" style="color: #B2B6C2;"
@@ -224,7 +224,17 @@
 				}
 				uni.scanCode({
 					success: res => {
-						console.log(res);
+						if (res.result) {
+							uni.navigateTo({
+								url: '/otherpages/writeOff/writeOff?code=' + res.result
+							})
+						}
+					},
+					fail: () => {
+						uni.showToast({
+							title: '扫码失败',
+							icon: 'none'
+						})
 					}
 				})
 			},
@@ -298,8 +308,8 @@
 			getnum() {
 				getnum().then(res => {
 					this.points = res.data.points
-					this.total_count = res.data.team_total.total_count
-					this.leveltotal = res.data.team_total.leveltotal
+					this.total_count = (res.data.team_total && res.data.team_total.total_count) || 0
+					this.leveltotal = (res.data.team_total && res.data.team_total.leveltotal) || []
 				})
 			},
 		}
