@@ -54,32 +54,12 @@ export function server(url, params, methods) {
           reject(error);
           return;
         }
-        if (responseData.code == 0) {
-          resolve(responseData);
-          uni.hideLoading();
-        } else if (responseData.code == -10016) {
-          resolve(responseData);
-          uni.hideLoading();
-        } else if (responseData.code == -10001) {
-          resolve(responseData);
-          uni.hideLoading();
-        } else if (responseData.code == -10010) {
+        // 业务错误码（非 0）也统一 resolve，由调用方根据 res.code 自行判断。
+        // 避免 promise 永久 pending 导致调用方 await 挂起、页面数据无法加载。
+        if (responseData.code == -10010 || responseData.code == 401) {
           uni.removeStorageSync('token');
           uni.hideLoading();
-        } else if (responseData.code == 401) {
-          // uni.showModal({
-          // 	content: "你还没登录，请先登录",
-          // 	confirmColor: "#363636",
-          // 	cancelColor: '#666666',
-          // 	success: res => {
-          // 		if (res.confirm) {
-          // 			uni.navigateTo({
-          // 				url: '/otherpages/login/login'
-          // 			})
-          // 		}
-          // 	}
-          // })
-          uni.removeStorageSync('token');
+        } else if (responseData.code == 0 || responseData.code == -10016 || responseData.code == -10001) {
           uni.hideLoading();
         } else {
           // console.log(res.data);
@@ -87,13 +67,14 @@ export function server(url, params, methods) {
             title: responseData.message || 'Request failed',
             icon: 'none',
             duration: 3000,
-            success: (res) => {
+            success: () => {
               setTimeout(() => {
                 uni.hideLoading();
               }, 3000);
             },
           });
         }
+        resolve(responseData);
       },
       fail: function (res) {
         console.warn('请求异常', res);

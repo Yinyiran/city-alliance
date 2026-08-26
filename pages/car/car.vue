@@ -144,10 +144,12 @@
 			};
 		},
 		async onShow() {
-			await this.benefitOption()
+			try {
+				await this.benefitOption()
+			} catch (e) {}
 			if (uni.getStorageSync('website_id')) {
 				this.website_id = uni.getStorageSync('website_id')
-				await this.bannerList()
+				this.bannerList()
 				await this.getlist()
 			}
 			if (uni.getStorageSync('token')) {
@@ -192,24 +194,34 @@
 				this.getlist()
 			},
 			async getlist() {
+				// benlist 尚未加载成功时，用默认积分区间兜底，避免取不到 min/max 而中断
+				let ben = this.benlist[this.check1] || { min: 0, max: 0 }
 				let params = {
 					page: this.page,
 					website_id: this.website_id,
 					goods_type: 1,
-					min_point: this.benlist[this.check1].min,
-					max_point: this.benlist[this.check1].max,
+					min_point: ben.min,
+					max_point: ben.max,
 					platform: this.check,
 					site_id: ''
 				}
-				await goodslist(params).then(res => {
-					this.list = this.page > 1 ? this.list.concat(...res.data.list) : res.data.list
-					this.last_page = res.data.page_count
-				})
+				try {
+					await goodslist(params).then(res => {
+						if (res.code == 0 && res.data) {
+							this.list = this.page > 1 ? this.list.concat(...res.data.list) : res.data.list
+							this.last_page = res.data.page_count
+						}
+					})
+				} catch (e) {}
 			},
 			async benefitOption() {
-				await benefitOption().then(res => {
-					this.benlist = res.data
-				})
+				try {
+					await benefitOption().then(res => {
+						this.benlist = res.code == 0 && res.data ? res.data : []
+					})
+				} catch (e) {
+					this.benlist = []
+				}
 			},
 			userinfo() {
 				userinfo().then(res => {
