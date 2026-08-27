@@ -643,6 +643,7 @@
 	}
 
 	.city-arrow {
+		margin-right: 8rpx;
 		font-size: 46rpx;
 		color: #FFFFFF;
 	}
