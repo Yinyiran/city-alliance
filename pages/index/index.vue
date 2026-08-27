@@ -2,9 +2,10 @@
 	<view>
 		<uv-navbar bg-color="#ffffff00" :fixed="false">
 			<template v-slot:left>
-				<view class="maps acea-row row-middle" v-if="isopen">
+				<view class="maps acea-row row-middle" v-if="isopen" @click="switchCity">
 					<image src="/static/map1.png" class="w-32 h-32 m-r-8" mode=""></image>
 					{{adddressinfo.city||''}}
+					<text class="city-arrow">▾</text>
 				</view>
 			</template>
 			<template v-slot:center>
@@ -115,11 +116,17 @@
 				last_page: 1,
 				list: [],
 				select: -1,
-				clicknum: 0
+				clicknum: 0,
+				isManualCity: false
 			}
 		},
 		async onLoad(res) {
-			await this.getareas()
+			// 已有已选城市（手动切换或历史定位）时不重新定位，避免切换后又被拉回定位城市
+			if (uni.getStorageSync('website_id')) {
+				this.restoreCity()
+			} else {
+				await this.getareas()
+			}
 			if (res.scene) {
 				var sceneParams = decodeURIComponent(res.scene);
 				sceneParams = sceneParams.split('&');
@@ -142,14 +149,31 @@
 			}
 		},
 		async onShow() {
-				if(!uni.getStorageSync('website_id')){
-					await this.getareas()
-				}
+			// 手动切换城市期间/之后不再重新定位，避免把已选城市切回定位城市
+			if(!uni.getStorageSync('website_id') && !this.isManualCity){
+				await this.getareas()
+			}
 			// await this.bannerList()
 			// await this.websiteInfo()
 			// await this.navList()
 		},
 		methods: {
+			// 恢复已选城市：不重新定位，直接使用缓存中的城市/门店并加载数据
+			restoreCity() {
+				const addressInfo = uni.getStorageSync('address_info')
+				const websiteId = uni.getStorageSync('website_id')
+				if (addressInfo) {
+					this.$set(this, 'adddressinfo', addressInfo)
+				}
+				this.website_id = websiteId || ''
+				this.isopen = true
+				this.show = true
+				this.page = 1
+				this.bannerList()
+				this.websiteInfo()
+				this.navList()
+				this.getlist()
+			},
 			gonexts(e) {
 				if (e.url) {
 					if (!uni.getStorageSync('token')) {
@@ -308,6 +332,7 @@
 						})
 						await tranAddressInfo(params).then(async resA => {
 							this.adddressinfo = resA.data
+							uni.setStorageSync('address_info', resA.data)
 							selectCity({
 								city_id: resA.data.city_id
 							}).then(async resB => {
@@ -329,6 +354,81 @@
 						})
 					},
 				})
+			},
+			// 点击城市切换：打开地图选点，按所选位置重新加载对应城市数据
+			switchCity() {
+				// 标记为手动切换城市，拦截 onShow 自动重新定位
+				this.isManualCity = true
+				uni.chooseLocation({
+					success: (res) => {
+						uni.setStorageSync('latlng', {
+							latitude: res.latitude,
+							longitude: res.longitude
+						})
+						this.changeCity(res.latitude + ',' + res.longitude)
+					},
+					fail: () => {}
+				})
+			},
+			// 按经纬度切换城市：经纬度转城市 -> 查询门店 -> 刷新首页数据
+			changeCity(latlng) {
+				uni.showLoading({
+					title: '切换中'
+				})
+				// 切换城市前先清掉旧门店缓存，避免请求自动携带旧 website_id 仍返回原城市/门店数据
+				uni.removeStorageSync('website_id')
+				this.website_id = ''
+				tranAddressInfo({
+					latlng
+				}).then(resA => {
+					console.log('切换城市-tranAddressInfo', resA)
+					if (!resA.data || !resA.data.city_id) {
+						uni.hideLoading()
+						this.isManualCity = false
+						uni.showToast({
+							title: '未识别到该城市',
+							icon: 'none'
+						})
+						return Promise.reject('city_id missing')
+					}
+					this.$set(this, 'adddressinfo', resA.data)
+					// 记住手动选择的城市，后续进入页面不再重新定位覆盖
+					uni.setStorageSync('address_info', resA.data)
+					return selectCity({
+						city_id: resA.data.city_id
+					})
+				}).then(resB => {
+					uni.hideLoading()
+					if (resB.code == 0 && resB.data && resB.data.site_id) {
+						uni.setStorageSync('website_id', resB.data.site_id)
+						this.website_id = resB.data.site_id
+						this.isopen = true
+						this.show = true
+						// 重置分页并清空旧列表，保证新城市数据完整替换
+						this.page = 1
+						this.list = []
+						this.bannerList()
+						this.websiteInfo()
+						this.navList()
+						this.getlist()
+					} else {
+						this.isManualCity = false
+						this.show = false
+						uni.showToast({
+							title: '该城市暂未开通城创联盟',
+							icon: 'none'
+						})
+					}
+					}).catch(e => {
+					uni.hideLoading()
+					this.isManualCity = false
+					if (e !== 'city_id missing') {
+						uni.showToast({
+							title: '切换失败，请重试',
+							icon: 'none'
+						})
+					}
+					})
 			},
 			bannerList() {
 				let params = {
@@ -539,6 +639,11 @@
 	.maps {
 		font-weight: 600;
 		font-size: 32rpx;
+		color: #FFFFFF;
+	}
+
+	.city-arrow {
+		font-size: 46rpx;
 		color: #FFFFFF;
 	}
 
