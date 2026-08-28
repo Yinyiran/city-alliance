@@ -9,7 +9,7 @@
     "dev:mp-weixin": "cross-env UNI_INPUT_DIR=./ UNI_PLATFORM=mp-weixin uni -p mp-weixin --host",
     "build": "pnpm run build:h5",
     "build:h5": "cross-env UNI_INPUT_DIR=./ uni build",
-    "build:mp-weixin": "cross-env UNI_INPUT_DIR=./ UNI_PLATFORM=mp-weixin uni build -p mp-weixin --outDir unpackage/dist/build/mp-weixin",
+    "build:mp-weixin": "cross-env UNI_INPUT_DIR=./ UNI_PLATFORM=mp-weixin uni build -p mp-weixin --outDir dist/build/mp-weixin",
     "check": "cross-env UNI_INPUT_DIR=./ uni build"
   },
   "dependencies": {
@@ -35,5 +35,5 @@
     "node": ">=14.18.0",
     "pnpm": ">=8"
   },
-  "packageManager": "pnpm@11.8.0"
+  "packageManager": "pnpm@11.24.0"
 }
