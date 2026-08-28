@@ -109,6 +109,13 @@
 			{
 				"navigationBarTitleText" : "银行卡提现"
 			}
+		},
+		{
+			"path" : "agreement/agreement",
+			"style" : 
+			{
+				"navigationBarTitleText" : "隐私政策"
+			}
 		}]
 	}],
 	"tabBar": {

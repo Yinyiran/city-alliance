@@ -48,15 +48,6 @@
 				</view>
 			</view>
 		</uv-popup>
-		<uv-popup ref="xypopref" closeable :zIndex="11080" round="10" mode="center" @close="xyclose" @open="xyopen">
-			<view class="xieyi-box ">
-				<scroll-view scroll-y="true" class="xyhig">
-					<view>
-						<view v-html="$util.replaceImg(xycontent)"></view>
-					</view>
-				</scroll-view>
-			</view>
-		</uv-popup>
 	</view>
 </template>
 
@@ -65,7 +56,6 @@
 		mobileAuth,
 		authcodetoopenid,
 		loginAuth,
-		getAgreement,
 		logincheckLogin
 	} from '../../common/js/api';
 	export default {
@@ -73,7 +63,6 @@
 		data() {
 			return {
 				is_show: false,
-				xycontent: '',
 				code: '',
 				nickname: '',
 				avatar: '',
@@ -81,8 +70,6 @@
 					name: "",
 					logo: ""
 				},
-				xyhtml1: {},
-				xyhtml2: {},
 				istrip: 1,
 				beforelog: false,
 				inviteCode: '',
@@ -93,6 +80,9 @@
 		created() {
 			// this.index()
 			this.inviteCode = uni.getStorageSync('inviteCode') || ''
+		},
+		onUnload() {
+			uni.$off('agreeAgreement')
 		},
 		computed: {
 			canlogin() {
@@ -121,36 +111,44 @@
 			        this.nickname = this.nickname.substring(0, 8)
 			      }
 			    },
-			islogin() {
-				uni.login({
-					success: async res => {
-						let params = {
-							code: res.code
-						}
-						console.log(res.code);
-						await is_login(params).then(resA => {
-							this.beforelog = resA.data
-						})
-					}
-				})
-			},
 			beforelogin() {
+				uni.showLoading({
+					title: '登录中...',
+					mask: true
+				})
 				uni.login({
 					success: async res => {
-						let params1 = {
-							code: res.code
-						}
-						const resC = await authcodetoopenid(params1)
-						this.weapp_openid = resC.data.openid
-						let params = {
-							weapp_openid: this.weapp_openid,
-							nickName: this.nickname,
-							avatarUrl: this.avatar
-						}
-						loginAuth(params).then(resA => {
+						try {
+							let params1 = {
+								code: res.code
+							}
+							const resC = await authcodetoopenid(params1)
+							this.weapp_openid = resC.data.openid
+							let params = {
+								weapp_openid: this.weapp_openid,
+								nickName: this.nickname,
+								avatarUrl: this.avatar
+							}
+							const resA = await loginAuth(params)
 							uni.setStorageSync('token', resA.data.token)
+							uni.hideLoading()
 							this.close()
 							this.$emit('loginsuccess')
+						} catch (e) {
+							uni.hideLoading()
+							uni.showToast({
+								title: '登录失败，请稍后重试',
+								icon: 'none',
+								duration: 2000
+							})
+						}
+					},
+					fail: () => {
+						uni.hideLoading()
+						uni.showToast({
+							title: '微信授权失败，请重试',
+							icon: 'none',
+							duration: 2000
 						})
 					}
 				})
@@ -162,19 +160,26 @@
 				})
 			},
 			index() {
-				uni.login({
-					success: async res => {
-						let params = {
-							code: res.code
+				return new Promise(resolve => {
+					uni.login({
+						success: async res => {
+							try {
+								let params = {
+									code: res.code
+								}
+								const resA = await logincheckLogin(params)
+								this.beforelog = resA.data.mobile ? true : false
+							} catch (e) {
+								this.beforelog = false
+							}
+							resolve()
+						},
+						fail: () => {
+							this.beforelog = false
+							resolve()
 						}
-						const resA = await logincheckLogin(params)
-						this.beforelog = resA.data.mobile ? true : false
-
-					}
+					})
 				})
-				// this.xyhtml1 = res.data.user_protocol
-				// this.xyhtml2 = res.data.privacy_protocol
-
 			},
 			showtrip() {
 				// if (!this.avatar) {
@@ -215,22 +220,9 @@
 				}
 			},
 			xyopen(type) {
-				let params = {
-					type: type
-				}
-				getAgreement(params).then(res => {
-					this.xycontent = res.data.content
-					this.$refs.xypopref.open()
+				uni.navigateTo({
+					url: '/otherpages/agreement/agreement?type=' + type
 				})
-				// if (type == 19) {
-				// 	this.xycontent = this.xyhtml1
-				// } else {
-				// 	this.xycontent = this.xyhtml2
-				// }
-
-			},
-			xyclose() {
-				this.$refs.xypopref.close()
 			},
 			close() {
 				this.avatar = ''
@@ -239,6 +231,10 @@
 				// this.$emit('loginsuccess')
 			},
 			async open() {
+				uni.$off('agreeAgreement')
+				uni.$once('agreeAgreement', () => {
+					this.is_show = true
+				})
 				try {
 					await this.index()
 				} catch (e) {
@@ -256,17 +252,31 @@
 				})
 			},
 			async getPhoneNumber(e) {
-				
 				const {
 					encryptedData,
 					iv,
-					code,
 					errMsg
 				} = e.detail;
 
-				if (errMsg == 'getPhoneNumber:ok') {
-					uni.login({
-						success: async res => {
+				// 用户未授权（取消/拒绝）时给出友好提示
+				if (errMsg != 'getPhoneNumber:ok') {
+					if (errMsg.indexOf('cancel') == -1 && errMsg.indexOf('deny') == -1) {
+						uni.showToast({
+							title: '手机号授权失败，请重试',
+							icon: 'none',
+							duration: 2000
+						})
+					}
+					return
+				}
+
+				uni.showLoading({
+					title: '登录中...',
+					mask: true
+				})
+				uni.login({
+					success: async res => {
+						try {
 							let params1 = {
 								code: res.code
 							}
@@ -281,15 +291,29 @@
 								weapp_openid: this.weapp_openid
 								// invite: this.inviteCode
 							}
-							mobileAuth(params).then(res => {
-								uni.setStorageSync('token', res.data.token)
-								this.$emit('loginsuccess')
-								this.close()
+							const res = await mobileAuth(params)
+							uni.setStorageSync('token', res.data.token)
+							uni.hideLoading()
+							this.$emit('loginsuccess')
+							this.close()
+						} catch (e) {
+							uni.hideLoading()
+							uni.showToast({
+								title: '登录失败，请稍后重试',
+								icon: 'none',
+								duration: 2000
 							})
 						}
-					})
-
-				}
+					},
+					fail: () => {
+						uni.hideLoading()
+						uni.showToast({
+							title: '微信授权失败，请重试',
+							icon: 'none',
+							duration: 2000
+						})
+					}
+				})
 			},
 
 		}
@@ -423,23 +447,6 @@
 			border-radius: 98rpx;
 		}
 
-	}
-
-	.xieyi-box {
-		padding: 30rpx;
-		width: 95vw;
-		box-sizing: border-box;
-
-		.xyhig {
-			max-height: 70vh;
-		}
-
-		.xieyi-tit {
-			font-size: 30rpx;
-			font-weight: bold;
-			text-align: center;
-			padding: 0 0 30rpx;
-		}
 	}
 
 	.public_btn {
