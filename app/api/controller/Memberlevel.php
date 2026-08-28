@@ -29,7 +29,7 @@ class Memberlevel extends BaseApi
     public function levelList()
     {
         $data = [
-            'website_id' => $this->params['website_id'],
+            'website_id' => $this->params['website_id'] ?? 0,
         ];
         $member_level_model = new MemberLevelModel();
         $result = $member_level_model->levelList($data);
@@ -45,7 +45,7 @@ class Memberlevel extends BaseApi
         $token = $this->checkToken();
         if ($token['code'] < 0) return $this->response($token);
         $data = [
-            'website_id' => $this->params['website_id'],
+            'website_id' => $this->params['website_id'] ?? 0,
             'level_id' => $this->params['level_id'],
             'member_id' => $this->member_id,
         ];

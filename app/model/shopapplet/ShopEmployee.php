@@ -149,8 +149,11 @@ class ShopEmployee extends BaseModel
         return $info;
     }
 
-    public function mobileexits($mobile){
+    public function mobileexits($mobile, $shop_id = 0){
        $where="mobile='".$mobile."' and is_deleted=0";
+       if(!empty($shop_id)){
+           $where.=" and shop_id=".$shop_id;
+       }
         $info=model("shop_employee")->getValue($where, 'employee_id');
         return $info; 
     }
