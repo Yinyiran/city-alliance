@@ -97,17 +97,17 @@
 				custom-style="height: 60rpx;border-radius: 30rpx;" custom-item-style="border-radius: 30rpx;"
 				@change="change"></uv-subsection>
 			<view class="h-24"></view>
-			<view class="defas acea-row row-middle row-between" v-if="check==0&&token&&myinfo">
+			<view class="defas acea-row row-middle row-between" v-if="check==0&&token&&myinfo&&myinfo.info">
 				<view class="acea-row row-middle">
 					<view class="ranks">
 						<image src="/static/rank.png" mode=""></image>
 						<text>{{myinfo.rank}}</text>
 					</view>
-					<image :src="$util.img(myinfo.info.site_logo)" v-if="myinfo.info.site_logo" class="w-102 h-52 m-l-24" mode=""></image>
-					<text class="font-28 m-l-12" style="color: #222;">{{myinfo.info.site_name}}</text>
+					<image :src="$util.img(myinfo.info.site_logo)" v-if="(myinfo.info||{}).site_logo" class="w-102 h-52 m-l-24" mode=""></image>
+					<text class="font-28 m-l-12" style="color: #222;">{{(myinfo.info||{}).site_name}}</text>
 					<text class="my">(我)</text>
 				</view>
-				<view class="font-28" style="color: #222;">{{myinfo.info.account_points||0}}</view>
+				<view class="font-28" style="color: #222;">{{(myinfo.info||{}).account_points||0}}</view>
 			</view>
 			<view class="acea-row row-middle row-between p-24 titles" v-if="check==0">
 				<view class="acea-row row-middle">

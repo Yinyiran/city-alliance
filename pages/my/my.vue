@@ -7,15 +7,22 @@
 			</view>
 			<view class="acea-row row-middle relative">
 				<image :src="$util.img(info.logo)" v-if="info.logo" class="w-102 h-52  m-r-16" mode=""></image>
-				<text class="font-32 text-more" style="width: 60%;">{{info.site_name}}</text>
+				<text class="font-32 text-more" style="flex: 1;" v-if="token">{{info.site_name}}</text>
+				<view class="font-32" style="flex: 1;" v-else @click="$refs.login.open()">
+					<view class="login-btn">立即登录</view>
+				</view>
 				<view class="cutsa m-l-18" v-if="(info.myinfo||{}).is_manager==1" @click="open">
 					<image src="/static/icon5.png" class="w-20 h-20 m-r-6" mode=""></image>
 					切换
 				</view>
+				<view class="cutsa m-l-18" @click="goSetting" v-if="token">
+					<image src="/static/icon5.png" class="w-20 h-20 m-r-6" mode=""></image>
+					设置
+				</view>
 			</view>
 			<view class="acea-row row-middle m-t-12 relative">
 				<text class="font-28 font-weight-6 m-r-12">{{(info.myinfo||{}).username}}</text>
-				<view class="mans acea-row row-middle row-center">
+				<view class="mans acea-row row-middle row-center" v-if="token">
 					<image src="/static/icon4.png" class="w-22 h-22 m-r-4" mode=""></image>
 					{{(info.myinfo||{}).is_manager==1?'主理人':'员工'}}
 				</view>
@@ -112,7 +119,7 @@
 				custom-style="height: 60rpx;border-radius: 30rpx;" custom-item-style="border-radius: 30rpx;"
 				@change="change"></uv-subsection>
 			<view class="h-24"></view>
-			<view class="meminfo acea-row row-middle" v-if="levelData.length>0">
+			<view class="meminfo acea-row row-middle" v-if="levelData&&levelData.length>0">
 				<view class="memit" v-for="(item,index) in levelData">
 					<view class="">{{item.level_name}}</view>
 					<view class="">{{item.counts||0}}</view>
@@ -127,7 +134,7 @@
 						}" itemStyle="height: 34px;font-size:28rpx;"></uv-tabs>
 			</view>
 
-			<view class="defas acea-row row-middle row-between" v-if="myinfo">
+			<view class="defas acea-row row-middle row-between" v-if="myinfo&&myinfo.myinfo">
 				<view class="acea-row row-middle">
 					<view class="ranks">
 						<image src="/static/rank.png" mode=""></image>
@@ -136,10 +143,10 @@
 					<image :src="$util.img(myinfo.myinfo.headimg)" v-if="myinfo.myinfo&&myinfo.myinfo.headimg"
 						class="w-52 h-52 bor-50 m-l-24" mode=""></image>
 					<image src="/static/avatar.png" v-else class="w-52 h-52 bor-50 m-l-24" mode=""></image>
-					<text class="font-28 m-l-12" style="color: #222;">{{myinfo.myinfo.username}}</text>
+					<text class="font-28 m-l-12" style="color: #222;">{{(myinfo.myinfo||{}).username}}</text>
 					<text class="my">(我)</text>
 				</view>
-				<view class="font-28" style="color: #222;">{{myinfo.myinfo.invite_count||0}}</view>
+				<view class="font-28" style="color: #222;">{{(myinfo.myinfo||{}).invite_count||0}}</view>
 			</view>
 			<view class="acea-row row-middle row-between p-24 titles">
 				<view class="acea-row row-middle">
@@ -239,11 +246,26 @@
 				this.getInfo1()
 				this.qiehuan()
 			} else {
+				this.token = ''
+				this.resetPageData()
 				this.showLoginModal()
 			}
 
 		},
 		methods: {
+			// 未登录时清空页面数据，避免残留上一登录账号的内容
+			resetPageData() {
+				this.daidan = {}
+				this.gongxian = {}
+				this.ziying = {}
+				this.total = {}
+				this.levelData = []
+				this.list = []
+				this.myinfo = {}
+				this.info = {}
+				this.slist = []
+				this.site_id = ''
+			},
 			// 未登录弹窗提示（可取消），点"去登录"打开登录授权弹窗
 			showLoginModal() {
 				uni.showModal({
@@ -258,12 +280,10 @@
 					}
 				})
 			},
-			async loginsuccess() {
+			loginsuccess() {
 				this.token = uni.getStorageSync('token')
-				// getInfo().then(res => {
-				// 	uni.setStorageSync('site_id', res.data.site_id)
-				// })
-				await this.getInfo1()
+				// 并行加载，互不阻塞：getInfo1 异常/挂起时不影响其他数据刷新
+				this.getInfo1()
 				this.shopList()
 				this.myIndex()
 				this.qiehuan()
@@ -290,6 +310,15 @@
 			},
 			open() {
 				this.$refs.popup.open()
+			},
+			goSetting() {
+				if (!uni.getStorageSync('token')) {
+					this.$refs.login.open()
+					return
+				}
+				uni.navigateTo({
+					url: '/otherpages/setting/setting'
+				})
 			},
 			shopList() {
 				shopList().then(res => {
@@ -318,12 +347,14 @@
 				})
 			},
 			async getInfo1() {
-				await getInfo().then(res => {
+				try {
+					const res = await getInfo()
 					this.site_id = res.data.site_id
 					uni.setStorageSync('site_id', res.data.site_id)
 					this.info = res.data
-					
-				})
+				} catch (e) {
+					// 站点信息获取失败不阻断页面其他数据加载
+				}
 			},
 			change(e) {
 				if (!uni.getStorageSync('token')) {
@@ -457,6 +488,17 @@
 		font-size: 22rpx;
 		color: #FFFFFF;
 		padding: 0 12rpx;
+	}
+
+	.login-btn {
+		display: inline-block;
+		padding: 10rpx 36rpx;
+		border-radius: 40rpx;
+		border: 1rpx solid #ff9e20;
+		color: #ff9e20;
+		font-size: 26rpx;
+		line-height: 1.4;
+		background: rgba(255, 255, 255, 0.15);
 	}
 
 	.container {

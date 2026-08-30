@@ -116,6 +116,14 @@
 			{
 				"navigationBarTitleText" : "隐私政策"
 			}
+		},
+		{
+			"path" : "setting/setting",
+			"style" : 
+			{
+				"navigationBarTitleText" : "设置",
+				"navigationBarBackgroundColor": "#F5F5F5"
+			}
 		}]
 	}],
 	"tabBar": {

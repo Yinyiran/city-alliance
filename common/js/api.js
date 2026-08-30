@@ -43,8 +43,8 @@ export const pointAccount=params=>server('/shopapplet/points/getList',params)
 export const deposit=params=>server('/shopapplet/shop/deposit',params)
 //保证金缴纳1
 export const shopdepositpay=params=>server('/api/pay/shopdepositpay',params)
-//检查登录
-export const logincheckLogin=params=>server('/shopapplet/login/checkLogin',params)
+//检查登录（silent=true 时不弹错误 toast，用于登录流程中的辅助判断）
+export const logincheckLogin=(params,silent)=>server('/shopapplet/login/checkLogin',params,'post',silent)
 //商家信息
 export const getInfo=params=>server('/shopapplet/shop/getInfo',params)
 //协议管理

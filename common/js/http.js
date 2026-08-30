@@ -4,7 +4,7 @@ import Config from './config.js'
 const app_type = 'weappqy';
 const app_type_name = '微信小程序(商家端)';
 // #endif
-export function server(url, params, methods) {
+export function server(url, params, methods, silent) {
 	uni.showLoading({
 		title: '加载中'
 	})
@@ -57,19 +57,31 @@ export function server(url, params, methods) {
 					// })
 					uni.removeStorageSync('token')
 					uni.hideLoading();
-				} else {
+					// 业务错误也 resolve，避免调用方 await 永久挂起
+					resolve(res.data)
+					} else {
 					console.log(res.data);
-					uni.showToast({
-						title: res.data.msg||JSON.stringify(res.data),
-						icon: 'none',
-						duration: 3000,
-						success: res => {
-							setTimeout(()=>{
-								uni.hideLoading();
-							},3000)
-						}
-					})
-				}
+					if (silent) {
+						// 静默模式：不弹错误 toast
+						uni.hideLoading();
+					} else {
+						// token 为空时提示用户先登录
+						const msg = res.data.msg == 'token不能为空' ? '请登录后，查看数据' : (res.data.msg ||
+							'请求失败，请稍后重试');
+						uni.showToast({
+							title: msg,
+							icon: 'none',
+							duration: 3000,
+							success: res => {
+								setTimeout(()=>{
+									uni.hideLoading();
+								},3000)
+							}
+						})
+					}
+					// 业务错误也 resolve，避免调用方 await 永久挂起
+					resolve(res.data)
+					}
 
 			},
 			fail: function (res) {
