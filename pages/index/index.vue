@@ -117,16 +117,12 @@
 				list: [],
 				select: -1,
 				clicknum: 0,
-				isManualCity: false
+				isManualCity: false,
+				isAskingLocation: false
 			}
 		},
 		async onLoad(res) {
-			// 已有已选城市（手动切换或历史定位）时不重新定位，避免切换后又被拉回定位城市
-			if (uni.getStorageSync('website_id')) {
-				this.restoreCity()
-			} else {
-				await this.getareas()
-			}
+			// 定位/城市恢复统一在 onShow 中处理，避免首次进入时 onLoad + onShow 重复触发定位授权提示
 			if (res.scene) {
 				var sceneParams = decodeURIComponent(res.scene);
 				sceneParams = sceneParams.split('&');
@@ -139,7 +135,6 @@
 		},
 		onPullDownRefresh() {
 
-
 		},
 		onReachBottom() {
 			if (this.last_page > this.page) {
@@ -150,12 +145,12 @@
 		},
 		async onShow() {
 			// 手动切换城市期间/之后不再重新定位，避免把已选城市切回定位城市
-			if(!uni.getStorageSync('website_id') && !this.isManualCity){
+			if (this.isManualCity) return
+			if (uni.getStorageSync('website_id')) {
+				this.restoreCity()
+			} else {
 				await this.getareas()
 			}
-			// await this.bannerList()
-			// await this.websiteInfo()
-			// await this.navList()
 		},
 		methods: {
 			// 恢复已选城市：不重新定位，直接使用缓存中的城市/门店并加载数据
@@ -292,6 +287,8 @@
 				})
 			},
 			getareas() {
+				// 授权提示弹出期间禁止重复触发，避免叠加弹窗
+				if (this.isAskingLocation) return
 				uni.getSetting({
 					success: res => {
 						if (res.authSetting && res.authSetting['scope.userLocation']) {
@@ -299,9 +296,12 @@
 							this.getareas1()
 						} else {
 							this.isopen = res.authSetting['scope.userLocation']
+							if (this.isAskingLocation) return
+							this.isAskingLocation = true
 							uni.showModal({
 								content: '为了您更好的体验，请确认获取您的位置',
 								success: res => {
+									this.isAskingLocation = false
 									if (res.confirm) {
 										uni.openSetting({
 											success(res) {
@@ -313,6 +313,9 @@
 											}
 										});
 									}
+								},
+								fail: () => {
+									this.isAskingLocation = false
 								}
 							})
 						}

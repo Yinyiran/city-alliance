@@ -349,6 +349,7 @@
 			loginsuccess() {
 				this.token = uni.getStorageSync('token')
 				this.userinfo()
+				this.orderNum()
 			},
 			userinfo() {
 				userinfo().then(res => {
