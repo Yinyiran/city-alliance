@@ -14,9 +14,9 @@
 				</view>
 				<view class="swiper-item" >
 					<video :src="$util.img(item.video_url)" :muted='muted' :loop='true' @loadedmetadata='loadedmetadata'
-						v-if="item.video_url" @play="onPlay" :play-strategy='2' @click="isplay()" :ref='videos' object-fit="cover"
-						:controls="false" @timeupdate="onTimeUpdate" :autoplay='false' :show-center-play-btn="true"
-						:play-btn-position='center' :id="`video${index}`">
+						v-if="item.video_url" @play="onPlay" :play-strategy='2' @click="isplay()" object-fit="cover"
+						:controls="false" @timeupdate="onTimeUpdate" :autoplay='false' :show-center-play-btn="false"
+						:id="`video${index}`">
 					</video>
 					<view class="goods acea-row row-middle row-between" @click="godetail(item.sku_id)">
 						<image :src="$util.img(item.sku_image)" class="w-110 h-110 bor-16" mode=""></image>
@@ -164,15 +164,17 @@
 				listB: [],
 				muted: false,
 				playing: true,
-				status:1
+				status:1,
 				// point: 0
-			};
-		},
+				loadedWebsiteId: ''
+				};
+				},
 		async onLoad(res) {
 			if(res.id){
 				this.shareAdd(res.id)
 			}
 			await this.getlist()
+			await this.reviewStatus()
 			await this.isguanzhu()
 		},
 		onShareAppMessage() {
@@ -192,26 +194,29 @@
 		onShow() {
 			this.token = uni.getStorageSync('token') || ''
 			this.reviewStatus()
+			// 定位城市/门店变化时重新请求短视频列表
+			const websiteId = uni.getStorageSync('website_id') || ''
+			if (websiteId && this.loadedWebsiteId !== websiteId) {
+				this.page = 1
+				this.list = []
+				this.current = 0
+				this.getlist()
+			}
+			this.loadedWebsiteId = websiteId
 		},
 		onHide() {
 			this.clearRewardTimer()
 			this.timesecond = 0
 			this.target = 0
+			this.playing = false
+			// 页面隐藏时暂停所有视频，避免音频继续播放
+			if (this.videoContexts && this.videoContexts.length) {
+				this.videoContexts.forEach(item => {
+					if (item) item.pause()
+				})
+			}
 		},
 		computed: {
-			conlist() {
-				this.videoContexts = []
-				if (this.list.length > 0) {
-					this.list.forEach((item, index) => {
-						this.videoContexts.push(uni.createVideoContext("video" + index))
-					})
-					// this.videoContexts.map((item) => {
-					// 	item.pause()
-					// })
-				}
-
-			},
-
 			second() {
 				if (this.list.length <= 0) return 0
 				let info = this.list[this.current]
@@ -232,6 +237,27 @@
 			},
 		},
 		methods: {
+			// 初始化所有视频的上下文（video 组件渲染完成后调用）
+			initVideoContexts() {
+				this.videoContexts = []
+				if (this.list.length > 0) {
+					this.list.forEach((item, index) => {
+						this.videoContexts.push(uni.createVideoContext("video" + index))
+					})
+				}
+			},
+			// 获取指定索引的视频上下文，未初始化时自动初始化，避免 undefined.play() 报错
+			getVideo(index) {
+				if (!this.videoContexts || !this.videoContexts[index]) {
+					this.initVideoContexts()
+				}
+				return this.videoContexts && this.videoContexts[index] ? this.videoContexts[index] : null
+			},
+			// 获取当前视频的圆环进度组件实例
+			getProgress() {
+				const refs = this.$refs.progress
+				return refs && refs[this.current] ? refs[this.current] : null
+			},
 			goods_type(goods_type,is_admin) {
 				if (is_admin == 1) {
 					return 3
@@ -245,8 +271,16 @@
 				return 1
 			},
 			reviewStatus(){
-				reviewStatus().then(res=>{
-					this.status=res.data.status
+				let params = {}
+				if (this.list[this.current] && this.list[this.current].site_id) {
+					params.site_id = this.list[this.current].site_id
+				}
+				return reviewStatus(params).then(res=>{
+					if (res && res.code == 0) {
+						this.status = res.data.status
+					}
+				}).catch(()=>{
+					console.log('审核模式获取失败')
 				})
 			},
 			shareAdd(e){
@@ -290,28 +324,27 @@
 				await pointAdd(params).then(async res => {
 					if (res.code == 0) {
 						await this.getdetail()
-						this.$refs.progress[this.current].succs()
+						const progress = this.getProgress()
+						if (progress && typeof progress.succs === 'function') {
+							progress.succs()
+						}
 					}
 				})
 			},
 			isplay() {
-				if (this.playing){
-					this.playing=false
-					this.videoContexts[this.current].pause();
-				}else{
-					this.playing=true
-					this.videoContexts[this.current].play();
+				const ctx = this.getVideo(this.current)
+				if (this.playing) {
+					this.playing = false
+					if (ctx) ctx.pause();
+				} else {
+					this.playing = true
+					if (ctx) ctx.play();
+					this.targets()
 				}
-				this.targets()
-				// this.videoContexts[this.current].play();
-				// this.videoContexts[e].pause();
 			},
 			onPlay() {
-				return
-				console.log(this.timesecond, this.second, this.isTimerRunning);
-				if (this.timesecond < this.second) {
-					this.targets();
-				}
+				this.playing = true
+				this.targets();
 			},
 			targets() {
 				if (!this.playing) return
@@ -319,7 +352,10 @@
 				if (this.point_status != 1) return
 				if (this.list.length > 0) {
 					this.isTimerRunning = true;
-					this.$refs.progress[this.current].start()
+					const progress = this.getProgress()
+					if (progress && typeof progress.start === 'function') {
+						progress.start()
+					}
 					this.timesecond = 0
 					this.rewardTimer = setInterval(async () => {
 						this.timesecond++
@@ -447,37 +483,39 @@
 			},
 			onchange(e) {
 				this.clearRewardTimer()
-				// this.target = 0
 				this.timesecond = 0
-				this.videoContexts[this.current].pause();
-				// this.is_play = false
+				// 暂停上一个视频，避免音频继续在后台播放
+				const oldCtx = this.getVideo(this.current)
+				if (oldCtx) oldCtx.pause();
 				this.current = e.detail.current;
 				this.isguanzhu()
+				this.reviewStatus()
 				if (this.current == this.list.length - 1) {
 					this.page++
 					this.getlist()
 				}
-				// this.hasLogged = false
-				// this.duration = 0
-				// if (parseInt(this.current) + 1 == this.list.length) {
-				// 	if (this.list[this.current].next_id) {
-				// 		this.getnextvideo()
-				// 	}
-				// }
 			},
 			changeSwiper() {
+				this.clearRewardTimer()
 				this.timesecond = 0
 				this.isTimerRunning = false
 				this.playing = false
-				this.$refs.progress[this.current].stop()
+				// 停止所有圆环进度动画，避免上一个视频的进度条继续转动
+				const progressRefs = this.$refs.progress
+				if (progressRefs && progressRefs.length) {
+					progressRefs.forEach(item => {
+						if (item && typeof item.stop === 'function') item.stop()
+					})
+				}
+				// 暂停所有视频，确保上一个视频的音频停止
 				this.videoContexts.forEach(item => {
-					item.pause()
+					if (item) item.pause()
 				})
 				this.$nextTick(() => {
 					this.playing = true
-					this.videoContexts[this.current].play();
+					const ctx = this.getVideo(this.current)
+					if (ctx) ctx.play();
 				})
-				// this.is_play = true 
 			},
 			onTimeUpdate(e) {
 				if (this.timesecond < this.second) {
@@ -486,7 +524,8 @@
 			},
 			loadedmetadata() {
 				this.playing = true
-				this.videoContexts[this.current].play();
+				const ctx = this.getVideo(this.current)
+				if (ctx) ctx.play();
 			},
 			playVideo() {
 				// console.log(666);
@@ -496,10 +535,16 @@
 				let params = {
 					page: this.page
 				}
+				// 记录本次请求对应的门店 ID，用于 onShow 判断城市是否变化
+				this.loadedWebsiteId = uni.getStorageSync('website_id') || ''
 				await videoList(params).then(res => {
 					this.list = this.page > 1 ? this.list.concat(...res.data.list) : res.data.list
 				})
-			},
+				// 列表渲染完成后重建视频上下文，供播放/暂停控制使用
+				this.$nextTick(() => {
+					this.initVideoContexts()
+				})
+				},
 		}
 	}
 </script>
