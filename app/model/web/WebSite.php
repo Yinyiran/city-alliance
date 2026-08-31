@@ -272,6 +272,30 @@ class WebSite extends BaseModel
     }
 
     /**
+     * 修改小程序审核模式
+     * @param int $site_id 分站站点id
+     * @param int $status 0：正常（小程序展示视频） 1：审核模式（小程序展示商品）
+     * @return array
+     */
+    public function modifyReviewStatus($site_id, $status = 0)
+    {
+        $site_id = intval($site_id);
+        $status = intval($status);
+
+        if (empty($site_id)) {
+            return $this->error('', 'WEBSITE_NOT_EXIST');
+        }
+        // 只允许 0（展示视频）/ 1（审核模式展示商品）
+        if (!in_array($status, [ 0, 1 ], true)) {
+            return $this->error('', 'ILLEGAL_STATUS');
+        }
+
+        $res = model('website')->update([ 'sh_status' => $status ], [ [ 'site_id', '=', $site_id ] ]);
+        Cache::tag("website")->clear();
+        return $this->success($res);
+    }
+
+    /**
      * 添加分站账户数据
      * @param $website_id
      * @param string $account_type

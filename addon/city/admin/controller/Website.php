@@ -196,6 +196,20 @@ class Website extends BaseAdmin
     }
 
     /**
+     * 修改小程序审核模式
+     * sh_status 0：正常（小程序展示视频） 1：审核模式（小程序展示商品）
+     */
+    public function modifyReviewStatus()
+    {
+        $website_model = new WebSiteModel();
+
+        $site_id = input('site_id', 0);
+        $status = input('status', 0);
+
+        return $website_model->modifyReviewStatus($site_id, $status);
+    }
+
+    /**
      * 城市分站详情
      */
     public function detail()

@@ -41,6 +41,7 @@
             <li>城市列表，可在此展示所有城市</li>
             <li>可添加城市以及对城市进行编辑和删除操作</li>
             <li>城市管理后台：<a href="{:url('city/city/index/index')}" target="_blank" class="ns-text-color">{:url('city/city/index/index')}</a></li>
+            <li>审核模式：开启后该分站在小程序短视频页展示商品（用于平台过审），关闭后展示视频；平台总开关为开启状态时，全站均展示商品。</li>
         </ul>
     </div>
 </div>
@@ -187,6 +188,9 @@
         var table = new Table({
             elem: '#account_list',
             url: ns.url("city://admin/Website/lists"),
+            callback: function () {
+                form.render('checkbox');
+            },
             cols: [
                 [{
                     field: 'title',
@@ -258,9 +262,16 @@
                         return data.status == 1 ? '正常' : '关闭';
                     }
                 }, {
+                    title: '审核模式',
+                    unresize: 'false',
+                    width: '10%',
+                    templet: function (data) {
+                        return '<input type="checkbox" name="sh_status" value="' + data.site_id + '" lay-skin="switch" lay-filter="review_status" lay-text="商品|视频" ' + (data.sh_status == 1 ? 'checked' : '') + ' />';
+                    }
+                }, {
                     title: '创建时间',
                     unresize: 'false',
-                    width: '12%',
+                    width: '10%',
                     templet: function (res) {
                         if (res.create_time == 0) {
                             return '--';
@@ -272,7 +283,7 @@
                     title: '操作',
                     toolbar: '#action',
                     unresize: 'false',
-                    width: '17%'
+                    width: '14%'
                 }]
             ]
         });
@@ -437,6 +448,28 @@
                     }
                 });
             }
+        });
+
+        /**
+         * 小程序审核模式开关
+         */
+        form.on('switch(review_status)', function (data) {
+            var site_id = data.value,
+                status = data.elem.checked ? 1 : 0;
+
+            $.ajax({
+                url: ns.url("city://admin/website/modifyReviewStatus"),
+                data: {site_id: site_id, status: status},
+                dataType: 'JSON',
+                type: 'POST',
+                success: function (res) {
+                    if (res.code != 0) {
+                        data.elem.checked = !data.elem.checked;
+                        form.render('checkbox');
+                    }
+                    layer.msg(res.message);
+                }
+            });
         });
 
         $(".withdrawal-record").click(function () {

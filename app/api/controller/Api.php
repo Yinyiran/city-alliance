@@ -158,15 +158,40 @@ class Api extends BaseApi
 
     /**
      * 审核接口
+     * 小程序审核模式开关：0 正常（展示视频） 1 审核模式（展示商品）
+     * 平台总开关（website.site_id = 0）为 1 时全站生效，否则按当前分站（website.sh_status）生效
      */
     public function reviewStatus()
     {
-        $status = $this->params['status'] ?? '';
-        if ($status != '') {
+        $site_id = intval($this->params['site_id'] ?? 0); // 商家/店铺站点id
+        $website_id = intval($this->params['website_id'] ?? 0); // 所属分站id（对应 website 表的主键 site_id）
 
-            model('website')->update(['sh_status' => $status], ['site_id' => 0]);
+        // 未直接传分站 id 时，按商家找出它所属的分站（开关本身仍属于分站，不属于商家）
+        if (empty($website_id) && !empty($site_id)) {
+            $shop = model('shop')->getInfo([ 'site_id' => $site_id ], 'website_id');
+            if (!empty($shop)) {
+                $website_id = intval($shop[ 'website_id' ]);
+            }
         }
-        $website = model('website')->getInfo(['site_id'=>0]);
-        return $this->response($this->success(['status' => $website['sh_status']]));
+
+        // 兼容旧版小程序：传 status 时写入开关（有分站 id 写对应分站，否则写平台总开关 site_id = 0）
+        $status_param = $this->params['status'] ?? '';
+        if ($status_param !== '') {
+            model('website')->update([ 'sh_status' => intval($status_param) ], [ 'site_id' => $website_id ]);
+        }
+
+        // 平台总开关（site_id = 0）为 1 时全站生效
+        $platform = model('website')->getInfo([ 'site_id' => 0 ], 'sh_status');
+        $status = !empty($platform) ? intval($platform['sh_status']) : 0;
+
+        // 平台总开关未开启时，按当前分站的设置生效
+        if ($status != 1 && !empty($website_id)) {
+            $website = model('website')->getInfo([ 'site_id' => $website_id ], 'sh_status');
+            if (!empty($website)) {
+                $status = intval($website[ 'sh_status' ]) == 1 ? 1 : 0;
+            }
+        }
+
+        return $this->response($this->success([ 'status' => $status ]));
     }
 }
