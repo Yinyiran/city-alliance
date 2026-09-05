@@ -7,7 +7,7 @@
 		<view class="part1">
 			<image src="/static/bg6.png" mode=""></image>
 			<image src="/static/t.png" mode=""></image>
-			<image src="/static/btn1.png" @click="$util.redirectTo('/otherpages/settle/settle')" mode=""></image>
+			<button open-type="contact" class="consult-btn">入驻咨询</button>
 			<view class="">{{ shop_num }}家</view>
 		</view>
 		<view class="acea-row row-middle parts">
@@ -276,13 +276,34 @@ page {
 		z-index: 2;
 	}
 
-	>image:nth-child(3) {
-		width: 276rpx;
-		height: 136rpx;
+	.consult-btn {
 		position: absolute;
 		right: 40rpx;
-		bottom: 18rpx;
+		bottom: 40rpx;
 		z-index: 2;
+		background: linear-gradient(135deg, #FF6633, #FF3B30);
+		color: #FFFFFF;
+		font-size: 26rpx;
+		font-weight: 500;
+		padding: 0 32rpx;
+		height: 60rpx;
+		line-height: 60rpx;
+		border-radius: 30rpx;
+		box-shadow: 0 4rpx 14rpx rgba(255, 59, 48, 0.3);
+		border: none;
+		margin: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
+		&::after {
+			border: none;
+		}
+
+		&:active {
+			opacity: 0.9;
+			transform: scale(0.98);
+		}
 	}
 
 	>view {

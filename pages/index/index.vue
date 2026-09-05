@@ -45,17 +45,20 @@
 					</view>
 				</view>
 			</view>
-			<view class="">
-				<uv-grid :col="5">
-					<uv-grid-item v-for="(item, index) in navlist" @click="gonext(item)" :key="index">
-						<image :src="$util.img(item.image)" class="m-t-32 w-80 h-80" mode=""></image>
-						<text class="m-t-16">{{ item.name }}</text>
-					</uv-grid-item>
-					<uv-grid-item @click="gonext('all')" :key="index">
-						<image src="/static/alls.png" class="m-t-32 w-80 h-80" mode=""></image>
-						<text class="m-t-16">全部品牌</text>
-					</uv-grid-item>
-				</uv-grid>
+			<view class="nav-grid-box">
+				<swiper class="nav-swiper" :style="{ height: gridSwiperHeight }" @change="onNavChange" :current="navCurrent">
+					<swiper-item v-for="(page, pageIdx) in navPages" :key="pageIdx">
+						<uv-grid :col="5">
+							<uv-grid-item v-for="(item, itemIdx) in page" :key="itemIdx" @click="onNavItemClick(item)">
+								<image :src="item.isAll ? item.image : $util.img(item.image)" class="m-t-32 w-80 h-80" mode="aspectFit"></image>
+								<text class="m-t-16">{{ item.name }}</text>
+							</uv-grid-item>
+						</uv-grid>
+					</swiper-item>
+				</swiper>
+				<view class="nav-dots" v-if="navPages.length > 1">
+					<view v-for="(p, pIdx) in navPages.length" :key="pIdx" :class="['nav-dot', { 'on': navCurrent == pIdx }]"></view>
+				</view>
 			</view>
 			<view class="part2 acea-row row-middle row-between">
 				<view class="" @click="gonext('douyins')">
@@ -119,7 +122,34 @@ export default {
 			select: -1,
 			clicknum: 0,
 			isManualCity: false,
-			isAskingLocation: false
+			isAskingLocation: false,
+			navCurrent: 0
+		}
+	},
+	computed: {
+		// 分页列表：最多显示三行（共15个位置），每页最后一个固定为“全部品牌”，其余14个来自 navlist
+		navPages() {
+			const list = this.navlist || [];
+			if (!list.length) {
+				return [[{ isAll: true, name: '全部品牌', image: '/static/alls.png' }]];
+			}
+			const pageSize = 14;
+			const pages = [];
+			for (let i = 0; i < list.length; i += pageSize) {
+				const chunk = list.slice(i, i + pageSize);
+				pages.push([
+					...chunk,
+					{ isAll: true, name: '全部品牌', image: '/static/alls.png' }
+				]);
+			}
+			return pages;
+		},
+		// 动态计算 swiper 高度（根据当前页的最大行数）
+		gridSwiperHeight() {
+			if (!this.navPages || !this.navPages.length) return '176rpx';
+			const maxCount = Math.max(...this.navPages.map(p => p.length));
+			const rows = Math.min(3, Math.ceil(maxCount / 5));
+			return (rows * 176) + 'rpx';
 		}
 	},
 	async onLoad(res) {
@@ -250,6 +280,16 @@ export default {
 				url: `/otherpages/cateGoods/cateGoods?id=${id}&name=${e.name}`
 			})
 		},
+		onNavItemClick(item) {
+			if (item.isAll) {
+				this.gonext('all');
+			} else {
+				this.gonext(item);
+			}
+		},
+		onNavChange(e) {
+			this.navCurrent = e.detail.current;
+		},
 		getUrlParams(url) {
 			// 创建参数对象
 			const params = {};
@@ -285,6 +325,7 @@ export default {
 			}
 			navList(params).then(res => {
 				this.navlist = res.data
+				this.navCurrent = 0
 			})
 		},
 		getareas() {
@@ -489,6 +530,35 @@ export default {
 	image {
 		width: 100%;
 		height: 100%;
+	}
+}
+
+.nav-grid-box {
+	position: relative;
+}
+
+.nav-swiper {
+	width: 100%;
+}
+
+.nav-dots {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 12rpx 0 8rpx;
+
+	.nav-dot {
+		width: 12rpx;
+		height: 8rpx;
+		background: #D8D8D8;
+		border-radius: 4rpx;
+		margin: 0 6rpx;
+		transition: all 0.3s;
+
+		&.on {
+			width: 28rpx;
+			background: #FF5500;
+		}
 	}
 }
 
