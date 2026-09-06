@@ -69,52 +69,97 @@ class Sign extends BaseApi
     /**
      * 用户签到
      */
-    public function getqrcode(Request $request){
-        require_once('./vendor/Weixin_1/WeapiOauth.php');
-        require_once('./vendor/Weixin_1/WXBizDataCrypt.php');
-        /*$token = $this->checkToken();
-        if ($token[ 'code' ] < 0) return $this->response($token);
-        $member_id=$token[ 'data' ][ 'member_id' ];*/
-        $member_id=2;
-         $currentUrl = "http://".$_SERVER['HTTP_HOST'];
-        $member=Db::name("member")->field("shop_sign_qrcode")->where("member_id",$member_id)->find();
-      
-        if(!empty($member["shop_sign_qrcode"])){
-           $result=[
-            'code'=>0,
-            "filepath"=>$member["shop_sign_qrcode"]
-           ];
-            return $this->response($result);
+    /**
+     * 用户签到码
+     */
+    public function getqrcode(Request $request)
+    {
+        $token = $this->checkToken();
+        if ($token['code'] < 0) return $this->response($token);
+        $member_id = $this->member_id;
+
+        if (empty($member_id)) {
+            return $this->response(['code' => -1, 'message' => '未获取到用户信息']);
         }
-         // 获取当前完整的URL
-        
-         $oauth = new \Weixin_1\WeapiOauth();
-         $scene="member_id=".$member_id;
-         $page="otherpages/signCode/signCode"; //地址待定
-         $data = '{"scene":"' . $scene . '","page":"' . $page . '","width":280}';
-         $appID="wx78e3faf3a96aadd2";
-         $appSecret="7414c95568a5ca4277cbc3b5e24da7bb";
-         $result=$oauth->create_qrcode($data,$appID,$appSecret);
-         $filename = "qrcode_" . $member_id . ".jpg";//要生成的图片名字
-         $IMG_PATH = "/public/qrcode";//保存服务器路径
-        if (file_exists('./'.$IMG_PATH .'/'. $filename)) { //存在返回图片路径
-            $filepath=$IMG_PATH .'/'. $filename;
-            $res=Db::name("member")->where(["member_id"=>$member_id])->update(["shop_sign_qrcode"=>$filepath]);
-              $result=[
-                'code'=>0,
-                "filepath"=>$member["shop_sign_qrcode"]
+
+        // 优先检查已存在的签到码缓存（必须物理文件真实存在且大于 1KB，避免微信错误 JSON）
+        $member = Db::name("member")->field("shop_sign_qrcode")->where("member_id", $member_id)->find();
+        if (!empty($member["shop_sign_qrcode"])) {
+            $existing_path = ltrim($member["shop_sign_qrcode"], '/');
+            if (file_exists($existing_path) && filesize($existing_path) > 1024) {
+                return $this->response([
+                    'code' => 0,
+                    'message' => '获取成功',
+                    'filepath' => $existing_path
+                ]);
+            }
+        }
+
+        $qrcode_dir = 'upload/qrcode/sign';
+        if (!is_dir($qrcode_dir)) {
+            mkdir($qrcode_dir, 0755, true);
+        }
+
+        $filename = 'sign_' . $member_id . '.png';
+        $full_relative_path = $qrcode_dir . '/' . $filename;
+        $is_success = false;
+
+        // 1. 优先尝试使用微信小程序官方接口生成小程序码
+        try {
+            $weapp = new Weapp();
+            $param = [
+                'data' => [
+                    'member_id' => $member_id
+                ],
+                'page' => 'otherpages/signCode/signCode',
+                'scene' => 'member_id=' . $member_id,
+                'width' => 280,
+                'qrcode_path' => $qrcode_dir,
+                'qrcode_name' => 'sign_' . $member_id,
+                'app_type' => 'weapp'
             ];
-            return $this->response($result);
+            $result = $weapp->createQrcode($param);
+            if ($result['code'] == 0 && !empty($result['data']['path'])) {
+                $saved_path = ltrim($result['data']['path'], '/');
+                if (file_exists($saved_path) && filesize($saved_path) > 1024) {
+                    $full_relative_path = $saved_path;
+                    $is_success = true;
+                }
+            }
+        } catch (\Exception $e) {
+            // 微信接口异常或配置不全
         }
-        $res = file_put_contents('./'.$IMG_PATH .'/'. $filename,$result);
-        $filepath=$IMG_PATH .'/'. $filename;
-        $res=Db::name("member")->where(["member_id"=>$member_id])->update(["shop_sign_qrcode"=>$filepath]);
-        $response=[
-            'code'=>0,
-            "filepath"=>$member["shop_sign_qrcode"]
-        ];
-        return $this->response($response);
-        
+
+        // 2. 兜底方案：如果微信接口失败（例如 token 失效、小程序页面未发布、微信未配置等）
+        // 使用内置的本地 QRcode 生成标准二维码，保证商户端扫码依然可用
+        if (!$is_success) {
+            try {
+                $qr_content = "member_id=" . $member_id;
+                \extend\QRcode::png($qr_content, $full_relative_path, 'L', 6, 1);
+                if (file_exists($full_relative_path) && filesize($full_relative_path) > 100) {
+                    $is_success = true;
+                }
+            } catch (\Exception $e) {
+                return $this->response([
+                    'code' => -1,
+                    'message' => '二维码生成失败: ' . $e->getMessage()
+                ]);
+            }
+        }
+
+        if ($is_success) {
+            Db::name("member")->where(["member_id" => $member_id])->update(["shop_sign_qrcode" => $full_relative_path]);
+            return $this->response([
+                'code' => 0,
+                'message' => '获取成功',
+                'filepath' => $full_relative_path
+            ]);
+        }
+
+        return $this->response([
+            'code' => -1,
+            'message' => '二维码生成失败'
+        ]);
     }
 
     //商户扫一扫 用户签到  商户通过扫描二维码得到二维码信息

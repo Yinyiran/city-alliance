@@ -84,10 +84,14 @@ class Weapp extends BaseModel
                     else $scene .= '&' . $key . '-' . $value;
                 }
             }
-            $response = $this->app->app_code->getUnlimit($scene, [
-                'page' => substr($param['page'], 1),
+            $page = !empty($param['page']) ? ltrim($param['page'], '/') : '';
+            $page_param = [
                 'width' => isset($param['width']) ? $param['width'] : 120
-            ]);
+            ];
+            if (!empty($page)) {
+                $page_param['page'] = $page;
+            }
+            $response = $this->app->app_code->getUnlimit($scene, $page_param);
 
             if ($response instanceof \EasyWeChat\Kernel\Http\StreamResponse) {
                 $filename = $param['qrcode_path'] . '/';
