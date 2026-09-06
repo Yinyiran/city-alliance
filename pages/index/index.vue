@@ -40,7 +40,7 @@
 					</view>
 				</view>
 				<view class="leftline">
-					<view class="">{{ usenum.use_num || 0 }} <text>人</text></view>
+					<view class="">{{ displayUseNum }} <text>人</text></view>
 					<view class="acea-row row-middle">使用人数
 					</view>
 				</view>
@@ -150,6 +150,17 @@ export default {
 			const maxCount = Math.max(...this.navPages.map(p => p.length));
 			const rows = Math.min(3, Math.ceil(maxCount / 5));
 			return (rows * 176) + 'rpx';
+		},
+		// 使用人数：真实人数同后台倍数参数相乘，并向上取整
+		displayUseNum() {
+			if (!this.usenum) return 0;
+			// 优先使用真实人数 * 倍数 向上取整
+			if (this.usenum.real_use_num !== undefined && this.usenum.use_num_factor !== undefined) {
+				const realNum = Number(this.usenum.real_use_num) || 0;
+				const factor = Number(this.usenum.use_num_factor) || 1;
+				return Math.ceil(realNum * factor);
+			}
+			return Math.ceil(Number(this.usenum.use_num) || 0);
 		}
 	},
 	async onLoad(res) {

@@ -49,8 +49,14 @@
 			},
 			getqrcode(){
 				getqrcode().then(res=>{
-					this.filepath=res.filepath
-				})
+					if (res.code == 0 && res.filepath) {
+						this.filepath = res.filepath;
+					} else if (res.message) {
+						uni.showToast({ title: res.message, icon: 'none' });
+					}
+				}).catch(() => {
+					uni.showToast({ title: '获取签到码失败', icon: 'none' });
+				});
 			},
 		}
 	}
