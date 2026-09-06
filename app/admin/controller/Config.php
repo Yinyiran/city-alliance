@@ -44,6 +44,7 @@ class Config extends BaseAdmin
                 'wap_domain' => input('wap_domain', ''), // 手机端域名
                 'web_domain' => input('web_domain', ''), // 电脑端域名
                 'yao_point' => input('yao_point'), //邀请好友送积分数
+                'use_num_factor' => input('use_num_factor', 1), //使用人数倍数
                 'mini_name' => input('mini_name'), //小程序名称
                 'mini_image' => input('mini_image'), //小程序logo
             ];

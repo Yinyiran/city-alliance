@@ -14,11 +14,37 @@ class Api extends BaseModel
     {
         //入驻商家数
         $shop_num = $this->joinShopNum($data['website_id']);
-        $use_num = $this->UseNum($data['website_id']);
+        $factor = $this->getUseNumFactor();
+        $real_use_num = $this->realUseNum($data['website_id']);
+        $use_num = (int)ceil($real_use_num * $factor);
+
         return $this->success([
             'shop_num' => $shop_num,
             'use_num' => $use_num,
+            'real_use_num' => $real_use_num,
+            'use_num_factor' => $factor,
         ]);
+    }
+
+    //获取后台倍数设置
+    public function getUseNumFactor()
+    {
+        $website_info = model('website')->getInfo([['site_id', '=', 0]], 'use_num_factor');
+        $factor = 1;
+        if (!empty($website_info) && isset($website_info['use_num_factor']) && (float)$website_info['use_num_factor'] > 0) {
+            $factor = (float)$website_info['use_num_factor'];
+        }
+        return $factor;
+    }
+
+    //获取真实使用人数
+    public function realUseNum($website_id)
+    {
+        $condition = [];
+        if (!empty($website_id)) {
+            $condition[] = ['website_id', '=', $website_id];
+        }
+        return model('member')->getCount($condition);
     }
 
     //计算入驻商家数
@@ -31,10 +57,13 @@ class Api extends BaseModel
         return model('shop')->getCount($condition);
     }
 
-    //计算使用人数
+    //计算使用人数（相乘并向上取整）
     public function UseNum($website_id)
     {
-        return model('member')->getCount(['website_id'=>$website_id]);
+        $real_count = $this->realUseNum($website_id);
+        $factor = $this->getUseNumFactor();
+
+        return (int)ceil($real_count * $factor);
     }
 
     //导航
