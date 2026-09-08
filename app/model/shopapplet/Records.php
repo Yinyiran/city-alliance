@@ -84,15 +84,14 @@ class Records extends BaseModel{
                 ->paginate($page_size);
         $data=$list->items();
         foreach($data as $key => $val){
-            $val["sign_time"]=date("Y-m-d H:i:s",$val["sign_time"]);
+            $val["sign_time"] = !empty($val["sign_time"]) ? (is_numeric($val["sign_time"]) ? date("Y-m-d H:i:s", $val["sign_time"]) : $val["sign_time"]) : '';
             $data[$key]=$val;
         }
         $result=[
-        'count'=>$data,
-        'list'=>$list->items(),
-        'page_count'=>ceil($list->total() / $page_size),
-       
-    ];
+            'count'=>$list->total(),
+            'list'=>$data,
+            'page_count'=>ceil($list->total() / $page_size),
+        ];
         return $this->success($result);
     }
 
