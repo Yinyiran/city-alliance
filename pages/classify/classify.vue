@@ -61,7 +61,7 @@
 				<view class="acea-row row-middle row-between p-24 a-b">
 					<text>名称</text>
 					<view class="acea-row row-middle row-between">
-						<view class="acea-row row-middle w-116 m-r-32" @click="sets(1)">
+						<view class="acea-row row-middle w-116 m-r-20 row-center" @click="sets(1)">
 							<text>累计签到</text>
 							<image src="/static/icon1.png" v-if="sort == 0" class="w-16 h-16 m-l-4" mode=""></image>
 							<template v-if="sort > 0">
@@ -69,7 +69,7 @@
 								<image src="/static/down.png" v-else class="w-16 h-16" mode=""></image>
 							</template>
 						</view>
-						<view class="acea-row row-middle w-140 row-right" @click="sets(2)">
+						<view class="acea-row row-middle w-260 row-right" @click="sets(2)">
 							<text>签到时间</text>
 							<image src="/static/icon1.png" v-if="sort1 == 0" class="w-16 h-16 m-l-4" mode=""></image>
 							<template v-if="sort1 > 0">
@@ -89,10 +89,11 @@
 						</view>
 					</view>
 					<view class="acea-row row-middle">
-						<view class="">{{ item.signcount }}</view>
-						<view class="">{{ item.sign_time }}</view>
+						<view class="sign-count-val">{{ item.signcount }}</view>
+						<view class="sign-time-val">{{ formatSignTime(item.sign_time) }}</view>
 					</view>
 				</view>
+				<uv-empty v-if="!list.length" text="暂无签到明细" mode="data" marginTop="30"></uv-empty>
 			</view>
 		</view>
 
@@ -272,6 +273,26 @@ export default {
 			}
 			this.signlist()
 		},
+		formatSignTime(val) {
+			if (!val) return '--';
+			if (typeof val === 'string' && (val.includes('-') || val.includes('/'))) {
+				return val;
+			}
+			let num = Number(val);
+			if (!isNaN(num) && num > 0) {
+				if (String(num).length === 10) num *= 1000;
+				const d = new Date(num);
+				if (isNaN(d.getTime())) return String(val);
+				const Y = d.getFullYear();
+				const M = String(d.getMonth() + 1).padStart(2, '0');
+				const D = String(d.getDate()).padStart(2, '0');
+				const h = String(d.getHours()).padStart(2, '0');
+				const m = String(d.getMinutes()).padStart(2, '0');
+				const s = String(d.getSeconds()).padStart(2, '0');
+				return `${Y}-${M}-${D} ${h}:${m}:${s}`;
+			}
+			return val;
+		},
 		seachs() {
 			this.signlist()
 		},
@@ -398,27 +419,33 @@ export default {
 	z-index: -1;
 }
 
+.w-260 {
+	width: 260rpx;
+}
+
 .items {
 	background: #F5F5F5;
 	margin-bottom: 20rpx;
 	border-radius: 12rpx;
 
 	>view:last-child {
-		>view:first-child {
+		.sign-count-val {
 			width: 116rpx;
-			margin-right: 32rpx;
+			margin-right: 20rpx;
 			font-weight: 600;
 			font-size: 28rpx;
 			color: #222222;
+			text-align: center;
 		}
 
-		>view:last-child {
-			width: 140rpx;
-			height: 68rpx;
+		.sign-time-val {
+			width: 260rpx;
 			font-family: PingFangSC, PingFang SC;
 			font-weight: 400;
-			font-size: 24rpx;
+			font-size: 22rpx;
 			color: #999999;
+			text-align: right;
+			white-space: nowrap;
 		}
 	}
 }
