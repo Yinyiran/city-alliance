@@ -12,9 +12,9 @@ use app\model\shopapplet\MemberRank as MemberRankModel;
 
 class My extends Common
 {
-    protected $orderModel;
-    protected $site_id;
-    protected $remember_rank_model;
+    public $orderModel;
+    public $site_id;
+    public $remember_rank_model;
 
 
 /**

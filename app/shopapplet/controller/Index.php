@@ -18,14 +18,14 @@ use app\model\shopapplet\ShopAccount as ShopAccountModel;
 
 class Index extends Common
 {
-    protected $site_id;
-    protected $member_id=1;
-    protected $employeeModel;
-    protected $shopModel;
-    protected $city_id='';
-    protected $websiteModel;
-    protected $shopinfo=[];
-    protected $shopaccountModel;
+    public $site_id;
+    public $member_id=1;
+    public $employeeModel;
+    public $shopModel;
+    public $city_id='';
+    public $websiteModel;
+    public $shopinfo=[];
+    public $shopaccountModel;
 
 
     public function __construct()
@@ -34,11 +34,15 @@ class Index extends Common
         parent::__construct();
         
         $this->employeeModel = new ShopEmployeeModel();
-        $this->websiteModel=new WebsiteModel();
-        $this->shopModel=new ShopModel();
-        $this->shopaccountModel=new ShopAccountModel();
-        $this->site_id=session("site_id");
-        //$this->member_id=session("member_id");
+        $this->websiteModel = new WebsiteModel();
+        $this->shopModel = new ShopModel();
+        $this->shopaccountModel = new ShopAccountModel();
+        if (empty($this->site_id)) {
+            $this->site_id = session("site_id") ?: ($this->params['site_id'] ?? 0);
+        }
+        if (empty($this->city_id)) {
+            $this->city_id = session("city_id") ?: 0;
+        }
         
 
     }

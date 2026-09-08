@@ -16,14 +16,14 @@ use app\model\shopapplet\ShopAccount as ShopAccountModel;
  */
 class Merchant extends Common
 {
-    protected $site_id;
-    protected $member_id=1;
-    protected $employeeModel;
-    protected $shopModel;
-    protected $city_id='';
-    protected $websiteModel;
-    protected $shopinfo=[];
-    protected $shopaccountModel;
+    public $site_id;
+    public $member_id=1;
+    public $employeeModel;
+    public $shopModel;
+    public $city_id='';
+    public $websiteModel;
+    public $shopinfo=[];
+    public $shopaccountModel;
 
 
     public function __construct()
