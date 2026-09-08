@@ -59,6 +59,7 @@
 						<text class="font-22" style="color: #222;">{{item.create_time}}</text>
 					</view>
 				</view>
+				<uv-empty v-if="!list.length" text="暂无积分明细" mode="data" marginTop="40"></uv-empty>
 			</view>
 		</view>
 	</view>
@@ -83,8 +84,15 @@
 			};
 		},
 		onShow() {
+			this.page = 1
 			this.getinfo()
 			this.userinfo()
+		},
+		onReachBottom() {
+			if (this.last_page > this.page) {
+				this.page++
+				this.getinfo()
+			}
 		},
 		methods: {
 			change(index) {
@@ -103,8 +111,9 @@
 					point_type: this.current
 				}
 				pointAccount(params).then(res => {
-					this.list = this.page > 1 ? this.list.concat(...res.data.list) : res.data.list
-					this.last_page = res.data.page_count
+					const newList = res.data && res.data.list ? res.data.list : []
+					this.list = this.page > 1 ? this.list.concat(newList) : newList
+					this.last_page = (res.data && res.data.page_count) || 1
 				})
 			},
 		}
@@ -162,7 +171,8 @@
 
 	.container {
 		background: #f5f5f5;
-		height: 200rpx;
+		min-height: calc(100vh - 224rpx);
+		box-sizing: border-box;
 		border-radius: 24rpx 24rpx 0rpx 0rpx;
 		padding: 32rpx;
 	}

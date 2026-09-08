@@ -33,7 +33,7 @@
 				<image src="/static/ob.png" v-else mode=""></image>
 				<view class="relative" :class="{fcolor:infos.member_level==4}">{{infos.member_level_name||'普通会员'}}
 				</view>
-				<view class="font-weight-6 m-t-12 relative " :class="{fcolor:infos.member_level==4}"><text
+				<view class="font-weight-6 m-t-12 relative " @click="gonext('myPoint')" :class="{fcolor:infos.member_level==4}"><text
 						class="font-weight-4 m-r-6 relative" :class="{fcolor:infos.member_level==4}">积分</text>{{infos.point||0}}
 				</view>
 				<view class="w-360 m-t-8 g-8">
@@ -50,7 +50,7 @@
 				</view>
 				<view class="linea"></view>
 				<view class="m-t-16 acea-row row-middle row-between">
-					<view class="">
+					<view class="" @click="gonext('myPoint')">
 						<view class="acea-row row-middle relative m-t-12" :class="{fcolor:infos.member_level==4}">
 							我的积分
 							<uv-icon name="arrow-right" :color="infos.member_level==4?'#FAD5B4':'#fff'"
