@@ -10,28 +10,76 @@
 			</view>
 			<view class="m-t-12" style="color: #999;">请在23小时59分钟内完成支付，逾期将会自动取消订单</view>
 		</view>
-		<view class="acea-row row-middle row-center row-column status status2" v-if="info.order_status==1">
+		<view class="acea-row row-middle row-center row-column status status2" v-else-if="info.order_status==1">
 			<view class="acea-row row-middle">
 				<image src="/static/pay1.png" class="w-36 h-36 m-r-12" mode=""></image>
 				已支付
 			</view>
-			<view class="m-t-12" style="color: #999;">订单已支付，正在配送中，请耐心等待</view>
+			<view class="m-t-12" style="color: #999;">订单已支付，请前往门店出示核销码提货</view>
 		</view>
-		<view class="acea-row row-middle row-center row-column status status1" v-if="info.order_status==-1">
+		<view class="acea-row row-middle row-center row-column status status-pending" v-else-if="info.order_status==2">
+			<view class="acea-row row-middle" style="color: #FE780F;">
+				<uv-icon name="scan" size="20" color="#FE780F"></uv-icon>
+				<text class="m-l-8">待核销</text>
+			</view>
+			<view class="m-t-12" style="color: #999;">请向商家出示下方核销码进行提货核销</view>
+		</view>
+		<view class="acea-row row-middle row-center row-column status status-verified" v-else-if="isOrderVerified">
+			<view class="acea-row row-middle" style="color: #25B85B;">
+				<uv-icon name="checkmark-circle" size="20" color="#25B85B"></uv-icon>
+				<text class="m-l-8">已核销</text>
+			</view>
+			<view class="m-t-12" style="color: #999;">订单商品已完成核销，感谢您的光临</view>
+		</view>
+		<view class="acea-row row-middle row-center row-column status status1" v-else-if="info.order_status==-1">
 			<view class="acea-row row-middle" style="color: #222222;">
 				<uv-icon name="close-circle" size="18" color="#222"></uv-icon>
-				<!-- <image src="/static/pay.png" class="w-36 h-36 m-r-12" mode=""></image> -->
 				已关闭
 			</view>
 			<view class="m-t-12" style="color: #999;">订单已关闭</view>
 		</view>
+
+		<!-- 核销二维码模块 -->
+		<view class="verify-card" v-if="canShowVerifyCode">
+			<view class="verify-header acea-row row-middle row-between">
+				<view class="acea-row row-middle">
+					<image src="/static/img2.png" class="w-36 h-36 m-r-12" mode=""></image>
+					<text class="verify-title">提货核销码</text>
+				</view>
+				<view class="verify-badge">到店出示</view>
+			</view>
+			<view class="verify-body acea-row row-column row-center row-middle">
+				<view class="qrcode-box">
+					<uv-qrcode ref="qrcode" :value="qrValue" size="340rpx" :loading="qrLoading"></uv-qrcode>
+				</view>
+				<view class="verify-code-num acea-row row-middle m-t-20">
+					<text class="code-text">{{ formatCode(verifyCode) }}</text>
+					<view class="refresh-btn acea-row row-middle m-l-16" @click="fetchVerifyCode">
+						<uv-icon name="reload" size="14" color="#FF6600"></uv-icon>
+						<text class="m-l-4">刷新</text>
+					</view>
+				</view>
+				<view class="verify-tips m-t-16 acea-row row-middle">
+					<uv-icon name="info-circle" size="13" color="#999999"></uv-icon>
+					<text class="m-l-6">向商家出示此码核销，每次进入自动更新</text>
+				</view>
+			</view>
+		</view>
+
+		<!-- 已核销卡片 -->
+		<view class="verify-card verified-card" v-else-if="isOrderVerified">
+			<view class="verified-body acea-row row-column row-center row-middle">
+				<view class="verified-stamp acea-row row-middle row-center">
+					<uv-icon name="checkbox-mark" size="22" color="#25B85B"></uv-icon>
+					<text class="m-l-8">已核销</text>
+				</view>
+				<view class="verified-desc m-t-16">该订单商品已完成线下核销提货</view>
+			</view>
+		</view>
+
 		<view class="address p-32 bor-24" v-if="info.goods_type==1&&info.is_admin==1">
 			<view class="acea-row row-middle row-between">
-				<view class="">我的收获地址</view>
-				<!-- <view class="acea-row row-middle">
-					<image src="/static/edit.png" class="w-24 h-24 m-r-4" mode=""></image>
-					切换收货地址
-				</view> -->
+				<view class="">我的收货地址</view>
 			</view>
 			<view class="">
 				<view class="">{{info.name}} {{info.mobile}}</view>
@@ -49,7 +97,7 @@
 						</view>
 					</view>
 				</view>
-				<view class="acea-row row-middle m-t-28 row-between" v-for="(item,index) in info.order_goods">
+				<view class="acea-row row-middle m-t-28 row-between" v-for="(item,index) in info.order_goods" :key="index">
 					<image :src="$util.img(item.sku_image)" class="w-140 h-140 bor-16" mode=""></image>
 					<view class="widths h-140 acea-row row-between row-column" style="flex-wrap: nowrap;">
 						<view class="font-28 text-more-2">{{item.sku_name}}</view>
@@ -65,7 +113,13 @@
 								</template>
 								<view class="nums m-l-20">x{{item.num}}</view>
 							</view>
-							<view class="" v-if="item.refund_status == 0 || item.refund_status == -1"
+							<view class="" v-if="item.delivery_status == 1 || isOrderVerified">
+								<view class="order-goods-tag-verified">已核销</view>
+							</view>
+							<view class="" v-else-if="info.order_status == 2">
+								<view class="order-goods-tag-pending">待核销</view>
+							</view>
+							<view class="" v-else-if="item.refund_status == 0 || item.refund_status == -1"
 								@click="goRefund(item.order_goods_id)">退款</view>
 							<view @click="goRefundDetail(item.order_goods_id)" v-else>
 								<view class="order-box-btn">查看退款</view>
@@ -156,31 +210,77 @@
 <script>
 	import {
 		orderDetail,
-		huifupay
+		huifupay,
+		getVerifyCode
 	} from '@/common/js/api.js';
 	export default {
 		data() {
 			return {
 				check: 0,
 				id: '',
-				info: {}
+				info: {},
+				verifyCode: '',
+				qrLoading: false
 			};
 		},
 		onLoad(res) {
 			this.id = res.id
 			this.getinfo()
 		},
+		onShow() {
+			if (this.info && this.canShowVerifyCode) {
+				this.fetchVerifyCode();
+			}
+		},
 		computed: {
+			isOrderVerified() {
+				return this.info.order_status == 4 || this.info.order_status == 10 || (this.info.delivery_status == 1 && this.info.order_status != 0);
+			},
+			canShowVerifyCode() {
+				if (this.isOrderVerified) return false;
+				if (this.info.order_status == -1) return false;
+				if (this.info.order_status == 0 && this.info.pay_status == 0) return false;
+				return this.info.order_status == 1 || this.info.order_status == 2 || this.info.pay_status == 1;
+			},
+			qrValue() {
+				return this.verifyCode || this.info.delivery_code || this.info.order_no || '';
+			},
 			bgcolor() {
 				if (this.info.order_status == 0) {
 					return '#FFF0EB'
 				} else if (this.info.order_status == 1) {
 					return '#EAFEF1'
+				} else if (this.info.order_status == 2) {
+					return '#FFF7EE'
+				} else if (this.isOrderVerified) {
+					return '#F0F9EB'
 				}
 				return '#fff'
 			},
 		},
 		methods: {
+			formatCode(code) {
+				if (!code) return '';
+				return code.replace(/(.{4})/g, '$1 ').trim();
+			},
+			fetchVerifyCode() {
+				if (!this.id) return;
+				this.qrLoading = true;
+				getVerifyCode({
+					order_id: this.id
+				}).then(res => {
+					this.qrLoading = false;
+					if (res.code == 0 && res.data) {
+						this.verifyCode = res.data.verify_code;
+						if (res.data.is_verify) {
+							this.info.order_status = 4;
+							this.info.delivery_status = 1;
+						}
+					}
+				}).catch(() => {
+					this.qrLoading = false;
+				});
+			},
 			goRefundDetail(id) {
 				this.$util.redirectTo('/otherpages/refund_detail/refund_detail', {
 					order_goods_id: id
@@ -221,8 +321,11 @@
 					order_id: this.id
 				}
 				orderDetail(params).then(res => {
-					this.info = res.data
-				})
+					this.info = res.data;
+					if (this.canShowVerifyCode) {
+						this.fetchVerifyCode();
+					}
+				});
 			},
 		}
 	}
@@ -483,5 +586,127 @@
 				margin-top: 12rpx;
 			}
 		}
+	}
+
+	.status-pending {
+		background: linear-gradient(180deg, #FFF7EE 0%, #F5F5F5 100%);
+		>view:first-child {
+			color: #FE780F;
+		}
+	}
+
+	.status-verified {
+		background: linear-gradient(180deg, #F0F9EB 0%, #F5F5F5 100%);
+		>view:first-child {
+			color: #25B85B;
+		}
+	}
+
+	.verify-card {
+		background: #ffffff;
+		border-radius: 24rpx;
+		margin: 20rpx 24rpx;
+		padding: 32rpx;
+		box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04);
+
+		.verify-header {
+			padding-bottom: 24rpx;
+			border-bottom: 1rpx dashed #EEEEEE;
+
+			.verify-title {
+				font-size: 32rpx;
+				font-weight: 600;
+				color: #222222;
+			}
+
+			.verify-badge {
+				font-size: 22rpx;
+				color: #FF6600;
+				background: #FFF0E5;
+				padding: 6rpx 16rpx;
+				border-radius: 20rpx;
+				font-weight: 500;
+			}
+		}
+
+		.verify-body {
+			padding-top: 32rpx;
+
+			.qrcode-box {
+				padding: 20rpx;
+				background: #ffffff;
+				border: 1rpx solid #F0F0F0;
+				border-radius: 16rpx;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+
+			.verify-code-num {
+				.code-text {
+					font-size: 36rpx;
+					font-weight: 700;
+					color: #222222;
+					letter-spacing: 2rpx;
+				}
+
+				.refresh-btn {
+					font-size: 24rpx;
+					color: #FF6600;
+					background: #FFF4EC;
+					padding: 6rpx 16rpx;
+					border-radius: 24rpx;
+				}
+			}
+
+			.verify-tips {
+				font-size: 22rpx;
+				color: #999999;
+			}
+		}
+	}
+
+	.verified-card {
+		background: #ffffff;
+		border: 1rpx solid #E1F3D8;
+
+		.verified-body {
+			padding: 40rpx 20rpx;
+
+			.verified-stamp {
+				padding: 12rpx 32rpx;
+				background: #F0F9EB;
+				border: 2rpx solid #25B85B;
+				border-radius: 36rpx;
+				color: #25B85B;
+				font-size: 32rpx;
+				font-weight: 600;
+			}
+
+			.verified-desc {
+				font-size: 26rpx;
+				color: #666666;
+			}
+		}
+	}
+
+	.order-goods-tag-verified {
+		font-size: 22rpx;
+		color: #25B85B;
+		background: #F0F9EB;
+		border: 1rpx solid #B8E894;
+		border-radius: 8rpx;
+		padding: 4rpx 14rpx;
+		font-weight: 500;
+	}
+
+	.order-goods-tag-pending {
+		font-size: 22rpx;
+		color: #FE780F;
+		background: #FFF7EE;
+		border: 1rpx solid #FFD9B3;
+		border-radius: 8rpx;
+		padding: 4rpx 14rpx;
+		font-weight: 500;
 	}
 </style>

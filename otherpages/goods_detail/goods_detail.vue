@@ -117,7 +117,7 @@
 					<view class="">加入购物车</view>
 				</view>
 				<view class="btn btn1" @click="buyit">立即购买
-					<view class="text-more" v-if="info.fan_point>0&&goods_type!=2">积分+{{info.fan_point.split('.')[0]}}</view>
+					<view class="text-more" v-if="info.fan_point>0&&goods_type!=2">积分+{{parseInt(info.fan_point)}}</view>
 				</view>
 				<view class="btn" @click="buyit" v-if="goods_type!=1">立即兑换</view>
 			</view>

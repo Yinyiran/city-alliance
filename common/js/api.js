@@ -181,3 +181,5 @@ export const websiteStore=params=>server('/api/store/websiteStore',params)
 export const shareAdd=params=>server('/api/video/shareAdd',params)
 //审核
 export const reviewStatus=params=>server('/api/api/reviewStatus',params)
+//获取/刷新订单动态核销码
+export const getVerifyCode=params=>server('/api/order/verifyCode',params)
