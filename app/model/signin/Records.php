@@ -91,130 +91,161 @@ class Records extends BaseModel
         return $this->success($list);
     }
 
-    //店铺签到
-    //签到一轮完成后进行下一轮签到 判断依据 rounds
-    public function shopsignin($member_id,$shop_id){
-        $membermodel=new MemberModel();
-        $rulesmodel=new RulesModel();
-        Db::name("sign_member_record")->startTrans();
-        Db::name("member")->startTrans();
-         //获取用户已经签到天数  
-         $condition[]=["member_id",'=',$member_id];
-         $member=$membermodel->getMemberInfo($condition);
-         if(empty($member)){//如果用户不存在  则提示用户不存在
-             return $this->error("请扫描有效二维码");
-         }
+    // 店铺签到
+    // 签到一轮完成后进行下一轮签到 判断依据 rounds
+    // 规则限制：每个月每家店只能签到一次
+    public function shopsignin($member_id, $shop_id)
+    {
+        $membermodel = new MemberModel();
+        $rulesmodel = new RulesModel();
 
-         $shop_sign_round=$member["data"]["shop_sign_round"];//用户进行第几轮签到
-         $member_sign=Db::name("sign_member_record")->field("count(member_id) as sign_days,sign_rounds")->where(["member_id"=>$member_id,"sign_rounds"=>$shop_sign_round])->group("sign_rounds")->find();
-         
-        if(!empty($member_sign)){
-            $sign_days=$member_sign["sign_days"];
-            $shop_sign_round=$member_sign["sign_rounds"];
-        }else{
-            $sign_days=0;
-            $shop_sign_round=1;
+        // 1. 校验会员是否存在
+        $condition = [["member_id", '=', $member_id]];
+        $member = $membermodel->getMemberInfo($condition);
+        if (empty($member) || empty($member["data"])) {
+            return error(-1, "会员信息不存在，请扫描有效二维码");
         }
-         //判断是否签够指定天数
-         $count=$rulesmodel->getCount();//获取签到规则表中签到规则的总条数
-        
-         if($sign_days>=$count){
-            $shop_sign_round=$shop_sign_round+1;//开始下一轮签到
-            $sign_days=0;
-         }
-         
-         $need_day=$sign_days+1;
-         $rulesinfo=$rulesmodel->getrules($need_day);
-         if(empty($rulesinfo)){//判断签到规则是否存在
-             return $this->error("签到规则不存在");
-         }
-         $condition="member_id=".$member_id." and DATE(FROM_UNIXTIME(create_time))=CURDATE()";
-         $res=Db::name("sign_member_record")->where($condition)->find();
-        
-         if(!empty($res)){
-            return $this->error("今天已经签到，等待明天继续签到");
-         }
 
-         $condition=["member_id"=>$member_id,"sign_day"=>$need_day];
-         $res=Db::name("sign_member_record")->where($condition)->find();
-        
-         if(!empty($res)){
-             return $this->error("您已经签到过了");
-         }
-         $res=Db::name("sign_member_record")->where(["member_id"=>$member_id,"shop_id"=>$shop_id])->find();
-         if(!empty($res)){
-             return $this->error("在同一个商户只能签到一次，不能重复操作");
-         }
-         try{
-            
-            $rewardtxt=$rulesinfo["reward_value"].$rulesinfo["reward_typename"];
-            $datarecord=[
-             "member_id"=>$member_id,
-             "shop_id"=>$shop_id,
-             "rewardtxt"=>$rewardtxt,//签到奖励内容
-             "rewardname"=>$rulesinfo["reward_typename"],
-             "rewardtype"=>$rulesinfo["reward_type"],
-             "rewardnum"=>$rulesinfo["reward_value"],
-             "rules_id"=>$rulesinfo['rules_id'],
-             'sign_day'=>$need_day,
-             'sign_rounds'=>$shop_sign_round,
-             'goods_id'=>$rulesinfo["goods_id"],
-             'create_time'=>time()
-         ];
-         
-         $res=Db::name("sign_member_record")->insertGetId($datarecord);//添加签到记录
-       
-         $record_id=$res;
-         if($res>0){
-            $res=Db::name("member")->where(["member_id"=>$member_id])->update(["shop_sign_days"=>$need_day,"shop_sign_round"=>$shop_sign_round]);//更新用户签到天数
-            if($res>0){//如果更新成功
-                //处理用户剩余积分 余额 大礼包
-              $memberaccountmodel=new MemberAccountModel();
-                $reward_value=$rulesinfo["reward_value"];
-                $rewardtype=$rulesinfo["reward_type"];
-                $goods_id=$rulesinfo["goods_id"];
+        // 2. 核心限制：每个月每家店只能签到一次（按当前自然月）
+        $current_month_start = strtotime(date('Y-m-01 00:00:00'));
+        $current_month_end = strtotime(date('Y-m-t 23:59:59'));
 
-                switch($rewardtype){
-                    case 1:
-                        //积分
-                        $res=$memberaccountmodel->addMemberAccount($member_id, "point", $reward_value, "shop_signin", "商铺签到奖励积分", "用户商铺签到奖励积分+10分");
-                        break;
-                    case 2:
-                        //现金
-                        $res=$memberaccountmodel->addMemberAccount($member_id, "balance", 10, "shop_signin", "商铺签到奖励现金", "用户商铺签到奖励现金+10元");
-                        break;
-                    case 3:
-                        //大礼包
-                        //生成大礼包订单
-                        $result=$this->signincreate($member_id,$goods_id);
-                         
-                        if($result["code"]==0){
-                            $order_out_trade=$result["data"];
-                            $orderinfo=Db::name("order")->field("order_id,out_trade_no")->where("out_trade_no",$order_out_trade)->find();
-                            if(!empty($orderinfo)){
-                                Db::name("sign_member_record")->where("signin_id",$record_id)->update(["order_id"=>$orderinfo["order_id"]]);
-                            }
-                            $res=1;
-                        }else{
-                            $res=0;
-                        }
-                }
-                if($res>0){
-                    Db::name("sign_member_record")->commit();
-                    Db::name("member")->commit();
-                    return $this->success("签到成功");
-                }
+        $month_shop_record = Db::name("sign_member_record")
+            ->where([
+                ["member_id", "=", $member_id],
+                ["shop_id", "=", $shop_id],
+                ["create_time", "between", [$current_month_start, $current_month_end]]
+            ])
+            ->order("create_time desc")
+            ->find();
+
+        if (!empty($month_shop_record)) {
+            $sign_time_str = !empty($month_shop_record['create_time']) ? date('m月d日 H:i', $month_shop_record['create_time']) : '本月';
+            return error(-1, "该会员本月已在当前门店完成签到（签到时间：{$sign_time_str}），每个月每家店只能签到一次，下月可再次签到");
+        }
+
+        // 3. 校验今天是否已在平台签到过（每天限签1次）
+        $today_start = strtotime(date('Y-m-d 00:00:00'));
+        $today_end = strtotime(date('Y-m-d 23:59:59'));
+
+        $today_record = Db::name("sign_member_record")
+            ->where([
+                ["member_id", "=", $member_id],
+                ["create_time", "between", [$today_start, $today_end]]
+            ])
+            ->find();
+
+        if (!empty($today_record)) {
+            return error(-1, "该会员今天已经签到过了，请明天再来继续签到");
+        }
+
+        // 4. 获取会员当前轮次及已签天数
+        $shop_sign_round = !empty($member["data"]["shop_sign_round"]) ? (int)$member["data"]["shop_sign_round"] : 1;
+        $member_sign = Db::name("sign_member_record")
+            ->field("count(member_id) as sign_days, sign_rounds")
+            ->where(["member_id" => $member_id, "sign_rounds" => $shop_sign_round])
+            ->group("sign_rounds")
+            ->find();
+
+        if (!empty($member_sign)) {
+            $sign_days = (int)$member_sign["sign_days"];
+            $shop_sign_round = (int)$member_sign["sign_rounds"];
+        } else {
+            $sign_days = 0;
+            $shop_sign_round = max(1, $shop_sign_round);
+        }
+
+        // 判断是否签够当前轮次的指定总天数，若满则开启下一轮
+        $count = $rulesmodel->getCount();
+        if ($count > 0 && $sign_days >= $count) {
+            $shop_sign_round = $shop_sign_round + 1;
+            $sign_days = 0;
+        }
+
+        $need_day = $sign_days + 1;
+        $rulesinfo = $rulesmodel->getrules($need_day);
+        if (empty($rulesinfo)) {
+            return error(-1, "未获取到第{$need_day}天的签到规则配置");
+        }
+
+        // 5. 校验当前轮次该天数是否已签过
+        $day_exist = Db::name("sign_member_record")->where([
+            "member_id" => $member_id,
+            "sign_rounds" => $shop_sign_round,
+            "sign_day" => $need_day
+        ])->find();
+        if (!empty($day_exist)) {
+            return error(-1, "该轮第{$need_day}天已签到，请勿重复操作");
+        }
+
+        // 6. 开启事务写入签到记录及发放奖励
+        Db::startTrans();
+        try {
+            $rewardtxt = $rulesinfo["reward_value"] . $rulesinfo["reward_typename"];
+            $datarecord = [
+                "member_id" => $member_id,
+                "shop_id" => $shop_id,
+                "rewardtxt" => $rewardtxt,
+                "rewardname" => $rulesinfo["reward_typename"],
+                "rewardtype" => $rulesinfo["reward_type"],
+                "rewardnum" => $rulesinfo["reward_value"],
+                "rules_id" => $rulesinfo['rules_id'],
+                'sign_day' => $need_day,
+                'sign_rounds' => $shop_sign_round,
+                'goods_id' => $rulesinfo["goods_id"],
+                'create_time' => time()
+            ];
+
+            $record_id = Db::name("sign_member_record")->insertGetId($datarecord);
+            if (!$record_id) {
+                Db::rollback();
+                return error(-1, "签到记录创建失败");
             }
-         }else{
-            Db::name("sign_member_record")->rollback();
-            Db::name("member")->rollback(); 
-            return $this->error("签到失败");
-         }
-         
-        }catch(\Exception $e){
-             Db::name("sign_member_record")->rollback();
-            Db::name("member")->rollback(); 
-            return $this->error("签到失败");
+
+            // 更新用户签到天数和轮次
+            Db::name("member")->where(["member_id" => $member_id])->update([
+                "shop_sign_days" => $need_day,
+                "shop_sign_round" => $shop_sign_round
+            ]);
+
+            // 处理签到奖励（积分、现金余额、大礼包）
+            $memberaccountmodel = new MemberAccountModel();
+            $reward_value = $rulesinfo["reward_value"];
+            $rewardtype = $rulesinfo["reward_type"];
+            $goods_id = $rulesinfo["goods_id"];
+
+            switch ($rewardtype) {
+                case 1:
+                    // 积分奖励
+                    $memberaccountmodel->addMemberAccount($member_id, "point", $reward_value, "shop_signin", "商铺签到奖励积分", "用户商铺签到奖励积分+{$reward_value}分");
+                    break;
+                case 2:
+                    // 现金余额奖励
+                    $memberaccountmodel->addMemberAccount($member_id, "balance", $reward_value, "shop_signin", "商铺签到奖励现金", "用户商铺签到奖励现金+{$reward_value}元");
+                    break;
+                case 3:
+                    // 大礼包奖励订单
+                    $result = $this->signincreate($member_id, $goods_id);
+                    if ($result["code"] == 0) {
+                        $order_out_trade = $result["data"];
+                        $orderinfo = Db::name("order")->field("order_id,out_trade_no")->where("out_trade_no", $order_out_trade)->find();
+                        if (!empty($orderinfo)) {
+                            Db::name("sign_member_record")->where("signin_id", $record_id)->update(["order_id" => $orderinfo["order_id"]]);
+                        }
+                    }
+                    break;
+            }
+
+            Db::commit();
+            return success(0, "签到成功！恭喜获得：" . $rewardtxt, [
+                'signin_id' => $record_id,
+                'rewardtxt' => $rewardtxt,
+                'sign_day' => $need_day,
+                'sign_rounds' => $shop_sign_round
+            ]);
+        } catch (\Exception $e) {
+            Db::rollback();
+            return error(-1, "签到处理异常: " . $e->getMessage());
         }
     }
 
