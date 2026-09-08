@@ -11,6 +11,8 @@ use app\model\order\Order as OrderModel;
 use app\model\order\OrderCommon as OrderCommonModel;
 use app\model\order\OrderCommon;
 use app\model\order\OrderRefund as OrderRefundModel;
+use think\facade\Cache;
+use think\facade\Db;
 
 class Order extends BaseApi
 {
@@ -279,5 +281,89 @@ class Order extends BaseApi
         );
         $result = $order_model->extendTakeDelivery($take_condition);
         return $this->response($result);
+    }
+
+    /**
+     * 获取/动态生成订单核销码（每次进入/刷新都生成新码）
+     */
+    public function verifyCode()
+    {
+        $token = $this->checkToken();
+        if ($token['code'] < 0) return $this->response($token);
+
+        $order_id = isset($this->params['order_id']) ? (int)$this->params['order_id'] : 0;
+        if (empty($order_id)) {
+            return $this->response($this->error('', 'REQUEST_ORDER_ID'));
+        }
+
+        $order_info = model('order')->getInfo([
+            ['order_id', '=', $order_id],
+            ['member_id', '=', $this->member_id]
+        ], 'order_id, order_no, order_status, order_status_name, pay_status, delivery_code, delivery_status, site_id, site_name, is_lock');
+
+        if (empty($order_info)) {
+            return $this->response($this->error('', '未找到该订单'));
+        }
+
+        if ($order_info['order_status'] == -1) {
+            return $this->response($this->error('', '订单已关闭'));
+        }
+        if ($order_info['order_status'] == 0 && $order_info['pay_status'] == 0) {
+            return $this->response($this->error('', '订单待支付，无法生成核销码'));
+        }
+        if ($order_info['order_status'] == 4 || $order_info['delivery_status'] == 1) {
+            return $this->response($this->success([
+                'order_id' => $order_id,
+                'order_no' => $order_info['order_no'],
+                'is_verify' => 1,
+                'verify_code' => $order_info['delivery_code'] ?: $order_info['order_no']
+            ], '该订单商品已核销'));
+        }
+
+        // 每次都生成新的动态核销码：V + 年月日时分秒 + 4位随机数字
+        $verify_code = 'V' . date('YmdHis') . rand(1000, 9999);
+
+        // 更新订单提货码
+        model('order')->update(['delivery_code' => $verify_code], [['order_id', '=', $order_id]]);
+
+        // 存入缓存，有效期 2 小时
+        Cache::set('order_verify_token_' . $verify_code, $order_id, 7200);
+        Cache::set('order_latest_verify_code_' . $order_id, $verify_code, 7200);
+
+        // 同步更新 verify 表
+        $verify_model = new \app\model\verify\Verify();
+        $verify_record = model('verify')->getInfo([['relate_id', '=', $order_id]]);
+        if (!empty($verify_record)) {
+            model('verify')->update([
+                'verify_code' => $verify_code,
+                'is_verify' => 0
+            ], [['id', '=', $verify_record['id']]]);
+        } else {
+            $order_goods_list = model('order_goods')->getList([['order_id', '=', $order_id]], 'sku_image,sku_name,price,num,order_goods_id,goods_id,sku_id');
+            $item_array = [];
+            foreach ($order_goods_list as $k => $v) {
+                $item_array[$v['order_goods_id']] = [
+                    'img' => $v['sku_image'],
+                    'name' => $v['sku_name'],
+                    'price' => $v['price'],
+                    'num' => $v['num'],
+                ];
+            }
+            $remark_array = [
+                ['title' => '订单编号', 'value' => $order_info['order_no']],
+                ['title' => '门店', 'value' => $order_info['site_name']]
+            ];
+            $verify_content_json = $verify_model->getVerifyJson($item_array, $remark_array);
+            $verify_model->addVerify('pickup', $order_info['site_id'], $order_info['site_name'], $verify_content_json, $order_id);
+            model('verify')->update(['verify_code' => $verify_code], [['relate_id', '=', $order_id]]);
+        }
+
+        return $this->response($this->success([
+            'order_id' => $order_id,
+            'order_no' => $order_info['order_no'],
+            'verify_code' => $verify_code,
+            'is_verify' => 0,
+            'timestamp' => time()
+        ]));
     }
 }
