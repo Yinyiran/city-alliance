@@ -66,6 +66,72 @@ class Sign extends Common
     }
 
     /**
+     * 智能解析签到码/扫码结果中的 member_id
+     */
+    protected function parseMemberId($code)
+    {
+        if (empty($code)) return 0;
+
+        // 1. 如果本身是正整数
+        if (is_numeric($code) && (int)$code > 0) {
+            return (int)$code;
+        }
+
+        if (!is_string($code)) return 0;
+
+        // 多次 urldecode，防止小程序或扫码对参数进行了多层编码
+        $str = urldecode($code);
+        $str = urldecode($str);
+
+        // 2. 如果是 JSON 格式
+        if (strpos(trim($str), '{') === 0) {
+            $json = json_decode($str, true);
+            if (!empty($json)) {
+                if (!empty($json['member_id'])) return (int)$json['member_id'];
+                if (!empty($json['code'])) return $this->parseMemberId($json['code']);
+                if (!empty($json['scene'])) return $this->parseMemberId($json['scene']);
+            }
+        }
+
+        // 3. 匹配 member_id 分隔符 数字（支持 =、-、:、_、/、空格 等任何常见分隔符）
+        if (preg_match('/member_?id[=\-_:\/\s]+(\d+)/i', $str, $m)) {
+            return (int)$m[1];
+        }
+
+        // 4. 匹配 scene 参数中的内容（如 ?scene=member_id-4 或 &scene=4）
+        if (preg_match('/scene[=\-_:\/\s]+([^&?#]+)/i', $str, $m)) {
+            $scene = urldecode($m[1]);
+            // scene 里可能包含 member_id-4 或 member_id=4
+            if (preg_match('/member_?id[=\-_:\/\s]+(\d+)/i', $scene, $m2)) {
+                return (int)$m2[1];
+            }
+            if (preg_match('/(?:uid|suid|user_id)[=\-_:\/\s]+(\d+)/i', $scene, $m2)) {
+                return (int)$m2[1];
+            }
+            if (is_numeric($scene) && (int)$scene > 0) {
+                return (int)$scene;
+            }
+        }
+
+        // 5. 匹配 uid 或 suid 等别名（支持 uid-4, suid=4 等）
+        if (preg_match('/(?:suid|user_?id|uid)[=\-_:\/\s]+(\d+)/i', $str, $m)) {
+            return (int)$m[1];
+        }
+
+        // 6. 匹配 sign_4 或 sign-4 等文件名或标识格式
+        if (preg_match('/sign[_\-](\d+)/i', $str, $m)) {
+            return (int)$m[1];
+        }
+
+        // 7. 匹配路由中携带的 id 参数，例如 signCode?id=4
+        if (preg_match('/(?:signCode|sign)[\/?&=#]+(?:id=)?(\d+)/i', $str, $m)) {
+            return (int)$m[1];
+        }
+
+        return 0;
+    }
+
+    /**
      * 商家扫码为会员执行签到
      */
     public function dosignin()
@@ -78,37 +144,12 @@ class Sign extends Common
             ]);
         }
 
-        $member_id = 0;
-        // 尝试多种格式解析 member_id
-        if (is_numeric($code)) {
-            $member_id = (int)$code;
-        } elseif (is_string($code)) {
-            // 1. 如果是 JSON 格式
-            if (strpos(trim($code), '{') === 0) {
-                $json = json_decode($code, true);
-                if (!empty($json['member_id'])) {
-                    $member_id = (int)$json['member_id'];
-                }
-            }
-            // 2. 如果包含 member_id=
-            if (!$member_id && preg_match('/member_id[=:](\d+)/i', $code, $matches)) {
-                $member_id = (int)$matches[1];
-            }
-            // 3. 如果包含 scene=member_id%3D123 或 scene=member_id=123
-            if (!$member_id && preg_match('/scene[=:]([^&]+)/i', $code, $matches)) {
-                $scene = urldecode($matches[1]);
-                if (preg_match('/member_id[=:](\d+)/i', $scene, $m2)) {
-                    $member_id = (int)$m2[1];
-                } elseif (is_numeric($scene)) {
-                    $member_id = (int)$scene;
-                }
-            }
-        }
+        $member_id = $this->parseMemberId($code);
 
         if (empty($member_id)) {
             return $this->response([
                 'code' => -1,
-                'message' => '未能识别有效的会员签到码'
+                'message' => '未能识别有效的会员签到码（扫码内容: ' . mb_substr($code, 0, 80) . '）'
             ]);
         }
 
