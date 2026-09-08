@@ -17,10 +17,10 @@ export function server(url, params, methods, silent) {
 		uni.request({
 			url: Config.baseUrl + url,
 			data: {
-				site_id:uni.getStorageSync('site_id')||'',
+				site_id: uni.getStorageSync('site_id') || '',
 				...params,
-				app_type:app_type,
-				app_type_name:app_type_name,
+				app_type: app_type,
+				app_type_name: app_type_name,
 				token,
 			},
 			method: methods || 'post',
@@ -36,13 +36,13 @@ export function server(url, params, methods, silent) {
 				if (res.data.code == 0) {
 					resolve(res.data)
 					uni.hideLoading();
-				}else if(res.data.code==-10016){
+				} else if (res.data.code == -10016) {
 					resolve(res.data)
 					uni.hideLoading();
-				}else if(res.data.code==-10001){
+				} else if (res.data.code == -10001) {
 					resolve(res.data)
 					uni.hideLoading();
-				}  else if (res.data.code == -10010) {
+				} else if (res.data.code == -10010) {
 					// uni.showModal({
 					// 	content: "你还没登录，请先登录",
 					// 	confirmColor: "#363636",
@@ -59,7 +59,7 @@ export function server(url, params, methods, silent) {
 					uni.hideLoading();
 					// 业务错误也 resolve，避免调用方 await 永久挂起
 					resolve(res.data)
-					} else {
+				} else {
 					console.log(res.data);
 					if (silent) {
 						// 静默模式：不弹错误 toast
@@ -68,20 +68,20 @@ export function server(url, params, methods, silent) {
 						// token 为空时提示用户先登录
 						const msg = res.data.msg == 'token不能为空' ? '请登录后，查看数据' : (res.data.msg ||
 							'请求失败，请稍后重试');
-						uni.showToast({
-							title: msg,
-							icon: 'none',
-							duration: 3000,
-							success: res => {
-								setTimeout(()=>{
-									uni.hideLoading();
-								},3000)
-							}
-						})
+						// uni.showToast({
+						// 	title: msg,
+						// 	icon: 'none',
+						// 	duration: 3000,
+						// 	success: res => {
+						// 		setTimeout(()=>{
+						// 			uni.hideLoading();
+						// 		},3000)
+						// 	}
+						// })
 					}
 					// 业务错误也 resolve，避免调用方 await 永久挂起
 					resolve(res.data)
-					}
+				}
 
 			},
 			fail: function (res) {
@@ -91,7 +91,7 @@ export function server(url, params, methods, silent) {
 				// 	icon: 'none',
 				// 	duration: 3000,
 				// 	success: res => {
-						uni.hideLoading();
+				uni.hideLoading();
 				// 	}
 				// })
 				reject(res)

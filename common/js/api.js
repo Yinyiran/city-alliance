@@ -21,6 +21,8 @@ export const mobliecode=params=>server('/shopapplet/employee/mobliecode',params)
 export const signlist=params=>server('/shopapplet/sign/getlist',params)
 //累计签到统计
 export const signIndex=params=>server('/shopapplet/sign/index',params)
+//扫码签到
+export const dosignin=params=>server('/shopapplet/sign/dosignin',params)
 //订单列表
 export const orderlist=params=>server('/shopapplet/order/orderlist',params)
 //待核销订单列表

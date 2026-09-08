@@ -183,12 +183,20 @@ export default {
 							}, true)
 							if (resCk.code == 0) {
 								hasNick = !!this.getNickname(resCk)
+								if (resCk.data) {
+									uni.setStorageSync('userInfo', {
+										avatar: resCk.data.avatar || '',
+										headimg: resCk.data.avatar || '',
+										nickname: resCk.data.nickname || ''
+									})
+								}
 							}
 						} catch (e) {
 							// checkLogin 异常时进入设置昵称，保证新用户流程可走通
 						}
 						if (hasNick) {
 							// 已设置昵称：直接登录成功
+							uni.$emit('loginsuccess')
 							this.$emit('loginsuccess')
 							this.close()
 							uni.showToast({
@@ -260,8 +268,14 @@ export default {
 						const resA = await loginAuth(params)
 						if (resA.code != 0) throw new Error(resA.msg || '登录失败')
 						uni.setStorageSync('token', resA.data.token)
+						uni.setStorageSync('userInfo', {
+							avatar: this.avatar,
+							headimg: this.avatar,
+							nickname: this.nickname
+						})
 						uni.hideLoading()
 						this.close()
+						uni.$emit('loginsuccess')
 						this.$emit('loginsuccess')
 						uni.showToast({
 							title: '登录成功',
