@@ -15,6 +15,13 @@ use think\facade\Db;
 
 class Common extends BaseApi
 {
+    public $employeeModel;
+    public $shopModel;
+    public $member_id;
+    public $site_id;
+    public $city_id;
+    public $shopinfo;
+
     public function __construct()
     {
         //执行父类构造函数
@@ -64,6 +71,10 @@ class Common extends BaseApi
 
         $result=$this->getshopInfobyemployee();
        
+        $this->site_id = $result["site_id"] ?? 0;
+        $this->city_id = $result["city_id"] ?? 0;
+        $this->shopinfo = $result["shopinfo"] ?? [];
+
         session("shopinfo",$result["shopinfo"]);
         session("city_id",$result["city_id"]);
         session("site_id",$result["site_id"]);

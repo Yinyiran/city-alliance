@@ -82,16 +82,20 @@ class Sign extends BaseApi
             return $this->response(['code' => -1, 'message' => '未获取到用户信息']);
         }
 
-        // 优先检查已存在的签到码缓存（必须物理文件真实存在且大于 1KB，避免微信错误 JSON）
-        $member = Db::name("member")->field("shop_sign_qrcode")->where("member_id", $member_id)->find();
-        if (!empty($member["shop_sign_qrcode"])) {
-            $existing_path = ltrim($member["shop_sign_qrcode"], '/');
-            if (file_exists($existing_path) && filesize($existing_path) > 1024) {
-                return $this->response([
-                    'code' => 0,
-                    'message' => '获取成功',
-                    'filepath' => $existing_path
-                ]);
+        $is_refresh = !empty(request()->param('refresh'));
+
+        // 优先检查已存在的签到码缓存（非刷新模式下，且必须物理文件真实存在且大于 1KB）
+        if (!$is_refresh) {
+            $member = Db::name("member")->field("shop_sign_qrcode")->where("member_id", $member_id)->find();
+            if (!empty($member["shop_sign_qrcode"])) {
+                $existing_path = ltrim($member["shop_sign_qrcode"], '/');
+                if (file_exists($existing_path) && filesize($existing_path) > 1024) {
+                    return $this->response([
+                        'code' => 0,
+                        'message' => '获取成功',
+                        'filepath' => $existing_path
+                    ]);
+                }
             }
         }
 
@@ -102,57 +106,25 @@ class Sign extends BaseApi
 
         $filename = 'sign_' . $member_id . '.png';
         $full_relative_path = $qrcode_dir . '/' . $filename;
-        $is_success = false;
 
-        // 1. 优先尝试使用微信小程序官方接口生成小程序码
+        // 生成普通标准二维码（与订单提货核销码一致），内容为 member_id=ID
         try {
-            $weapp = new Weapp();
-            $param = [
-                'data' => [
-                    'member_id' => $member_id
-                ],
-                'page' => 'otherpages/signCode/signCode',
-                'scene' => 'member_id=' . $member_id,
-                'width' => 280,
-                'qrcode_path' => $qrcode_dir,
-                'qrcode_name' => 'sign_' . $member_id,
-                'app_type' => 'weapp'
-            ];
-            $result = $weapp->createQrcode($param);
-            if ($result['code'] == 0 && !empty($result['data']['path'])) {
-                $saved_path = ltrim($result['data']['path'], '/');
-                if (file_exists($saved_path) && filesize($saved_path) > 1024) {
-                    $full_relative_path = $saved_path;
-                    $is_success = true;
-                }
-            }
-        } catch (\Exception $e) {
-            // 微信接口异常或配置不全
-        }
-
-        // 2. 兜底方案：如果微信接口失败（例如 token 失效、小程序页面未发布、微信未配置等）
-        // 使用内置的本地 QRcode 生成标准二维码，保证商户端扫码依然可用
-        if (!$is_success) {
-            try {
-                $qr_content = "member_id=" . $member_id;
-                \extend\QRcode::png($qr_content, $full_relative_path, 'L', 6, 1);
-                if (file_exists($full_relative_path) && filesize($full_relative_path) > 100) {
-                    $is_success = true;
-                }
-            } catch (\Exception $e) {
+            $qr_content = "member_id=" . $member_id;
+            \extend\QRcode::png($qr_content, $full_relative_path, 'L', 6, 1);
+            if (file_exists($full_relative_path) && filesize($full_relative_path) > 100) {
+                Db::name("member")->where(["member_id" => $member_id])->update(["shop_sign_qrcode" => $full_relative_path]);
                 return $this->response([
-                    'code' => -1,
-                    'message' => '二维码生成失败: ' . $e->getMessage()
+                    'code' => 0,
+                    'message' => '获取成功',
+                    'filepath' => $full_relative_path,
+                    'member_id' => $member_id,
+                    'qr_content' => $qr_content
                 ]);
             }
-        }
-
-        if ($is_success) {
-            Db::name("member")->where(["member_id" => $member_id])->update(["shop_sign_qrcode" => $full_relative_path]);
+        } catch (\Exception $e) {
             return $this->response([
-                'code' => 0,
-                'message' => '获取成功',
-                'filepath' => $full_relative_path
+                'code' => -1,
+                'message' => '二维码生成失败: ' . $e->getMessage()
             ]);
         }
 

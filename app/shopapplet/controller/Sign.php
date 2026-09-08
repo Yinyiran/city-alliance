@@ -16,12 +16,16 @@ use think\facade\Db;
 class Sign extends Common
 {
     protected $recordmodel;
+    public $site_id;
 
     public function __construct()
     {
         // 执行父类构造函数
         parent::__construct();
         $this->recordmodel = new RecordsModel();
+        if (empty($this->site_id)) {
+            $this->site_id = session("site_id") ?: session("shop_id");
+        }
     }
 
     /**
@@ -29,7 +33,7 @@ class Sign extends Common
      */
     protected function getShopId()
     {
-        return request()->param("shop_id") ?: ($this->site_id ?: (session("shop_id") ?: session("site_id")));
+        return request()->param("site_id") ?: (request()->param("shop_id") ?: ($this->site_id ?: (session("site_id") ?: session("shop_id"))));
     }
 
     /**
@@ -72,8 +76,16 @@ class Sign extends Common
     {
         if (empty($code)) return 0;
 
-        // 1. 如果本身是正整数
+        // 1. 如果本身是纯数字
         if (is_numeric($code) && (int)$code > 0) {
+            $numStr = trim((string)$code);
+            // 如果是11位手机号，尝试通过手机号查询对应会员
+            if (preg_match('/^1[3-9]\d{9}$/', $numStr)) {
+                $mId = Db::name('member')->where('mobile', $numStr)->value('member_id');
+                if (!empty($mId)) {
+                    return (int)$mId;
+                }
+            }
             return (int)$code;
         }
 
