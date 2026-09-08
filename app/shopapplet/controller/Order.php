@@ -205,11 +205,11 @@ class Order extends Common
         }
 
         // 校验所属门店权限
-        $site_id = $this->site_id ?: session("site_id");
+        $site_id = request()->param('site_id') ?: ($this->site_id ?: session("site_id"));
         if (!empty($site_id) && $order_info['site_id'] != $site_id) {
             return $this->response([
                 'code' => -1,
-                'message' => '该订单属于【' . $order_info['site_name'] . '】，当前商家无权核销！',
+                'message' => '该订单属于【' . ($order_info['site_name'] ?: '其他门店') . '】，当前商家无权核销！',
                 'data' => []
             ]);
         }
@@ -284,11 +284,11 @@ class Order extends Common
         }
 
         // 校验所属门店权限
-        $site_id = $this->site_id ?: session("site_id");
+        $site_id = request()->param('site_id') ?: ($this->site_id ?: session("site_id"));
         if (!empty($site_id) && $order_info['site_id'] != $site_id) {
             return $this->response([
                 'code' => -1,
-                'message' => '该订单属于其他门店，无法核销！',
+                'message' => '该订单属于【' . ($order_info['site_name'] ?: '其他门店') . '】，当前商家无权核销！',
                 'data' => []
             ]);
         }
@@ -345,13 +345,18 @@ class Order extends Common
 
             // 3. 更新 verify 表
             $employee_name = session('employee_info')['username'] ?? '商家员工';
-            Db::name('verify')->where('verify_code', $order_info['delivery_code'])
-                ->orWhere('relate_id', $order_id)
-                ->update([
+            Db::name('verify')->where('relate_id', $order_id)->update([
+                'is_verify' => 1,
+                'verify_time' => $now,
+                'verifier_name' => $employee_name
+            ]);
+            if (!empty($order_info['delivery_code'])) {
+                Db::name('verify')->where('verify_code', $order_info['delivery_code'])->update([
                     'is_verify' => 1,
                     'verify_time' => $now,
                     'verifier_name' => $employee_name
                 ]);
+            }
 
             // 4. 清理缓存核销动态码
             Cache::delete('order_verify_token_' . $delivery_code);
