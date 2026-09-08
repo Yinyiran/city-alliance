@@ -15,7 +15,23 @@
 					<view class="font-26" style="color: #525666;text-align: left;">会员编号: {{info.member_id}}</view>
 				</view>
 			</view>
-			<image :src="$util.img(filepath)" class="codes re" mode=""></image>
+			<view class="qrcode-container re">
+				<!-- 普通二维码（与订单提货核销码一致），100% 包含真实 member_id，所有扫码设备即扫即得 -->
+				<view class="codes acea-row row-middle row-center" v-if="info && info.member_id" style="margin: 0 auto; background: #fff; border-radius: 16rpx; padding: 16rpx; box-sizing: border-box; display: inline-flex;">
+					<uv-qrcode ref="qrcode" :value="'member_id=' + info.member_id" size="288rpx" :loading="qrLoading"></uv-qrcode>
+				</view>
+				<!-- 加载中占位 -->
+				<view class="codes acea-row row-middle row-center" v-else style="margin: 0 auto; background: #f8f8f8; border-radius: 16rpx; display: inline-flex; color: #999; font-size: 26rpx;">
+					二维码加载中...
+				</view>
+				<view class="acea-row row-middle row-center m-t-16" v-if="info && info.member_id">
+					<text class="font-24" style="color: #666;">签到编号: {{info.member_id}}</text>
+					<view class="refresh-btn acea-row row-middle m-l-16" @click="refreshQrcode">
+						<uv-icon name="reload" size="13" color="#FF6600"></uv-icon>
+						<text class="m-l-4 font-22" style="color: #FF6600;">刷新</text>
+					</view>
+				</view>
+			</view>
 			<view class="btms">
 				<image src="/static/sbg4.png" mode=""></image>
 				<view class="">注意：此二维码需前往指定商家线下扫码即可激活签到奖励</view>
@@ -25,39 +41,35 @@
 </template>
 
 <script>
-	import { userinfo,getqrcode,dosignin } from '@/common/js/api.js';
+	import { userinfo } from '@/common/js/api.js';
 	export default {
 		data() {
 			return {
-				info:"",
-				filepath:''
+				info: "",
+				qrLoading: false
 			};
 		},
 		onLoad() {
-			this.getqrcode()
-			this.userinfo()
-			// dosignin({
-			// 	member_id:4,
-			// 	shop_id:1
-			// })
+			this.userinfo();
 		},
-		methods:{
-			userinfo(){
-				userinfo().then(res=>{
-					this.info=res.data
-				})
-			},
-			getqrcode(){
-				getqrcode().then(res=>{
-					if (res.code == 0 && res.filepath) {
-						this.filepath = res.filepath;
-					} else if (res.message) {
-						uni.showToast({ title: res.message, icon: 'none' });
+		methods: {
+			userinfo() {
+				this.qrLoading = true;
+				return userinfo().then(res => {
+					if (res && res.code == 0) {
+						this.info = res.data;
 					}
 				}).catch(() => {
-					uni.showToast({ title: '获取签到码失败', icon: 'none' });
+					uni.showToast({ title: '获取用户信息失败', icon: 'none' });
+				}).finally(() => {
+					this.qrLoading = false;
 				});
 			},
+			refreshQrcode() {
+				this.userinfo().then(() => {
+					uni.showToast({ title: '已刷新', icon: 'success' });
+				});
+			}
 		}
 	}
 </script>
