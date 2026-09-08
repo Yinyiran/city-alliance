@@ -187,7 +187,6 @@ class Records extends BaseModel
                         //大礼包
                         //生成大礼包订单
                         $result=$this->signincreate($member_id,$goods_id);
-                        echo "操作";
                          
                         if($result["code"]==0){
                             $order_out_trade=$result["data"];

@@ -77,7 +77,26 @@ class Shop extends Common
         if(empty($myinfo)){
             $myinfo=[];
         }
-        $shopinfo["myinfo"]=$myinfo;
+        // 查询当前登录用户的 member 信息以补充头像与昵称
+        $member = Db::name("member")->where("member_id", $this->member_id)->field("headimg,nickname,username")->find();
+        $user_headimg = '';
+        $user_nickname = '';
+        if (!empty($member)) {
+            $user_headimg = $member['headimg'] ?? '';
+            $user_nickname = $member['nickname'] ?? '';
+        }
+        if (!empty($myinfo)) {
+            if (empty($myinfo['headimg']) && !empty($user_headimg)) {
+                $myinfo['headimg'] = $user_headimg;
+            }
+            if (empty($myinfo['nickname']) && !empty($user_nickname)) {
+                $myinfo['nickname'] = $user_nickname;
+            }
+        }
+        $shopinfo["myinfo"] = $myinfo;
+        $shopinfo["headimg"] = !empty($myinfo['headimg']) ? $myinfo['headimg'] : (!empty($user_headimg) ? $user_headimg : (!empty($shopinfo['logo']) ? $shopinfo['logo'] : ''));
+        $shopinfo["user_headimg"] = !empty($myinfo['headimg']) ? $myinfo['headimg'] : (!empty($user_headimg) ? $user_headimg : '');
+        $shopinfo["user_nickname"] = !empty($myinfo['username']) ? $myinfo['username'] : (!empty($user_nickname) ? $user_nickname : '');
         return $this->response($this->success($shopinfo));
 
     }
