@@ -512,9 +512,9 @@ class Goodssku extends BaseApi
         $longitude = $this->params["longitude"] ?? null;
         $goods_type = isset($this->params['goods_type']) ? $this->params['goods_type'] : "0";//商品类型:0=普通商品,1=福利品
         $platform = isset($this->params['platform']) ? $this->params['platform'] : "0";//全国包邮商品:0=否,1=是
-        $min_point = $this->params[ 'min_point' ] ?? 0; //积分区间，小
-        $max_point = $this->params[ 'max_point' ] ?? 0; //积分区间，大
-        $site_id = $this->params[ 'site_id' ];
+        $min_point = $this->params[ 'min_point' ] ?? ''; //积分区间，小
+        $max_point = $this->params[ 'max_point' ] ?? ''; //积分区间，大
+        $site_id = $this->params[ 'site_id' ] ?? '';
         if (!$goods_type) $goods_type = '0';
         if (!$platform) $platform = '0';
         $store_model = new StoreModel();
@@ -529,7 +529,7 @@ class Goodssku extends BaseApi
             $condition[] = [ 'gs.website_id', '=', $website_id ];
         }
 
-        if ($site_id) {
+        if ($site_id && $platform == 0) {
             $condition[] = [ 'gs.site_id', '=', $site_id ];
         }
 
@@ -581,11 +581,11 @@ class Goodssku extends BaseApi
             }
         }
 
-        if ($min_point != "" && $max_point != "") {
+        if (!empty($min_point) && !empty($max_point)) {
             $condition[] = [ 'gs.point', 'between', [ $min_point, $max_point ] ];
-        } elseif ($min_point != "") {
+        } elseif (!empty($min_point)) {
             $condition[] = [ 'gs.point', '>=', $min_point ];
-        } elseif ($max_point != "") {
+        } elseif (!empty($max_point)) {
             $condition[] = [ 'gs.point', '<=', $max_point ];
         }
 
