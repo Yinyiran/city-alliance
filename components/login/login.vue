@@ -226,8 +226,14 @@
 					const info = res.data || {}
 					if (info.site_id) {
 						uni.setStorageSync('user_site_id', info.site_id)
+						uni.setStorageSync('site_id', info.site_id)
+					} else {
+						uni.removeStorageSync('user_site_id')
 					}
+					// 登录后身份切换，清除之前的门店缓存，以便按新商家的门店加载
+					uni.removeStorageSync('store_id')
 					uni.setStorageSync('userInfo', info)
+					uni.$emit('loginChange', { isLogin: true, site_id: info.site_id || 0 })
 					if (!info.nickname) {
 						// 关闭手机号弹窗，打开完善资料弹窗
 						this.close()
@@ -238,6 +244,8 @@
 					}
 				} catch (e) {
 					// 查询失败视为登录成功，避免卡住用户
+					uni.removeStorageSync('store_id')
+					uni.$emit('loginChange', { isLogin: true, site_id: 0 })
 					this.$emit('loginsuccess')
 					this.close()
 				}

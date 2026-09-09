@@ -1,16 +1,11 @@
 <template>
 	<view class="store-page-root">
-		<store-home ref="storeHome" :store-id="storeId" :is-tab="true"></store-home>
+		<merchant-home ref="merchantHome" :store-id="storeId" :is-tab="true"></merchant-home>
 	</view>
 </template>
 
 <script>
-	import storeHome from "@/components/store-home/store-home.vue";
-
 	export default {
-		components: {
-			storeHome
-		},
 		data() {
 			return {
 				storeId: ""
@@ -22,35 +17,30 @@
 			}
 		},
 		onShow() {
-			// 如果当前没有显式 storeId，可触发一次检查，保证切换城市/门店后数据同步
-			if (this.$refs.storeHome) {
-				let cachedId = uni.getStorageSync('store_id') || '';
-				if (!this.$refs.storeHome.currentStoreId) {
-					this.$refs.storeHome.initStore();
-				} else if (cachedId && cachedId !== this.$refs.storeHome.currentStoreId) {
-					this.$refs.storeHome.initByStoreId(cachedId);
-				}
+			// 页面显示时检查登录状态、商家归属和门店缓存，必要时自动重载
+			if (this.$refs.merchantHome) {
+				this.$refs.merchantHome.checkStoreState();
 			}
 		},
 		// 触底加载下一页商品
 		onReachBottom() {
-			if (this.$refs.storeHome) {
-				this.$refs.storeHome.loadMore();
+			if (this.$refs.merchantHome) {
+				this.$refs.merchantHome.loadMore();
 			}
 		},
 		// 下拉刷新
 		async onPullDownRefresh() {
-			if (this.$refs.storeHome) {
-				await this.$refs.storeHome.refresh();
+			if (this.$refs.merchantHome) {
+				await this.$refs.merchantHome.refresh();
 			}
 			uni.stopPullDownRefresh();
 		},
 		// 分享
 		onShareAppMessage() {
-			let title = (this.$refs.storeHome && this.$refs.storeHome.sinfo && this.$refs.storeHome.sinfo.store_name) 
-				? this.$refs.storeHome.sinfo.store_name 
+			let title = (this.$refs.merchantHome && this.$refs.merchantHome.sinfo && this.$refs.merchantHome.sinfo.store_name) 
+				? this.$refs.merchantHome.sinfo.store_name 
 				: '优选商家';
-			let storeId = this.$refs.storeHome ? this.$refs.storeHome.currentStoreId : '';
+			let storeId = this.$refs.merchantHome ? this.$refs.merchantHome.currentStoreId : '';
 			return {
 				title: title,
 				path: '/pages/store/index?id=' + storeId

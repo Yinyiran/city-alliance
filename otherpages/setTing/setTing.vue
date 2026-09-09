@@ -69,10 +69,17 @@
 				uni.showModal({
 					content:'确定退出登录？',
 					success:res=>{
-						uni.removeStorageSync('token')
-						uni.switchTab({
-							url:'/pages/index/index'
-						})
+						if (res.confirm) {
+							uni.removeStorageSync('token');
+							uni.removeStorageSync('userInfo');
+							uni.removeStorageSync('user_site_id');
+							uni.removeStorageSync('site_id');
+							uni.removeStorageSync('store_id');
+							uni.$emit('loginChange', { isLogin: false, site_id: 0 });
+							uni.switchTab({
+								url:'/pages/store/index'
+							});
+						}
 					}
 				})
 			},

@@ -1,16 +1,11 @@
 <template>
 	<view class="store-detail-page">
-		<store-home ref="storeHome" :store-id="id" :is-tab="false"></store-home>
+		<merchant-home ref="merchantHome" :store-id="id" :is-tab="false"></merchant-home>
 	</view>
 </template>
 
 <script>
-	import storeHome from "@/components/store-home/store-home.vue";
-
 	export default {
-		components: {
-			storeHome
-		},
 		data() {
 			return {
 				id: ""
@@ -20,19 +15,19 @@
 			this.id = options.id || options.store_id || "";
 		},
 		onReachBottom() {
-			if (this.$refs.storeHome) {
-				this.$refs.storeHome.loadMore();
+			if (this.$refs.merchantHome) {
+				this.$refs.merchantHome.loadMore();
 			}
 		},
 		async onPullDownRefresh() {
-			if (this.$refs.storeHome) {
-				await this.$refs.storeHome.refresh();
+			if (this.$refs.merchantHome) {
+				await this.$refs.merchantHome.refresh();
 			}
 			uni.stopPullDownRefresh();
 		},
 		onShareAppMessage() {
-			let title = (this.$refs.storeHome && this.$refs.storeHome.sinfo && this.$refs.storeHome.sinfo.store_name) 
-				? this.$refs.storeHome.sinfo.store_name 
+			let title = (this.$refs.merchantHome && this.$refs.merchantHome.sinfo && this.$refs.merchantHome.sinfo.store_name) 
+				? this.$refs.merchantHome.sinfo.store_name 
 				: '门店详情';
 			return {
 				title: title,
