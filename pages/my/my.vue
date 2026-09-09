@@ -15,10 +15,8 @@
 					<image src="/static/icon5.png" class="w-20 h-20 m-r-6" mode=""></image>
 					切换
 				</view>
-				<view class="cutsa m-l-18" @click="goSetting" v-if="token">
-					<image src="/static/icon5.png" class="w-20 h-20 m-r-6" mode=""></image>
-					设置
-				</view>
+				<image src="/static/qr.png" class="w-48 h-48 m-l-18 qr-btn" mode="aspectFit" @click="goShopQr" v-if="token"></image>
+				<image src="/static/seeting.png" class="w-48 h-48 m-l-18 setting-btn" mode="aspectFit" @click="goSetting" v-if="token"></image>
 			</view>
 			<view class="acea-row row-middle m-t-12 relative">
 				<text class="font-28 font-weight-6 m-r-12">{{(info.myinfo||{}).username}}</text>
@@ -253,6 +251,24 @@
 
 		},
 		methods: {
+			goSetting() {
+				if (!this.token) {
+					this.$refs.login.open()
+					return
+				}
+				uni.navigateTo({
+					url: '/otherpages/setting/setting'
+				})
+			},
+			goShopQr() {
+				if (!this.token) {
+					this.$refs.login.open()
+					return
+				}
+				uni.navigateTo({
+					url: '/otherpages/shopQr/shopQr'
+				})
+			},
 			// 未登录时清空页面数据，避免残留上一登录账号的内容
 			resetPageData() {
 				this.daidan = {}
@@ -488,6 +504,16 @@
 		font-size: 22rpx;
 		color: #FFFFFF;
 		padding: 0 12rpx;
+	}
+
+	.qr-btn,
+	.setting-btn {
+		flex-shrink: 0;
+		transition: opacity 0.2s;
+
+		&:active {
+			opacity: 0.7;
+		}
 	}
 
 	.login-btn {
