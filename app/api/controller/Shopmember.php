@@ -16,13 +16,20 @@ class Shopmember extends BaseApi
         if ($token[ 'code' ] < 0) return $this->response($token);
 
         $site_id = isset($this->params[ 'site_id' ]) ? $this->params[ 'site_id' ] : 0;//站点id
+        if (empty($site_id) && !empty($this->params[ 'store_id' ])) {
+            $site_id = model('store')->getValue([ [ 'store_id', '=', $this->params[ 'store_id' ] ] ], 'site_id') ?: 0;
+        }
 
-        if ($site_id === '') {
+        if (empty($site_id)) {
             return $this->error('', 'REQUEST_SITE_ID');
         }
 
         $shop_member_model = new ShopMemberModel();
         $res = $shop_member_model->addShopMember($site_id, $token[ 'data' ][ 'member_id' ]);
+        if ($res['code'] >= 0) {
+            $total_num = model('shop_member')->getCount(['site_id' => $site_id, 'is_subscribe' => 1]);
+            $res['data'] = ['total_num' => $total_num];
+        }
         return $this->response($res);
 
     }
@@ -36,13 +43,20 @@ class Shopmember extends BaseApi
         if ($token[ 'code' ] < 0) return $this->response($token);
 
         $site_id = isset($this->params[ 'site_id' ]) ? $this->params[ 'site_id' ] : 0;//站点id
+        if (empty($site_id) && !empty($this->params[ 'store_id' ])) {
+            $site_id = model('store')->getValue([ [ 'store_id', '=', $this->params[ 'store_id' ] ] ], 'site_id') ?: 0;
+        }
 
-        if ($site_id === '') {
+        if (empty($site_id)) {
             return $this->error('', 'REQUEST_SITE_ID');
         }
 
         $shop_member_model = new ShopMemberModel();
         $res = $shop_member_model->deleteShopMember($site_id, $token[ 'data' ][ 'member_id' ]);
+        if ($res['code'] >= 0) {
+            $total_num = model('shop_member')->getCount(['site_id' => $site_id, 'is_subscribe' => 1]);
+            $res['data'] = ['total_num' => $total_num];
+        }
         return $this->response($res);
     }
 
@@ -55,8 +69,11 @@ class Shopmember extends BaseApi
         if ($token[ 'code' ] < 0) return $this->response($token);
 
         $site_id = isset($this->params[ 'site_id' ]) ? $this->params[ 'site_id' ] : 0;//站点id
+        if (empty($site_id) && !empty($this->params[ 'store_id' ])) {
+            $site_id = model('store')->getValue([ [ 'store_id', '=', $this->params[ 'store_id' ] ] ], 'site_id') ?: 0;
+        }
 
-        if ($site_id === '') {
+        if (empty($site_id)) {
             return $this->error('', 'REQUEST_SITE_ID');
         }
 
