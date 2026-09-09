@@ -19,7 +19,7 @@ class Banner extends BaseShop
     {
         if (request()->isAjax()) {
             $page_index = input('page', 1);
-            $page_size = input('limit', PAGE_LIST_ROWS);
+            $page_size = input('page_size', input('limit', PAGE_LIST_ROWS));
             $search_text = input('search_text', '');
 
             $condition = [
@@ -31,7 +31,7 @@ class Banner extends BaseShop
             }
 
             $list = model('banner')->pageList($condition, '*', 'sort desc, id desc', $page_index, $page_size);
-            return $this->success($list);
+            return success(0, '', $list);
         } else {
             return $this->fetch('banner/lists');
         }
@@ -50,7 +50,7 @@ class Banner extends BaseShop
             $sort = input('sort', 0);
 
             if (empty($image)) {
-                return $this->error('', '请上传Banner图片');
+                return error(-1, '请上传Banner图片');
             }
 
             // 获取店铺所属城市分站ID
@@ -70,7 +70,7 @@ class Banner extends BaseShop
             ];
 
             $res = model('banner')->add($data);
-            return $this->success($res);
+            return success(0, '添加成功', $res);
         } else {
             return $this->fetch('banner/add');
         }
@@ -95,7 +95,7 @@ class Banner extends BaseShop
             $sort = input('sort', 0);
 
             if (empty($image)) {
-                return $this->error('', '请上传Banner图片');
+                return error(-1, '请上传Banner图片');
             }
 
             $data = [
@@ -107,7 +107,7 @@ class Banner extends BaseShop
             ];
 
             $res = model('banner')->update($data, $condition);
-            return $this->success($res);
+            return success(0, '修改成功', $res);
         } else {
             $info = model('banner')->getInfo($condition);
             if (empty($info)) {
@@ -129,7 +129,7 @@ class Banner extends BaseShop
                 ['id', '=', $id],
                 ['site_id', '=', $this->site_id]
             ]);
-            return $this->success($res);
+            return success(0, '删除成功', $res);
         }
     }
 
@@ -145,7 +145,7 @@ class Banner extends BaseShop
                 ['id', '=', $id],
                 ['site_id', '=', $this->site_id]
             ]);
-            return $this->success($res);
+            return success(0, '修改成功', $res);
         }
     }
 }
