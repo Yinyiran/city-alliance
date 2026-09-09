@@ -25,7 +25,9 @@
 			// 如果当前没有显式 storeId，可触发一次检查，保证切换城市/门店后数据同步
 			if (this.$refs.storeHome) {
 				let cachedId = uni.getStorageSync('store_id') || '';
-				if (cachedId && cachedId !== this.$refs.storeHome.currentStoreId) {
+				if (!this.$refs.storeHome.currentStoreId) {
+					this.$refs.storeHome.initStore();
+				} else if (cachedId && cachedId !== this.$refs.storeHome.currentStoreId) {
 					this.$refs.storeHome.initByStoreId(cachedId);
 				}
 			}

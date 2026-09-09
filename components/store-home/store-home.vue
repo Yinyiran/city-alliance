@@ -6,7 +6,10 @@
 				<view class="nav-store-title acea-row row-middle" @click="openStoreSelect">
 					<image src="/static/stores.png" class="w-32 h-32 m-r-8" mode="aspectFit"></image>
 					<text class="store-name-text text-more">{{ sinfo.store_name || '优选商家' }}</text>
-					<text class="store-switch-arrow" v-if="storeList.length > 1">▾</text>
+					<view class="store-count-badge acea-row row-middle" v-if="storeList.length > 1">
+						<text>{{ storeList.length }}店</text>
+						<text class="store-switch-arrow">▾</text>
+					</view>
 				</view>
 			</template>
 		</uv-navbar>
@@ -62,8 +65,9 @@
 						<view class="store-title acea-row row-middle">
 							<text class="title-text text-more">{{ sinfo.store_name || '商家门店' }}</text>
 						</view>
-						<view class="store-address-text text-more" v-if="sinfo.full_address || sinfo.address">
-							{{ sinfo.full_address || sinfo.address }}
+						<view class="store-address-row acea-row row-middle" v-if="sinfo.full_address || sinfo.address">
+							<text class="store-dist-tag" v-if="sinfo.distance">距您{{ sinfo.distance }}</text>
+							<text class="store-address-text text-more">{{ sinfo.full_address || sinfo.address }}</text>
 						</view>
 					</view>
 				</view>
@@ -71,7 +75,7 @@
 				<!-- 切换门店按钮（若有多门店且是Tab模式） -->
 				<view class="switch-store-btn" v-if="isTab && storeList.length > 1" @click="openStoreSelect">
 					<image src="/static/icon5.png" class="switch-icon" mode=""></image>
-					<text>换店</text>
+					<text>换店({{ storeList.length }})</text>
 				</view>
 			</view>
 
@@ -259,25 +263,38 @@
 		<uv-popup ref="storeSelectPopup" round="24" mode="bottom">
 			<view class="store-popup-container">
 				<view class="popup-title acea-row row-middle row-between">
-					<text class="popup-title-text">切换门店</text>
+					<view class="acea-row row-middle">
+						<text class="popup-title-text">选择服务门店</text>
+						<text class="popup-store-count" v-if="storeList.length > 0">（共{{ storeList.length }}家线下分店）</text>
+					</view>
 					<uv-icon name="close" size="16" color="#999" @click="closeStoreSelect"></uv-icon>
 				</view>
 				<scroll-view scroll-y class="store-select-scroll">
 					<view 
 						v-for="(store, sIdx) in storeList" 
 						:key="sIdx" 
-						class="store-option-item acea-row row-middle row-between"
-						:class="{ 'active': currentStoreId == (store.store_id || store.id) }"
+						class="store-option-item acea-row row-middle row-between" 
+						:class="{ 'active': currentStoreId == (store.store_id || store.id) }" 
 						@click="onSelectStore(store)"
 					>
 						<view class="store-opt-left acea-row row-middle">
 							<image :src="store.store_image ? $util.img(store.store_image) : '/static/stores.png'" class="store-opt-img" mode="aspectFill"></image>
 							<view class="store-opt-info">
-								<view class="store-opt-name text-more">{{ store.store_name }}</view>
-								<view class="store-opt-addr text-more">{{ store.full_address || store.address }}</view>
+								<view class="store-opt-name-row acea-row row-middle">
+									<text class="store-opt-name text-more">{{ store.store_name }}</text>
+									<text class="nearest-badge" v-if="sIdx === 0 && store.distance">离您最近</text>
+								</view>
+								<view class="store-opt-meta acea-row row-middle">
+									<text class="store-opt-distance" v-if="store.distance">距您 {{ store.distance }}</text>
+									<text class="store-opt-tel" v-if="store.telphone" @click.stop="makePhoneCall(store.telphone)">📞 {{ store.telphone }}</text>
+								</view>
+								<view class="store-opt-addr text-more">{{ store.address_text || store.full_address || store.address }}</view>
 							</view>
 						</view>
-						<uv-icon name="checkmark-circle-fill" color="#F55606" size="20" v-if="currentStoreId == (store.store_id || store.id)"></uv-icon>
+						<view class="store-opt-right acea-row row-middle">
+							<uv-icon name="checkmark-circle-fill" color="#F55606" size="22" v-if="currentStoreId == (store.store_id || store.id)"></uv-icon>
+							<view class="select-btn" v-else>进店</view>
+						</view>
 					</view>
 				</scroll-view>
 			</view>
@@ -348,6 +365,7 @@
 		},
 		computed: {
 			displaySales() {
+				if (!this.sinfo) return 0;
 				if (this.sinfo.total_sales !== undefined && this.sinfo.total_sales !== null) {
 					return this.sinfo.total_sales;
 				}
@@ -371,45 +389,65 @@
 			}
 		},
 		methods: {
-			// 初始化门店
+			// 初始化门店（LBS最近优先 + 自动匹配）
 			async initStore() {
-				// 1. 优先读取 storage 中的 store_id / site_id
-				let targetId = uni.getStorageSync('store_id') || uni.getStorageSync('user_site_id') || uni.getStorageSync('site_id');
-				
-				// 2. 获取城市下所有门店列表备选
+				// 1. 先尝试获取用户经纬度
+				await this.getUserLocation();
+
+				// 2. 根据用户绑定的商家（site_id）及定位，拉取该商家旗下所有门店（已在后端按距离由近及远排好序）
 				await this.fetchWebsiteStores();
 
-				if (!targetId && this.storeList.length > 0) {
-					targetId = this.storeList[0].store_id || this.storeList[0].id;
+				let cachedStoreId = uni.getStorageSync('store_id');
+				let cachedSiteId = uni.getStorageSync('user_site_id') || uni.getStorageSync('site_id');
+				let targetId = '';
+
+				if (this.storeList.length > 0) {
+					// 3.1 若用户以前选择过门店且属于当前商家的门店列表中，优先保留用户历史选择
+					if (cachedStoreId) {
+						let exists = this.storeList.find(s => (s.store_id || s.id) == cachedStoreId);
+						if (exists) {
+							targetId = exists.store_id || exists.id;
+						}
+					}
+
+					// 3.2 否则，默认选择第 1 家门店（离用户当前位置最近的门店）
+					if (!targetId) {
+						targetId = this.storeList[0].store_id || this.storeList[0].id;
+					}
 				}
 
-				if (targetId) {
-					await this.initByStoreId(targetId);
-				}
+				// 4. 加载门店详情
+				await this.initByStoreId(targetId || cachedSiteId || '');
 			},
 
-			// 获取城市下的门店列表
+			// 获取商家/城市下的门店列表
 			async fetchWebsiteStores() {
 				try {
 					let website_id = uni.getStorageSync('website_id') || '';
-					let res = await websiteStore({ website_id });
+					let site_id = uni.getStorageSync('user_site_id') || uni.getStorageSync('site_id') || '';
+					let params = {
+						website_id,
+						site_id,
+						latitude: this.latitude || '',
+						longitude: this.longitude || ''
+					};
+					let res = await websiteStore(params);
 					if (res && res.code >= 0 && Array.isArray(res.data)) {
 						this.storeList = res.data;
 					}
 				} catch (e) {
-					console.error('获取城市商家列表失败', e);
+					console.error('获取商家分店列表失败', e);
 				}
 			},
 
 			// 根据指定的 store_id 初始化页面数据
 			async initByStoreId(id) {
-				this.currentStoreId = id;
-				uni.setStorageSync('store_id', id);
+				this.currentStoreId = id || '';
+				if (id) {
+					uni.setStorageSync('store_id', id);
+				}
 
-				// 获取位置信息用于计算距离
-				this.getUserLocation();
-
-				// 1. 获取门店详情（包含商户专属Banner、累计销量、粉丝量）
+				// 1. 获取门店详情（包含商户专属Banner、累计销量、粉丝量、距离）
 				await this.fetchStoreDetail();
 
 				// 2. 获取关注状态
@@ -426,10 +464,26 @@
 			// 获取门店详情
 			async fetchStoreDetail() {
 				try {
-					let params = { store_id: this.currentStoreId };
+					let cachedSiteId = uni.getStorageSync('user_site_id') || uni.getStorageSync('site_id') || '';
+					let websiteId = uni.getStorageSync('website_id') || '';
+					let params = {
+						store_id: this.currentStoreId || '',
+						site_id: cachedSiteId,
+						website_id: websiteId,
+						latitude: this.latitude || '',
+						longitude: this.longitude || ''
+					};
 					let res = await storeDetail(params);
 					if (res && res.code >= 0 && res.data) {
 						this.sinfo = res.data;
+						if (res.data.store_id) {
+							this.currentStoreId = res.data.store_id;
+							uni.setStorageSync('store_id', res.data.store_id);
+						}
+						if (res.data.site_id) {
+							uni.setStorageSync('user_site_id', res.data.site_id);
+							uni.setStorageSync('site_id', res.data.site_id);
+						}
 						// 设置 Banner 列表
 						if (Array.isArray(res.data.banner_list) && res.data.banner_list.length > 0) {
 							this.bannerList = res.data.banner_list;
@@ -444,9 +498,12 @@
 								title: res.data.store_name
 							});
 						}
+					} else {
+						this.sinfo = {};
 					}
 				} catch (e) {
 					console.error('获取门店详情异常', e);
+					this.sinfo = {};
 				}
 			},
 
@@ -482,15 +539,29 @@
 
 			// 获取位置
 			getUserLocation() {
-				uni.getLocation({
-					type: 'gcj02',
-					success: (res) => {
-						this.latitude = res.latitude;
-						this.longitude = res.longitude;
-					},
-					fail: () => {
-						// 失败保持 null
+				return new Promise((resolve) => {
+					if (this.latitude && this.longitude) {
+						return resolve({ latitude: this.latitude, longitude: this.longitude });
 					}
+					uni.getLocation({
+						type: 'gcj02',
+						success: (res) => {
+							this.latitude = res.latitude;
+							this.longitude = res.longitude;
+							resolve(res);
+						},
+						fail: () => {
+							resolve(null);
+						}
+					});
+				});
+			},
+
+			// 拨打门店电话
+			makePhoneCall(phone) {
+				if (!phone) return;
+				uni.makePhoneCall({
+					phoneNumber: String(phone)
 				});
 			},
 
@@ -501,22 +572,25 @@
 					let params = {
 						page: this.page,
 						page_size: this.pageSize,
-						site_id: this.sinfo.site_id || '',
+						site_id: this.sinfo.site_id || uni.getStorageSync('user_site_id') || uni.getStorageSync('site_id') || '',
 						category_id: this.currentCategoryId || 0,
 						goods_type: 0 // 普通/主推商品
 					};
 
-					// 排序参数
+					// 排序参数与位置距离
+					let storeLat = this.sinfo.latitude || this.latitude;
+					let storeLng = this.sinfo.longitude || this.longitude;
+					if (storeLat && storeLng) {
+						params.latitude = storeLat;
+						params.longitude = storeLng;
+					}
+
 					if (this.currentSortType === 'sale_num') {
 						params.order = 'sale_num';
 						params.sort = this.sortOrder;
 					} else if (this.currentSortType === 'distance') {
 						params.order = 'distance';
 						params.sort = this.sortOrder;
-						if (this.latitude && this.longitude) {
-							params.latitude = this.latitude;
-							params.longitude = this.longitude;
-						}
 					}
 
 					let res = await goodslist(params);
@@ -680,17 +754,27 @@
 	}
 
 	.nav-store-title {
-		max-width: 420rpx;
+		max-width: 480rpx;
 		.store-name-text {
 			font-size: 32rpx;
 			font-weight: 600;
 			color: #1A1A1A;
-			max-width: 340rpx;
+			max-width: 320rpx;
 		}
-		.store-switch-arrow {
-			font-size: 22rpx;
-			color: #666;
-			margin-left: 6rpx;
+		.store-count-badge {
+			background: #FFF2EB;
+			color: #F55606;
+			font-size: 20rpx;
+			font-weight: 600;
+			padding: 4rpx 12rpx;
+			border-radius: 16rpx;
+			margin-left: 8rpx;
+			flex-shrink: 0;
+			line-height: 1.2;
+			.store-switch-arrow {
+				font-size: 18rpx;
+				margin-left: 4rpx;
+			}
 		}
 	}
 
@@ -785,11 +869,27 @@
 						}
 					}
 
-					.store-address-text {
-						font-size: 22rpx;
-						color: #999999;
+					.store-address-row {
 						margin-top: 6rpx;
-						line-height: 32rpx;
+						gap: 8rpx;
+						overflow: hidden;
+
+						.store-dist-tag {
+							background: #E8F7F0;
+							color: #07C160;
+							font-size: 20rpx;
+							font-weight: 600;
+							padding: 2rpx 8rpx;
+							border-radius: 6rpx;
+							flex-shrink: 0;
+						}
+
+						.store-address-text {
+							font-size: 22rpx;
+							color: #999999;
+							line-height: 32rpx;
+							flex: 1;
+						}
 					}
 				}
 			}
@@ -1128,8 +1228,8 @@
 	/* 门店选择弹窗 */
 	.store-popup-container {
 		background: #FFFFFF;
-		padding: 32rpx;
-		max-height: 70vh;
+		padding: 32rpx 32rpx 48rpx 32rpx;
+		max-height: 75vh;
 
 		.popup-title {
 			margin-bottom: 24rpx;
@@ -1139,10 +1239,16 @@
 				font-weight: 600;
 				color: #222222;
 			}
+
+			.popup-store-count {
+				font-size: 24rpx;
+				color: #999999;
+				margin-left: 6rpx;
+			}
 		}
 
 		.store-select-scroll {
-			max-height: 55vh;
+			max-height: 60vh;
 
 			.store-option-item {
 				padding: 24rpx 0;
@@ -1153,35 +1259,82 @@
 					overflow: hidden;
 
 					.store-opt-img {
-						width: 80rpx;
-						height: 80rpx;
-						border-radius: 12rpx;
-						margin-right: 16rpx;
+						width: 96rpx;
+						height: 96rpx;
+						border-radius: 14rpx;
+						margin-right: 18rpx;
 						flex-shrink: 0;
+						background: #F8F8F8;
 					}
 
 					.store-opt-info {
 						flex: 1;
 						overflow: hidden;
 
-						.store-opt-name {
-							font-size: 28rpx;
-							font-weight: 500;
-							color: #222222;
+						.store-opt-name-row {
+							gap: 10rpx;
+
+							.store-opt-name {
+								font-size: 28rpx;
+								font-weight: 600;
+								color: #222222;
+								line-height: 38rpx;
+							}
+
+							.nearest-badge {
+								background: linear-gradient(135deg, #07C160 0%, #10B981 100%);
+								color: #FFFFFF;
+								font-size: 18rpx;
+								font-weight: 600;
+								padding: 2rpx 10rpx;
+								border-radius: 6rpx;
+								flex-shrink: 0;
+							}
+						}
+
+						.store-opt-meta {
+							margin-top: 8rpx;
+							gap: 16rpx;
+							font-size: 22rpx;
+
+							.store-opt-distance {
+								color: #F55606;
+								font-weight: 600;
+							}
+
+							.store-opt-tel {
+								color: #4B7902;
+								background: #F2F7EC;
+								padding: 2rpx 10rpx;
+								border-radius: 6rpx;
+							}
 						}
 
 						.store-opt-addr {
 							font-size: 22rpx;
 							color: #999999;
 							margin-top: 6rpx;
+							line-height: 32rpx;
 						}
+					}
+				}
+
+				.store-opt-right {
+					margin-left: 20rpx;
+					flex-shrink: 0;
+
+					.select-btn {
+						padding: 8rpx 24rpx;
+						border-radius: 24rpx;
+						border: 2rpx solid #E0E0E0;
+						font-size: 22rpx;
+						color: #666666;
 					}
 				}
 
 				&.active {
 					.store-opt-name {
 						color: #F55606;
-						font-weight: 600;
 					}
 				}
 			}
