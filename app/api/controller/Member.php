@@ -73,25 +73,37 @@ class Member extends BaseApi
             }
 
             // 员工/主理人所属商家id自动同步与绑定
-            $member_id = $token['data']['member_id'];
-            $mobile = $info['data']['mobile'] ?? '';
-            $current_site_id = (int)($info['data']['site_id'] ?? 0);
-            $emp = null;
-            if (!empty($mobile)) {
-                $emp = model('shop_employee')->getInfo([['mobile', '=', $mobile], ['status', '=', 1], ['is_deleted', '=', 0]]);
-            }
-            if (empty($emp) && !empty($member_id)) {
-                $emp = model('shop_employee')->getInfo([['member_id', '=', $member_id], ['status', '=', 1], ['is_deleted', '=', 0]]);
-            }
-            if (!empty($emp)) {
-                if ($current_site_id != $emp['shop_id']) {
-                    $current_site_id = (int)$emp['shop_id'];
-                    model('member')->update(['site_id' => $current_site_id], ['member_id' => $member_id]);
-                    $info['data']['site_id'] = $current_site_id;
+            try {
+                $member_id = $token['data']['member_id'];
+                $mobile = $info['data']['mobile'] ?? '';
+                $current_site_id = (int)($info['data']['site_id'] ?? 0);
+                $emp = null;
+                if (!empty($mobile)) {
+                    $emp = \think\facade\Db::name('shop_employee')
+                        ->where([['mobile', '=', $mobile], ['is_deleted', '=', 0]])
+                        ->where('employee_status', '<>', 1)
+                        ->find();
                 }
-                if (empty($emp['member_id'])) {
-                    model('shop_employee')->update(['member_id' => $member_id], ['id' => $emp['id']]);
+                if (empty($emp) && !empty($member_id)) {
+                    $emp = \think\facade\Db::name('shop_employee')
+                        ->where([['member_id', '=', $member_id], ['is_deleted', '=', 0]])
+                        ->where('employee_status', '<>', 1)
+                        ->find();
                 }
+                if (!empty($emp) && !empty($emp['shop_id'])) {
+                    if ($current_site_id != $emp['shop_id']) {
+                        $current_site_id = (int)$emp['shop_id'];
+                        model('member')->update(['site_id' => $current_site_id], ['member_id' => $member_id]);
+                        $info['data']['site_id'] = $current_site_id;
+                    }
+                    if (empty($emp['member_id'])) {
+                        \think\facade\Db::name('shop_employee')
+                            ->where('employee_id', $emp['employee_id'])
+                            ->update(['member_id' => $member_id]);
+                    }
+                }
+            } catch (\Exception $e) {
+                // 容错处理，避免影响用户基础信息获取
             }
 
             // 补充商家基本信息（名称、Logo）
