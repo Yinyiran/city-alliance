@@ -1,4 +1,4 @@
-<template>
+﻿<template>
 	<view>
 		<uv-sticky bg-color="#fff">
 			<nvabar type='1' title='申请提现' titleStyle='color:#222'></nvabar>
@@ -6,7 +6,7 @@
 		<view class="cash acea-row row-middle row-between" @click="gopage"
 			v-if="!cashInfo || cashInfo.apply_status == 3">
 			<view class="acea-row row-middle">
-				<image src="/static/warn.png" class="w-32 h-32 m-r-12" mode=""></image>
+				<image src="/otherpages/static/warn.png" class="w-32 h-32 m-r-12" mode=""></image>
 				当前未绑定提现账户，绑定账户后可提现
 			</view>
 			<uv-icon name="arrow-right" color="#FE780F"></uv-icon>
@@ -15,7 +15,7 @@
 			<view class="acea-row row-middle row-between">
 				<view class="font-28">提现到账户</view>
 				<!-- <view class="acea-row row-middle font-26" style="color: #F55606;" v-if="show" @click="gopage">
-					<image src="/static/edit1.png" class="w-26 h-26 m-r-8" mode=""></image>
+					<image src="/otherpages/static/edit1.png" class="w-26 h-26 m-r-8" mode=""></image>
 					修改
 				</view> -->
 			</view>

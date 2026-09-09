@@ -1,11 +1,11 @@
-<template>
+﻿<template>
 	<view>
 		<uv-sticky bg-color="#FFF">
 			<nvabar type='1' title='提现账号' titleStyle='color:#222'></nvabar>
 		</uv-sticky>
 		<view class="cash acea-row row-middle row-between">
 			<view class="acea-row row-middle">
-				<image src="/static/warn.png" class="w-32 h-32 m-r-12" mode=""></image>
+				<image src="/otherpages/static/warn.png" class="w-32 h-32 m-r-12" mode=""></image>
 				注意：请填写并选择自己想要提现的方式
 			</view>
 		</view>

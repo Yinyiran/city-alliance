@@ -1,26 +1,72 @@
-// 定义全局字体 - 宽高
-@for $i from 8 through 1000 {
-  .font-#{$i} {font-size: 1rpx * $i !important;}
-  .w-#{$i} {width: 1rpx * $i;}
-  .h-#{$i} {height: 1rpx * $i;}
-  .lh-#{$i} {line-height: 1rpx * $i !important;}
-  .bor-#{$i} {border-radius: 1rpx * $i !important;}
+// 精简全局尺寸与原子类（按需生成，避免打包体积超限）
+$font-sizes: 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 40, 44, 46, 50, 54, 56, 60, 70;
+@each $val in $font-sizes {
+  .font-#{$val} { font-size: 1rpx * $val !important; }
 }
 
-// margin/padding:8-100rpx
-$i: 300;
-@while $i >= 2 {
-  .m-#{$i} {margin: 1rpx * $i;}
-  .m-t-#{$i} {margin-top: 1rpx * $i;}
-  .m-b-#{$i} {margin-bottom: 1rpx * $i;}
-  .m-l-#{$i} {margin-left: 1rpx * $i;}
-  .m-r-#{$i} {margin-right: 1rpx * $i;}
-  .p-#{$i} {padding: 1rpx * $i;}
-  .p-t-#{$i} {padding-top: 1rpx * $i;}
-  .p-b-#{$i} {padding-bottom: 1rpx * $i;}
-  .p-l-#{$i} {padding-left: 1rpx * $i;}
-  .p-r-#{$i} {padding-right: 1rpx * $i;}
-  $i: $i - 2;
+$bor-sizes: 8, 10, 12, 16, 20, 24, 28, 30, 32, 40, 42, 50, 60, 74, 100;
+@each $val in $bor-sizes {
+  .bor-#{$val} { border-radius: 1rpx * $val !important; }
+}
+
+$w-sizes: 4, 8, 16, 20, 22, 24, 26, 28, 30, 32, 36, 40, 44, 48, 50, 52, 56, 60, 64, 68, 70, 72, 74, 76, 80, 82, 84, 90, 96, 100, 106, 110, 120, 128, 132, 140, 144, 150, 160, 180, 192, 200, 220, 240, 260, 280, 300, 320, 340, 360, 378, 400;
+@each $val in $w-sizes {
+  .w-#{$val} { width: 1rpx * $val; }
+}
+
+$h-sizes: 4, 8, 16, 20, 22, 24, 26, 28, 30, 32, 36, 40, 44, 48, 50, 52, 56, 58, 60, 64, 68, 70, 72, 74, 76, 80, 82, 84, 86, 90, 96, 100, 110, 120, 136, 140, 144, 150, 160, 174, 180, 200, 220, 224, 240, 260, 280, 300, 320, 340, 360, 400;
+@each $val in $h-sizes {
+  .h-#{$val} { height: 1rpx * $val; }
+}
+
+$m-sizes: 10, 16, 20, 24, 30, 32, 40, 80;
+@each $val in $m-sizes {
+  .m-#{$val} { margin: 1rpx * $val; }
+}
+
+$mb-sizes: 4, 8, 10, 12, 16, 20, 24, 30, 32, 40, 48;
+@each $val in $mb-sizes {
+  .m-b-#{$val} { margin-bottom: 1rpx * $val; }
+}
+
+$ml-sizes: 4, 6, 8, 10, 12, 16, 20, 24, 28, 30, 32, 40, 52;
+@each $val in $ml-sizes {
+  .m-l-#{$val} { margin-left: 1rpx * $val; }
+}
+
+$mr-sizes: 4, 6, 8, 10, 12, 16, 20, 24, 28, 30, 32, 40, 48, 52;
+@each $val in $mr-sizes {
+  .m-r-#{$val} { margin-right: 1rpx * $val; }
+}
+
+$mt-sizes: 8, 10, 12, 16, 20, 22, 24, 28, 30, 32, 38, 40, 48, 60, 80, 220;
+@each $val in $mt-sizes {
+  .m-t-#{$val} { margin-top: 1rpx * $val; }
+}
+
+$p-sizes: 10, 16, 20, 24, 28, 30, 32, 40;
+@each $val in $p-sizes {
+  .p-#{$val} { padding: 1rpx * $val; }
+}
+
+$pb-sizes: 10, 16, 20, 24, 30, 32, 40, 68, 70;
+@each $val in $pb-sizes {
+  .p-b-#{$val} { padding-bottom: 1rpx * $val; }
+}
+
+$pl-sizes: 10, 16, 20, 24, 30, 32, 34, 40;
+@each $val in $pl-sizes {
+  .p-l-#{$val} { padding-left: 1rpx * $val; }
+}
+
+$pr-sizes: 10, 16, 20, 24, 30, 32, 34, 40;
+@each $val in $pr-sizes {
+  .p-r-#{$val} { padding-right: 1rpx * $val; }
+}
+
+$pt-sizes: 10, 16, 20, 24, 28, 30, 32, 40, 48, 80, 126;
+@each $val in $pt-sizes {
+  .p-t-#{$val} { padding-top: 1rpx * $val; }
 }
 
 // font-weight:400-800

@@ -1,9 +1,9 @@
-<template>
+﻿<template>
 	<view>
 		<nvabar title='签到码'></nvabar>
-		<image src="/static/sbg2.png" class="bgs" mode=""></image>
+		<image src="/otherpages/static/sbg2.png" class="bgs" mode=""></image>
 		<view class="mains">
-			<image src="/static/sbg3.png" mode=""></image>
+			<image src="/otherpages/static/sbg3.png" mode=""></image>
 			<view class="acea-row row-middle re m-80 p-t-80">
 				<image :src="$util.img(info.headimg)" v-if="info.headimg" class="w-100 h-100 bor-50" mode=""></image>
 				<image src="/static/avatar.png" v-else class="w-100 h-100 bor-50" mode=""></image>
@@ -33,7 +33,7 @@
 				</view>
 			</view>
 			<view class="btms">
-				<image src="/static/sbg4.png" mode=""></image>
+				<image src="/otherpages/static/sbg4.png" mode=""></image>
 				<view class="">注意：此二维码需前往指定商家线下扫码即可激活签到奖励</view>
 			</view>
 		</view>

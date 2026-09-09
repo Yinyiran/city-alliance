@@ -1,4 +1,4 @@
-<template>
+﻿<template>
 	<view>
 		<uv-sticky bg-color="#fff">
 			<nvabar type='1' title='购物车' titleStyle='color:#222'></nvabar>
@@ -41,7 +41,7 @@
 			</view>
 		</view>
 		<view class="acea-row row-middle row-center row-column" v-else>
-			<image src="/static/empty1.png" mode="" class="w-340 h-340 m-t-220"></image>
+			<image src="/otherpages/static/empty1.png" mode="" class="w-340 h-340 m-t-220"></image>
 			<view class="font-32 font-weight-6 m-t-24">您的购物车还是空的哦，快去选购吧</view>
 			<view class="btns" @click="goindex">去逛逛</view>
 		</view>

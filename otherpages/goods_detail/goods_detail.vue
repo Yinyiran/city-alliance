@@ -1,4 +1,4 @@
-<template>
+﻿<template>
 	<view>
 		<uv-sticky bg-color="#fff">
 			<nvabar type='1' title='商品详情' titleStyle='color:#222'></nvabar>
@@ -57,7 +57,7 @@
 			<view class="acea-row row-middle row-right m-t-20">
 				<view class="acea-row row-middle shares" @click="poster()">
 					<view class="">+{{yao_point}}分</view>
-					<image src="/static/share.png" class="w-24 h-24 m-l-16 m-r-8" mode=""></image>
+					<image src="/otherpages/static/share.png" class="w-24 h-24 m-l-16 m-r-8" mode=""></image>
 					分享
 				</view>
 			</view>
@@ -73,33 +73,33 @@
 			</view>
 			<view class="acea-row row-middle row-between m-t-16">
 				<view class="acea-row row-middle font-26">
-					<image src="/static/clock.png" class="w-26 h-26 m-r-12" mode=""></image>
+					<image src="/otherpages/static/clock.png" class="w-26 h-26 m-r-12" mode=""></image>
 					营业时间
 				</view>
 				<view class="font-26 font-weight-6">{{shop_info.open_date}}</view>
 			</view>
 			<view class="acea-row row-middle row-between m-t-16" v-if="type==1&&shop_info.address">
 				<view class="acea-row row-middle font-26">
-					<image src="/static/map4.png" class="w-26 h-26 m-r-12" mode=""></image>
+					<image src="/otherpages/static/map4.png" class="w-26 h-26 m-r-12" mode=""></image>
 					店面地址
 				</view>
 				<view class="acea-row row-middle">
 					<view class="w-378 text-more m-r-12 font-26 font-weight-6">{{shop_info.address}}</view>
 					<view class="bn1" @click="daohang">
-						<image src="/static/map6.png" class="w-22 h-22 m-r-4" mode=""></image>
+						<image src="/otherpages/static/map6.png" class="w-22 h-22 m-r-4" mode=""></image>
 						一键导航
 					</view>
 				</view>
 			</view>
 			<view class="acea-row row-middle row-between m-t-16" v-if="type==1&&shop_info.telphone">
 				<view class="acea-row row-middle font-26">
-					<image src="/static/phone4.png" class="w-26 h-26 m-r-12" mode=""></image>
+					<image src="/otherpages/static/phone4.png" class="w-26 h-26 m-r-12" mode=""></image>
 					门店电话
 				</view>
 				<view class="acea-row row-middle">
 					<view class="w-378 text-more m-r-12 font-26 font-weight-6">{{shop_info.telphone}}</view>
 					<view class="bn1" @click="calls">
-						<image src="/static/phone3.png" class="w-22 h-22 m-r-4" mode=""></image>
+						<image src="/otherpages/static/phone3.png" class="w-22 h-22 m-r-4" mode=""></image>
 						一键拨打
 					</view>
 				</view>
@@ -128,15 +128,15 @@
 		<!-- <uv-popup mode="bottom" :round='10' ref="popup">
 			<view class="acea-row row-middle shares1 row-around">
 				<view class="">
-					<image src="/static/wx1.png" class="w-96 h-96" mode=""></image>
+					<image src="/otherpages/static/wx1.png" class="w-96 h-96" mode=""></image>
 					<view class="">分享微信好友</view>
 				</view>
 				<view class="" @click="">
-					<image src="/static/wx2.png" class="w-96 h-96" mode=""></image>
+					<image src="/otherpages/static/wx2.png" class="w-96 h-96" mode=""></image>
 					<view class="">分享朋友圈</view>
 				</view>
 				<view class="" @click="poster">
-					<image src="/static/wx3.png" class="w-96 h-96" mode=""></image>
+					<image src="/otherpages/static/wx3.png" class="w-96 h-96" mode=""></image>
 					<view class="">下载海报</view>
 				</view>
 			</view>
@@ -145,7 +145,7 @@
 </template>
 
 <script>
-	import nsGoodsSku from '@/components/ns-goods-sku/ns-goods-sku.vue';
+	import nsGoodsSku from '../components/ns-goods-sku/ns-goods-sku.vue';
 	import {
 		Gdetail,
 		cartAdd,

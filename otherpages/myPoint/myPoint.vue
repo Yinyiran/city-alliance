@@ -1,7 +1,7 @@
-<template>
+﻿<template>
 	<view>
 		<nvabar title='我的积分'></nvabar>
-		<image src="/static/bg10.png" class="bg2s" mode=""></image>
+		<image src="/otherpages/static/bg10.png" class="bg2s" mode=""></image>
 		<view class="h-224 part1">
 			<view class="">我的积分</view>
 			<view class="">{{point}}</view>

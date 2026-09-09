@@ -1,9 +1,9 @@
-<template>
+﻿<template>
 	<view>
 		<uv-sticky>
 			<view class="bgs">
 				<nvabar title='关注列表'></nvabar>
-				<image src="/static/bg8.png" mode=""></image>
+				<image src="/otherpages/static/bg8.png" mode=""></image>
 				<view class="aaa">
 					<uv-input placeholder="请输入关键词搜索" v-model="keyword" :customStyle="customStyle" border="none">
 						<template v-slot:prefix>
@@ -33,7 +33,7 @@
 											<view class="font-28 font-weight-6 acea-row row-middle">
 												<image src="/static/stores.png" class="w-28 h-28 m-r-8" mode=""></image>
 												<view class="text-more w-200">{{item.site_name}}</view>
-												<image src="/static/go3.png" class="w-26 h-26 m-l-8" mode=""></image>
+												<image src="/otherpages/static/go3.png" class="w-26 h-26 m-l-8" mode=""></image>
 											</view>
 											<view class="font-22" style="color: #555;">{{item.distance}}</view>
 										</view>
@@ -41,22 +41,22 @@
 										<view class="acea-row row-middle row-between">
 											<view class="w1">
 												<view class="acea-row row-middle m-b-12 text-more">
-													<image src="/static/clock.png" class="w-22 h-22 m-r-4" mode="">
+													<image src="/otherpages/static/clock.png" class="w-22 h-22 m-r-4" mode="">
 													</image>
 													营业时间 {{item.open_date}}
 												</view>
 												<view class="acea-row row-middle ">
-													<image src="/static/map4.png" class="w-22 h-22 m-r-4" mode="">
+													<image src="/otherpages/static/map4.png" class="w-22 h-22 m-r-4" mode="">
 													</image>
 													<view class="w-200 text-more">{{item.address}}</view>
 												</view>
 											</view>
 											<view class="w2 acea-row row-middle">
 												<view class="m-r-16" @click="open1(item)">
-													<image src="/static/map3.png" mode=""></image>
+													<image src="/otherpages/static/map3.png" mode=""></image>
 												</view>
 												<view class="" @click="calls(item)">
-													<image src="/static/phone1.png" mode=""></image>
+													<image src="/otherpages/static/phone1.png" mode=""></image>
 												</view>
 											</view>
 										</view>

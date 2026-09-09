@@ -1,8 +1,8 @@
-<template>
+﻿<template>
 	<view>
 		<view class="teamtp">
 			<nvabar title='我的团队'></nvabar>
-			<image src="/static/teambg.png" mode=""></image>
+			<image src="/otherpages/static/teambg.png" mode=""></image>
 			<view class="aaa acea-row row-middle m-t-32 m-l-32 m-r-32">
 				<uv-input placeholder="请输入关键词搜索" v-model="keyword" :customStyle="customStyle" border="none">
 					<template v-slot:prefix>
@@ -12,14 +12,14 @@
 						<view class="search" @click="search">搜索</view>
 					</template>
 				</uv-input>
-				<image src="/static/btn2.png" @click='poster' class="w-192 h-64 m-l-24" mode=""></image>
+				<image src="/otherpages/static/btn2.png" @click='poster' class="w-192 h-64 m-l-24" mode=""></image>
 			</view>
 			<view class="">
 				<view class="">团队成员数量</view>
 				<view class=""><text>{{today_num}}</text>人</view>
 			</view>
 			<view class="acea-row row-middle row-around">
-				<image src="/static/teambg1.png" mode=""></image>
+				<image src="/otherpages/static/teambg1.png" mode=""></image>
 				<view class="m-t-22">
 					<view class="">今日新增</view>
 					<view class="font-weight-6">{{today_num}}</view>

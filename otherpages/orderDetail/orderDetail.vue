@@ -1,18 +1,18 @@
-<template>
+﻿<template>
 	<view>
 		<uv-sticky :bg-color="bgcolor">
 			<nvabar type='1' title='订单详情' titleStyle='color:#222'></nvabar>
 		</uv-sticky>
 		<view class="acea-row row-middle row-center row-column status" v-if="info.order_status==0">
 			<view class="acea-row row-middle">
-				<image src="/static/pay.png" class="w-36 h-36 m-r-12" mode=""></image>
+				<image src="/otherpages/static/pay.png" class="w-36 h-36 m-r-12" mode=""></image>
 				待支付
 			</view>
 			<view class="m-t-12" style="color: #999;">请在23小时59分钟内完成支付，逾期将会自动取消订单</view>
 		</view>
 		<view class="acea-row row-middle row-center row-column status status2" v-else-if="info.order_status==1">
 			<view class="acea-row row-middle">
-				<image src="/static/pay1.png" class="w-36 h-36 m-r-12" mode=""></image>
+				<image src="/otherpages/static/pay1.png" class="w-36 h-36 m-r-12" mode=""></image>
 				已支付
 			</view>
 			<view class="m-t-12" style="color: #999;">订单已支付，请前往门店出示核销码提货</view>
@@ -43,7 +43,7 @@
 		<view class="verify-card" v-if="canShowVerifyCode">
 			<view class="verify-header acea-row row-middle row-between">
 				<view class="acea-row row-middle">
-					<image src="/static/img2.png" class="w-36 h-36 m-r-12" mode=""></image>
+					<image src="/otherpages/static/img2.png" class="w-36 h-36 m-r-12" mode=""></image>
 					<text class="verify-title">提货核销码</text>
 				</view>
 				<view class="verify-badge">到店出示</view>

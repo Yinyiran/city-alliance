@@ -1,11 +1,11 @@
-<template>
+﻿<template>
 	<view>
 		<!-- <uv-sticky> -->
 		<nvabar title='同城商家'></nvabar>
 		<!-- </uv-sticky> -->
 		<image src="/static/bg1.png" class="bgs" mode=""></image>
 		<view class="part1">
-			<image src="/static/bg6.png" mode=""></image>
+			<image src="/otherpages/static/bg6.png" mode=""></image>
 			<image src="/static/t.png" mode=""></image>
 			<button open-type="contact" class="consult-btn">入驻咨询</button>
 			<view class="">{{ shop_num }}家</view>
@@ -19,9 +19,9 @@
 		</view>
 		<view class="container">
 			<view class="acea-row row-middle row-center m-b-32">
-				<image src="/static/lline.png" mode=""></image>
+				<image src="/otherpages/static/lline.png" mode=""></image>
 				<text>城盟联创</text>
-				<image src="/static/rline.png" mode=""></image>
+				<image src="/otherpages/static/rline.png" mode=""></image>
 			</view>
 			<video object-fit="contain" v-if="info.video_url_info" :src="$util.img(info.video_url_info)"></video>
 			<rich-text :nodes="$util.replaceImg(info.content_info)"></rich-text>

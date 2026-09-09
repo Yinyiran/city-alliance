@@ -14,7 +14,7 @@
 				<image src="/static/ob1.png" v-if="infos.member_level==2" mode=""></image>
 				<image src="/static/ob2.png" v-if="infos.member_level==3" mode=""></image>
 				<image src="/static/ob3.png" v-else-if="infos.member_level==4" mode=""></image>
-				<image src="/static/lines.png" mode=""></image>
+				<image src="/otherpages/static/lines.png" mode=""></image>
 				<view class="relative font-40 font-weight-6" :class="{fcolor:infos.member_level==4}">
 					{{infos.member_level_name}}
 				</view>
@@ -53,25 +53,25 @@
 		</view>
 		<view class="part2">
 			<view class="acea-row row-middle row-center m-b-48">
-				<image src="/static/画板 5.png" class="w-40 h-40" mode=""></image>
+				<image src="/otherpages/static/hb5.png" class="w-40 h-40" mode=""></image>
 				<text class="m-r-32 m-l-32">{{levels[check].level_name}}权益</text>
-				<image src="/static/画板 1.png" class="w-40 h-40" mode=""></image>
+				<image src="/otherpages/static/hb1.png" class="w-40 h-40" mode=""></image>
 			</view>
 			<view class="acea-row row-middle">
 				<view class="">
-					<image src="/static/img3.png" class="w-100 h-100" mode=""></image>
+					<image src="/otherpages/static/img3.png" class="w-100 h-100" mode=""></image>
 					<view class="">{{levels[check].consume_discount}}折优惠</view>
 				</view>
 				<view class="">
-					<image src="/static/img4.png" class="w-100 h-100" mode=""></image>
+					<image src="/otherpages/static/img4.png" class="w-100 h-100" mode=""></image>
 					<view class="text-more">赠送{{levels[check].fan_point}}积分</view>
 				</view>
 				<view class="">
-					<image src="/static/img5.png" class="w-100 h-100" mode=""></image>
+					<image src="/otherpages/static/img5.png" class="w-100 h-100" mode=""></image>
 					<view class="">专属客服</view>
 				</view>
 				<view class="">
-					<image src="/static/img6.png" class="w-100 h-100" mode=""></image>
+					<image src="/otherpages/static/img6.png" class="w-100 h-100" mode=""></image>
 					<view class="">免邮费</view>
 				</view>
 			</view>
@@ -82,14 +82,14 @@
 		</view>
 		<view class="h-68"></view>
 		<view class="btn3">
-			<image src="/static/btn3.png" @click="sbumit" mode=""></image>
+			<image src="/otherpages/static/btn3.png" @click="sbumit" mode=""></image>
 		</view>
 		<uv-popup ref="popup" bg-color="#ffffff00">
 			<view class="mains">
 				<view class="acea-row row-middle row-center p-t-48 m-b-20">
-					<image src="/static/llline1.png" class="w-52 h-4" mode=""></image>
+					<image src="/otherpages/static/llline1.png" class="w-52 h-4" mode=""></image>
 					<text>会员专属规则介绍</text>
-					<image src="/static/rline1.png" class="w-52 h-4" mode=""></image>
+					<image src="/otherpages/static/rline1.png" class="w-52 h-4" mode=""></image>
 				</view>
 				<scroll-view scroll-y="true" style="height: 480rpx;">
 					<view class="m-r-52 m-l-52">{{levels[check].remark}}</view>

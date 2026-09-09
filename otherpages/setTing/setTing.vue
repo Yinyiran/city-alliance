@@ -1,9 +1,9 @@
-<template>
+﻿<template>
 	<view>
 		<view class="main acea-row row-middle">
 			<view class="m-r-20">
 				<image :src="$util.img(infos.headimg)" mode=""></image>
-				<image src="/static/vv.png" mode=""></image>
+				<image src="/otherpages/static/vv.png" mode=""></image>
 			</view>
 			<view class="">
 				<view class="">
@@ -16,14 +16,14 @@
 		<view class="container">
 			<view class="acea-row row-middle row-between" @click="gonext('profile')">
 				<view class="acea-row row-middle font-32">
-					<image src="/static/grxx.png" class="w-40 h-40 m-r-20" mode=""></image>
+					<image src="/otherpages/static/grxx.png" class="w-40 h-40 m-r-20" mode=""></image>
 					个人信息
 				</view>
 				<uv-icon name="arrow-right" color="#CCCCCC" size="24"></uv-icon>
 			</view>
 			<view class="acea-row row-middle row-between" @click="gonext('phones')">
 				<view class="acea-row row-middle font-32">
-					<image src="/static/phone2.png" class="w-40 h-40 m-r-20" mode=""></image>
+					<image src="/otherpages/static/phone2.png" class="w-40 h-40 m-r-20" mode=""></image>
 					手机号
 				</view>
 				<view class="acea-row row-middle">
@@ -33,7 +33,7 @@
 			</view>
 			<view class="acea-row row-middle row-between" @click="gonext('address')">
 				<view class="acea-row row-middle font-32">
-					<image src="/static/map5.png" class="w-40 h-40 m-r-20" mode=""></image>
+					<image src="/otherpages/static/map5.png" class="w-40 h-40 m-r-20" mode=""></image>
 					收货地址
 				</view>
 				<uv-icon name="arrow-right" color="#CCCCCC" size="24"></uv-icon>
@@ -42,7 +42,7 @@
 		<view class="container">
 			<view class="acea-row row-middle row-between" @click="exit">
 				<view class="acea-row row-middle font-32">
-					<image src="/static/exit.png" class="w-40 h-40 m-r-20" mode=""></image>
+					<image src="/otherpages/static/exit.png" class="w-40 h-40 m-r-20" mode=""></image>
 					退出登录
 				</view>
 				<uv-icon name="arrow-right" color="#CCCCCC" size="24"></uv-icon>

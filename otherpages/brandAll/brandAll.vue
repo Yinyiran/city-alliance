@@ -1,20 +1,20 @@
-<template>
+﻿<template>
 	<view>
 		<!-- <uv-sticky> -->
 			<nvabar title='全部品牌'></nvabar>
 		<!-- </uv-sticky> -->
 		<image src="/static/bg1.png" class="bgs" mode=""></image>
 		<view class="part1">
-			<image src="/static/bg6.png" mode=""></image>
+			<image src="/otherpages/static/bg6.png" mode=""></image>
 			<image src="/static/t.png" mode=""></image>
 			<button open-type="contact" class="consult-btn">入驻咨询</button>
 			<view class="">{{shop_num}}家</view>
 		</view>
 		<view class="container">
 			<view class="acea-row row-middle row-center titles">
-				<image src="/static/lline.png" mode=""></image>
+				<image src="/otherpages/static/lline.png" mode=""></image>
 				<view class="">商家距离推荐</view>
-				<image src="/static/rline.png" mode=""></image>
+				<image src="/otherpages/static/rline.png" mode=""></image>
 			</view>
 			<view v-for="(item,index) in list" class="m-b-20" @click="godetail(item.store_id)" :key="index">
 				<view class="p-24">
@@ -34,7 +34,7 @@
 								<view class="font-28 font-weight-6 acea-row row-middle">
 									<image src="/static/shop.png" class="w-28 h-28 m-r-8" mode=""></image>
 									<view class="text-more font-28" style="width: 200rpx;">{{item.store_name}}</view>
-									<image src="/static/go3.png" class="w-26 h-26 m-l-8" mode=""></image>
+									<image src="/otherpages/static/go3.png" class="w-26 h-26 m-l-8" mode=""></image>
 								</view>
 								<view class="font-22" style="color: #555;">{{item.distance_value}}km</view>
 							</view>
@@ -42,22 +42,22 @@
 							<view class="acea-row row-middle row-between">
 								<view class="w1">
 									<view class="acea-row row-middle m-b-12 text-more">
-										<image src="/static/clock.png" class="w-22 h-22 m-r-4" mode="">
+										<image src="/otherpages/static/clock.png" class="w-22 h-22 m-r-4" mode="">
 										</image>
 										营业时间 {{item.open_date}}
 									</view>
 									<view class="acea-row row-middle ">
-										<image src="/static/map4.png" class="w-22 h-22 m-r-4" mode="">
+										<image src="/otherpages/static/map4.png" class="w-22 h-22 m-r-4" mode="">
 										</image>
 										<view class="w-200 text-more">{{item.address}}</view>
 									</view>
 								</view>
 								<view class="w2 acea-row row-middle">
 									<view class="m-r-16" @click.stop="daohang(item)">
-										<image src="/static/map2.png" mode=""></image>
+										<image src="/otherpages/static/map2.png" mode=""></image>
 									</view>
 									<view class="" @click.stop="calls(item)">
-										<image src="/static/phone.png" mode=""></image>
+										<image src="/otherpages/static/phone.png" mode=""></image>
 									</view>
 								</view>
 							</view>

@@ -1,35 +1,35 @@
-<template>
+﻿<template>
 	<view>
 		<view class="tops">
 			<image :src="$util.img('upload/uniapp/invite-bg.png')" mode=""></image>
 			<view class="">
 				<view class="">· 每邀1单奖<text>{{yao_point}}</text>积分 邀请的越多获得的福利也越多 ·</view>
-				<image src="/static/introduce-bg.png" mode=""></image>
+				<image src="/otherpages/static/introduce-bg.png" mode=""></image>
 			</view>
 			<view class="part acea-row row-middle row-around p-r-34 p-l-34">
 				<view class="w-132">
-					<image src="/static/rule1.png" class="w-76 h-76" mode=""></image>
+					<image src="/otherpages/static/rule1.png" class="w-76 h-76" mode=""></image>
 					<view class="">
 						分享链接 给好友
 					</view>
 				</view>
-				<image src="/static/schedule.png" class="w-36 h-36" mode=""></image>
+				<image src="/otherpages/static/schedule.png" class="w-36 h-36" mode=""></image>
 				<view class="w-132">
-					<image src="/static/rule2.png" class="w-76 h-76" mode=""></image>
+					<image src="/otherpages/static/rule2.png" class="w-76 h-76" mode=""></image>
 					<view class="">
 						好友注册 可获得 新人专属福利
 					</view>
 				</view>
-				<image src="/static/schedule.png" class="w-36 h-36" mode=""></image>
+				<image src="/otherpages/static/schedule.png" class="w-36 h-36" mode=""></image>
 				<view class="w-132">
-					<image src="/static/rule3.png" class="w-76 h-76" mode=""></image>
+					<image src="/otherpages/static/rule3.png" class="w-76 h-76" mode=""></image>
 					<view class="">
 						好友完成 授权注册 得积分奖励
 					</view>
 				</view>
-				<image src="/static/schedule.png" class="w-36 h-36" mode=""></image>
+				<image src="/otherpages/static/schedule.png" class="w-36 h-36" mode=""></image>
 				<view class="w-132">
-					<image src="/static/rule4.png" class="w-76 h-76" mode=""></image>
+					<image src="/otherpages/static/rule4.png" class="w-76 h-76" mode=""></image>
 					<view class="">
 						好友 入驻会员 得现金奖励
 					</view>
@@ -39,9 +39,9 @@
 		<view class="container p-t-126 p-r-32 p-l-32 p-b-68">
 			<view class="part h-240 p-32">
 				<view class="as acea-row row-middle row-center">
-					<image src="/static/lline.png" mode=""></image>
+					<image src="/otherpages/static/lline.png" mode=""></image>
 					<text>我的成就</text>
-					<image src="/static/rline.png" mode=""></image>
+					<image src="/otherpages/static/rline.png" mode=""></image>
 				</view>
 				<view class="acea-row row-middle m-t-20 row-around">
 					<view class="">
@@ -61,9 +61,9 @@
 			</view>
 			<view class="part h-240 p-32 m-t-24">
 				<view class="as acea-row row-middle row-center">
-					<image src="/static/lline.png" mode=""></image>
+					<image src="/otherpages/static/lline.png" mode=""></image>
 					<text>邀约奖励</text>
-					<image src="/static/rline.png" mode=""></image>
+					<image src="/otherpages/static/rline.png" mode=""></image>
 				</view>
 				<view class="acea-row row-middle m-t-20 row-around">
 					<view class="">
@@ -83,9 +83,9 @@
 			</view>
 			<view class="part p-32 m-t-24">
 				<view class="as acea-row row-middle row-center">
-					<image src="/static/lline.png" mode=""></image>
+					<image src="/otherpages/static/lline.png" mode=""></image>
 					<text>邀请记录</text>
-					<image src="/static/rline.png" mode=""></image>
+					<image src="/otherpages/static/rline.png" mode=""></image>
 				</view>
 				<view class="a2q">
 					<view v-for="(item,index) in list" :key="index">
@@ -96,7 +96,7 @@
 				</view>
 			</view>
 			<view class="btn m-t-48 m-r-32 m-l-32">
-				<image src="/static/Invite-button.png" class="h-136" style="width: 100%;" mode=""></image>
+				<image src="/otherpages/static/Invite-button.png" class="h-136" style="width: 100%;" mode=""></image>
 			</view>
 		</view>
 	</view>

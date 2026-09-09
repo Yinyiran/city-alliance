@@ -1,9 +1,9 @@
-<template>
+﻿<template>
 	<view>
 		<nvabar type='1' title='我的钱包' titleStyle='color:#222'></nvabar>
-		<image src="/static/bg7.png" class="bgs" mode=""></image>
+		<image src="/otherpages/static/bg7.png" class="bgs" mode=""></image>
 		<view class="mains">
-			<image src="/static/img2.png" mode=""></image>
+			<image src="/otherpages/static/img2.png" mode=""></image>
 			<view class="fcolor">账户总余额 (元)</view>
 			<view class="fcolor1 font-weight-6 font-56">{{(parseFloat(info.balance) + parseFloat(info.balance_money)).toFixed(2)}}</view>
 			<view class="acea-row row-middle m-t-20">

@@ -1,10 +1,10 @@
-<template>
+﻿<template>
 	<view>
 		<view class="address p-32 bor-24" v-if="info1.goodstype==3">
 			<view class="acea-row row-middle row-between">
 				<view class="">我的收获地址</view>
 				<view class="acea-row row-middle" @click="$util.redirectTo('/otherpages/address/address')">
-					<image src="/static/edit.png" class="w-24 h-24 m-r-4" mode=""></image>
+					<image src="/otherpages/static/edit.png" class="w-24 h-24 m-r-4" mode=""></image>
 					切换收货地址
 				</view>
 			</view>
@@ -16,7 +16,7 @@
 			</view>
 			<view class="acea-row row-middle row-center h-174" v-else
 				@click="$util.redirectTo('/otherpages/address/address')">
-				<image src="/static/map7.png" class="w-26 h-26" mode=""></image>
+				<image src="/otherpages/static/map7.png" class="w-26 h-26" mode=""></image>
 				<text class="font-26 m-r-10 m-l-10">请选择收货地址</text>
 				<uv-icon name="arrow-right" color="#999999" size="18"></uv-icon>
 			</view>

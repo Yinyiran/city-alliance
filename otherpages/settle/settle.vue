@@ -1,4 +1,4 @@
-<template>
+﻿<template>
 	<view>
 		<uv-sticky>
 			<nvabar type='1' title='入驻城盟' titleStyle='color:#222'></nvabar>
@@ -12,7 +12,7 @@
 			<view class="">
 				<view v-for="(item,index) in list" @click="check=index" :class="{on:check==index}" :key="index">
 					{{item.category_name}}
-					<image src="/static/checked.png" v-if="check==index" mode=""></image>
+					<image src="/otherpages/static/checked.png" v-if="check==index" mode=""></image>
 				</view>
 			</view>
 		</view>
