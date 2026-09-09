@@ -1,0 +1,11 @@
+{
+    "servers": {
+        "dbx": {
+            "type": "stdio",
+            "command": "C:\\Program Files\\nvm\\v24.14.0\\node.exe",
+            "args": [
+                "C:\\Program Files\\nvm\\v24.14.0\\node_modules\\@dbx-app\\mcp-server\\bin\\dbx-mcp-server.js"
+            ]
+        }
+    }
+}

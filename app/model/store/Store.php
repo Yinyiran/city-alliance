@@ -350,18 +350,57 @@ class Store extends BaseModel
      */
     public function storeDetail($data)
     {
-        $store_condition = [
+        $base_condition = [
             ['status', '=', 1],
             ['is_frozen', '=', 0],
             ['is_pickup', '=', 1],
         ];
-        if (!empty($data['store_id'])) {
-            $store_condition[] = ['store_id', '=', $data['store_id']];
-        } elseif (!empty($data['site_id'])) {
-            $store_condition[] = ['site_id', '=', $data['site_id']];
-        }
         $field = 'store_id,store_name,telphone,store_image,store_logo,site_id,province_id,city_id,district_id,address,full_address,longitude,latitude,open_date,store_desc';
-        $result = model('store')->getInfo($store_condition, $field);
+        $result = null;
+
+        // 1. 如果传了 store_id，先按 store_id 查找
+        if (!empty($data['store_id'])) {
+            $condition = array_merge($base_condition, [['store_id', '=', $data['store_id']]]);
+            $result = model('store')->getInfo($condition, $field);
+            // 容错：前端可能误将 site_id 当作 store_id 传入
+            if (empty($result)) {
+                $condition = array_merge($base_condition, [['site_id', '=', $data['store_id']]]);
+                $result = model('store')->getInfo($condition, $field);
+            }
+        }
+
+        // 2. 如果未找到且传了 site_id，按 site_id 查找
+        if (empty($result) && !empty($data['site_id'])) {
+            $condition = array_merge($base_condition, [['site_id', '=', $data['site_id']]]);
+            $result = model('store')->getInfo($condition, $field);
+        }
+
+        // 3. 如果当前登录用户身上有绑定的 site_id（商家ID），且未指定门店或上面未查到，尝试根据用户自身绑定的商家匹配门店
+        if (empty($result) && !empty($data['member_id'])) {
+            $member = model('member')->getInfo([['member_id', '=', $data['member_id']]], 'site_id,website_id');
+            if (!empty($member['site_id'])) {
+                $condition = array_merge($base_condition, [['site_id', '=', $member['site_id']]]);
+                $result = model('store')->getInfo($condition, $field);
+            }
+            if (empty($result) && empty($data['website_id']) && !empty($member['website_id'])) {
+                $data['website_id'] = $member['website_id'];
+            }
+        }
+
+        // 4. 兜底保护：如果用户没有绑定商家或指定门店不存在，优先获取所属城市分站的有效门店
+        if (empty($result) && !empty($data['website_id'])) {
+            $site_ids = model('shop')->getColumn(['website_id' => $data['website_id']], 'site_id');
+            if (!empty($site_ids)) {
+                $condition = array_merge($base_condition, [['site_id', 'in', $site_ids]]);
+                $result = model('store')->getInfo($condition, $field, 'store_id desc');
+            }
+        }
+
+        // 5. 全局兜底：获取系统中第一个可用的有效门店，绝不让前端白屏
+        if (empty($result)) {
+            $result = model('store')->getInfo($base_condition, $field, 'store_id desc');
+        }
+
         if ($result) {
             //关注量 购买量
             //门店总关注人数
@@ -377,6 +416,15 @@ class Store extends BaseModel
             $result['total_sales'] = max(intval($shop_info['shop_sales'] ?? 0), intval($result['order_num'] ?? 0));
             if (!empty($shop_info['logo'])) {
                 $result['shop_logo'] = $shop_info['logo'];
+            }
+
+            // 计算与用户当前位置的距离
+            $result['distance'] = '0km';
+            $result['distance_value'] = 0;
+            if (!empty($data['latitude']) && !empty($data['longitude']) && !empty($result['latitude']) && !empty($result['longitude'])) {
+                $distance = getDistance2($data['longitude'], $data['latitude'], $result['longitude'], $result['latitude']);
+                $result['distance'] = $distance . 'km';
+                $result['distance_value'] = floatval($distance);
             }
 
             // 商户 Banner 列表（优先展示后台上传的专属 Banner）
@@ -401,7 +449,7 @@ class Store extends BaseModel
     }
 
     /**
-     * 城市下商家
+     * 门店列表（支持指定商家、城市筛选，并根据经纬度按距离升序排列）
      */
     public function websiteStore($data)
     {
@@ -410,11 +458,52 @@ class Store extends BaseModel
             ['is_frozen', '=', 0],
             ['is_pickup', '=', 1],
         ];
-        //该城市的商家
-        $site_ids = model('shop')->getColumn(['website_id'=>$data['website_id']],'site_id');
-        $store_condition[] = ['site_id', 'in', $site_ids];
         $field = 'store_id,store_name,telphone,store_image,store_logo,site_id,province_id,city_id,district_id,address,full_address,longitude,latitude,open_date,store_desc';
-        $list = model('store')->getList($store_condition, $field, 'store_id desc');
+        $list = [];
+
+        // 1. 如果传了指定商家 site_id，优先获取该商家名下的所有门店
+        if (!empty($data['site_id'])) {
+            $condition = array_merge($store_condition, [['site_id', '=', $data['site_id']]]);
+            $list = model('store')->getList($condition, $field, 'store_id desc');
+        }
+
+        // 2. 如果未指定 site_id 或该商家下未查到门店，按城市 website_id 筛选
+        if (empty($list) && !empty($data['website_id'])) {
+            $site_ids = model('shop')->getColumn(['website_id' => $data['website_id']], 'site_id');
+            if (!empty($site_ids)) {
+                $condition = array_merge($store_condition, [['site_id', 'in', $site_ids]]);
+                $list = model('store')->getList($condition, $field, 'store_id desc');
+            }
+        }
+
+        // 3. 兜底：返回所有可用门店
+        if (empty($list)) {
+            $list = model('store')->getList($store_condition, $field, 'store_id desc');
+        }
+
+        // 4. LBS距离计算与格式化
+        $latitude = $data['latitude'] ?? null;
+        $longitude = $data['longitude'] ?? null;
+        foreach ($list as $key => $value) {
+            $full_address = str_replace(',', '', $value['full_address'] ?? '') . ($value['address'] ?? '');
+            $list[$key]['address_text'] = $full_address ?: ($value['address'] ?? '');
+            $list[$key]['distance'] = '';
+            $list[$key]['distance_value'] = 999999;
+            if (!empty($latitude) && !empty($longitude) && !empty($value['latitude']) && !empty($value['longitude'])) {
+                $dist = getDistance2($longitude, $latitude, $value['longitude'], $value['latitude']);
+                $list[$key]['distance'] = $dist . 'km';
+                $list[$key]['distance_value'] = floatval($dist);
+            }
+        }
+
+        // 5. 若有经纬度，按距离由近到远排序
+        if (!empty($latitude) && !empty($longitude)) {
+            usort($list, function ($a, $b) {
+                if ($a['distance_value'] == $b['distance_value']) return 0;
+                return ($a['distance_value'] < $b['distance_value']) ? -1 : 1;
+            });
+        }
+
         return $this->success($list);
     }
 

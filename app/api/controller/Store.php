@@ -90,10 +90,14 @@ class Store extends BaseApi
         $token = $this->checkToken();
         $store_id = $this->params['store_id'] ?? $this->params['id'] ?? 0;
         $site_id = $this->params['site_id'] ?? 0;
+        $website_id = $this->params['website_id'] ?? 0;
         $data = [
-            'member_id' => $this->member_id,
-            'store_id'  => $store_id,
-            'site_id'   => $site_id,
+            'member_id'  => $this->member_id,
+            'store_id'   => $store_id,
+            'site_id'    => $site_id,
+            'website_id' => $website_id,
+            'latitude'   => $this->params['latitude'] ?? null,
+            'longitude'  => $this->params['longitude'] ?? null,
         ];
         $store_model = new StoreModel();
         $result = $store_model->storeDetail($data);
@@ -101,12 +105,15 @@ class Store extends BaseApi
 	}
 
 	/**
-     * 城市下商家
+     * 门店列表（支持按城市或指定商家查询，并支持LBS距离计算）
      */
     public function websiteStore()
     {
         $data = [
             'website_id' => $this->params['website_id'] ?? 0,
+            'site_id'    => $this->params['site_id'] ?? 0,
+            'latitude'   => $this->params['latitude'] ?? null,
+            'longitude'  => $this->params['longitude'] ?? null,
         ];
         $store_model = new StoreModel();
         $result = $store_model->websiteStore($data);
