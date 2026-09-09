@@ -1,0 +1,143 @@
+{extend name="base"/}
+{block name="resources"}
+<style>
+    .ns-form {margin-top: 0;}
+    .img-upload-lable { width: 120px; }
+    .upload-img-box { width: 240px; height: 120px; }
+    .upload-img-box .upload { width: 240px; height: 120px; }
+    .upload-img-box .preview_img { width: 240px; height: 120px; }
+    .upload-img-box .preview_img img { max-width: 100%; max-height: 100%; }
+</style>
+{/block}
+
+{block name="main"}
+<div class="layui-form ns-form">
+    <input type="hidden" name="id" value="{$info.id}">
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span class="required">*</span>Banner名称：</label>
+        <div class="layui-input-block">
+            <input type="text" name="name" value="{$info.name}" autocomplete="off" lay-verify="required" placeholder="请输入Banner名称" class="layui-input ns-len-long">
+        </div>
+        <div class="ns-word-aux">展示在Banner上的简短标题或说明</div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label img-upload-lable"><span class="required">*</span>Banner图片：</label>
+        <div class="layui-input-block img-upload">
+            <div class="upload-img-block">
+                <div class="upload-img-box {notempty name="$info['image']"}hover{/notempty}">
+                    <div class="ns-upload-default" id="bannerUpload">
+                        {notempty name="$info.image"}
+                        <div id="preview_bannerUpload" class="preview_img">
+                            <img layer-src src="{:img($info.image)}" class="img_prev"/>
+                        </div>
+                        {else/}
+                        <div class="upload">
+                            <img src="SHOP_IMG/upload_img.png" data-id="bannerUpload"/>
+                            <p>点击上传</p>
+                        </div>
+                        {/notempty}
+                    </div>
+                    <div class="operation">
+                        <div>
+                            <i title="图片预览" class="iconfont iconreview js-preview" style="margin-right: 20px;"></i>
+                            <i title="删除图片" class="layui-icon layui-icon-delete js-delete"></i>
+                        </div>
+                        <div class="replace_img js-replace">点击替换</div>
+                    </div>
+                    <input type="hidden" name="image" value="{$info.image}" lay-verify="image_required"/>
+                </div>
+            </div>
+        </div>
+        <div class="ns-word-aux">
+            <p>建议图片比例为 2:1 或 16:9，推荐尺寸 750px * 360px，格式支持 jpg、png、jpeg。</p>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">跳转路径：</label>
+        <div class="layui-input-block">
+            <input type="text" name="url" value="{$info.url}" autocomplete="off" placeholder="例如：/otherpages/goods_detail/goods_detail?id=123" class="layui-input ns-len-long">
+        </div>
+        <div class="ns-word-aux">点击Banner后跳转的小程序页面路径，可留空</div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">排序：</label>
+        <div class="layui-input-block">
+            <input type="number" name="sort" value="{$info.sort}" autocomplete="off" placeholder="数字越大越靠前" class="layui-input ns-len-short">
+        </div>
+        <div class="ns-word-aux">排序号越大越靠前显示</div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">是否启用：</label>
+        <div class="layui-input-block">
+            <input type="checkbox" name="status" value="1" lay-skin="switch" lay-text="开启|关闭" {if $info.status == 1}checked{/if}>
+        </div>
+    </div>
+
+    <div class="ns-form-row">
+        <button class="layui-btn ns-bg-color" lay-submit lay-filter="save">保存</button>
+        <button class="layui-btn layui-btn-primary" onclick="back()">返回</button>
+    </div>
+</div>
+{/block}
+
+{block name="script"}
+<script>
+    layui.use(['form'], function () {
+        var form = layui.form;
+        var repeat_flag = false;
+        form.render();
+
+        // 验证图片必填
+        form.verify({
+            image_required: function(value) {
+                if (!value) {
+                    return '请上传Banner图片';
+                }
+            }
+        });
+
+        // 初始化图片上传
+        var banner_upload = new Upload({
+            elem: '#bannerUpload'
+        });
+
+        // 提交保存
+        form.on('submit(save)', function (data) {
+            if (repeat_flag) return;
+            repeat_flag = true;
+
+            data.field.status = data.field.status ? 1 : 0;
+
+            $.ajax({
+                type: "POST",
+                dataType: 'JSON',
+                url: ns.url("shop/banner/edit"),
+                async: true,
+                data: data.field,
+                success: function (res) {
+                    repeat_flag = false;
+                    if (res.code >= 0) {
+                        layer.msg('修改成功', { icon: 1 }, function () {
+                            location.href = ns.url("shop/banner/lists");
+                        });
+                    } else {
+                        layer.msg(res.message);
+                    }
+                },
+                error: function () {
+                    repeat_flag = false;
+                }
+            });
+        });
+    });
+
+    function back() {
+        location.href = ns.url("shop/banner/lists");
+    }
+</script>
+{/block}

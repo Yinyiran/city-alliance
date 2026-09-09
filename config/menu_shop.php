@@ -1491,6 +1491,59 @@ return [
                         ]
                     ],
                     [
+                        'name' => 'SHOP_BANNER_CONFIG',
+                        'title' => 'Banner管理',
+                        'url' => 'shop/banner/lists',
+                        'is_show' => 1,
+                        'is_control' => 1,
+                        'is_icon' => 0,
+                        'picture' => '',
+                        'picture_selected' => '',
+                        'sort' => 2,
+                        'child_list' => [
+                            [
+                                'name' => 'SHOP_BANNER_LISTS',
+                                'title' => 'Banner列表',
+                                'url' => 'shop/banner/lists',
+                                'is_show' => 0,
+                                'is_control' => 1,
+                                'sort' => 1,
+                            ],
+                            [
+                                'name' => 'SHOP_BANNER_ADD',
+                                'title' => '添加Banner',
+                                'url' => 'shop/banner/add',
+                                'is_show' => 0,
+                                'is_control' => 1,
+                                'sort' => 2,
+                            ],
+                            [
+                                'name' => 'SHOP_BANNER_EDIT',
+                                'title' => '编辑Banner',
+                                'url' => 'shop/banner/edit',
+                                'is_show' => 0,
+                                'is_control' => 1,
+                                'sort' => 3,
+                            ],
+                            [
+                                'name' => 'SHOP_BANNER_DELETE',
+                                'title' => '删除Banner',
+                                'url' => 'shop/banner/delete',
+                                'is_show' => 0,
+                                'is_control' => 1,
+                                'sort' => 4,
+                            ],
+                            [
+                                'name' => 'SHOP_BANNER_STATUS',
+                                'title' => '修改Banner状态',
+                                'url' => 'shop/banner/modifyStatus',
+                                'is_show' => 0,
+                                'is_control' => 1,
+                                'sort' => 5,
+                            ],
+                        ]
+                    ],
+                    [
                         'name' => 'INVOICE_CONFIG',
                         'title' => '发票设置',
                         'url' => 'shop/order/config',
@@ -1499,7 +1552,7 @@ return [
                         'is_icon' => 0,
                         'picture' => '',
                         'picture_selected' => '',
-                        'sort' => 2,
+                        'sort' => 3,
                     ],
                     [
                         'name' => 'MESSAGE_SHOP_USER',

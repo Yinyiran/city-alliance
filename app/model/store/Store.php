@@ -354,22 +354,50 @@ class Store extends BaseModel
             ['status', '=', 1],
             ['is_frozen', '=', 0],
             ['is_pickup', '=', 1],
-            ['store_id', '=', $data['store_id']],
         ];
-        $field = 'store_id,store_name,telphone,store_image,site_id,province_id,city_id,district_id,address,full_address,longitude,latitude,open_date,store_desc';
-        $result = model('store')->getInfo($store_condition,$field);
+        if (!empty($data['store_id'])) {
+            $store_condition[] = ['store_id', '=', $data['store_id']];
+        } elseif (!empty($data['site_id'])) {
+            $store_condition[] = ['site_id', '=', $data['site_id']];
+        }
+        $field = 'store_id,store_name,telphone,store_image,store_logo,site_id,province_id,city_id,district_id,address,full_address,longitude,latitude,open_date,store_desc';
+        $result = model('store')->getInfo($store_condition, $field);
         if ($result) {
             //关注量 购买量
             //门店总关注人数
-            $result['total_num'] = model('shop_member')->getCount(['site_id'=>$result['site_id'],'is_subscribe'=>1]);
+            $result['total_num'] = model('shop_member')->getCount(['site_id' => $result['site_id'], 'is_subscribe' => 1]);
             //订单数
             $condition = [];
-            $condition[] = ['order_status', 'in', [1,2,3,4,10]];
+            $condition[] = ['order_status', 'in', [1, 2, 3, 4, 10]];
             $condition[] = ['site_id', '=', $result['site_id']];
             $result['order_num'] = model('order')->getCount($condition);
+
+            // 累计销量
+            $shop_info = model('shop')->getInfo([['site_id', '=', $result['site_id']]], 'shop_sales,logo,avatar');
+            $result['total_sales'] = max(intval($shop_info['shop_sales'] ?? 0), intval($result['order_num'] ?? 0));
+            if (!empty($shop_info['logo'])) {
+                $result['shop_logo'] = $shop_info['logo'];
+            }
+
+            // 商户 Banner 列表（优先展示后台上传的专属 Banner）
+            $banner_list = model('banner')->getList([
+                ['site_id', '=', $result['site_id']],
+                ['status', '=', 1]
+            ], 'id,name,image,url,sort', 'sort desc, id desc');
+
+            if (empty($banner_list) && !empty($result['store_image'])) {
+                $banner_list = [
+                    [
+                        'id' => 0,
+                        'name' => $result['store_name'],
+                        'image' => $result['store_image'],
+                        'url' => ''
+                    ]
+                ];
+            }
+            $result['banner_list'] = $banner_list ?: [];
         }
         return $this->success($result);
-
     }
 
     /**

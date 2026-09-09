@@ -88,9 +88,12 @@ class Store extends BaseApi
     public function storeDetail()
     {
         $token = $this->checkToken();
+        $store_id = $this->params['store_id'] ?? $this->params['id'] ?? 0;
+        $site_id = $this->params['site_id'] ?? 0;
         $data = [
             'member_id' => $this->member_id,
-            'store_id' => $this->params['store_id'],
+            'store_id'  => $store_id,
+            'site_id'   => $site_id,
         ];
         $store_model = new StoreModel();
         $result = $store_model->storeDetail($data);

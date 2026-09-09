@@ -86,4 +86,52 @@ class Goodscategory extends BaseApi
         }
         return $this->response($data);
     }
+
+    /**
+     * 获取商家的商品分类列表（供下拉筛选）
+     */
+    public function siteCategoryList()
+    {
+        $site_id = $this->params['site_id'] ?? 0;
+        $category_list = [];
+
+        if (!empty($site_id)) {
+            $cat_ids_arr = model('goods')->getColumn([
+                ['site_id', '=', $site_id],
+                ['goods_state', '=', 1],
+                ['verify_state', '=', 1],
+                ['is_delete', '=', 0]
+            ], 'category_id');
+
+            $all_ids = [];
+            foreach ($cat_ids_arr as $cids) {
+                if (!empty($cids)) {
+                    $parts = array_filter(explode(',', trim($cids, ',')));
+                    foreach ($parts as $p) {
+                        if (is_numeric($p) && intval($p) > 0) {
+                            $all_ids[] = intval($p);
+                        }
+                    }
+                }
+            }
+            $all_ids = array_unique($all_ids);
+
+            if (!empty($all_ids)) {
+                $category_list = model('goods_category')->getList([
+                    ['category_id', 'in', $all_ids],
+                    ['is_show', '=', 1]
+                ], 'category_id,category_name,short_name,image,sort', 'sort asc, category_id asc');
+            }
+        }
+
+        // 若未获取到分类，则降级获取一级公共分类
+        if (empty($category_list)) {
+            $category_list = model('goods_category')->getList([
+                ['pid', '=', 0],
+                ['is_show', '=', 1]
+            ], 'category_id,category_name,short_name,image,sort', 'sort asc, category_id asc');
+        }
+
+        return $this->response($this->success($category_list ?: []));
+    }
 }

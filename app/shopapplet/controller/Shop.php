@@ -153,4 +153,75 @@ class Shop extends Common
 
         return $this->response($this->success($data));
     }
+
+    /**
+     * 门店Banner列表
+     */
+    public function bannerList()
+    {
+        $site_id = $this->site_id;
+        if (empty($site_id)) {
+            return $this->response($this->error('', '未获取到商家身份'));
+        }
+        $list = model('banner')->getList([
+            ['site_id', '=', $site_id]
+        ], '*', 'sort desc, id desc');
+        return $this->response($this->success($list ?: []));
+    }
+
+    /**
+     * 添加门店Banner
+     */
+    public function bannerAdd()
+    {
+        $site_id = $this->site_id;
+        if (empty($site_id)) {
+            return $this->response($this->error('', '未获取到商家身份'));
+        }
+
+        $image = $this->params['image'] ?? '';
+        $name = $this->params['name'] ?? '';
+        $url = $this->params['url'] ?? '';
+        $sort = $this->params['sort'] ?? 0;
+
+        if (empty($image)) {
+            return $this->response($this->error('', '请上传Banner图片'));
+        }
+
+        $shop = model('shop')->getInfo([['site_id', '=', $site_id]], 'website_id');
+        $website_id = $shop['website_id'] ?? 0;
+
+        $data = [
+            'site_id'     => $site_id,
+            'website_id'  => $website_id,
+            'name'        => $name,
+            'image'       => $image,
+            'url'         => $url,
+            'status'      => 1,
+            'sort'        => $sort,
+            'create_time' => time(),
+            'type'        => 3
+        ];
+
+        $res = model('banner')->add($data);
+        return $this->response($this->success($res));
+    }
+
+    /**
+     * 删除门店Banner
+     */
+    public function bannerDelete()
+    {
+        $site_id = $this->site_id;
+        $id = $this->params['id'] ?? 0;
+        if (empty($id)) {
+            return $this->response($this->error('', '缺少参数'));
+        }
+
+        $res = model('banner')->delete([
+            ['id', '=', $id],
+            ['site_id', '=', $site_id]
+        ]);
+        return $this->response($this->success($res));
+    }
 }
