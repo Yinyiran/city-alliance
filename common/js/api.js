@@ -183,3 +183,5 @@ export const shareAdd=params=>server('/api/video/shareAdd',params)
 export const reviewStatus=params=>server('/api/api/reviewStatus',params)
 //获取/刷新订单动态核销码
 export const getVerifyCode=params=>server('/api/order/verifyCode',params)
+//商家商品分类列表
+export const siteCategoryList=params=>server('/api/goodscategory/siteCategoryList',params)
