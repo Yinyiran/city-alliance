@@ -8,8 +8,13 @@
 					<image src="/static/muted1.png" class="w-82 h-82" v-else mode=""></image>
 				</view>
 				<view class="Circular" style="">
-					<CircularProgress @getpoint='getpoint' @restart='restart' @godetail='godetail' ref="progress"
-						:point='point' :target='second'></CircularProgress>
+					<CircularProgress @getpoint='getpoint' @restart='restart' @godetail='godetail' @show-limit='handleShowLimit' ref="progress"
+						:point='item.point' :target='item.second'
+						:point-status='item.point_status'
+						:point-status-code='item.point_status_code'
+						:point-status-msg='item.point_status_msg'
+						:today-point-count='item.today_point_count'
+						:point-limit-num='item.point_limit_num'></CircularProgress>
 					<!-- <cover-view class="btns"></cover-view> -->
 				</view>
 				<view class="swiper-item" >
@@ -123,6 +128,51 @@
 				</view>
 			</view>
 		</uv-popup>
+		<!-- 积分限制说明弹窗 -->
+		<uv-popup ref="limitModal" :zIndex="10020" :round="16" mode="center" :closeable="true">
+			<view class="limit-modal-content">
+				<view class="limit-modal-header">
+					<image src="/static/bag2.png" class="header-icon" mode="aspectFit"></image>
+					<view class="header-title">积分领取规则说明</view>
+				</view>
+
+				<view class="limit-status-card" :class="limitInfo.pointStatusCode">
+					<view class="status-badge-row">
+						<text class="status-dot"></text>
+						<text class="status-badge-text">{{ currentStatusTitle }}</text>
+					</view>
+					<view class="status-detail-desc">{{ currentStatusDesc }}</view>
+				</view>
+
+				<view class="limit-rule-box">
+					<view class="rule-box-title">
+						<text class="title-bar"></text>
+						<text>奖励规则说明</text>
+					</view>
+					<view class="rule-item">
+						<text class="rule-num">1.</text>
+						<text class="rule-text">观看视频期间，右侧金币圆环进度条将自动计时。</text>
+					</view>
+					<view class="rule-item">
+						<text class="rule-num">2.</text>
+						<text class="rule-text">转动一满圈完成倒计时后，积分将直接发放到您的账户中。</text>
+					</view>
+					<view class="rule-item">
+						<text class="rule-num">3.</text>
+						<text class="rule-text">每个视频每日均有专属领取次数上限，每日 00:00 自动刷新。</text>
+					</view>
+				</view>
+
+				<view class="limit-modal-actions">
+					<button class="action-btn-primary" v-if="limitInfo.pointStatusCode === 'not_login'" @click="handleGoLogin">
+						立即登录
+					</button>
+					<button class="action-btn-primary" v-else @click="closeLimitModal">
+						我知道了
+					</button>
+				</view>
+			</view>
+		</uv-popup>
 		<login ref="login" @loginsuccess='loginsuccess'></login>
 	</view>
 </template>
@@ -148,6 +198,15 @@
 				list: [],
 				page: 1,
 				current: 0,
+				limitInfo: {
+					pointStatus: 1,
+					pointStatusCode: 'ok',
+					pointStatusMsg: '',
+					todayPointCount: 0,
+					pointLimitNum: 0,
+					point: 0,
+					second: 0
+				},
 				videoContexts: [],
 				showa: 0,
 				page1: 1,
@@ -221,22 +280,44 @@
 		},
 		computed: {
 			second() {
-				if (this.list.length <= 0) return 0
+				if (this.list.length <= 0 || !this.list[this.current]) return 0
 				let info = this.list[this.current]
 				return info.second
 			},
 			point() {
-				if (this.list.length <= 0) return 0
+				if (this.list.length <= 0 || !this.list[this.current]) return 0
 				let info = this.list[this.current]
 				return info.point
 			},
 			point_status() {
-				if (this.list.length <= 0) return 0
+				if (this.list.length <= 0 || !this.list[this.current]) return 0
 				let info = this.list[this.current]
 				return info.point_status
 			},
 			percent() {
 				return (this.currentTime / this.duration) * 100
+			},
+			currentStatusTitle() {
+				const code = this.limitInfo.pointStatusCode;
+				if (code === 'limit_reached') return '今日领取次数已达上限';
+				if (code === 'not_login') return '当前账号尚未登录';
+				if (code === 'no_reward') return '该视频暂未开放积分奖励';
+				return '当前无法领取积分';
+			},
+			currentStatusDesc() {
+				const code = this.limitInfo.pointStatusCode;
+				if (code === 'limit_reached') {
+					const num = this.limitInfo.pointLimitNum || 0;
+					const count = this.limitInfo.todayPointCount || 0;
+					return `您今日已成功领取该视频 ${count} 次积分（每日上限 ${num} 次）。每日 00:00 自动刷新重置，欢迎明天再来观看领取！`;
+				}
+				if (code === 'not_login') {
+					return '登录账户后观看短视频满足倒计时时长，即可自动获得金币积分奖励，快去登录吧~';
+				}
+				if (code === 'no_reward') {
+					return '该视频暂未配置观看积分奖励，您可以滑动浏览更多同城精选视频参与赚积分活动！';
+				}
+				return this.limitInfo.pointStatusMsg || '该视频当前暂无法获取积分奖励，请稍后再试。';
 			},
 		},
 		methods: {
@@ -301,17 +382,40 @@
 				}
 			},
 			getdetail() {
+				if (!this.list || !this.list[this.current]) return Promise.resolve();
 				let params = {
 					id: this.list[this.current].id,
 				}
-				vDetail(params).then(res => {
+				return vDetail(params).then(res => {
 					if (res.code == 0) {
-						this.list[this.current] = res.data
+						this.list.splice(this.current, 1, res.data)
 					}
 				})
 			},
 			loginsuccess() {
-				this.token = uni.getStorageSync('token')
+				this.token = uni.getStorageSync('token') || ''
+				if (this.list && this.list[this.current]) {
+					this.getdetail()
+				}
+			},
+			handleShowLimit(info) {
+				this.limitInfo = Object.assign({}, this.limitInfo, info);
+				if (this.$refs.limitModal && typeof this.$refs.limitModal.open === 'function') {
+					this.$refs.limitModal.open();
+				}
+			},
+			closeLimitModal() {
+				if (this.$refs.limitModal && typeof this.$refs.limitModal.close === 'function') {
+					this.$refs.limitModal.close();
+				}
+			},
+			handleGoLogin() {
+				this.closeLimitModal();
+				this.$nextTick(() => {
+					if (this.$refs.login && typeof this.$refs.login.open === 'function') {
+						this.$refs.login.open();
+					}
+				});
 			},
 			restart() {
 				this.isTimerRunning = false
@@ -882,6 +986,162 @@
 				left: 0;
 				top: 0;
 				object-fit: contain;
+			}
+		}
+	}
+
+	.limit-modal-content {
+		width: 580rpx;
+		background: #FFFFFF;
+		border-radius: 28rpx;
+		padding: 44rpx 36rpx 36rpx;
+		box-sizing: border-box;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+
+		.limit-modal-header {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			margin-bottom: 28rpx;
+
+			.header-icon {
+				width: 88rpx;
+				height: 88rpx;
+				margin-bottom: 16rpx;
+			}
+
+			.header-title {
+				font-size: 34rpx;
+				font-weight: 700;
+				color: #222222;
+				letter-spacing: 1rpx;
+			}
+		}
+
+		.limit-status-card {
+			width: 100%;
+			background: #FFF7EC;
+			border: 1rpx solid #FFE3C2;
+			border-radius: 16rpx;
+			padding: 22rpx 24rpx;
+			box-sizing: border-box;
+			margin-bottom: 28rpx;
+
+			.status-badge-row {
+				display: flex;
+				align-items: center;
+				margin-bottom: 12rpx;
+
+				.status-dot {
+					width: 14rpx;
+					height: 14rpx;
+					border-radius: 50%;
+					background: #FF6B00;
+					margin-right: 12rpx;
+				}
+
+				.status-badge-text {
+					font-size: 26rpx;
+					font-weight: 600;
+					color: #FF6B00;
+				}
+			}
+
+			.status-detail-desc {
+				font-size: 24rpx;
+				color: #666666;
+				line-height: 1.6;
+			}
+
+			&.not_login {
+				background: #EEF4FF;
+				border-color: #C8DCFF;
+				.status-dot { background: #2F72FF; }
+				.status-badge-text { color: #2F72FF; }
+			}
+
+			&.no_reward {
+				background: #F5F5F5;
+				border-color: #E5E5E5;
+				.status-dot { background: #888888; }
+				.status-badge-text { color: #666666; }
+			}
+		}
+
+		.limit-rule-box {
+			width: 100%;
+			background: #F9F9F9;
+			border-radius: 14rpx;
+			padding: 20rpx 22rpx;
+			box-sizing: border-box;
+			margin-bottom: 36rpx;
+
+			.rule-box-title {
+				display: flex;
+				align-items: center;
+				font-size: 24rpx;
+				font-weight: 600;
+				color: #333333;
+				margin-bottom: 14rpx;
+
+				.title-bar {
+					width: 6rpx;
+					height: 22rpx;
+					background: linear-gradient(180deg, #FF6B00 0%, #FF9000 100%);
+					border-radius: 4rpx;
+					margin-right: 10rpx;
+				}
+			}
+
+			.rule-item {
+				display: flex;
+				align-items: flex-start;
+				margin-bottom: 10rpx;
+
+				&:last-child {
+					margin-bottom: 0;
+				}
+
+				.rule-num {
+					font-size: 22rpx;
+					color: #999999;
+					margin-right: 8rpx;
+					line-height: 1.5;
+				}
+
+				.rule-text {
+					font-size: 22rpx;
+					color: #777777;
+					line-height: 1.5;
+					flex: 1;
+				}
+			}
+		}
+
+		.limit-modal-actions {
+			width: 100%;
+
+			.action-btn-primary {
+				width: 100%;
+				height: 76rpx;
+				background: linear-gradient(90deg, #FF5B29 0%, #FF2638 100%);
+				border-radius: 38rpx;
+				font-size: 28rpx;
+				font-weight: 600;
+				color: #FFFFFF;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				box-shadow: 0 6rpx 16rpx rgba(255, 38, 56, 0.3);
+				border: none;
+				outline: none;
+
+				&:active {
+					opacity: 0.9;
+					transform: scale(0.98);
+				}
 			}
 		}
 	}

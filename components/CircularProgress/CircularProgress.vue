@@ -1,5 +1,11 @@
 <template>
 	<view class="container">
+		<!-- 无法领取积分时的上方简短提示 Tag -->
+		<view class="limit-tag" v-if="pointStatus != 1" @click.stop="onTagClick">
+			<text class="limit-tag-text">{{ tagText }}</text>
+			<text class="limit-tag-icon">?</text>
+		</view>
+
 		<!-- 将按钮移到最外层 -->
 		<view class="b1" @click="show">{{!showitem?'立即领取':`${point}积分`}}</view>
 		<view class="aws" v-if="showitem" >
@@ -10,7 +16,7 @@
 				<view class="">{{point}}积分</view>
 			</view>
 		</view>
-		<view class="circle-container">
+		<view class="circle-container" @click="onCircleClick">
 			<!-- <l-circle :strokeWidth='3' :trailWidth='3' :duration='1000' :size='50' strokeColor='#FED83D' :canvas='true'
 				:current="modelVale" @update:current="modelVale = $event" :percent="target">
 				<view class="a1s">
@@ -23,7 +29,7 @@
 				</view>
 			</l-circle> -->
 			<luanqing-progressbar  ref="ringProgressBar" active-color="#FED83D"
-				default-color="rgba(0, 0, 0, 0.32)" mode="ring" :border="8" :ringSize="100" :deley="target*1000">
+				default-color="rgba(0, 0, 0, 0.32)" mode="ring" :border="8" :ringSize="100" :deley="Number(target)*1000">
 				<view class="a1s">
 					<image src="/static/bag1.png" v-if='!showitem' class="w-52 h-52" mode=""></image>
 					<image src="/static/bag2.png" v-else class="w-52 h-52" mode=""></image>
@@ -46,26 +52,84 @@
 		},
 		props: {
 			target: {
-				type: Number,
+				type: [Number, String],
 				default: 0
 			},
 			point: {
+				type: [String, Number],
+				default: 0
+			},
+			pointStatus: {
+				type: [Number, String],
+				default: 1
+			},
+			pointStatusCode: {
 				type: String,
+				default: 'ok'
+			},
+			pointStatusMsg: {
+				type: String,
+				default: ''
+			},
+			todayPointCount: {
+				type: [Number, String],
+				default: 0
+			},
+			pointLimitNum: {
+				type: [Number, String],
 				default: 0
 			}
 		},
+		computed: {
+			tagText() {
+				if (this.pointStatusCode === 'limit_reached') {
+					return '已达上限'
+				}
+				if (this.pointStatusCode === 'not_login') {
+					return '登录领奖'
+				}
+				if (this.pointStatusCode === 'no_reward') {
+					return '暂无奖励'
+				}
+				return '无法领取'
+			}
+		},
 		methods: {
+			onTagClick() {
+				this.$emit('show-limit', {
+					pointStatus: this.pointStatus,
+					pointStatusCode: this.pointStatusCode,
+					pointStatusMsg: this.pointStatusMsg,
+					todayPointCount: this.todayPointCount,
+					pointLimitNum: this.pointLimitNum,
+					point: this.point,
+					second: this.target
+				})
+			},
+			onCircleClick() {
+				if (this.pointStatus != 1) {
+					this.onTagClick()
+				}
+			},
 			start(){
-				this.$refs.ringProgressBar.start();
+				if (this.$refs.ringProgressBar && typeof this.$refs.ringProgressBar.start === 'function') {
+					this.$refs.ringProgressBar.start();
+				}
 			},
 			stop(){
-				this.$refs.ringProgressBar.stop();
+				if (this.$refs.ringProgressBar && typeof this.$refs.ringProgressBar.stop === 'function') {
+					this.$refs.ringProgressBar.stop();
+				}
 			},
 			pause(){
-				this.$refs.ringProgressBar.pause();
+				if (this.$refs.ringProgressBar && typeof this.$refs.ringProgressBar.pause === 'function') {
+					this.$refs.ringProgressBar.pause();
+				}
 			},
 			resume(){
-				this.$refs.ringProgressBar.resume();
+				if (this.$refs.ringProgressBar && typeof this.$refs.ringProgressBar.resume === 'function') {
+					this.$refs.ringProgressBar.resume();
+				}
 			},
 			show() {
 				uni.navigateTo({
@@ -99,6 +163,53 @@
 		width: 100rpx;
 		height: 100rpx;
 		position: relative;
+
+		.limit-tag {
+			position: absolute;
+			top: -46rpx;
+			left: 50%;
+			transform: translateX(-50%);
+			z-index: 99999;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			white-space: nowrap;
+			height: 38rpx;
+			padding: 0 14rpx;
+			background: rgba(18, 18, 18, 0.82);
+			border: 1rpx solid rgba(254, 216, 61, 0.6);
+			border-radius: 19rpx;
+			box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.35);
+			backdrop-filter: blur(8px);
+			box-sizing: border-box;
+
+			.limit-tag-text {
+				font-size: 20rpx;
+				color: #FED83D;
+				font-weight: 500;
+				line-height: 1;
+			}
+
+			.limit-tag-icon {
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				width: 22rpx;
+				height: 22rpx;
+				border-radius: 50%;
+				background: rgba(254, 216, 61, 0.22);
+				color: #FED83D;
+				font-size: 18rpx;
+				font-weight: 600;
+				margin-left: 6rpx;
+				line-height: 1;
+			}
+
+			&:active {
+				transform: translateX(-50%) scale(0.95);
+				opacity: 0.9;
+			}
+		}
 
 		.circle-container {
 			position: relative;
