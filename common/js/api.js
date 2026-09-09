@@ -75,3 +75,9 @@ export const memberwithdrawapply=params=>server('/api/memberwithdraw/apply',para
 export const memberwithdrawconfig=params=>server('/api/memberwithdraw/config',params)
 //获取商家小程序二维码
 export const getShopQrcode=params=>server('/shopapplet/shop/getShopQrcode',params)
+//门店Banner列表
+export const shopBannerList=params=>server('/shopapplet/shop/bannerList',params)
+//添加门店Banner
+export const shopBannerAdd=params=>server('/shopapplet/shop/bannerAdd',params)
+//删除门店Banner
+export const shopBannerDelete=params=>server('/shopapplet/shop/bannerDelete',params)

@@ -132,6 +132,14 @@
 				"navigationBarTitleText" : "商家小程序码",
 				"navigationBarBackgroundColor": "#F5F5F5"
 			}
+		},
+		{
+			"path" : "bannerManage/bannerManage",
+			"style" : 
+			{
+				"navigationBarTitleText" : "Banner管理",
+				"navigationBarBackgroundColor": "#F5F5F5"
+			}
 		}]
 	}],
 	"tabBar": {

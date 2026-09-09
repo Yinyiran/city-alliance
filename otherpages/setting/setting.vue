@@ -1,6 +1,16 @@
 <template>
 	<view class="page">
 		<view class="menu-list">
+			<view class="menu-item" @click="navToBanner">
+				<view class="menu-left">
+					<uv-icon name="photo" color="#333333" size="20"></uv-icon>
+					<text class="menu-title">Banner管理</text>
+				</view>
+				<view class="menu-right">
+					<text class="menu-desc">管理门店轮播图</text>
+					<uv-icon name="arrow-right" color="#999999" size="14"></uv-icon>
+				</view>
+			</view>
 			<view class="menu-item" @click="navToShopQr">
 				<view class="menu-left">
 					<uv-icon name="grid" color="#333333" size="20"></uv-icon>
@@ -27,6 +37,11 @@
 			return {}
 		},
 		methods: {
+			navToBanner() {
+				uni.navigateTo({
+					url: '/otherpages/bannerManage/bannerManage'
+				})
+			},
 			navToShopQr() {
 				uni.navigateTo({
 					url: '/otherpages/shopQr/shopQr'
