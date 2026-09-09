@@ -73,3 +73,5 @@ export const shopLogin=params=>server('/shopapplet/merchant/shopLogin',params)
 export const memberwithdrawapply=params=>server('/api/memberwithdraw/apply',params)
 //提现设置
 export const memberwithdrawconfig=params=>server('/api/memberwithdraw/config',params)
+//获取商家小程序二维码
+export const getShopQrcode=params=>server('/shopapplet/shop/getShopQrcode',params)

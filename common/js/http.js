@@ -68,6 +68,8 @@ export function server(url, params, methods, silent) {
 						// token 为空时提示用户先登录
 						const msg = res.data.msg == 'token不能为空' ? '请登录后，查看数据' : (res.data.msg ||
 							'请求失败，请稍后重试');
+						uni.hideLoading();
+
 						// uni.showToast({
 						// 	title: msg,
 						// 	icon: 'none',

@@ -124,6 +124,14 @@
 				"navigationBarTitleText" : "设置",
 				"navigationBarBackgroundColor": "#F5F5F5"
 			}
+		},
+		{
+			"path" : "shopQr/shopQr",
+			"style" : 
+			{
+				"navigationBarTitleText" : "商家小程序码",
+				"navigationBarBackgroundColor": "#F5F5F5"
+			}
 		}]
 	}],
 	"tabBar": {
