@@ -165,13 +165,29 @@ export default {
 	},
 	async onLoad(res) {
 		// 定位/城市恢复统一在 onShow 中处理，避免首次进入时 onLoad + onShow 重复触发定位授权提示
-		if (res.scene) {
-			var sceneParams = decodeURIComponent(res.scene);
-			sceneParams = sceneParams.split('&');
-			if (sceneParams.length) {
-				sceneParams.forEach(item => {
-					if (item.indexOf('suid') != -1) uni.setStorageSync('invite_code', item.split('-')[1]);
-				});
+		if (res) {
+			if (res.site_id) {
+				uni.setStorageSync('share_site_id', res.site_id);
+			}
+			if (res.suid) {
+				uni.setStorageSync('invite_code', res.suid);
+			}
+			if (res.scene) {
+				try {
+					var sceneParams = decodeURIComponent(res.scene);
+					sceneParams = sceneParams.split('&');
+					if (sceneParams.length) {
+						sceneParams.forEach(item => {
+							const parts = item.includes('-') ? item.split('-') : item.split('=');
+							const k = parts[0];
+							const v = parts[1];
+							if (k === 'site_id' || k === 's') uni.setStorageSync('share_site_id', v);
+							if (k === 'suid' || k === 'invite_code') uni.setStorageSync('invite_code', v);
+						});
+					}
+				} catch (e) {
+					console.error('parse scene error', e);
+				}
 			}
 		}
 	},

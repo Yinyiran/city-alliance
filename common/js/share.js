@@ -1,20 +1,46 @@
-var MemberNO = uni.getStorageSync('MemberNO')
+export function appendShareParams(path) {
+  if (!path) path = '/pages/index/index';
+  const site_id = uni.getStorageSync('user_site_id') || uni.getStorageSync('share_site_id') || '';
+  let suid = '';
+  const userInfo = uni.getStorageSync('userInfo');
+  if (userInfo && (userInfo.member_id || userInfo.id)) {
+    suid = userInfo.member_id || userInfo.id;
+  }
+  if (!suid) {
+    suid = uni.getStorageSync('invite_code') || '';
+  }
+  const hasQuestion = path.indexOf('?') !== -1;
+  const params = [];
+  if (site_id && path.indexOf('site_id=') === -1) {
+    params.push(`site_id=${site_id}`);
+  }
+  if (suid && path.indexOf('suid=') === -1) {
+    params.push(`suid=${suid}`);
+  }
+  if (params.length > 0) {
+    return path + (hasQuestion ? '&' : '?') + params.join('&');
+  }
+  return path;
+}
+
 export default {
   data() {
     return {
       // 设置默认的分享参数
       // 如果页面不设置share，就触发这个默认的分享
       share: {
-        title: '快来和我一起体验吧~',  
+        title: '快来和我一起体验吧~',
         path: '/pages/index/index',
       },
     };
   },
   onShareAppMessage(res) {
-    var that = this;
+    const that = this;
+    const rawPath = (that.share && that.share.path) ? that.share.path : '/pages/index/index';
+    const finalPath = appendShareParams(rawPath);
     return {
-      title: that.share.title,
-      path: that.share.path,
+      title: that.share ? that.share.title : '快来和我一起体验吧~',
+      path: finalPath,
       success(res) {
         uni.showToast({
           title: '分享成功',
@@ -28,19 +54,13 @@ export default {
       },
     };
   },
-  onShareTimeline(res) { // 分享到朋友圈
-    var that = this;
+  onShareTimeline(res) {
+    const that = this;
+    const rawPath = (that.share && that.share.path) ? that.share.path : '/pages/index/index';
+    const finalPath = appendShareParams(rawPath);
     return {
-      title: that.share.title,
-      path: that.share.path,
+      title: that.share ? that.share.title : '快来和我一起体验吧~',
+      path: finalPath,
     };
   },
-  onShareAppMessage() {
-  	var that = this;
-  	return {
-  	  title: that.share.title,
-  	  path: that.share.path,
-  	};
-  },
-  
 };

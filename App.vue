@@ -1,7 +1,8 @@
 <script>
 	export default {
 		globalData: {},
-		onLaunch: function() {
+		onLaunch: function(options) {
+			this.parseShareParams(options);
 			let _this = this
 			uni.getSystemInfo({
 				success: function(e) {
@@ -51,9 +52,43 @@
 			});
 			// #endif
 		},
+		onShow: function(options) {
+			this.parseShareParams(options);
+		},
 		onLoad: function() {},
 		onHide: function() {
 			console.log('App Hide')
+		},
+		methods: {
+			parseShareParams(options) {
+				if (!options) return;
+				const query = options.query || {};
+				if (query.site_id) {
+					uni.setStorageSync('share_site_id', query.site_id);
+				}
+				if (query.suid) {
+					uni.setStorageSync('invite_code', query.suid);
+				}
+				if (query.scene) {
+					try {
+						const sceneStr = decodeURIComponent(query.scene);
+						const pairs = sceneStr.split('&');
+						pairs.forEach(pair => {
+							const parts = pair.includes('-') ? pair.split('-') : pair.split('=');
+							const k = parts[0];
+							const v = parts[1];
+							if (k === 'site_id' || k === 's') {
+								uni.setStorageSync('share_site_id', v);
+							}
+							if (k === 'suid' || k === 'invite_code') {
+								uni.setStorageSync('invite_code', v);
+							}
+						});
+					} catch (e) {
+						console.error('parse scene error', e);
+					}
+				}
+			}
 		}
 	}
 </script>

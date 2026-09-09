@@ -196,12 +196,14 @@
 				})
 				uni.login({
 					success: res => {
+						const shareSiteId = uni.getStorageSync('share_site_id') || ''
 						const params = {
 							code: res.code,
 							iv: iv,
 							encryptedData: encryptedData,
 							weapp_openid: this.weapp_openid,
-							suid: this.suid
+							suid: this.suid,
+							site_id: shareSiteId
 						}
 						mobileauth(params).then(res => {
 							uni.hideLoading()
@@ -222,6 +224,10 @@
 				try {
 					const res = await userinfo()
 					const info = res.data || {}
+					if (info.site_id) {
+						uni.setStorageSync('user_site_id', info.site_id)
+					}
+					uni.setStorageSync('userInfo', info)
 					if (!info.nickname) {
 						// 关闭手机号弹窗，打开完善资料弹窗
 						this.close()

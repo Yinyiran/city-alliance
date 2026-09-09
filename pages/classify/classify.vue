@@ -128,6 +128,7 @@
 </template>
 
 <script>
+	import { appendShareParams } from "@/common/js/share.js";
 	import {
     commcollect,
     commentCreate,
@@ -178,8 +179,10 @@
 			await this.isguanzhu()
 		},
 		onShareAppMessage() {
+			const id = (this.list && this.list[this.current]) ? this.list[this.current].id : '';
+			const rawPath = id ? ("/pages/classify/classify?id=" + id) : "/pages/classify/classify";
 			return {
-				path:"/pages/classify/classify?id="+this.list[this.current].id,
+				path: appendShareParams(rawPath),
 				success:()=>{
 					console.log('分享成功');
 				},

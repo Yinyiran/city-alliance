@@ -227,6 +227,8 @@
 		},
 		onShareAppMessage(res) {
 			var path = '/otherpages/goods_detail/goods_detail?id=' + this.id;
+			const site_id = uni.getStorageSync('user_site_id') || uni.getStorageSync('share_site_id') || '';
+			if (site_id) path += '&site_id=' + site_id;
 			if (this.member_id) path += '&suid=' + this.member_id;
 			return {
 				title: this.info.sku_name,
@@ -240,6 +242,8 @@
 		// 分享到微信朋友圈
 		onShareTimeline() {
 			let query = 'sku_id=' + this.skuId;
+			const site_id = uni.getStorageSync('user_site_id') || uni.getStorageSync('share_site_id') || '';
+			if (site_id) query += '&site_id=' + site_id;
 			if (this.member_id) query += '&suid=' + this.member_id;
 			return {
 				title: this.info.sku_name,

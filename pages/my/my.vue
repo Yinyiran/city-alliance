@@ -354,6 +354,12 @@
 			userinfo() {
 				userinfo().then(res => {
 					this.infos = res.data
+					if (res.data) {
+						if (res.data.site_id) {
+							uni.setStorageSync('user_site_id', res.data.site_id)
+						}
+						uni.setStorageSync('userInfo', res.data)
+					}
 				})
 			},
 			gonext(e) {
