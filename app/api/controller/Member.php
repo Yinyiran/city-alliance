@@ -71,6 +71,39 @@ class Member extends BaseApi
             if (empty($info['data']['website_id']) && $website_id) {
                 model('member')->update(['website_id'=>$website_id], ['member_id'=>$this->member_id]);
             }
+
+            // 员工/主理人所属商家id自动同步与绑定
+            $member_id = $token['data']['member_id'];
+            $mobile = $info['data']['mobile'] ?? '';
+            $current_site_id = (int)($info['data']['site_id'] ?? 0);
+            $emp = null;
+            if (!empty($mobile)) {
+                $emp = model('shop_employee')->getInfo([['mobile', '=', $mobile], ['status', '=', 1], ['is_deleted', '=', 0]]);
+            }
+            if (empty($emp) && !empty($member_id)) {
+                $emp = model('shop_employee')->getInfo([['member_id', '=', $member_id], ['status', '=', 1], ['is_deleted', '=', 0]]);
+            }
+            if (!empty($emp)) {
+                if ($current_site_id != $emp['shop_id']) {
+                    $current_site_id = (int)$emp['shop_id'];
+                    model('member')->update(['site_id' => $current_site_id], ['member_id' => $member_id]);
+                    $info['data']['site_id'] = $current_site_id;
+                }
+                if (empty($emp['member_id'])) {
+                    model('shop_employee')->update(['member_id' => $member_id], ['id' => $emp['id']]);
+                }
+            }
+
+            // 补充商家基本信息（名称、Logo）
+            $info['data']['site_name'] = '';
+            $info['data']['site_logo'] = '';
+            if (!empty($info['data']['site_id'])) {
+                $shop = model('shop')->getInfo([['site_id', '=', $info['data']['site_id']]], 'site_id,site_name,logo,avatar');
+                if (!empty($shop)) {
+                    $info['data']['site_name'] = $shop['site_name'] ?? '';
+                    $info['data']['site_logo'] = !empty($shop['logo']) ? $shop['logo'] : ($shop['avatar'] ?? '');
+                }
+            }
         }
 
         return $this->response($info);

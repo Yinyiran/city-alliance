@@ -133,7 +133,10 @@ class ShopEmployee extends BaseModel
         ];
         $res=Db::name("shop_employee")->save($data);
         if($res>0){
-        return $this->success("操作成功");
+            if ($member_id > 0) {
+                Db::name("member")->where("member_id", $member_id)->update(['site_id' => $params["shop_id"]]);
+            }
+            return $this->success("操作成功");
         }else{
             return $this->error("新增失败");
 

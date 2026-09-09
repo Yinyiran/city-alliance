@@ -90,6 +90,14 @@ class Tripartite extends BaseApi
 
         $this->params['mobile'] = $decrypt_data['data']['purePhoneNumber'];
 
+        // 绑定商家ID参数识别
+        if (empty($this->params['site_id']) && !empty($this->params['share_site_id'])) {
+            $this->params['site_id'] = (int)$this->params['share_site_id'];
+        }
+        if (!empty($this->params['site_id'])) {
+            $this->params['site_id'] = (int)$this->params['site_id'];
+        }
+
         $register = new RegisterModel();
         $exist    = $register->mobileExist($this->params["mobile"]);
 

@@ -268,14 +268,32 @@ class Login extends BaseModel
         } elseif ($info[ 'status' ] == 0) {
             return $this->error('', 'MEMBER_IS_LOCKED');
         } else {
-            //更新登录时间
-            model("member")->update([
+            //更新登录时间及所属商家
+            $update_data = [
                 'login_time' => time(),
                 'login_type' => empty($data['app_type'])?'':$data['app_type'],
                 'login_type_name' => empty($data['app_type_name'])?'':$data['app_type_name'],
                 'last_login_time' => time(),
                 'login_ip' => request()->ip(),
-            ], [ [ 'member_id', '=', $info[ 'member_id' ] ] ]);
+            ];
+
+            // 检查所属商家绑定
+            $current_site_id = model("member")->getValue([ [ 'member_id', '=', $info[ 'member_id' ] ] ], 'site_id');
+            // 1. 如果是商家员工/主理人，绑定为该商家
+            $emp = \think\facade\Db::name('shop_employee')
+                ->where([ [ 'mobile', '=', $info['mobile'] ], [ 'is_deleted', '=', 0 ] ])
+                ->find();
+            if ($emp && !empty($emp['shop_id'])) {
+                $update_data['site_id'] = (int)$emp['shop_id'];
+                if (empty($emp['member_id'])) {
+                    \think\facade\Db::name('shop_employee')->where('employee_id', $emp['employee_id'])->update(['member_id' => $info['member_id']]);
+                }
+            } elseif (empty($current_site_id) && !empty($data['site_id'])) {
+                // 2. 如果用户尚未绑定商家，且本次登录传入了商家ID
+                $update_data['site_id'] = (int)$data['site_id'];
+            }
+
+            model("member")->update($update_data, [ [ 'member_id', '=', $info[ 'member_id' ] ] ]);
 
             event("MemberLogin", [ 'member_id' => $info[ 'member_id' ] ], true);
 

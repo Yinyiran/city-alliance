@@ -30,9 +30,15 @@ class Register extends BaseModel
         $member_level = new MemberLevel();
         $member_level_info = $member_level->getMemberLevelInfo([['is_default', '=', 1]], 'level_id,level_name');
         $member_level_info = $member_level_info['data'];
+        $site_id = !empty($data['site_id']) ? (int)$data['site_id'] : 0;
         if (isset($data['suid']) && !empty($data['suid'])) {
             $count = model("member")->getCount([['member_id', '=', $data['suid']], ['is_delete', '=', 0]]);
-            if (!$count) $data['suid'] = 0;
+            if (!$count) {
+                $data['suid'] = 0;
+            } else if (empty($site_id)) {
+                $p_site_id = model("member")->getValue([['member_id', '=', $data['suid']]], 'site_id');
+                if (!empty($p_site_id)) $site_id = (int)$p_site_id;
+            }
         }
         $data_reg = [
             'source_member' => isset($data['suid']) ? $data['suid'] : 0,
@@ -53,7 +59,8 @@ class Register extends BaseModel
             'login_time' => time(),
             'login_type' => empty($data['app_type']) ? '' : $data['app_type'],
             'login_type_name' => empty($data['app_type_name']) ? '' : $data['app_type_name'],
-            'last_login_time' => time()
+            'last_login_time' => time(),
+            'site_id' => $site_id,
         ];
         $res = model("member")->add($data_reg);
         if ($res) {
@@ -84,6 +91,7 @@ class Register extends BaseModel
 
         $staff_member_id = 0;
 
+        $site_id = 0;
         if (isset($data['suid']) && !empty($data['suid'])) {
             $count = model("member")->getCount([['member_id', '=', $data['suid']], ['is_delete', '=', 0]]);
             if (!$count) $data['suid'] = 0;
@@ -104,6 +112,26 @@ class Register extends BaseModel
                 }
             }
         }
+
+        // 确定新注册用户所属商家ID
+        // 1. 如果手机号在商家员工表中，所属商家就是该商家
+        if (!empty($data['mobile'])) {
+            $emp = \think\facade\Db::name('shop_employee')
+                ->where([['mobile', '=', $data['mobile']], ['is_deleted', '=', 0]])
+                ->find();
+            if ($emp && !empty($emp['shop_id'])) {
+                $site_id = (int)$emp['shop_id'];
+            }
+        }
+        // 2. 如果请求携带了商家ID（通过分享卡片或扫商家码进入）
+        if (empty($site_id) && !empty($data['site_id'])) {
+            $site_id = (int)$data['site_id'];
+        }
+        // 3. 如果邀请人所属商家存在，继承邀请人的商家
+        if (empty($site_id) && !empty($p_member) && !empty($p_member['site_id'])) {
+            $site_id = (int)$p_member['site_id'];
+        }
+
         $data_reg = [
             'source_member' => isset($data['suid']) ? $data['suid'] : 0,
             'password' => '',
@@ -123,6 +151,7 @@ class Register extends BaseModel
             'login_type_name' => empty($data['app_type_name']) ? '' : $data['app_type_name'],
             'last_login_time' => time(),
             'staff_member_id' => $staff_member_id,
+            'site_id' => $site_id,
         ];
 
         if (!empty($data['username'])) $data_reg['username'] = $data['username'];
@@ -137,6 +166,12 @@ class Register extends BaseModel
 
         $res = model("member")->add($data_reg);
         if ($res) {
+            // 如果新注册用户是员工，将员工记录关联其 member_id
+            if (!empty($data['mobile'])) {
+                \think\facade\Db::name('shop_employee')
+                    ->where([['mobile', '=', $data['mobile']], ['is_deleted', '=', 0]])
+                    ->update(['member_id' => $res]);
+            }
             //添加统计
             $stat = new Stat();
             $stat->addShopStat(['member_count' => 1, 'site_id' => 0]);

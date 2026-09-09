@@ -16,8 +16,9 @@ class Shop extends Common
     {
         //执行父类构造函数
         parent::__construct();
-        $this->site_id=session("site_id");
-    
+        if (empty($this->site_id)) {
+            $this->site_id = session("site_id");
+        }
     }
     
     /**
@@ -99,5 +100,57 @@ class Shop extends Common
         $shopinfo["user_nickname"] = !empty($myinfo['username']) ? $myinfo['username'] : (!empty($user_nickname) ? $user_nickname : '');
         return $this->response($this->success($shopinfo));
 
+    }
+
+    /**
+     * 获取商家小程序二维码（携带商家id）
+     */
+    public function getShopQrcode()
+    {
+        $site_id = request()->param("site_id");
+        if (empty($site_id)) {
+            $site_id = $this->site_id;
+        }
+        if (empty($site_id)) {
+            return $this->response($this->error('', '店铺ID不能为空'));
+        }
+
+        $shop = Db::name("shop")->where("site_id", $site_id)->field("site_id,site_name,logo,avatar")->find();
+        if (empty($shop)) {
+            return $this->response($this->error('', '店铺不存在'));
+        }
+
+        $qrcode_url = '';
+        try {
+            if (class_exists('\addon\weapp\model\Weapp')) {
+                $weapp = new \addon\weapp\model\Weapp();
+                $param = [
+                    'data' => [
+                        'site_id' => $site_id
+                    ],
+                    'page' => 'pages/index/index',
+                    'width' => 430,
+                    'qrcode_path' => 'upload/qrcode/shop',
+                    'qrcode_name' => 'shop_' . $site_id,
+                    'app_type' => 'shop'
+                ];
+                $result = $weapp->createQrcode($param);
+                if (!empty($result) && $result['code'] == 0 && !empty($result['data']['path'])) {
+                    $qrcode_url = $result['data']['path'];
+                }
+            }
+        } catch (\Exception $e) {
+            // 异常容错
+        }
+
+        $data = [
+            'site_id' => (int)$site_id,
+            'site_name' => $shop['site_name'] ?? '',
+            'logo' => !empty($shop['logo']) ? $shop['logo'] : ($shop['avatar'] ?? ''),
+            'qrcode_url' => $qrcode_url,
+            'qr_path' => 'pages/index/index?site_id=' . $site_id
+        ];
+
+        return $this->response($this->success($data));
     }
 }
