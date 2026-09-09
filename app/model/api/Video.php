@@ -49,26 +49,12 @@ class Video extends BaseModel
         $list = model('video')->pageList($condition, $field, $order, $data['page'], $data['page_size'],$alias, $join);
         //是否还可领取积分
         foreach ($list['list'] as $key => $value) {
-            $point_status = 1; //1可以领取积分
-            //判断是否可领取
-            if (!$data['member_id']) {
-                $point_status = 0;
-            } else {
-                $condition = [];
-                $condition[] = ['video_id', '=', $value['id']];
-                $condition[] = ['member_id', '=', $data['member_id']];
-                //按照天算
-                $start_time = Carbon::now()->startOfDay()->timestamp;
-                $end_time = Carbon::now()->endOfDay()->timestamp;
-                $condition[] = ['create_time', '>=', $start_time];
-                $condition[] = ['create_time', '<=', $end_time];
-                $log_count = model('video_log')->getCount($condition);
-                if ($log_count >= $value['point_num']) {
-                    $point_status = 0;
-                }
-            }
-
-            $list['list'][$key]['point_status'] = $point_status;
+            $status_info = $this->checkPointStatus($value, $data['member_id'] ?? 0);
+            $list['list'][$key]['point_status'] = $status_info['point_status'];
+            $list['list'][$key]['point_status_code'] = $status_info['point_status_code'];
+            $list['list'][$key]['point_status_msg'] = $status_info['point_status_msg'];
+            $list['list'][$key]['today_point_count'] = $status_info['today_point_count'];
+            $list['list'][$key]['point_limit_num'] = $status_info['point_limit_num'];
             //视频评论数
             $list['list'][$key]['comment_num'] = model('video_comment')->getCount(['category_id'=>$value['id'],'type'=>'video']);
             //订单数量
@@ -95,17 +81,9 @@ class Video extends BaseModel
             return $this->error('', '视频不存在');
         }
         //判断用户是否可领取
-        $condition = [];
-        $condition[] = ['video_id', '=', $data['id']];
-        $condition[] = ['member_id', '=', $data['member_id']];
-        //按照天算
-        $start_time = Carbon::now()->startOfDay()->timestamp;
-        $end_time = Carbon::now()->endOfDay()->timestamp;
-        $condition[] = ['create_time', '>=', $start_time];
-        $condition[] = ['create_time', '<=', $end_time];
-        $log_count = model('video_log')->getCount($condition);
-        if ($log_count >= $video['point_num']) {
-            return $this->error('', '已获得积分');
+        $status_info = $this->checkPointStatus($video, $data['member_id'] ?? 0);
+        if ($status_info['point_status'] != 1) {
+            return $this->error('', $status_info['point_status_msg']);
         }
         //领取积分
         model('member')->startTrans();
@@ -295,21 +273,12 @@ class Video extends BaseModel
         $condition[] = ['v.id', '=', $data['id']];
         $result = model('video')->getInfo(['id'=>$data['id']],$field,$alias,$join);
 
-        $point_status = 1; //1可以领取积分
-        //判断是否可领取
-        if (!$data['member_id']) {
-            $point_status = 0;
-        } else {
-            $condition = [];
-            $condition[] = ['video_id', '=', $result['id']];
-            $condition[] = ['member_id', '=', $data['member_id']];
-            $log_count = model('video_log')->getCount($condition);
-            if ($log_count >= $result['point_num']) {
-                $point_status = 0;
-            }
-        }
-
-        $result['point_status'] = $point_status;
+        $status_info = $this->checkPointStatus($result, $data['member_id'] ?? 0);
+        $result['point_status'] = $status_info['point_status'];
+        $result['point_status_code'] = $status_info['point_status_code'];
+        $result['point_status_msg'] = $status_info['point_status_msg'];
+        $result['today_point_count'] = $status_info['today_point_count'];
+        $result['point_limit_num'] = $status_info['point_limit_num'];
         //视频评论数
         $result['comment_num'] = model('video_comment')->getCount(['category_id'=>$result['id'],'type'=>'video']);
         //订单数量
@@ -353,5 +322,66 @@ class Video extends BaseModel
             $weight = number_format($weight, 2, '.', '');
             model('video')->update(['weight'=>$weight], ['id' => $video_id]);
         }
+    }
+
+    /**
+     * 统一校验当前用户是否可领取该视频积分，并返回状态码与说明
+     */
+    private function checkPointStatus($videoInfo, $memberId)
+    {
+        $point = floatval($videoInfo['point'] ?? 0);
+        $point_num = intval($videoInfo['point_num'] ?? 0);
+        $second = intval($videoInfo['second'] ?? 0);
+
+        // 1. 未登录
+        if (!$memberId) {
+            return [
+                'point_status' => 0,
+                'point_status_code' => 'not_login',
+                'point_status_msg' => '请先登录后再观看领取积分',
+                'today_point_count' => 0,
+                'point_limit_num' => $point_num
+            ];
+        }
+
+        // 2. 视频未配置奖励（积分<=0 或 次数<=0 或 转动秒数<=0）
+        if ($point <= 0 || $point_num <= 0 || $second <= 0) {
+            return [
+                'point_status' => 0,
+                'point_status_code' => 'no_reward',
+                'point_status_msg' => '该视频暂未开放积分奖励',
+                'today_point_count' => 0,
+                'point_limit_num' => $point_num
+            ];
+        }
+
+        // 3. 统计今日已领次数（当天 00:00:00 ~ 23:59:59）
+        $start_time = Carbon::now()->startOfDay()->timestamp;
+        $end_time = Carbon::now()->endOfDay()->timestamp;
+        $condition = [
+            ['video_id', '=', $videoInfo['id']],
+            ['member_id', '=', $memberId],
+            ['create_time', '>=', $start_time],
+            ['create_time', '<=', $end_time]
+        ];
+        $today_count = model('video_log')->getCount($condition);
+
+        if ($today_count >= $point_num) {
+            return [
+                'point_status' => 0,
+                'point_status_code' => 'limit_reached',
+                'point_status_msg' => "今日该视频积分已领完（每日上限{$point_num}次，已领{$today_count}次）",
+                'today_point_count' => $today_count,
+                'point_limit_num' => $point_num
+            ];
+        }
+
+        return [
+            'point_status' => 1,
+            'point_status_code' => 'ok',
+            'point_status_msg' => '观看视频可获得积分',
+            'today_point_count' => $today_count,
+            'point_limit_num' => $point_num
+        ];
     }
 }
