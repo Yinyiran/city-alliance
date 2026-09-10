@@ -21,7 +21,7 @@
 						<view class="acea-row row-middle item-left">
 							<text class="item-icon">🛍️</text>
 							<text class="item-name">商品消费</text>
-							<text class="item-desc">消费额×{{ rateMultiplierText }}</text>
+							<text class="item-desc">消费额×会员积分倍率</text>
 						</view>
 						<view class="item-badge">金额×{{ rateMultiplierText }}</view>
 					</view>
