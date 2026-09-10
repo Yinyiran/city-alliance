@@ -997,7 +997,7 @@ swiper {
 }
 
 .limit-modal-content {
-	width: 580rpx;
+	width: 610rpx;
 	background: #FFFFFF;
 	border-radius: 28rpx;
 	padding: 44rpx 36rpx 36rpx;
