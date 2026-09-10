@@ -74,7 +74,7 @@ class My extends Common
         }else{
             $page=1;
         }
-    $res = $this->remember_rank_model->orderbyselfrank($this->site_id,$selectby,$page);
+    $res = $this->remember_rank_model->orderbyselfrank($this->site_id, $this->member_id, $selectby, $page);
     return $this->response($res);
   }
 
@@ -92,7 +92,7 @@ class My extends Common
     }else{
         $page=1;
     }
-    $res = $this->remember_rank_model->conorderrank($this->site_id,$selectby,$page);
+    $res = $this->remember_rank_model->conorderrank($this->site_id, $this->member_id, $selectby, $page);
     return $this->response($res);
   }
 

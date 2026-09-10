@@ -120,18 +120,20 @@ class Shop extends Common
             return $this->response($this->error('', '店铺不存在'));
         }
 
+        $suid = !empty($this->member_id) ? (int)$this->member_id : 0;
         $qrcode_url = '';
         try {
             if (class_exists('\addon\weapp\model\Weapp')) {
                 $weapp = new \addon\weapp\model\Weapp();
                 $param = [
                     'data' => [
-                        'site_id' => $site_id
+                        'site_id' => $site_id,
+                        'suid' => $suid
                     ],
                     'page' => 'pages/index/index',
                     'width' => 430,
                     'qrcode_path' => 'upload/qrcode/shop',
-                    'qrcode_name' => 'shop_' . $site_id,
+                    'qrcode_name' => 'shop_' . $site_id . ($suid ? '_' . $suid : ''),
                     'app_type' => 'shop'
                 ];
                 $result = $weapp->createQrcode($param);
@@ -143,12 +145,14 @@ class Shop extends Common
             // 异常容错
         }
 
+        $qr_path = 'pages/index/index?site_id=' . $site_id . ($suid ? '&suid=' . $suid : '');
         $data = [
             'site_id' => (int)$site_id,
+            'suid' => $suid,
             'site_name' => $shop['site_name'] ?? '',
             'logo' => !empty($shop['logo']) ? $shop['logo'] : ($shop['avatar'] ?? ''),
             'qrcode_url' => $qrcode_url,
-            'qr_path' => 'pages/index/index?site_id=' . $site_id
+            'qr_path' => $qr_path
         ];
 
         return $this->response($this->success($data));

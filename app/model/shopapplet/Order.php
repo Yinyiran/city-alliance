@@ -62,9 +62,9 @@ class Order extends OrderCommon
             ->join("fenxiao f"," f.fenxiao_id=m.fenxiao_id")//分销员
             ->join("fenxiao f_parent","f.parent=f_parent.fenxiao_id")
             ->join("shop_employee se", "f_parent.member_id=se.member_id and shop_id=" . $site_id)
-            /*->where("o.site_id=" . $site_id)
+            ->where("o.site_id=" . $site_id)
             ->where($where)
-            ->where($where2)*/
+            ->where($where2)
             ->order("o.create_time desc")
             ->paginate($page_size);
 
@@ -271,7 +271,7 @@ class Order extends OrderCommon
             $endtime = strtotime($endOfMonth['date']); //时间戳
             $where = "o.create_time between " . $starttime . " and " . $endtime;
         }
-        //$where.=" and o.pay_status=1";
+        $where .= " and o.pay_status=1";
         return $where;
     }
 

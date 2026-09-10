@@ -139,19 +139,42 @@ class MemberRank extends BaseModel
     /**
      * 员工自签单排行
      */
-    public function orderbyselfrank($site_id,$selectby,$page,$page_size= PAGE_LIST_ROWS){
+    public function orderbyselfrank($site_id, $member_id = 0, $selectby = "year", $page = 1, $page_size = PAGE_LIST_ROWS){
         $where=$this->setcondition($selectby,"o.pay_time");
         $sql=$this->commonsql($site_id,"1=1");
         $res=Db::name("shop_employee")->alias("se")
         ->join("member m","m.member_id=se.member_id","left")
         ->join($sql,"mf.parent_member_id=se.member_id","left")
         ->join("order o","o.member_id=mf.member_id and o.site_id=".$site_id." and ".$where,"left")
-        ->field("se.employee_id,se.member_id,m.headimg,m.nickname,se.username,count(o.order_id) as order_count")
+        ->field("se.employee_id,se.member_id,m.headimg,m.nickname,se.username,count(o.order_id) as order_count,count(o.order_id) as invite_count")
         ->group("se.member_id,se.employee_id,se.username")
         ->order("order_count desc")
         ->paginate($page_size);
+
+        $rank=0;
+        $myrank=0;
+        $data=$res->items();
+        $myinfo=[];
+        foreach($data as $key => $val){
+            $rank++;
+            $member_headimg=Db::name('member')->where("member_id",$val["member_id"])->value("headimg");
+            if(!empty($member_headimg)){
+                $val["headimg"]=$member_headimg;
+            }
+            if($val["member_id"]==$member_id){
+                $val["rank"]=$key+1;
+                $myrank=$rank;
+                $myinfo=$val;
+            }
+            $data[$key]=$val;
+        }
+
         $data = [
-            "list" => $res->items(), 
+            "list" => $data, 
+            "myinfo" => [
+                'myrank' => $myrank,
+                'myinfo' => $myinfo,
+            ],
             "count" => $res->total(),
             "page_count" => ceil($res->total() / $page_size)
         ];
@@ -161,19 +184,42 @@ class MemberRank extends BaseModel
     /**
      * 员工贡献单排行
      */
-    public function conorderrank($site_id,$selectby,$page,$page_size= PAGE_LIST_ROWS){
+    public function conorderrank($site_id, $member_id = 0, $selectby = "year", $page = 1, $page_size = PAGE_LIST_ROWS){
         $where=$this->setcondition($selectby,"o.pay_time");
         $sql=$this->commonsql($site_id,"1=1");
         $res=Db::name("shop_employee")->alias("se")
         ->join("member m","m.member_id=se.member_id","left")
         ->join($sql,"mf.parent_member_id=se.member_id","left")
         ->join("order o","o.member_id=mf.member_id and o.site_id<>".$site_id." and ".$where,"left")
-        ->field("se.employee_id,se.member_id,m.headimg,m.nickname,se.username,count(o.order_id) as order_count")
+        ->field("se.employee_id,se.member_id,m.headimg,m.nickname,se.username,count(o.order_id) as order_count,count(o.order_id) as invite_count")
         ->group("se.member_id,se.employee_id,se.username")
         ->order("order_count desc")
         ->paginate($page_size);
+
+        $rank=0;
+        $myrank=0;
+        $data=$res->items();
+        $myinfo=[];
+        foreach($data as $key => $val){
+            $rank++;
+            $member_headimg=Db::name('member')->where("member_id",$val["member_id"])->value("headimg");
+            if(!empty($member_headimg)){
+                $val["headimg"]=$member_headimg;
+            }
+            if($val["member_id"]==$member_id){
+                $val["rank"]=$key+1;
+                $myrank=$rank;
+                $myinfo=$val;
+            }
+            $data[$key]=$val;
+        }
+
         $data = [
-            "list" => $res->items(), 
+            "list" => $data, 
+            "myinfo" => [
+                'myrank' => $myrank,
+                'myinfo' => $myinfo,
+            ],
             "count" => $res->total(),
             "page_count" => ceil($res->total() / $page_size)
         ];
