@@ -61,7 +61,9 @@ class MemberLevel extends BaseModel
         $res = model('member_level')->update($data, $condition);
 
         $check_condition = array_column($condition, 2, 0);
-        model('member')->update([ "member_level_name" => $data[ "level_name" ] ], [ [ "member_level", "=", $check_condition[ "level_id" ] ] ]);
+        if (isset($data['level_name']) && isset($check_condition['level_id'])) {
+            model('member')->update([ "member_level_name" => $data[ "level_name" ] ], [ [ "member_level", "=", $check_condition[ "level_id" ] ] ]);
+        }
         $this->refreshSort();
         Cache::tag('member_level')->clear();
         return $this->success($res);
