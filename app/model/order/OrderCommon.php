@@ -328,28 +328,27 @@ class OrderCommon extends BaseModel
         $order_refund_model->removeOrderGoodsRefundAction([ [ "order_id", "=", $order_id ] ]);
 
 
-        //如果缺失已完成
-//        if ($order_info['order_status'] == 10) {
-//            //会员等级 计算积分返还比率
-//            $member_id          = $order_info['member_id'];
-//            $member_model       = new Member();
-//            $member_info_result = $member_model->getMemberInfo([['member_id', '=', $member_id]], 'member_level');
-//            $member_info        = $member_info_result['data'];
-//            if ($member_info['member_level'] > 0) {
-//                $member_level_model       = new MemberLevel();
-//                $member_level_info_result = $member_level_model->getMemberLevelInfo([['level_id', '=', $member_info['member_level']]], "point_feedback");
-//                $member_level_info        = $member_level_info_result['data'];
-//                if ($member_level_info['point_feedback'] > 0) {
-//                    //计算返还的积分
-//                    $point                = round($order_info['order_money'] * $member_level_info['point_feedback']);
-//                    $member_account_model = new MemberAccount();
-//                    $result               = $member_account_model->addMemberAccount($member_id, 'point', $point, 'order', '会员消费回馈积分', '会员消费回馈积分' . $point);
-//                    if ($result['code'] < 0) {
-//                        return $result;
-//                    }
-//                }
-//            }
-//        }
+        // 会员消费回馈积分（根据会员等级积分回馈倍率 point_feedback）
+        $member_id = $order_info['member_id'];
+        $member_model = new Member();
+        $member_info_result = $member_model->getMemberInfo([['member_id', '=', $member_id]], 'member_level');
+        $member_info = $member_info_result['data'] ?? [];
+        if (!empty($member_info['member_level']) && $member_info['member_level'] > 0) {
+            $member_level_model = new MemberLevel();
+            $member_level_info_result = $member_level_model->getMemberLevelInfo([['level_id', '=', $member_info['member_level']]], "point_feedback");
+            $member_level_info = $member_level_info_result['data'] ?? [];
+            if (!empty($member_level_info['point_feedback']) && $member_level_info['point_feedback'] > 0) {
+                // 计算返还的积分 = 实际消费金额 * 会员积分倍率
+                $real_pay_money = $order_info['order_money'] - ($order_info['refund_money'] ?? 0);
+                if ($real_pay_money > 0) {
+                    $point = round($real_pay_money * $member_level_info['point_feedback']);
+                    if ($point > 0) {
+                        $member_account_model = new MemberAccount();
+                        $member_account_model->addMemberAccount2($member_id, 'point', $point, 'order_consume', $order_id, "会员消费回馈积分" . $point, '下单奖励', 2);
+                    }
+                }
+            }
+        }
 
         //订单日志
         $order_log = [

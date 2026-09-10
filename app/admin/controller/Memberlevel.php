@@ -134,4 +134,18 @@ class Memberlevel extends BaseAdmin
 			return $res;
 		}
 	}
+
+	/**
+	 * 设置会员消费积分倍率
+	 */
+	public function setPointFeedback()
+	{
+		if (request()->isAjax()) {
+			$level_id = input('level_id', 0);
+			$point_feedback = input('point_feedback', 0);
+			$member_level_model = new MemberLevelModel();
+			$this->addLog("修改会员积分回馈倍率: id=" . $level_id . ", 倍率=" . $point_feedback);
+			return $member_level_model->editMemberLevel(['point_feedback' => $point_feedback], [ [ 'level_id', '=', $level_id ] ]);
+		}
+	}
 }
