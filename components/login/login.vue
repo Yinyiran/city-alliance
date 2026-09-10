@@ -197,12 +197,13 @@
 				uni.login({
 					success: res => {
 						const shareSiteId = uni.getStorageSync('share_site_id') || ''
+						const inviteCode = this.suid || uni.getStorageSync('invite_code') || ''
 						const params = {
 							code: res.code,
 							iv: iv,
 							encryptedData: encryptedData,
 							weapp_openid: this.weapp_openid,
-							suid: this.suid,
+							suid: inviteCode,
 							site_id: shareSiteId
 						}
 						mobileauth(params).then(res => {

@@ -20,7 +20,7 @@
 			};
 		},
 		async onShow() {
-			// await this.getuser()
+			await this.getuser()
 			await this.getinfo()
 		},
 		methods: {
@@ -38,31 +38,46 @@
 										icon: 'success',
 										duration: 2000
 									});
-									resolve('图片保存成功');
 								},
 								fail: (err) => {
-									reject('保存图片失败：' + err.errMsg);
+									uni.showToast({
+										title: '保存图片失败：' + (err.errMsg || ''),
+										icon: 'none'
+									});
 								}
 							});
 						} else {
-							reject('图片下载失败，状态码：' + downloadRes.statusCode);
+							uni.showToast({
+								title: '图片下载失败',
+								icon: 'none'
+							});
 						}
 					},
 					fail: (err) => {
-						reject('下载图片失败：' + err.errMsg);
+						uni.showToast({
+							title: '下载图片失败：' + (err.errMsg || ''),
+							icon: 'none'
+						});
 					}
 				});
 			},
 			async getuser() {
-				await userinfo().then(res => {
-					this.member_id = res.data.member_id
-				})
+				try {
+					const res = await userinfo()
+					if (res && res.data) {
+						this.member_id = res.data.member_id
+					}
+				} catch (e) {
+					console.error('获取用户信息失败', e)
+				}
 			},
 			async getinfo() {
+				const site_id = uni.getStorageSync('user_site_id') || uni.getStorageSync('share_site_id') || '';
 				let params = {
 					page: '/pages/index/index',
 					qrcode_param: JSON.stringify({
-						// suid: this.member_id
+						suid: this.member_id,
+						site_id: site_id
 					})
 				}
 				await poster(params).then(res => {

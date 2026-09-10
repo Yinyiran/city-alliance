@@ -15,8 +15,13 @@
 		</uv-navbar>
 
 		<!-- 详情页模式下带有返回按钮的导航栏 -->
-		<uv-navbar v-else bg-color="#ffffff00" :fixed="true" :placeholder="true" left-icon-color="#ffffff"
+		<uv-navbar v-else bg-color="#ffffff" :fixed="true" :placeholder="true" left-icon-color="#1A1A1A" left-icon-size="22px"
 			@leftClick="goBack">
+			<template v-slot:left>
+				<view class="nav-detail-back acea-row row-middle" @click="goBack">
+					<image src="/static/back1.png" class="detail-back-icon" mode="aspectFit"></image>
+				</view>
+			</template>
 			<template v-slot:center>
 				<text class="navbar-center-title">{{ sinfo.store_name || '门店详情' }}</text>
 			</template>
@@ -845,7 +850,12 @@ export default {
 		// 返回上一页
 		goBack() {
 			uni.navigateBack({
-				delta: 1
+				delta: 1,
+				fail: () => {
+					uni.switchTab({
+						url: '/pages/index/index'
+					});
+				}
 			});
 		},
 
@@ -925,6 +935,18 @@ export default {
 	font-size: 32rpx;
 	font-weight: 600;
 	color: #1A1A1A;
+}
+
+.nav-detail-back {
+	padding: 10rpx 20rpx 10rpx 0;
+	display: flex;
+	align-items: center;
+
+	.detail-back-icon {
+		width: 44rpx;
+		height: 44rpx;
+		display: block;
+	}
 }
 
 /* 1. Banner轮播区 */
