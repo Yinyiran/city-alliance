@@ -90,8 +90,12 @@
 		},
 		computed: {
 			qrCodeValue() {
+				if (this.shopInfo && this.shopInfo.qr_path) {
+					return this.shopInfo.qr_path;
+				}
 				const id = this.site_id || uni.getStorageSync('site_id') || '';
-				return `pages/index/index?site_id=${id}`;
+				const suid = (this.shopInfo && this.shopInfo.suid) || '';
+				return `pages/index/index?site_id=${id}${suid ? `&suid=${suid}` : ''}`;
 			}
 		},
 		onLoad() {

@@ -144,14 +144,14 @@
 					<text class="font-28 m-l-12" style="color: #222;">{{(myinfo.myinfo||{}).username}}</text>
 					<text class="my">(我)</text>
 				</view>
-				<view class="font-28" style="color: #222;">{{(myinfo.myinfo||{}).invite_count||0}}</view>
+				<view class="font-28" style="color: #222;">{{(myinfo.myinfo||{}).order_count !== undefined && check != 0 ? (myinfo.myinfo||{}).order_count : (myinfo.myinfo||{}).invite_count||0}}</view>
 			</view>
 			<view class="acea-row row-middle row-between p-24 titles">
 				<view class="acea-row row-middle">
 					<text class="m-r-20">排名</text>
 					<text>名称</text>
 				</view>
-				<text>会员数量</text>
+				<text>{{ check == 0 ? '会员数量' : (check == 1 ? '自签单量' : '贡献单量') }}</text>
 			</view>
 			<view v-for="(item,index) in list" class="m-b-20 defas acea-row row-middle row-between"
 				:class="{'rankbg1':index==0,'rankbg2':index==1,'rankbg3':index==2}" :key="index">
@@ -168,7 +168,7 @@
 					<image src="/static/avatar.png" v-else class="w-52 h-52 bor-50 m-l-24" mode=""></image>
 					<text class="font-28 m-l-12" style="color: #222;">{{item.username}}</text>
 				</view>
-				<view class="font-28" style="color: #222;">{{item.invite_count||0}}</view>
+				<view class="font-28" style="color: #222;">{{item.order_count !== undefined && check != 0 ? item.order_count : item.invite_count||0}}</view>
 			</view>
 		</view>
 		<uv-popup ref="popup" :round='10' mode="bottom" :closeable="true">
