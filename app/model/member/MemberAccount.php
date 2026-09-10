@@ -499,13 +499,25 @@ class MemberAccount extends BaseModel
                 $member_level = $member['member_level'] ?? '';
                 $member_level_name = $member['member_level_name'] ?? '';
             } elseif ($value['point_type'] == 2) { //下单奖励
-                $order_goods = model('order_goods')->getInfo(['order_goods_id'=>$value['type_tag']]);
+                $order_goods = null;
+                if (!empty($value['type_tag'])) {
+                    $order_goods = model('order_goods')->getInfo(['order_goods_id' => $value['type_tag']]);
+                    if (empty($order_goods)) {
+                        $order_goods = model('order_goods')->getInfo(['order_id' => $value['type_tag']]);
+                    }
+                }
                 $sku_name = $order_goods['sku_name'] ?? '';
                 $sku_image = $order_goods['sku_image'] ?? '';
                 $goods_money = $order_goods['goods_money'] ?? 0;
                 $num = $order_goods['num'] ?? 0;
             } elseif ($value['point_type'] == 3) { //积分消耗
-                $order_goods = model('order_goods')->getInfo(['order_goods_id'=>$value['type_tag']]);
+                $order_goods = null;
+                if (!empty($value['type_tag'])) {
+                    $order_goods = model('order_goods')->getInfo(['order_goods_id' => $value['type_tag']]);
+                    if (empty($order_goods)) {
+                        $order_goods = model('order_goods')->getInfo(['order_id' => $value['type_tag']]);
+                    }
+                }
                 $sku_name = $order_goods['sku_name'] ?? '';
                 $sku_image = $order_goods['sku_image'] ?? '';
                 $goods_money = $order_goods['goods_money'] ?? 0;
