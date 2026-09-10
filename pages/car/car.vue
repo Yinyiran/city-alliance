@@ -66,7 +66,7 @@
 				</view>
 			</view>
 		</view>
-		<view class="container">
+		<view class="container" v-if="list.length > 0">
 			<view v-for="(item,index) in list" :key="index" @click="godetail(item.sku_id)">
 				<image :src="$util.img(item.sku_image)" class="bor-16" mode=""></image>
 				<view class="font-26 m-t-16 text-more">
@@ -111,6 +111,10 @@
 				</view>
 			</view>
 		</view>
+		<view class="acea-row row-column row-center row-middle" style="padding: 100rpx 0;" v-else>
+			<image src="/otherpages/static/empty1.png" mode="aspectFit" style="width: 220rpx; height: 220rpx;"></image>
+			<text class="font-26 m-t-24" style="color: #999;">暂无福利商品</text>
+		</view>
 		<login ref="login"></login>
 	</view>
 </template>
@@ -145,14 +149,14 @@
 			};
 		},
 		onLoad(options) {
-			// 支持从分享链接等渠道携带 site_id 进入，按区域获取门店福利数据
+			// 支持从分享链接等渠道携带 site_id 进入，按指定商家获取门店福利数据
 			if (options && options.site_id) {
-				uni.setStorageSync('site_id', options.site_id)
+				this.site_id = options.site_id
+			} else {
+				this.site_id = ''
 			}
-			this.site_id = uni.getStorageSync('site_id') || ''
 		},
 		onShow() {
-			// 与点击 tablist 逻辑保持一致：不等待其他请求，直接请求门店福利兑换区数据
 			this.website_id = uni.getStorageSync('website_id') || ''
 			this.page = 1
 			this.getlist()
@@ -195,34 +199,44 @@
 			cut2(e) {
 				this.check1 = e
 				this.page = 1
+				this.list = []
 				this.getlist()
 			},
 			cut1(e) {
 				this.check = e
 				this.page = 1
+				this.list = []
 				this.getlist()
 			},
 			async getlist() {
-				// benlist 尚未加载成功时，用默认积分区间兜底，避免取不到 min/max 而中断
-				let ben = this.benlist[this.check1] || { min: 0, max: 0 }
 				let params = {
 					page: this.page,
 					website_id: this.website_id,
 					goods_type: 1,
-					min_point: ben.min,
-					max_point: ben.max,
 					platform: this.check,
-					// 有 site_id 按区域获取数据，没有则与点击 tablist 逻辑一致
-					site_id: this.site_id || ''
+					// 门店福利区才使用 site_id，全国包邮区属于平台商品，site_id 必须为空
+					site_id: this.check == 0 ? (this.site_id || '') : ''
+				}
+				// 仅全国包邮兑换区(check == 1)且已选积分区间时增加积分筛选
+				if (this.check == 1 && this.benlist && this.benlist[this.check1]) {
+					let ben = this.benlist[this.check1]
+					if (ben.min && ben.min > 0) params.min_point = ben.min
+					if (ben.max && ben.max > 0) params.max_point = ben.max
 				}
 				try {
 					await goodslist(params).then(res => {
-						if (res.code == 0 && res.data) {
-							this.list = this.page > 1 ? this.list.concat(...res.data.list) : res.data.list
-							this.last_page = res.data.page_count
+						if (res && res.code == 0 && res.data) {
+							let list = res.data.list || []
+							this.list = this.page > 1 ? this.list.concat(...list) : list
+							this.last_page = res.data.page_count || 1
+						} else {
+							if (this.page == 1) this.list = []
 						}
 					})
-				} catch (e) {}
+				} catch (e) {
+					console.error('goodslist error:', e)
+					if (this.page == 1) this.list = []
+				}
 			},
 			async benefitOption() {
 				try {
