@@ -361,7 +361,7 @@ class Store extends BaseModel
                     ['goods_state', '=', 1],
                     ['verify_state', '=', 1],
                     ['is_delete', '=', 0]
-                ], 'goods_id,goods_name,goods_image,sku_id,price,site_id', 'sort desc, goods_id desc');
+                ], 'goods_id,goods_name,goods_image,sku_id,price,sale_num,site_id', 'sort desc, goods_id desc');
 
                 foreach ($goods_rows as $g) {
                     $sid = $g['site_id'];
