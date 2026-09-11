@@ -306,43 +306,93 @@ class Store extends BaseModel
      */
     public function storeList($data)
     {
-        $latitude = $data['latitude'];
-        $longitude = $data['longitude'];
-        $store_model = new StoreModel();
+        $latitude = $data['latitude'] ?? null;
+        $longitude = $data['longitude'] ?? null;
+        $keyword = $data['keyword'] ?? '';
+        $sort_type = $data['sort_type'] ?? $data['order_type'] ?? 'distance';
+        $sort = strtolower($data['sort'] ?? 'desc') === 'asc' ? 'asc' : 'desc';
+
         $store_condition = [
-            ['status', '=', 1],
-            ['is_frozen', '=', 0],
-            ['is_pickup', '=', 1],
+            ['s.status', '=', 1],
+            ['s.is_frozen', '=', 0],
+            ['s.is_pickup', '=', 1],
         ];
         if (!empty($keyword)) {
-            $store_condition[] = ['store_name|address|full_address', 'like', "%$keyword%"];
+            $store_condition[] = ['s.store_name|s.address|s.full_address', 'like', "%$keyword%"];
         }
-        //该城市的商家
-        $site_ids = model('shop')->getColumn(['website_id'=>$data['website_id']],'site_id');
-        $store_condition[] = ['site_id', 'in', $site_ids];
 
-        $latlng = array(
-            'lat' => $latitude ?: null,
-            'lng' => $longitude ?: null,
-        );
-        $field = 'store_id,store_name,telphone,store_image,site_id,province_id,city_id,district_id,address,full_address,longitude,latitude,open_date,store_desc';
-        $result = $store_model->getLocationStorePageList($store_condition, $data['page'], $data['page_size'], $field, $latlng); //新增加注释这里查询门店
-        if (isset($result['data']['list'])) {
-            foreach ($result['data']['list'] as $key => $value) {
+        // 该城市的商家
+        $website_id = $data['website_id'] ?? 0;
+        $site_ids = model('shop')->getColumn(['website_id' => $website_id], 'site_id');
+        if (!empty($site_ids)) {
+            $store_condition[] = ['s.site_id', 'in', $site_ids];
+        } elseif (!empty($website_id)) {
+            $store_condition[] = ['s.site_id', 'in', [0]];
+        }
+
+        $field = 's.store_id,s.store_name,s.telphone,s.store_image,s.site_id,s.province_id,s.city_id,s.district_id,s.address,s.full_address,s.longitude,s.latitude,s.open_date,s.store_desc,s.order_num,s.order_complete_num,sp.shop_sales,sp.sub_num';
+        $alias = 's';
+        $join = [
+            ['shop sp', 'sp.site_id = s.site_id', 'left']
+        ];
+
+        $order = '';
+        if ($sort_type === 'sales') {
+            $order = 'sp.shop_sales ' . $sort . ', s.order_num ' . $sort . ', s.store_id desc';
+        } elseif ($sort_type === 'follow') {
+            $order = 'sp.sub_num ' . $sort . ', s.store_id desc';
+        } else {
+            // distance 默认按定位距离排序
+            if ($longitude !== null && $latitude !== null && $longitude !== '' && $latitude !== '') {
+                $field .= ',FORMAT(st_distance ( point ( ' . $longitude . ', ' . $latitude . ' ), point ( s.longitude, s.latitude ) ) * 111195 / 1000, 2) as distance';
+                $order = Db::raw(' st_distance ( point ( ' . $longitude . ', ' . $latitude . ' ), point ( s.longitude, s.latitude ) ) * 111195 / 1000 asc');
+            } else {
+                $order = 's.store_id desc';
+            }
+        }
+
+        $list = model('store')->pageList($store_condition, $field, $order, $data['page'], $data['page_size'], $alias, $join);
+        if (isset($list['list']) && !empty($list['list'])) {
+            $site_ids = array_unique(array_filter(array_column($list['list'], 'site_id')));
+            $store_goods_map = [];
+            if (!empty($site_ids)) {
+                $goods_rows = model('goods')->getList([
+                    ['site_id', 'in', $site_ids],
+                    ['goods_state', '=', 1],
+                    ['verify_state', '=', 1],
+                    ['is_delete', '=', 0]
+                ], 'goods_id,goods_name,goods_image,sku_id,price,site_id', 'sort desc, goods_id desc');
+
+                foreach ($goods_rows as $g) {
+                    $sid = $g['site_id'];
+                    if (!isset($store_goods_map[$sid])) {
+                        $store_goods_map[$sid] = [];
+                    }
+                    if (count($store_goods_map[$sid]) < 8) {
+                        $store_goods_map[$sid][] = $g;
+                    }
+                }
+            }
+
+            foreach ($list['list'] as $key => $value) {
                 $full_address = str_replace(',', '', $value['full_address']) . $value['address'];
-                $result['data']['list'][$key]['address'] = $full_address;
-                //经纬度
-                $result['data']['list'][$key]['distance'] = '0km';
-                $result['data']['list'][$key]['distance_value'] = 0;
+                $list['list'][$key]['address'] = $full_address;
+                $list['list'][$key]['sales'] = max(intval($value['shop_sales'] ?? 0), intval($value['order_num'] ?? 0));
+                $list['list'][$key]['sub_num'] = intval($value['sub_num'] ?? 0);
+                $sid = $value['site_id'];
+                $list['list'][$key]['goods_list'] = $store_goods_map[$sid] ?? [];
+
+                // 经纬度与距离
+                $list['list'][$key]['distance'] = '0km';
+                $list['list'][$key]['distance_value'] = 0;
                 if ($longitude && $latitude && !empty($value['longitude']) && !empty($value['latitude'])) {
-                    //计算距离
                     $distance = getDistance2($longitude, $latitude, $value['longitude'], $value['latitude']);
-                    $result['data']['list'][$key]['distance'] = $distance . 'km';
-                    $result['data']['list'][$key]['distance_value'] = $distance;
+                    $list['list'][$key]['distance'] = $distance . 'km';
+                    $list['list'][$key]['distance_value'] = floatval($distance);
                 }
             }
         }
-        return $result;
+        return $this->success($list);
     }
 
     /**

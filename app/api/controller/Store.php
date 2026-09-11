@@ -76,6 +76,8 @@ class Store extends BaseApi
             'longitude' => $this->params["longitude"] ?? null,
             'keyword' => $this->params['keyword'] ?? '', //搜索字段
             'website_id' => $this->params['website_id'] ?? 0,
+            'sort_type' => $this->params['sort_type'] ?? $this->params['order_type'] ?? $this->params['order'] ?? 'distance',
+            'sort' => $this->params['sort'] ?? 'desc',
         ];
         $store_model = new StoreModel();
         $result = $store_model->storeList($data);
