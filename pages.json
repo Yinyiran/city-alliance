@@ -302,7 +302,12 @@
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "厨师上门",
 		"navigationBarBackgroundColor": "#fff",
-		"backgroundColor": "#fff"
+		"backgroundColor": "#fff",
+		"mp-weixin": {
+			"usingComponents": {
+				"cell": "plugin://materialPlugin/cell"
+			}
+		}
 	},
 	"uniIdRouter": {}
 }

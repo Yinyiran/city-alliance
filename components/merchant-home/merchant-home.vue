@@ -1,22 +1,21 @@
 <template>
 	<view class="store-home-wrap">
-		<!-- 自定义导航栏（Tab页模式展示） -->
-		<uv-navbar v-if="isTab" bg-color="#fff" :fixed="true" :placeholder="true">
+		<!-- 自定义导航栏（Tab页模式展示：左上角当前城市，中心固定城盟优选，背景橘色） -->
+		<uv-navbar v-if="isTab" bg-color="#FF5500" :fixed="true" :placeholder="true">
 			<template v-slot:left>
-				<view class="nav-store-title acea-row row-middle" @click="openStoreSelect">
-					<image src="/static/stores.png" class="store-icon" mode="aspectFit"></image>
-					<text class="store-name-text text-more">{{ sinfo.store_name || '优选商家' }}</text>
-					<view class="store-count-badge acea-row row-middle" v-if="storeList.length > 1">
-						<text>{{ storeList.length }}店</text>
-						<text class="store-switch-arrow">▾</text>
-					</view>
+				<view class="nav-city-wrap acea-row row-middle">
+					<image src="/static/map1.png" class="city-icon" mode="aspectFit"></image>
+					<text class="city-name-text">{{ currentCity || '城市' }}</text>
 				</view>
+			</template>
+			<template v-slot:center>
+				<view class="nav-fixed-title">城盟优选</view>
 			</template>
 		</uv-navbar>
 
 		<!-- 详情页模式下带有返回按钮的导航栏 -->
-		<uv-navbar v-else bg-color="#ffffff" :fixed="true" :placeholder="true" left-icon-color="#1A1A1A" left-icon-size="22px"
-			@leftClick="goBack">
+		<uv-navbar v-else bg-color="#ffffff" :fixed="true" :placeholder="true" left-icon-color="#1A1A1A"
+			left-icon-size="22px" @leftClick="goBack">
 			<template v-slot:left>
 				<view class="nav-detail-back acea-row row-middle" @click="goBack">
 					<image src="/static/back1.png" class="detail-back-icon" mode="aspectFit"></image>
@@ -77,6 +76,34 @@
 				</view>
 			</view>
 
+			<!-- 门店名称下方一行：营业时间、一键导航、一键电话、品牌粉丝群 -->
+			<view class="store-service-row acea-row row-middle row-between">
+				<!-- 营业时间 -->
+				<view class="service-time-box acea-row row-middle">
+					<uv-icon name="clock" size="13" color="#FF5500"></uv-icon>
+					<text class="service-time-label">营业时间</text>
+					<text class="service-time-val text-more">{{ sinfo.open_date || sinfo.workingtime || '09:00-22:00'
+					}}</text>
+				</view>
+
+				<!-- 快捷动作组：导航、电话、粉丝群 -->
+				<view class="service-actions-box acea-row row-middle">
+					<view class="service-btn acea-row row-middle" @click="openNavigation">
+						<uv-icon name="map-fill" size="12" color="#FF5500"></uv-icon>
+						<text class="btn-txt">导航</text>
+					</view>
+					<view class="btn-divider"></view>
+					<view class="service-btn acea-row row-middle" @click="callStorePhone">
+						<uv-icon name="phone-fill" size="12" color="#FF5500"></uv-icon>
+						<text class="btn-txt">电话</text>
+					</view>
+					<view class="btn-divider"></view>
+					<wecom-group-btn :url="sinfo.wecom_group_url || sinfo.wechat_group_url || ''"
+						:brand-name="sinfo.site_name || sinfo.store_name" :logo="sinfo.store_image || sinfo.shop_logo"
+						:qrcode="sinfo.group_qrcode" :phone="sinfo.telphone || sinfo.telephone" btn-text="粉丝群"></wecom-group-btn>
+				</view>
+			</view>
+
 			<!-- 核心指标行：门店粉丝量、累计销量、关注门店 -->
 			<view class="stats-action-row acea-row row-middle row-between">
 				<!-- 门店粉丝量 -->
@@ -125,25 +152,18 @@
 					<text class="filter-text" :class="{ 'filter-active': currentSortType === 'sale_num' }">销量</text>
 					<view class="sort-arrows">
 						<uv-icon name="arrow-up-fill"
-							:color="currentSortType === 'sale_num' && sortOrder === 'asc' ? '#F55606' : '#C0C4CC'"
-							size="7"></uv-icon>
+							:color="currentSortType === 'sale_num' && sortOrder === 'asc' ? '#F55606' : '#C0C4CC'" size="7"></uv-icon>
 						<uv-icon name="arrow-down-fill"
 							:color="currentSortType === 'sale_num' && sortOrder === 'desc' ? '#F55606' : '#C0C4CC'"
 							size="7"></uv-icon>
 					</view>
 				</view>
 
-				<!-- 距离排序 -->
-				<view class="filter-item acea-row row-middle row-center" @click="toggleSort('distance')">
-					<text class="filter-text" :class="{ 'filter-active': currentSortType === 'distance' }">距离</text>
-					<view class="sort-arrows">
-						<uv-icon name="arrow-up-fill"
-							:color="currentSortType === 'distance' && sortOrder === 'asc' ? '#F55606' : '#C0C4CC'"
-							size="7"></uv-icon>
-						<uv-icon name="arrow-down-fill"
-							:color="currentSortType === 'distance' && sortOrder === 'desc' ? '#F55606' : '#C0C4CC'"
-							size="7"></uv-icon>
-					</view>
+				<!-- 积分商品筛选（替换原距离排序） -->
+				<view class="filter-item point-filter-item acea-row row-middle row-center"
+					:class="{ 'point-active': isPointGoods }" @click="togglePointGoods">
+					<uv-icon name="integral-fill" size="14" :color="isPointGoods ? '#F55606' : '#666'"></uv-icon>
+					<text class="filter-text" :class="{ 'filter-active': isPointGoods }">积分商品</text>
 				</view>
 			</view>
 
@@ -156,8 +176,7 @@
 						<view class="category-option acea-row row-middle row-between"
 							:class="{ 'selected': currentCategoryId === '' }" @click="selectCategory('', '全部分类')">
 							<text>全部分类</text>
-							<uv-icon name="checkbox-mark" color="#F55606" size="14"
-								v-if="currentCategoryId === ''"></uv-icon>
+							<uv-icon name="checkbox-mark" color="#F55606" size="14" v-if="currentCategoryId === ''"></uv-icon>
 						</view>
 
 						<!-- 具体分类项 -->
@@ -179,15 +198,17 @@
 					@click="goGoodsDetail(item.sku_id || item.goods_id)">
 					<!-- 商品主图 -->
 					<view class="goods-img-box">
-						<image :src="$util.img(item.sku_image || item.goods_image)" mode="aspectFill" class="goods-img"
-							lazy-load></image>
+						<image :src="$util.img(item.sku_image || item.goods_image)" mode="aspectFill" class="goods-img" lazy-load>
+						</image>
 						<!-- 浏览量角标 -->
 						<view class="click-badge acea-row row-middle" v-if="item.click_num">
 							<uv-icon name="eye" size="10" color="#fff"></uv-icon>
 							<text class="m-l-4">{{ item.click_num }}</text>
 						</view>
-						<!-- 特惠/核销标签 -->
-						<view class="tag-badge">门店核销</view>
+						<!-- 特惠/核销/积分标签 -->
+						<view class="tag-badge" :class="{ 'point-tag': isPointGoods || item.goods_type == 1 }">
+							{{ (isPointGoods || item.goods_type == 1) ? '积分兑换' : '门店核销' }}
+						</view>
 					</view>
 
 					<!-- 商品详情说明 -->
@@ -203,19 +224,33 @@
 							<text class="sales-tag">已售{{ item.sale_num || 0 }}件</text>
 						</view>
 
-						<!-- 价格与抢购按钮 -->
+						<!-- 价格与操作按钮 -->
 						<view class="price-action-row acea-row row-middle row-between">
 							<view class="price-box acea-row row-bottom">
-								<text class="price-symbol">￥</text>
-								<text class="price-integer">{{ getPricePart(item.price, 0) }}</text>
-								<text class="price-decimal" v-if="getPricePart(item.price, 1)">.{{
-									getPricePart(item.price, 1)
-								}}</text>
+								<template v-if="(isPointGoods || item.goods_type == 1) && (item.point > 0)">
+									<text class="point-num">{{ item.point }}</text>
+									<text class="point-unit">积分</text>
+									<text class="point-plus" v-if="item.price && Number(item.price) > 0">+</text>
+									<text class="price-symbol" v-if="item.price && Number(item.price) > 0">￥</text>
+									<text class="price-integer" v-if="item.price && Number(item.price) > 0">{{
+										getPricePart(item.price, 0) }}</text>
+									<text class="price-decimal"
+										v-if="item.price && Number(item.price) > 0 && getPricePart(item.price, 1)">.{{
+											getPricePart(item.price, 1) }}</text>
+								</template>
+								<template v-else>
+									<text class="price-symbol">￥</text>
+									<text class="price-integer">{{ getPricePart(item.price, 0) }}</text>
+									<text class="price-decimal" v-if="getPricePart(item.price, 1)">.{{
+										getPricePart(item.price, 1)
+									}}</text>
+								</template>
 								<text class="market-price" v-if="item.market_price && item.market_price != '0.00'">¥{{
 									item.market_price }}</text>
 							</view>
-							<view class="buy-action-btn acea-row row-middle row-center">
-								抢
+							<view class="buy-action-btn acea-row row-middle row-center"
+								:class="{ 'point-buy-btn': isPointGoods || item.goods_type == 1 }">
+								{{ (isPointGoods || item.goods_type == 1) ? '兑' : '抢' }}
 							</view>
 						</view>
 					</view>
@@ -226,8 +261,7 @@
 			<view class="empty-state" v-else-if="!loading">
 				<image src="/static/empty.png" class="empty-img" mode="aspectFit"></image>
 				<text class="empty-tip">暂无相关商品</text>
-				<view class="reset-filter-btn" v-if="currentCategoryId !== '' || currentSortType !== ''"
-					@click="resetFilter">
+				<view class="reset-filter-btn" v-if="currentCategoryId !== '' || currentSortType !== ''" @click="resetFilter">
 					重置筛选条件
 				</view>
 			</view>
@@ -251,10 +285,8 @@
 					<uv-icon name="close" size="16" color="#999" @click="closeStoreSelect"></uv-icon>
 				</view>
 				<scroll-view scroll-y class="store-select-scroll">
-					<view v-for="(store, sIdx) in storeList" :key="sIdx"
-						class="store-option-item acea-row row-middle row-between"
-						:class="{ 'active': currentStoreId == (store.store_id || store.id) }"
-						@click="onSelectStore(store)">
+					<view v-for="(store, sIdx) in storeList" :key="sIdx" class="store-option-item acea-row row-middle row-between"
+						:class="{ 'active': currentStoreId == (store.store_id || store.id) }" @click="onSelectStore(store)">
 						<view class="store-opt-left acea-row row-middle">
 							<image :src="store.store_image ? $util.img(store.store_image) : '/static/stores.png'"
 								class="store-opt-img" mode="aspectFill"></image>
@@ -266,8 +298,8 @@
 								<view class="store-opt-meta acea-row row-middle">
 									<text class="store-opt-distance" v-if="store.distance">距您 {{ store.distance
 									}}</text>
-									<text class="store-opt-tel" v-if="store.telphone"
-										@click.stop="makePhoneCall(store.telphone)">📞 {{ store.telphone }}</text>
+									<text class="store-opt-tel" v-if="store.telphone" @click.stop="makePhoneCall(store.telphone)">📞 {{
+										store.telphone }}</text>
 								</view>
 								<view class="store-opt-addr text-more">{{ store.address_text || store.full_address ||
 									store.address }}</view>
@@ -283,6 +315,8 @@
 			</view>
 		</uv-popup>
 
+
+
 		<!-- 登录弹窗 -->
 		<login ref="login" @loginsuccess="onLoginSuccess"></login>
 	</view>
@@ -297,11 +331,16 @@ import {
 	shopmemberDel,
 	goodslist,
 	websiteStore,
-	siteCategoryList
+	siteCategoryList,
+	tranAddressInfo
 } from "@/common/js/api.js";
+import WecomGroupBtn from "@/components/wecom-group-btn/wecom-group-btn.vue";
 
 export default {
 	name: "merchant-home",
+	components: {
+		WecomGroupBtn
+	},
 	props: {
 		// 外部传入的门店ID（storeDetail页面会传入）
 		storeId: {
@@ -317,6 +356,8 @@ export default {
 	data() {
 		return {
 			currentStoreId: "",
+			currentCity: "",
+			isPointGoods: false,
 			sinfo: {},
 			bannerList: [],
 			currentBannerIndex: 0,
@@ -333,7 +374,7 @@ export default {
 			currentCategoryName: "商品分类",
 			showCategoryDropdown: false,
 
-			// 排序筛选：sortType: 'sale_num' | 'distance' | ''
+			// 排序筛选：sortType: 'sale_num' | ''
 			currentSortType: "",
 			sortOrder: "desc", // 'desc' | 'asc'
 
@@ -372,6 +413,7 @@ export default {
 		}
 	},
 	mounted() {
+		this.initCurrentCity();
 		// 若非直接通过 storeId prop 触发（例如 Tab 模式），则自动读取初始化
 		if (!this.storeId) {
 			this.initStore();
@@ -396,6 +438,7 @@ export default {
 
 		// 检查并同步商家与门店状态（供父页面 onShow 调用）
 		async checkStoreState() {
+			this.initCurrentCity();
 			if (this.storeId) return;
 
 			let currentToken = uni.getStorageSync('token') || '';
@@ -666,6 +709,64 @@ export default {
 			});
 		},
 
+		// 获取当前城市（同城风格，默认展示定位/缓存城市）
+		initCurrentCity() {
+			let addressInfo = uni.getStorageSync('address_info');
+			if (addressInfo && (addressInfo.city || addressInfo.name)) {
+				this.currentCity = addressInfo.city || addressInfo.name;
+			} else {
+				let cachedCity = uni.getStorageSync('city');
+				if (cachedCity) {
+					this.currentCity = cachedCity;
+				}
+			}
+			if (!this.currentCity) {
+				let latlng = uni.getStorageSync('latlng');
+				if (latlng && latlng.latitude && latlng.longitude) {
+					tranAddressInfo({ latlng: `${latlng.latitude},${latlng.longitude}` }).then(res => {
+						if (res && res.data && res.data.city) {
+							this.currentCity = res.data.city;
+							uni.setStorageSync('address_info', res.data);
+						}
+					}).catch(() => { });
+				}
+			}
+		},
+
+		// 一键导航到门店
+		openNavigation() {
+			let lat = Number(this.sinfo.latitude);
+			let lng = Number(this.sinfo.longitude);
+			if (!lat || !lng) {
+				uni.showToast({ title: '暂未获取到门店位置', icon: 'none' });
+				return;
+			}
+			uni.openLocation({
+				latitude: lat,
+				longitude: lng,
+				name: this.sinfo.store_name || '门店位置',
+				address: this.sinfo.full_address || this.sinfo.address || ''
+			});
+		},
+
+		// 一键拨打门店电话
+		callStorePhone() {
+			let phone = this.sinfo.telphone || this.sinfo.telephone;
+			if (!phone) {
+				uni.showToast({ title: '暂未提供联系电话', icon: 'none' });
+				return;
+			}
+			this.makePhoneCall(phone);
+		},
+
+		// 切换积分商品
+		togglePointGoods() {
+			this.isPointGoods = !this.isPointGoods;
+			this.showCategoryDropdown = false;
+			this.page = 1;
+			this.fetchGoodsList();
+		},
+
 		// 拨打门店电话
 		makePhoneCall(phone) {
 			if (!phone) return;
@@ -683,7 +784,7 @@ export default {
 					page_size: this.pageSize,
 					site_id: this.sinfo.site_id || uni.getStorageSync('user_site_id') || uni.getStorageSync('site_id') || '',
 					category_id: this.currentCategoryId || 0,
-					goods_type: 0 // 普通/主推商品
+					goods_type: this.isPointGoods ? 1 : 0
 				};
 
 				// 排序参数与位置距离
@@ -696,9 +797,6 @@ export default {
 
 				if (this.currentSortType === 'sale_num') {
 					params.order = 'sale_num';
-					params.sort = this.sortOrder;
-				} else if (this.currentSortType === 'distance') {
-					params.order = 'distance';
 					params.sort = this.sortOrder;
 				}
 
@@ -799,6 +897,7 @@ export default {
 			this.currentCategoryName = "商品分类";
 			this.currentSortType = "";
 			this.sortOrder = "desc";
+			this.isPointGoods = false;
 			this.page = 1;
 			this.fetchGoodsList();
 		},
@@ -870,6 +969,7 @@ export default {
 
 		// 供父页面调用的下拉刷新
 		refresh() {
+			this.initCurrentCity();
 			this.page = 1;
 			this.fetchStoreDetail();
 			this.fetchFollowStatus();
@@ -895,40 +995,32 @@ export default {
 	position: relative;
 }
 
-.nav-store-title {
-	max-width: 480rpx;
-	flex-wrap: nowrap;
+/* 顶部Tab模式导航栏：当前城市与固定城盟优选 */
+.nav-city-wrap {
+	display: flex;
+	align-items: center;
+	padding-left: 4rpx;
 
-	.store-icon {
-		width: 38rpx;
-		height: 38rpx;
-		margin-right: 10rpx;
+	.city-icon {
+		width: 32rpx;
+		height: 32rpx;
+		margin-right: 8rpx;
 		flex-shrink: 0;
 	}
 
-	.store-name-text {
-		font-size: 32rpx;
+	.city-name-text {
+		font-size: 30rpx;
 		font-weight: 600;
-		color: #1A1A1A;
-		max-width: 320rpx;
+		color: #FFFFFF;
+		max-width: 220rpx;
 	}
+}
 
-	.store-count-badge {
-		background: #FFF2EB;
-		color: #F55606;
-		font-size: 20rpx;
-		font-weight: 600;
-		padding: 4rpx 12rpx;
-		border-radius: 16rpx;
-		margin-left: 8rpx;
-		flex-shrink: 0;
-		line-height: 1.2;
-
-		.store-switch-arrow {
-			font-size: 18rpx;
-			margin-left: 4rpx;
-		}
-	}
+.nav-fixed-title {
+	font-size: 34rpx;
+	font-weight: 600;
+	color: #FFFFFF;
+	letter-spacing: 2rpx;
 }
 
 .navbar-center-title {
@@ -1007,7 +1099,7 @@ export default {
 	z-index: 12;
 
 	.store-main-row {
-		margin-bottom: 24rpx;
+		margin-bottom: 16rpx;
 
 		.store-header-left {
 			flex: 1;
@@ -1079,20 +1171,87 @@ export default {
 		}
 	}
 
+	/* 门店名称下方一行：营业时间、一键导航、一键电话、品牌粉丝群 */
+	.store-service-row {
+		margin-bottom: 22rpx;
+		padding: 12rpx 18rpx;
+		background: #FFF9F5;
+		border-radius: 16rpx;
+		border: 1rpx solid #FFE7D9;
+
+		.service-time-box {
+			flex: 1;
+			overflow: hidden;
+			margin-right: 12rpx;
+
+			.service-time-label {
+				font-size: 22rpx;
+				color: #FF5500;
+				font-weight: 500;
+				margin-left: 6rpx;
+				margin-right: 8rpx;
+				flex-shrink: 0;
+			}
+
+			.service-time-val {
+				font-size: 22rpx;
+				color: #666666;
+				flex: 1;
+			}
+		}
+
+		.service-actions-box {
+			flex-shrink: 0;
+			gap: 8rpx;
+
+			.service-btn {
+				padding: 6rpx 14rpx;
+				background: #FFFFFF;
+				border-radius: 20rpx;
+				border: 1rpx solid #FFD8C2;
+				cursor: pointer;
+				transition: all 0.2s ease;
+
+				.btn-txt {
+					font-size: 22rpx;
+					font-weight: 500;
+					color: #FF5500;
+					margin-left: 4rpx;
+				}
+
+				&:active {
+					opacity: 0.7;
+				}
+
+				&.group-btn {
+					background: #EDFBF3;
+					border-color: #B2E7C6;
+
+					.group-txt {
+						color: #07C160;
+					}
+				}
+			}
+
+			.btn-divider {
+				width: 1rpx;
+				height: 20rpx;
+				background: #EED2C2;
+			}
+		}
+	}
+
 	/* 核心数据与关注门店按钮行 */
 	.stats-action-row {
-		padding-top: 20rpx;
-		border-top: 1rpx solid #F2F3F7;
-
 		.stat-item {
 			flex: 1;
 			text-align: center;
 
 			.stat-num {
-				font-size: 36rpx;
+				font-size: 34rpx;
 				font-weight: 700;
 				color: #222222;
-				line-height: 44rpx;
+				line-height: 38rpx;
 			}
 
 			.stat-label {
@@ -1114,8 +1273,8 @@ export default {
 			justify-content: flex-end;
 
 			.follow-btn {
-				width: 180rpx;
-				height: 64rpx;
+				width: 170rpx;
+				height: 58rpx;
 				background: linear-gradient(135deg, #FF6A00 0%, #F55606 100%);
 				border-radius: 32rpx;
 				color: #FFFFFF;
@@ -1180,6 +1339,26 @@ export default {
 
 			&.category-select-item {
 				max-width: 260rpx;
+			}
+
+			&.point-filter-item {
+				padding: 6rpx 16rpx;
+				border-radius: 24rpx;
+				transition: all 0.2s ease;
+
+				.filter-text {
+					margin-left: 6rpx;
+					margin-right: 0;
+				}
+
+				&.point-active {
+					background: #FFF2EB;
+
+					.filter-text {
+						color: #F55606;
+						font-weight: 600;
+					}
+				}
 			}
 
 			.sort-arrows {
@@ -1289,6 +1468,10 @@ export default {
 					font-weight: 500;
 					padding: 4rpx 12rpx;
 					border-radius: 6rpx;
+
+					&.point-tag {
+						background: linear-gradient(135deg, #FF9500 0%, #FF5500 100%);
+					}
 				}
 			}
 
@@ -1347,6 +1530,27 @@ export default {
 							color: #F55606;
 						}
 
+						.point-num {
+							font-size: 34rpx;
+							font-weight: 700;
+							color: #F55606;
+						}
+
+						.point-unit {
+							font-size: 22rpx;
+							font-weight: 600;
+							color: #F55606;
+							margin-left: 2rpx;
+							margin-right: 4rpx;
+						}
+
+						.point-plus {
+							font-size: 22rpx;
+							font-weight: 600;
+							color: #F55606;
+							margin-right: 4rpx;
+						}
+
 						.market-price {
 							font-size: 22rpx;
 							color: #BBBBBB;
@@ -1365,6 +1569,10 @@ export default {
 						font-size: 24rpx;
 						font-weight: 600;
 						box-shadow: 0 4rpx 10rpx rgba(245, 86, 6, 0.3);
+
+						&.point-buy-btn {
+							background: linear-gradient(135deg, #FF9500 0%, #FF5500 100%);
+						}
 					}
 				}
 			}

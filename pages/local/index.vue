@@ -46,18 +46,21 @@
 				</view>
 			</view>
 			<view class="nav-grid-box">
-				<swiper class="nav-swiper" :style="{ height: gridSwiperHeight }" @change="onNavChange" :current="navCurrent">
+				<swiper class="nav-swiper" :style="{ height: gridSwiperHeight }" @change="onNavChange"
+					:current="navCurrent">
 					<swiper-item v-for="(page, pageIdx) in navPages" :key="pageIdx">
 						<uv-grid :col="5">
 							<uv-grid-item v-for="(item, itemIdx) in page" :key="itemIdx" @click="onNavItemClick(item)">
-								<image :src="item.isAll ? item.image : $util.img(item.image)" class="m-t-32 w-80 h-80" mode="aspectFit"></image>
-								<text class="m-t-16">{{ item.name }}</text>
+								<image :src="item.isAll ? item.image : $util.img(item.image)" mode="aspectFit"
+									style="width: 64rpx; height: 64rpx;margin-top: 20rpx;"></image>
+								<text class="m-t-10">{{ item.name }}</text>
 							</uv-grid-item>
 						</uv-grid>
 					</swiper-item>
 				</swiper>
 				<view class="nav-dots" v-if="navPages.length > 1">
-					<view v-for="(p, pIdx) in navPages.length" :key="pIdx" :class="['nav-dot', { 'on': navCurrent == pIdx }]"></view>
+					<view v-for="(p, pIdx) in navPages.length" :key="pIdx"
+						:class="['nav-dot', { 'on': navCurrent == pIdx }]"></view>
 				</view>
 			</view>
 			<view class="part2 acea-row row-middle row-between">
@@ -146,10 +149,10 @@ export default {
 		},
 		// 动态计算 swiper 高度（根据当前页的最大行数）
 		gridSwiperHeight() {
-			if (!this.navPages || !this.navPages.length) return '176rpx';
+			if (!this.navPages || !this.navPages.length) return '134rpx';
 			const maxCount = Math.max(...this.navPages.map(p => p.length));
 			const rows = Math.min(3, Math.ceil(maxCount / 5));
-			return (rows * 176) + 'rpx';
+			return (rows * 134) + 'rpx';
 		},
 		// 使用人数：真实人数同后台倍数参数相乘，并向上取整
 		displayUseNum() {
@@ -690,7 +693,7 @@ export default {
 }
 
 .swipers {
-	margin: 12rpx 32rpx 0 32rpx;
+	margin: 6rpx 32rpx 10rpx 32rpx;
 	height: 290rpx;
 	border-radius: 16rpx;
 	overflow: hidden;

@@ -1,28 +1,28 @@
 {
-    "name" : "shopBIZ",
-    "appid" : "__UNI__D4A2604",
-    "description" : "",
-    "versionName" : "1.0.0",
-    "versionCode" : "100",
-    "transformPx" : false,
+    "name": "shopBIZ",
+    "appid": "__UNI__D4A2604",
+    "description": "",
+    "versionName": "1.0.0",
+    "versionCode": "100",
+    "transformPx": false,
     /* 5+App特有相关 */
-    "app-plus" : {
-        "usingComponents" : true,
-        "nvueStyleCompiler" : "uni-app",
-        "compilerVersion" : 3,
-        "splashscreen" : {
-            "alwaysShowBeforeRender" : true,
-            "waiting" : true,
-            "autoclose" : true,
-            "delay" : 0
+    "app-plus": {
+        "usingComponents": true,
+        "nvueStyleCompiler": "uni-app",
+        "compilerVersion": 3,
+        "splashscreen": {
+            "alwaysShowBeforeRender": true,
+            "waiting": true,
+            "autoclose": true,
+            "delay": 0
         },
         /* 模块配置 */
-        "modules" : {},
+        "modules": {},
         /* 应用发布信息 */
-        "distribute" : {
+        "distribute": {
             /* android打包配置 */
-            "android" : {
-                "permissions" : [
+            "android": {
+                "permissions": [
                     "<uses-permission android:name=\"android.permission.CHANGE_NETWORK_STATE\"/>",
                     "<uses-permission android:name=\"android.permission.MOUNT_UNMOUNT_FILESYSTEMS\"/>",
                     "<uses-permission android:name=\"android.permission.VIBRATE\"/>",
@@ -41,46 +41,57 @@
                 ]
             },
             /* ios打包配置 */
-            "ios" : {},
+            "ios": {},
             /* SDK配置 */
-            "sdkConfigs" : {}
+            "sdkConfigs": {}
         }
     },
     /* 快应用特有相关 */
-    "quickapp" : {},
-    "mp-weixin" : {
-        "appid" : "wx78e3faf3a96aadd2",
-        "optimization" : {
-            "subPackages" : true
+    "quickapp": {},
+    "mp-weixin": {
+        "appid": "wx78e3faf3a96aadd2",
+        "optimization": {
+            "subPackages": true
         },
-        "setting" : {
-            "urlCheck" : false,
-            "es6" : true,
-            "postcss" : true,
-            "minified" : true,
-            "uglifyFileName" : true,
-            "ignoreUploadUnusedFiles" : true
-        },
-        "usingComponents" : true,
-        "permission" : {
-            "scope.userLocation" : {
-                "desc" : "为了您更好的体验，请确认获取您的位置"
+        "plugins": {
+            "materialPlugin": {
+                "version": "1.0.13",
+                "provider": "wx4d2deeab3aed6e5a"
             }
         },
-        "requiredPrivateInfos" : [ "getLocation", "chooseLocation" ],
-        "requiredBackgroundModes" : [ "location" ]
+        "setting": {
+            "urlCheck": false,
+            "es6": true,
+            "postcss": true,
+            "minified": true,
+            "uglifyFileName": true,
+            "ignoreUploadUnusedFiles": true
+        },
+        "usingComponents": true,
+        "permission": {
+            "scope.userLocation": {
+                "desc": "为了您更好的体验，请确认获取您的位置"
+            }
+        },
+        "requiredPrivateInfos": [
+            "getLocation",
+            "chooseLocation"
+        ],
+        "requiredBackgroundModes": [
+            "location"
+        ]
     },
-    "mp-alipay" : {
-        "usingComponents" : true
+    "mp-alipay": {
+        "usingComponents": true
     },
-    "mp-baidu" : {
-        "usingComponents" : true
+    "mp-baidu": {
+        "usingComponents": true
     },
-    "mp-toutiao" : {
-        "usingComponents" : true
+    "mp-toutiao": {
+        "usingComponents": true
     },
-    "uniStatistics" : {
-        "enable" : false
+    "uniStatistics": {
+        "enable": false
     },
-    "vueVersion" : "3"
+    "vueVersion": "3"
 }
