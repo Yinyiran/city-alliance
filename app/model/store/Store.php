@@ -461,12 +461,34 @@ class Store extends BaseModel
             $condition[] = ['site_id', '=', $result['site_id']];
             $result['order_num'] = model('order')->getCount($condition);
 
-            // 累计销量
-            $shop_info = model('shop')->getInfo([['site_id', '=', $result['site_id']]], 'shop_sales,logo,avatar');
+            // 累计销量及商家扩展信息
+            $shop_info = model('shop')->getInfo([['site_id', '=', $result['site_id']]], 'site_name,shop_sales,logo,avatar,telephone,workingtime,qq,ww,wecom_group_url');
             $result['total_sales'] = max(intval($shop_info['shop_sales'] ?? 0), intval($result['order_num'] ?? 0));
             if (!empty($shop_info['logo'])) {
                 $result['shop_logo'] = $shop_info['logo'];
             }
+            if (!empty($shop_info['site_name'])) {
+                $result['site_name'] = $shop_info['site_name'];
+            }
+            if (!empty($shop_info['workingtime']) && empty($result['open_date'])) {
+                $result['open_date'] = $shop_info['workingtime'];
+            }
+            if (!empty($shop_info['telephone']) && empty($result['telphone'])) {
+                $result['telphone'] = $shop_info['telephone'];
+            }
+
+            // 品牌专属粉丝群配置（支持每个品牌独立配置企业微信群）
+            $config_model = new \app\model\system\Config();
+            $fan_group_config = $config_model->getConfig([
+                ['site_id', '=', $result['site_id']],
+                ['config_key', '=', 'SHOP_FAN_GROUP_CONFIG']
+            ]);
+            $group_val = $fan_group_config['data']['value'] ?? [];
+            $result['group_qrcode'] = $group_val['group_qrcode'] ?? ($shop_info['ww'] ?? '');
+            $result['wecom_group_url'] = $shop_info['wecom_group_url'] ?? ($group_val['wecom_group_url'] ?? ($group_val['wechat_group_url'] ?? ''));
+            $result['wechat_group_url'] = $result['wecom_group_url'];
+            $result['wechat_corp_id'] = $group_val['wechat_corp_id'] ?? '';
+            $result['wechat_name'] = $group_val['wechat_name'] ?? '';
 
             // 计算与用户当前位置的距离
             $result['distance'] = '0km';

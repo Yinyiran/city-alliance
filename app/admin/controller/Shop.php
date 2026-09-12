@@ -169,8 +169,12 @@ class Shop extends BaseAdmin
                 'website_id' => input('website_id', 0),//选择城市分站  下拉选择
                 'region_id' => input('region_id', 0), //所属城市
                 'can_id' => input('can_id', 0), //所属商会
-
+                'wecom_group_url' => input('wecom_group_url', ''), // 企微群URL
             ];
+            try {
+                $prefix = config('database.connections.mysql.prefix');
+                \think\facade\Db::execute("ALTER TABLE `{$prefix}shop` ADD COLUMN `wecom_group_url` varchar(500) NOT NULL DEFAULT '' COMMENT '企微群URL'");
+            } catch (\Exception $e) {}
             //认证信息
             $cert_data = [
                 /* 申请类型 */
@@ -338,7 +342,26 @@ class Shop extends BaseAdmin
                 'username' => input('username'),
                 'region_id' => input('region_id', 0), //所属城市
                 'can_id' => input('can_id', 0), //所属商会
+                'wecom_group_url' => input('wecom_group_url', ''), // 企微群URL
             ];
+            try {
+                $prefix = config('database.connections.mysql.prefix');
+                \think\facade\Db::execute("ALTER TABLE `{$prefix}shop` ADD COLUMN `wecom_group_url` varchar(500) NOT NULL DEFAULT '' COMMENT '企微群URL'");
+            } catch (\Exception $e) {}
+
+            // 同步保存到品牌粉丝群配置
+            try {
+                $config_model = new \app\model\system\Config();
+                $config_model->setConfig([
+                    'wechat_group_url' => input('wecom_group_url', ''),
+                    'wecom_group_url' => input('wecom_group_url', '')
+                ], '企微群配置', 1, [
+                    ['site_id', '=', $site_id],
+                    ['app_module', '=', 'shop'],
+                    ['config_key', '=', 'SHOP_FAN_GROUP_CONFIG']
+                ]);
+            } catch (\Exception $e) {}
+
             $data['shop_status'] = input("status", 0);
             //门店信息
             $store_name = input("site_name", '');
