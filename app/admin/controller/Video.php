@@ -47,7 +47,34 @@ class Video extends BaseAdmin
             $list = (new BaseModel())->success($list);
             return $list;
         } else {
+            // 获取总平台审核模式开关（website.site_id = 0）
+            $platform = model('website')->getInfo(['site_id' => 0], 'sh_status');
+            $global_sh_status = !empty($platform) ? intval($platform['sh_status']) : 0;
+            $this->assign('global_sh_status', $global_sh_status);
             return $this->fetch('video/lists');
+        }
+    }
+
+    /**
+     * 修改总平台小程序审核模式（控制全平台视频显示与否）
+     * status: 0 正常（展示视频） 1 审核模式（展示商品）
+     */
+    public function modifyGlobalReviewStatus()
+    {
+        if (request()->isAjax()) {
+            $status = input('status', 0);
+            $status = intval($status) == 1 ? 1 : 0;
+
+            // 平台总开关对应 website 表中 site_id = 0
+            $platform = model('website')->getInfo(['site_id' => 0]);
+            if (!empty($platform)) {
+                $res = model('website')->update(['sh_status' => $status], [['site_id', '=', 0]]);
+            } else {
+                $res = model('website')->add(['site_id' => 0, 'title' => '总平台', 'sh_status' => $status]);
+            }
+            \think\facade\Cache::tag("website")->clear();
+            $msg = $status == 1 ? '已开启提审模式（全平台展示商品）' : '已恢复正常模式（全平台展示视频）';
+            return (new BaseModel())->success($res, $msg);
         }
     }
     

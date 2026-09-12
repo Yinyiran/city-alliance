@@ -282,7 +282,7 @@ class WebSite extends BaseModel
         $site_id = intval($site_id);
         $status = intval($status);
 
-        if (empty($site_id)) {
+        if ($site_id < 0) {
             return $this->error('', 'WEBSITE_NOT_EXIST');
         }
         // 只允许 0（展示视频）/ 1（审核模式展示商品）
@@ -290,8 +290,18 @@ class WebSite extends BaseModel
             return $this->error('', 'ILLEGAL_STATUS');
         }
 
+        $website = model('website')->getInfo([ [ 'site_id', '=', $site_id ] ]);
+        if (empty($website)) {
+            if ($site_id === 0) {
+                model('website')->add([ 'site_id' => 0, 'title' => '总平台', 'sh_status' => $status ]);
+                Cache::tag("website")->clear();
+                return $this->success(1);
+            }
+            return $this->error('', 'WEBSITE_NOT_EXIST');
+        }
+
         $res = model('website')->update([ 'sh_status' => $status ], [ [ 'site_id', '=', $site_id ] ]);
-        Cache::tag("website")->clear();
+        Cache::tag("website")->clear(); 
         return $this->success($res);
     }
 
