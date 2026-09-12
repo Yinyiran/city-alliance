@@ -461,8 +461,18 @@ class Store extends BaseModel
             $condition[] = ['site_id', '=', $result['site_id']];
             $result['order_num'] = model('order')->getCount($condition);
 
-            // 累计销量及商家扩展信息
-            $shop_info = model('shop')->getInfo([['site_id', '=', $result['site_id']]], 'site_name,shop_sales,logo,avatar,telephone,workingtime,qq,ww,wecom_group_url');
+            // 累计销量及商家扩展信息（带字段自愈与兼容降级，防止数据库未执行迁移报错）
+            $base_shop_fields = 'site_name,shop_sales,logo,avatar,telephone,workingtime,qq,ww';
+            try {
+                $shop_info = model('shop')->getInfo([['site_id', '=', $result['site_id']]], $base_shop_fields . ',wecom_group_url');
+            } catch (\Exception $e) {
+                // 如果数据库尚未添加 wecom_group_url 字段，降级查询基础字段，并自动尝试补全数据库表结构
+                $shop_info = model('shop')->getInfo([['site_id', '=', $result['site_id']]], $base_shop_fields);
+                try {
+                    $prefix = config('database.connections.mysql.prefix');
+                    \think\facade\Db::execute("ALTER TABLE `{$prefix}shop` ADD COLUMN `wecom_group_url` varchar(500) NOT NULL DEFAULT '' COMMENT '企微群URL'");
+                } catch (\Exception $e2) {}
+            }
             $result['total_sales'] = max(intval($shop_info['shop_sales'] ?? 0), intval($result['order_num'] ?? 0));
             if (!empty($shop_info['logo'])) {
                 $result['shop_logo'] = $shop_info['logo'];
