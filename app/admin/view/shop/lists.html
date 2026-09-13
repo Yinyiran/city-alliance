@@ -1,7 +1,10 @@
 {extend name="base"/}
 {block name="resources"}
 <style>
-	.ns-screen{margin-bottom: 15px;}
+	.ns-screen {
+		margin-bottom: 15px;
+	}
+
 	.contraction span {
 		cursor: pointer;
 		display: inline-block;
@@ -11,10 +14,12 @@
 		line-height: 14px;
 		user-select: none;
 	}
+
 	.store-list {
 		overflow: hidden;
 		padding: 0 45px;
 	}
+
 	.store-list li .img-wrap {
 		vertical-align: middle;
 		margin-right: 8px;
@@ -23,14 +28,17 @@
 		text-align: center;
 		line-height: 120px;
 	}
+
 	.store-list li .img-wrap img {
 		max-width: 100%;
 		max-height: 100%;
 	}
+
 	.store-list li .info-wrap span.sku-name {
 		-webkit-line-clamp: 2;
 		margin-bottom: 5px;
 	}
+
 	.store-list li .info-wrap span {
 		display: -webkit-box;
 		margin-bottom: 5px;
@@ -41,6 +49,7 @@
 		-webkit-box-orient: vertical;
 		-webkit-line-clamp: 1;
 	}
+
 	.store-list li {
 		float: left;
 		display: flex;
@@ -52,29 +61,35 @@
 		height: 140px;
 		align-items: center;
 	}
-	.img_block_sty{
-		width:30% !important;
-		height:90px !important;
+
+	.img_block_sty {
+		width: 30% !important;
+		height: 90px !important;
 		line-height: 0px !important;
 	}
-	.img_block_sty img{
-		width:100%;
-		height:100%;
+
+	.img_block_sty img {
+		width: 100%;
+		height: 100%;
 	}
-	.info_block_sty{
-		width:70% !important;
-		height:90px !important;
+
+	.info_block_sty {
+		width: 70% !important;
+		height: 90px !important;
 	}
-	.change_lines{
+
+	.change_lines {
 		box-sizing: content-box;
 	}
-	.change_line{
-		width:100%;
-		height:auto;
-		white-space:normal;
+
+	.change_line {
+		width: 100%;
+		height: auto;
+		white-space: normal;
 		margin-top: 10px;
-		font-size:13px;
+		font-size: 13px;
 	}
+
 	.layui-table-cell {
 		height: auto;
 		overflow: visible;
@@ -95,7 +110,7 @@
 </div>
 
 <div class="ns-single-filter-box">
-   <button class="layui-btn ns-bg-color" onclick="clickAdd()">添加商家</button>
+	<button class="layui-btn ns-bg-color" onclick="clickAdd()">添加商家</button>
 </div>
 
 <div class="ns-screen layui-collapse" lay-filter="selection_panel">
@@ -179,12 +194,14 @@
 						<input type="text" class="layui-input" name="expire_time" id="expire_time" autocomplete="off" >
 					</div> -->
 					<div class="layui-input-inline">
-					    <input type="text" class="layui-input" name="start_time"  id="start_time" autocomplete="off" placeholder="开始时间" readonly>
+						<input type="text" class="layui-input" name="start_time" id="start_time" autocomplete="off"
+							placeholder="开始时间" readonly>
 						<i class="ns-calendar"></i>
 					</div>
 					<div class="layui-form-mid">-</div>
 					<div class="layui-input-inline">
-					    <input type="text" class="layui-input" name="end_time" id="end_time" autocomplete="off" placeholder="结束时间" readonly>
+						<input type="text" class="layui-input" name="end_time" id="end_time" autocomplete="off" placeholder="结束时间"
+							readonly>
 						<i class="ns-calendar"></i>
 					</div>
 				</div>
@@ -206,7 +223,7 @@
 
 			<div class="ns-form-row">
 				<button class="layui-btn ns-bg-color" lay-submit lay-filter="search_website">筛选</button>
-<!--				<button class="layui-btn ns-bg-color" lay-submit lay-filter="export">导出</button>-->
+				<!--				<button class="layui-btn ns-bg-color" lay-submit lay-filter="export">导出</button>-->
 				<button type="reset" class="layui-btn layui-btn-primary">重置</button>
 			</div>
 		</form>
@@ -283,12 +300,14 @@
 						<input type="text" class="layui-input" name="expire_time" id="expire_time" autocomplete="off" >
 					</div> -->
 					<div class="layui-input-inline">
-					    <input type="text" class="layui-input" name="start_time"  id="start_time" autocomplete="off" placeholder="开始时间" readonly>
+						<input type="text" class="layui-input" name="start_time" id="start_time" autocomplete="off"
+							placeholder="开始时间" readonly>
 						<i class="ns-calendar"></i>
 					</div>
 					<div class="layui-form-mid">-</div>
 					<div class="layui-input-inline">
-					    <input type="text" class="layui-input" name="end_time" id="end_time" autocomplete="off" placeholder="结束时间" readonly>
+						<input type="text" class="layui-input" name="end_time" id="end_time" autocomplete="off" placeholder="结束时间"
+							readonly>
 						<i class="ns-calendar"></i>
 					</div>
 				</div>
@@ -296,7 +315,7 @@
 
 			<div class="ns-form-row">
 				<button class="layui-btn ns-bg-color" lay-submit lay-filter="search">筛选</button>
-<!--				<button class="layui-btn ns-bg-color" lay-submit lay-filter="export">导出</button>-->
+				<!--				<button class="layui-btn ns-bg-color" lay-submit lay-filter="export">导出</button>-->
 				<button type="reset" class="layui-btn layui-btn-primary">重置</button>
 			</div>
 		</form>
@@ -395,7 +414,7 @@
 				$(this).children("span").text("-");
 				$.ajax({
 					url: ns.url("admin/store/lists"),
-					data: {site_id: site_id},
+					data: { site_id: site_id },
 					dataType: 'JSON',
 					type: 'POST',
 					async: false,
@@ -418,7 +437,7 @@
 			$(this).attr("data-open", (open == 0 ? 1 : 0));
 		});
 
-		layui.use(['form', 'laydate','laytpl'], function() {
+		layui.use(['form', 'laydate', 'laytpl'], function () {
 			laytpl = layui.laytpl;
 			var table, table_website,
 				form = layui.form,
@@ -445,7 +464,7 @@
 				cols: [
 					[{
 						title: '商家名称',
-						width: '10%',
+						width: '20%',
 						unresize: 'false',
 						templet: '#site_name'
 					}, {
@@ -454,18 +473,18 @@
 						width: '10%',
 						unresize: 'false'
 					},
-						/*{
-						field: 'group_name',
-						title: '开店套餐',
-						width: '10%',
-						unresize: 'false'
-					},*/
-						{
+					/*{
+					field: 'group_name',
+					title: '开店套餐',
+					width: '10%',
+					unresize: 'false'
+				},*/
+					{
 						field: 'category_name',
 						title: '主营行业',
 						width: '8%',
 						unresize: 'false'
-					},{
+					}, {
 						field: 'is_own',
 						title: '是否自营',
 						width: '8%',
@@ -476,7 +495,7 @@
 						title: '商家认证',
 						width: '8%',
 						unresize: 'false',
-						templet: function(data) {
+						templet: function (data) {
 							return data.cert_id == 0 ? '<span style="color: red">未认证</span>' : '<span style="color: green">已认证</span>';
 						}
 					}, {
@@ -490,7 +509,7 @@
 						title: '入驻时间',
 						width: '10%',
 						unresize: 'false',
-						templet: function(data) {
+						templet: function (data) {
 							return ns.time_to_date(data.create_time);
 						}
 					}, {
@@ -498,12 +517,12 @@
 						title: '到期时间',
 						width: '10%',
 						unresize: 'false',
-						templet: function(data) {
+						templet: function (data) {
 							return ns.time_to_date(data.expire_time);
 						}
 					}, {
 						title: '操作',
-						width: '18%',
+						wiwth: '10%',
 						toolbar: '#action',
 						unresize: 'false'
 					}]
@@ -517,53 +536,53 @@
 				cols: [
 					[{
 						title: '商家名称',
-						width: '10%',
+						width: '40%',
 						unresize: 'false',
 						templet: '#site_name'
 					}, {
 						field: 'username',
 						title: '商家账号',
-						width: '9%',
+						width: '10%',
 						unresize: 'false'
 					},
-						/*{
-						field: 'group_name',
-						title: '开店套餐',
-						width: '9%',
-						unresize: 'false'
-					},*/
-						{
+					/*{
+					field: 'group_name',
+					title: '开店套餐',
+					width: '9%',
+					unresize: 'false'
+				},*/
+					{
 						field: 'category_name',
 						title: '主营行业',
 						width: '8%',
 						unresize: 'false'
 					},
-						/*{
-						field: 'is_own',
-						title: '是否自营',
-						width: '8%',
-						unresize: 'false',
-						templet: '#is_own'
-					}, */
-						/*{
-						field: 'site_area_name',
-						title: '城市分站',
-						width: '6%',
-						unresize: 'false',
-						templet: function(data) {
-							return data.site_area_name == '无' ? '--' : data.site_area_name;
-						}
-					},*/
-						/*{
-						field: 'cert_id',
-						title: '商家认证',
-						width: '7%',
-						unresize: 'false',
-						templet: function(data) {
-							return data.cert_id == 0 ? '<span style="color: red">未认证</span>' : '<span style="color: green">已认证</span>';
-						}
-					},*/
-						{
+					/*{
+					field: 'is_own',
+					title: '是否自营',
+					width: '8%',
+					unresize: 'false',
+					templet: '#is_own'
+				}, */
+					/*{
+					field: 'site_area_name',
+					title: '城市分站',
+					width: '6%',
+					unresize: 'false',
+					templet: function(data) {
+						return data.site_area_name == '无' ? '--' : data.site_area_name;
+					}
+				},*/
+					/*{
+					field: 'cert_id',
+					title: '商家认证',
+					width: '7%',
+					unresize: 'false',
+					templet: function(data) {
+						return data.cert_id == 0 ? '<span style="color: red">未认证</span>' : '<span style="color: green">已认证</span>';
+					}
+				},*/
+					{
 						field: 'shop_status',
 						title: '商家状态',
 						width: '7%',
@@ -572,24 +591,24 @@
 					}, {
 						field: 'create_time',
 						title: '入驻时间',
-						width: '11%',
+						width: '20%',
 						unresize: 'false',
-						templet: function(data) {
+						templet: function (data) {
 							return ns.time_to_date(data.create_time);
 						}
 					},
-						/*{
-						field: 'expire_time',
-						title: '到期时间',
-						width: '11%',
-						unresize: 'false',
-						templet: function(data) {
-							return ns.time_to_date(data.expire_time);
-						}
-					}, */
-						{
+					/*{
+					field: 'expire_time',
+					title: '到期时间',
+					width: '11%',
+					unresize: 'false',
+					templet: function(data) {
+						return ns.time_to_date(data.expire_time);
+					}
+				}, */
+					{
 						title: '操作',
-						width: '14%',
+						width: '10%',
 						toolbar: '#action',
 						unresize: 'false'
 					}]
@@ -600,7 +619,7 @@
 			/**
 			 * 搜索功能
 			 */
-			form.on('submit(search)', function(data) {
+			form.on('submit(search)', function (data) {
 				table.reload({
 					page: {
 						curr: 1
@@ -611,7 +630,7 @@
 			});
 
 			// 城市分站
-			form.on('submit(search_website)', function(data) {
+			form.on('submit(search_website)', function (data) {
 				table_website.reload({
 					page: {
 						curr: 1
@@ -621,19 +640,19 @@
 				return false;
 			});
 
-	        //批量导出
-	        form.on('submit(export)', function(data){
-	            data.field.order_type = 1;
-	            location.href = ns.url("admin/shop/exportShop",data.field);
-	            return false;
-	        });
+			//批量导出
+			form.on('submit(export)', function (data) {
+				data.field.order_type = 1;
+				location.href = ns.url("admin/shop/exportShop", data.field);
+				return false;
+			});
 
 			/**
 			 * 监听工具栏操作
 			 */
-			table.tool(function(obj) {
+			table.tool(function (obj) {
 				var data = obj.data,
-						event = obj.event;
+					event = obj.event;
 				switch (event) {
 					case 'basic': //基本信息
 						location.href = ns.url("admin/shop/basicInfo" + "?site_id=" + data.site_id);
@@ -653,9 +672,9 @@
 				}
 			});
 
-			table_website.tool(function(obj) {
+			table_website.tool(function (obj) {
 				var data = obj.data,
-						event = obj.event;
+					event = obj.event;
 				switch (event) {
 					case 'basic': //基本信息
 						location.href = ns.url("admin/shop/basicInfo" + "?site_id=" + data.site_id);
