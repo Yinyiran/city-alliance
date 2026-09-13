@@ -10,15 +10,20 @@
 		</div>
 	</div>
 	<div class="layui-form-item">
-		<label class="layui-form-label">主营行业：</label>
-		<div class="layui-input-inline">
-			<p class="ns-input-text ns-len-mid">{$shop_info.category_name}</p>
+		<label class="layui-form-label"><span class="required">*</span>主营行业：</label>
+		<div class="layui-input-block ns-len-mid">
+			<select name="category_id" lay-verify="category_id" lay-filter="shop_category">
+				<option value="">请选择主营行业</option>
+				{foreach $shop_category_list as $category}
+				<option value="{$category.category_id}" {if condition="$shop_info.category_id == $category.category_id"}selected{/if}>{$category.category_name}</option>
+				{/foreach}
+			</select>
 		</div>
 	</div>
 	<div class="layui-form-item">
-		<label class="layui-form-label">店铺名称：</label>
-		<div class="layui-input-inline">
-			<p class="ns-input-text ns-len-mid">{$shop_info.site_name}</p>
+		<label class="layui-form-label"><span class="required">*</span>店铺名称：</label>
+		<div class="layui-input-block">
+			<input type="text" name="site_name" value="{$shop_info.site_name}" lay-verify="site_name" placeholder="请输入店铺名称" autocomplete="off" class="layui-input ns-len-long">
 		</div>
 	</div>
 
@@ -147,6 +152,19 @@
 			repeat_flag = false; //防重复标识
 			
 		form.render();
+		
+		form.verify({
+			site_name: function(value) {
+				if (!value || !value.trim()) {
+					return '请输入店铺名称';
+				}
+			},
+			category_id: function(value) {
+				if (!value) {
+					return '请选择主营行业';
+				}
+			}
+		});
 			
 		form.on('submit(save)', function(data){
 			if (repeat_flag) return;

@@ -44,12 +44,34 @@ class Shop extends BaseShop
             ["site_id", "=", $this->site_id]
         );
         if (request()->isAjax()) {
+            $site_name = input("site_name", '');//店铺名称
+            $category_id = input("category_id", 0);//主营行业id
             $logo = input("logo", '');//店铺logo
             $avatar = input("avatar", '');//店铺头像（大图）
             $banner = input("banner", '');//店铺条幅
             $seo_keywords = input("seo_keywords", '');//店铺关键字
             $seo_description = input("seo_description", '');//店铺简介
+
+            if (empty($site_name)) {
+                return $this->error('', '店铺名称不能为空');
+            }
+            if (empty($category_id)) {
+                return $this->error('', '请选择主营行业');
+            }
+
+            $category_name = '';
+            if ($category_id > 0) {
+                $shop_category_model = new \app\model\shop\ShopCategory();
+                $category_info = $shop_category_model->getCategoryInfo([['category_id', '=', $category_id]], 'category_name');
+                if (!empty($category_info['data'])) {
+                    $category_name = $category_info['data']['category_name'];
+                }
+            }
+
             $data = array(
+                "site_name" => $site_name,
+                "category_id" => $category_id,
+                "category_name" => $category_name,
                 "logo" => $logo,
                 "avatar" => $avatar,
                 "banner" => $banner,
@@ -58,11 +80,26 @@ class Shop extends BaseShop
 //				'shop_status' => 1
             );
             $res = $shop_model->editShop($data, $condition);
+            if ($res['code'] == 0) {
+                // 同步更新门店表中店铺名称
+                model('store')->update([
+                    'site_name' => $site_name,
+                ], [ ['site_id', '=', $this->site_id] ]);
+                // 同步商品表中店铺名称
+                model('goods')->update(['site_name' => $site_name], [ ['site_id', '=', $this->site_id] ]);
+                model('goods_sku')->update(['site_name' => $site_name], [ ['site_id', '=', $this->site_id] ]);
+            }
             return $res;
         } else {
             $shop_info_result = $shop_model->getShopInfo($condition);
             $shop_info = $shop_info_result["data"];
             $this->assign("shop_info", $shop_info);
+
+            // 主营行业列表
+            $shop_category_model = new \app\model\shop\ShopCategory();
+            $shop_category_list = $shop_category_model->getCategoryList([], 'category_id, category_name', 'sort asc');
+            $this->assign('shop_category_list', $shop_category_list['data'] ?? []);
+
             return $this->fetch("shop/config");
         }
 
