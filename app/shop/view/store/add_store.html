@@ -2,6 +2,7 @@
 {block name="resources"}
 <style>
 	#container{ width: 650px; height: 500px; }
+	#container > div { z-index: 500 !important; }
 	.empty-address{ display: none; }
 	.address-content {display: inline-block;vertical-align: top;}
 	.ns-form {margin-top: 0;}
@@ -119,7 +120,7 @@
 			<input type="text" name="address"  placeholder="请填写门店的具体地址。" lay-verify="required" autocomplete="off" class="layui-input ns-len-long address-content" value="">
 			<input type = "hidden" name="longitude" lay-verify="required" class="layui-input"/>
 			<input type = "hidden" name="latitude" lay-verify="required" class="layui-input"/>
-			<button class='layui-btn-primary layui-btn' onclick="refreshFrom();">查找地址</button>
+			<button type="button" class='layui-btn-primary layui-btn' onclick="refreshFrom();">查找地址</button>
 		</div>
 		<div class="ns-word-aux">点击查找地址可在地图上显示输入的地理位置</div>
 	</div>
@@ -172,7 +173,12 @@
 </div>
 {/block}
 {block name="script"}
-<script type="text/javascript" src="{:get_http_type()}://webapi.amap.com/maps?v=1.4.6&amp;key={if empty($map_key['gaode_map_key'])}2df5711d4e2fd9ecd1622b5a53fc6b1d{else/}{$map_key['gaode_map_key']}{/if}"></script>
+<script type="text/javascript">
+	window._AMapSecurityConfig = {
+		securityJsCode:'07add53a1ab6db7259096d2963734804',
+	}
+</script>
+<script type="text/javascript" src="{:get_http_type()}://webapi.amap.com/maps?v=1.4.6&amp;key={if empty($map_key['gaode_map_key'])}8747768d2ff43ead9d72f7ef7a4666fd{else/}{$map_key['gaode_map_key']}{/if}"></script>
 <script type="text/javascript" src="SHOP_JS/address.js"></script>
 <script type="text/javascript" src="STATIC_JS/map_address.js"></script>
 <script>
@@ -183,9 +189,15 @@
 		repeat_flag = false;//防重复标识
 
 		form.render();
+		
+		if ('{$latitude}' == "" || '{$longitude}' == "" || '{$latitude}' == "0" || '{$longitude}' == "0") {
+			var latlng = {lat: '', lng: ''};
+		} else {
+			var latlng = {lat: '{$latitude}', lng: '{$longitude}'};
+		}
 
         //地图展示
-		map_class = new mapClass("container",{lat:'',lng:''});
+		map_class = new mapClass("container", latlng);
 		form.render();
 
 		/**
@@ -325,7 +337,7 @@
 				map_class.address.province = data.province_id;
                 map_class.address.city = data.city_id;
                 map_class.address.district = data.district_id;
-                map_class.address.township = data.subdistrict_id;
+                map_class.address.township = data.subdistrict_id || '';
                 map_class.map_change = false;
                 form.val("editselffetch", {
                     "province_id": data.province_id

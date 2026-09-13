@@ -2,6 +2,7 @@
 {block name="resources"}
 <style>
 	#container{ width: 650px; height: 500px; }
+	#container > div { z-index: 500 !important; }
 	.empty-address{ display: none; }
 	.address-content {
 		display: inline-block;
@@ -109,7 +110,7 @@
 			<input type="text" name="address"  placeholder="请填写门店的具体地址。" value="{$info.address}" lay-verify="required" autocomplete="off" class="layui-input ns-len-long address-content" value="">
 			<input type = "hidden" name="longitude" lay-verify="required" class="layui-input" value="{$info.longitude}"/>
 			<input type = "hidden" name="latitude" lay-verify="required" class="layui-input"value="{$info.latitude}"/>
-			<button class='layui-btn-primary layui-btn' onclick="refreshFrom();">查找地址</button>
+			<button type="button" class='layui-btn-primary layui-btn' onclick="refreshFrom();">查找地址</button>
 		</div>
 		<div class="ns-word-aux">点击查找地址可在地图上显示输入的地理位置</div>
 	</div>
@@ -154,7 +155,12 @@
 </div>
 {/block}
 {block name="script"}
-<script type="text/javascript" src="{:get_http_type()}://webapi.amap.com/maps?v=1.4.6&amp;key={if empty($map_key['gaode_map_key'])}2df5711d4e2fd9ecd1622b5a53fc6b1d{else/}{$map_key['gaode_map_key']}{/if}"></script>
+<script type="text/javascript">
+	window._AMapSecurityConfig = {
+		securityJsCode:'07add53a1ab6db7259096d2963734804',
+	}
+</script>
+<script type="text/javascript" src="{:get_http_type()}://webapi.amap.com/maps?v=1.4.6&amp;key={if empty($map_key['gaode_map_key'])}8747768d2ff43ead9d72f7ef7a4666fd{else/}{$map_key['gaode_map_key']}{/if}"></script>
 <script type="text/javascript" src="SHOP_JS/address.js"></script>
 <script type="text/javascript" src="STATIC_JS/map_address.js"></script>
 <script>
@@ -169,7 +175,7 @@
 		var initdata = {province_id : '{$info.province_id}', city_id : '{$info.city_id}', district_id : '{$info.district_id}'};
 		initAddress(initdata, "storeform");
 
-        if('{$info.latitude}' == "" || '{$info.longitude}' == ""){
+        if('{$info.latitude}' == "" || '{$info.longitude}' == "" || '{$info.latitude}' == "0" || '{$info.longitude}' == "0"){
             var latlng = {lat:'',lng:''};
         }else{
             var latlng = {lat:'{$info.latitude}',lng:'{$info.longitude}'};

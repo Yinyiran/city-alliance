@@ -125,11 +125,49 @@ class Shop extends BaseShop
                 "name" => $name,
                 "mobile" => $mobile
             );
-            $res = $shop_model->editShop($data, $condition);
+            $store_data = [
+                "province_id" => $province,
+                "city_id" => $city,
+                "district_id" => $district,
+                "community_id" => $community,
+                "address" => $address,
+                "full_address" => $full_address,
+                "longitude" => $longitude,
+                "latitude" => $latitude,
+            ];
+            $res = $shop_model->editShop($data, $condition, $store_data);
             return $res;
         } else {
             $shop_info_result = $shop_model->getShopInfo($condition);
             $shop_info = $shop_info_result["data"];
+
+            // 如果 shop 表中经纬度或地址为空，尝试从门店 store 表获取并补充
+            $store_info = model('store')->getInfo(['site_id' => $this->site_id]);
+            if (!empty($store_info)) {
+                if ((empty($shop_info['longitude']) || empty($shop_info['latitude'])) && !empty($store_info['longitude']) && !empty($store_info['latitude'])) {
+                    $shop_info['longitude'] = $store_info['longitude'];
+                    $shop_info['latitude'] = $store_info['latitude'];
+                }
+                if (empty($shop_info['address']) && !empty($store_info['address'])) {
+                    $shop_info['address'] = $store_info['address'];
+                }
+                if (empty($shop_info['full_address']) && !empty($store_info['full_address'])) {
+                    $shop_info['full_address'] = $store_info['full_address'];
+                }
+                if (empty($shop_info['province']) && !empty($store_info['province_id'])) {
+                    $shop_info['province'] = $store_info['province_id'];
+                }
+                if (empty($shop_info['city']) && !empty($store_info['city_id'])) {
+                    $shop_info['city'] = $store_info['city_id'];
+                }
+                if (empty($shop_info['district']) && !empty($store_info['district_id'])) {
+                    $shop_info['district'] = $store_info['district_id'];
+                }
+                if (empty($shop_info['community']) && !empty($store_info['community_id'])) {
+                    $shop_info['community'] = $store_info['community_id'];
+                }
+            }
+
             $this->assign("info", $shop_info);
 
             //查询省级数据列表

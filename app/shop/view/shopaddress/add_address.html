@@ -75,7 +75,12 @@
 </div>
 {/block}
 {block name="script"}
-<script type="text/javascript" src="{:get_http_type()}://webapi.amap.com/maps?v=1.4.6&amp;key={if empty($map_key['gaode_map_key'])}2df5711d4e2fd9ecd1622b5a53fc6b1d{else/}{$map_key['gaode_map_key']}{/if}"></script>
+<script type="text/javascript">
+	window._AMapSecurityConfig = {
+		securityJsCode:'07add53a1ab6db7259096d2963734804',
+	}
+</script>
+<script type="text/javascript" src="{:get_http_type()}://webapi.amap.com/maps?v=1.4.6&amp;key={if empty($map_key['gaode_map_key'])}8747768d2ff43ead9d72f7ef7a4666fd{else/}{$map_key['gaode_map_key']}{/if}"></script>
 <script type="text/javascript" src="SHOP_JS/address.js"></script>
 <script type="text/javascript" src="STATIC_JS/map_address.js"></script>
 <script>

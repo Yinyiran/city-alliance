@@ -397,6 +397,14 @@ class Shop extends BaseAdmin
                 'store_desc' => $store_desc,
                 'store_logo' => $store_logo,
             ];
+            $data['province'] = $province_id;
+            $data['city'] = $city_id;
+            $data['district'] = $district_id;
+            $data['community'] = $community_id;
+            $data['address'] = $address;
+            $data['full_address'] = $full_address;
+            $data['longitude'] = $longitude;
+            $data['latitude'] = $latitude;
             return $shop_model->editShop($data, [ [ 'site_id', '=', $site_id ] ], $store_data);
 
             model('shop')->startTrans();

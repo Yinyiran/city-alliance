@@ -1,7 +1,8 @@
 {extend name="base"/}
 {block name="resources"}
 <style>
-	#container{height: 500px; }
+	#container{ width: 650px; height: 500px; }
+	#container > div { z-index: 500 !important; }
 	.address-content {display: inline-block;vertical-align: top;}
 </style>
 {/block}
@@ -68,7 +69,7 @@
 			<input type="text" name="address" placeholder="请输入详细地址，以方便买家联系（请勿重复填写省市区）" lay-verify="address" autocomplete="off" class="layui-input ns-len-long address-content" value="{$info.address}">
 			<input type="hidden" name="longitude" lay-verify="required" class="layui-input" value="{$info.longitude}"/>
 			<input type="hidden" name="latitude" lay-verify="required" class="layui-input" value="{$info.latitude}"/>
-			<button class="layui-btn-primary layui-btn" onclick="refreshFrom();">查找地址</button>
+			<button type="button" class="layui-btn-primary layui-btn" onclick="refreshFrom();">查找地址</button>
 		</div>
 	</div>
 	
@@ -138,7 +139,12 @@
 {/block}
 
 {block name="script"}
-<script type="text/javascript" src="{:get_http_type()}://webapi.amap.com/maps?v=1.4.6&amp;key={if empty($map_key['gaode_map_key'])}2df5711d4e2fd9ecd1622b5a53fc6b1d{else/}{$map_key['gaode_map_key']}{/if}"></script>
+<script type="text/javascript">
+	window._AMapSecurityConfig = {
+		securityJsCode:'07add53a1ab6db7259096d2963734804',
+	}
+</script>
+<script type="text/javascript" src="{:get_http_type()}://webapi.amap.com/maps?v=1.4.6&amp;key={if empty($map_key['gaode_map_key'])}8747768d2ff43ead9d72f7ef7a4666fd{else/}{$map_key['gaode_map_key']}{/if}"></script>
 <script type="text/javascript" src="SHOP_JS/address.js"></script>
 <script type="text/javascript" src="STATIC_JS/map_address.js"></script>
 <script type="text/javascript">
@@ -166,7 +172,7 @@
 		
 		form.render();
 		
-		if('{$info.latitude}' == "" || '{$info.longitude}' == ""){
+		if('{$info.latitude}' == "" || '{$info.longitude}' == "" || '{$info.latitude}' == "0" || '{$info.longitude}' == "0"){
 		    var latlng = {lat:'',lng:''};
 		}else{
 		    var latlng = {lat:'{$info.latitude}',lng:'{$info.longitude}'};
@@ -318,8 +324,8 @@
 	    map_class.address.city_name = $("select[name=city_id] option:selected").text();
 	    map_class.address.district = $("select[name=district_id]").val();
 	    map_class.address.district_name = $("select[name=district_id] option:selected").text();
-	    map_class.address.township = $("select[name=community_id]").val();
-	    map_class.address.township_name = $("select[name=community_id] option:selected").text();
+	    map_class.address.township = $("select[name=community_id]").val() || '';
+	    map_class.address.township_name = $("select[name=community_id] option:selected").text() || '';
 	    map_class.address.address = $("input[name=address]").val()
 	}
 

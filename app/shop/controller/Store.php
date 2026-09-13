@@ -135,6 +135,31 @@ class Store extends BaseShop
             $config_model = new ConfigModel();
             $config = $config_model->getMapConfig();
             $this->assign('map_key', $config[ 'data' ][ 'value' ]);
+
+            // 获取默认经纬度（主店铺的经纬度）
+            $shop_model = new \app\model\shop\Shop();
+            $shop_info = $shop_model->getShopInfo([ [ 'site_id', '=', $this->site_id ] ], 'province,city,district,address,full_address,longitude,latitude');
+            $default_latlng = [
+                'lat' => $shop_info['data']['latitude'] ?? '',
+                'lng' => $shop_info['data']['longitude'] ?? '',
+                'province_id' => $shop_info['data']['province'] ?? '',
+                'city_id' => $shop_info['data']['city'] ?? '',
+                'district_id' => $shop_info['data']['district'] ?? '',
+            ];
+            if (empty($default_latlng['lat']) || empty($default_latlng['lng']) || $default_latlng['lat'] == '0' || $default_latlng['lng'] == '0') {
+                $store_info = model('store')->getInfo([ 'site_id' => $this->site_id ]);
+                if (!empty($store_info)) {
+                    $default_latlng['lat'] = $store_info['latitude'] ?? '';
+                    $default_latlng['lng'] = $store_info['longitude'] ?? '';
+                    if (empty($default_latlng['province_id'])) $default_latlng['province_id'] = $store_info['province_id'] ?? '';
+                    if (empty($default_latlng['city_id'])) $default_latlng['city_id'] = $store_info['city_id'] ?? '';
+                    if (empty($default_latlng['district_id'])) $default_latlng['district_id'] = $store_info['district_id'] ?? '';
+                }
+            }
+            $this->assign('default_latlng', $default_latlng);
+            $this->assign('latitude', $default_latlng['lat'] ?? '');
+            $this->assign('longitude', $default_latlng['lng'] ?? '');
+
             return $this->fetch("store/add_store");
         }
     }
