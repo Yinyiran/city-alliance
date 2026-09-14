@@ -1,4 +1,4 @@
-﻿<template>
+<template>
 	<view>
 		<nvabar title='签到码'></nvabar>
 		<image src="/otherpages/static/sbg2.png" class="bgs" mode=""></image>
@@ -34,25 +34,42 @@
 			</view>
 			<view class="btms">
 				<image src="/otherpages/static/sbg4.png" mode=""></image>
-				<view class="">注意：此二维码需前往指定商家线下扫码即可激活签到奖励</view>
+				<view class="" v-if="userReward > 0">出示此码由门店扫描，每次签到立享 {{ userReward }} 元现金奖励（每周一统一结算至钱包余额）</view>
+				<view class="" v-else>注意：此二维码需前往指定商家线下扫码即可激活签到奖励</view>
 			</view>
 		</view>
 	</view>
 </template>
 
 <script>
-	import { userinfo } from '@/common/js/api.js';
+	import { userinfo, getsignsettlementconfig } from '@/common/js/api.js';
 	export default {
 		data() {
 			return {
 				info: "",
-				qrLoading: false
+				qrLoading: false,
+				userReward: 0
 			};
 		},
 		onLoad() {
 			this.userinfo();
+			this.getSettlementConfig();
 		},
 		methods: {
+			getSettlementConfig() {
+				getsignsettlementconfig().then(res => {
+					if (res && res.code == 0 && res.data) {
+						let reward = parseFloat(res.data.user_reward);
+						if (res.data.is_open && !isNaN(reward) && reward > 0) {
+							this.userReward = reward.toFixed(2);
+						} else {
+							this.userReward = 0;
+						}
+					}
+				}).catch(() => {
+					this.userReward = 0;
+				});
+			},
 			userinfo() {
 				this.qrLoading = true;
 				return userinfo().then(res => {

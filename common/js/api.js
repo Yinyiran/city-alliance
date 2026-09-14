@@ -151,6 +151,8 @@ export const getsignininfo=params=>server('/api/sign/getsignininfo',params)
 export const getqrcode=params=>server('/api/sign/getqrcode',params)
 //签到扫码
 export const dosignin=params=>server('/api/sign/dosignin',params)
+//签到结算与返现配置
+export const getsignsettlementconfig=params=>server('/api/sign/getsettlementconfig',params)
 //我的钱包
 export const moneyAccount=params=>server('/api/memberaccount/moneyAccount',params)
 //我的积分
