@@ -79,7 +79,7 @@
 				</view>
 
 				<view class="empty-box p-40" v-if="inviteList.length === 0 && !loading">
-					<image src="/otherpages/static/empty.png" class="empty-img" mode="aspectFit"></image>
+					<image src="/static/empty.png" class="empty-img" mode="aspectFit"></image>
 					<view class="empty-txt font-26 m-t-16">暂无邀约会员奖励记录，快去邀请好友办卡吧！</view>
 					<view class="invite-action-btn m-t-32 acea-row row-middle row-center" @click="$util.redirectTo('/otherpages/poster/poster')">
 						邀请好友办理会员
@@ -110,7 +110,7 @@
 				</view>
 
 				<view class="empty-box p-40" v-if="bringList.length === 0 && !loading">
-					<image src="/otherpages/static/empty.png" class="empty-img" mode="aspectFit"></image>
+					<image src="/static/empty.png" class="empty-img" mode="aspectFit"></image>
 					<view class="empty-txt font-26 m-t-16">暂无带单消费佣金记录</view>
 				</view>
 			</view>
