@@ -55,6 +55,7 @@ class Sign extends BaseApi
             if(empty($member_id)) {
                return $this->response(["code"=>-101,"msg"=>"参数错误"]);
             }
+            $result = $this->modelrules->getRulesList($member_id);
             $settlement_model = new \app\model\signin\SignSettlement();
             $settlement_cfg = $settlement_model->getConfig();
 
