@@ -166,7 +166,11 @@ export default {
 	timeStampTurnTime(timeStamp, type = "") {
 		if (timeStamp != undefined && timeStamp != "" && timeStamp > 0) {
 			var date = new Date();
-			date.setTime(timeStamp);
+			var time = Number(timeStamp);
+			if (time.toString().length === 10) {
+				time = time * 1000;
+			}
+			date.setTime(time);
 			var y = date.getFullYear();
 			var m = date.getMonth() + 1;
 			m = m < 10 ? ('0' + m) : m;

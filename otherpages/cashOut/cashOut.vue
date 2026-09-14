@@ -3,8 +3,7 @@
 		<uv-sticky bg-color="#fff">
 			<nvabar type='1' title='申请提现' titleStyle='color:#222'></nvabar>
 		</uv-sticky>
-		<view class="cash acea-row row-middle row-between" @click="gopage"
-			v-if="!cashInfo || cashInfo.apply_status == 3">
+		<view class="cash acea-row row-middle row-between" @click="gopage" v-if="!cashInfo || cashInfo.apply_status == 3">
 			<view class="acea-row row-middle">
 				<image src="/otherpages/static/warn.png" class="w-32 h-32 m-r-12" mode=""></image>
 				当前未绑定提现账户，绑定账户后可提现
@@ -36,7 +35,7 @@
 				<input type="number" v-model="apply_money" placeholder="请输入" />
 				<text @click="alls">全部提现</text>
 			</view>
-			<view class="m-t-20" style="color: #999999;"> 当前可提现金额 <text>{{ balance_money }}元</text>，单笔最低100元，一天最高可提现额度为{{ max }}元
+			<view class="m-t-20" style="color: #999999;"> 当前可提现金额 <text>{{ balance_money }}元</text>，一天最高可提现额度为{{ max }}元
 			</view>
 			<view class="calc-card m-t-32" v-if="taxDetail && Number(apply_money) > 0">
 				<view class="calc-header acea-row row-middle row-between">
@@ -111,7 +110,7 @@ export default {
 					if (res.code == 0 && res.data) {
 						this.taxDetail = res.data;
 					}
-				}).catch(() => {});
+				}).catch(() => { });
 			}, 300);
 		},
 		alls() {

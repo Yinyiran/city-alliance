@@ -1,4 +1,4 @@
-﻿<template>
+<template>
 	<view>
 		<uv-sticky>
 			<view class="bgs">
@@ -67,7 +67,7 @@
 									<view class="line"></view>
 									订单数 {{item.order_num}}
 									<view class="line"></view>
-									关注时间 {{item.subscribe_time}}
+									关注时间 {{formatTime(item.subscribe_time)}}
 								</view>
 							</view>
 						</uv-swipe-action-item>
@@ -153,6 +153,10 @@
 					this.last_page=res.data.page_count
 					this.count=res.data.count
 				})
+			},
+			formatTime(val) {
+				if (!val || Number(val) <= 0) return '--';
+				return this.$util.timeStampTurnTime(val, 'ymd') || '--';
 			},
 		}
 	}
