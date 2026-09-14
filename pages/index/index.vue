@@ -26,7 +26,16 @@
 						<image src="/static/go1.png" class="w-16 h-16 m-l-4" mode=""></image>
 					</view>
 				</view>
+				<view class="line1 m-t-24"></view>
+				<view class="acea-row row-middle row-between m-t-24">
+					<view class="acea-row row-middle" style="color: #CCCCCC;">主理人收益 (元)：<text style="color: #F5B67F;"
+							class="font-40">{{totalIncome}}</text></view>
+					<view class="acea-row row-middle" @click="gonext('incomeDetail')" style="color: #CCCCCC;">查看明细
+						<image src="/static/go1.png" class="w-16 h-16 m-l-4" mode=""></image>
+					</view>
+				</view>
 			</view>
+
 			<image src="/static/bg1.png" class="bg1" mode=""></image>
 			<view class="members acea-row row-middle row-between">
 				<view class="">
@@ -260,7 +269,8 @@
 		getRankList,
 		getInfo,
 		getOrderInfo,
-		dodelivery
+		dodelivery,
+		getIncomeSummary
 	} from "@/common/js/api.js"
 	export default {
 		data() {
@@ -280,7 +290,18 @@
 				last_page: 1,
 				verifyOrder: null,
 				scanCodeVal: '',
-				verifying: false
+				verifying: false,
+				incomeSummary: {
+					bring_income: { total: '0.00', today: '0.00', count: 0 },
+					member_income: { total: '0.00', today: '0.00', count: 0 }
+				}
+			}
+		},
+		computed: {
+			totalIncome() {
+				let b = parseFloat((this.incomeSummary.bring_income || {}).total) || 0;
+				let m = parseFloat((this.incomeSummary.member_income || {}).total) || 0;
+				return (b + m).toFixed(2);
 			}
 		},
 		onLoad(res) {
@@ -302,6 +323,7 @@
 			this.getRankList()
 			if (uni.getStorageSync('token')) {
 				this.getnum()
+				this.fetchIncomeSummary()
 				// this.getmemberranklist()
 			}
 		},
@@ -487,6 +509,14 @@
 					this.total_count = (res.data.team_total && res.data.team_total.total_count) || 0
 					this.leveltotal = (res.data.team_total && res.data.team_total.leveltotal) || []
 				})
+			},
+			fetchIncomeSummary() {
+				let site_id = uni.getStorageSync('site_id') || 0
+				getIncomeSummary({ site_id }).then(res => {
+					if (res.code == 0 && res.data) {
+						this.incomeSummary = res.data
+					}
+				}).catch(() => {})
 			},
 		}
 	}
@@ -696,7 +726,8 @@
 	}
 
 	.part1 {
-		height: 279rpx;
+		min-height: 279rpx;
+		height: auto;
 		background: linear-gradient(180deg, #272A33 0%, #18181F 100%);
 		border-radius: 24rpx;
 		margin: 0 32rpx;
