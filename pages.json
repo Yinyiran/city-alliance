@@ -85,6 +85,13 @@
 					}
 				},
 				{
+					"path": "income/income",
+					"style": {
+						"navigationBarTitleText": "我的收益中心",
+						"navigationStyle": "custom"
+					}
+				},
+				{
 					"path": "cashManage/cashManage",
 					"style": {
 						"navigationBarTitleText": "提现账户管理",

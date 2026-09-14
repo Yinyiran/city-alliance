@@ -71,13 +71,20 @@
 				</view>
 			</view>
 		</view>
-		<view class="acea-row row-middle row-between part">
+		<view class="acea-row row-middle row-between part" style="flex-wrap: wrap;">
 			<view class="balance m-b-16" @click="gonext('wallet')">
 				<view class="">
 					余额
 					<image src="/static/go2.png" class="w-16 h-16 m-l-8" mode=""></image>
 				</view>
 				<view class="">{{ Number(infos.balance) + Number(infos.balance_money) || 0 }}</view>
+				<image src="/static/money.png" mode=""></image>
+			</view>
+			<view class="m-b-16" @click="gonext('income')">
+				<view class="font-26 font-weight-6">
+					收益中心
+				</view>
+				<view class="font-20" style="color: #999;">佣金 ￥{{ infos.balance_money || 0 }}</view>
 				<image src="/static/money.png" mode=""></image>
 			</view>
 			<view class="m-b-16" @click="gonext('teams')">
@@ -87,7 +94,7 @@
 				<view class="font-20" style="color: #999;">{{ infos.team_num || 0 }}人</view>
 				<image src="/static/team.png" mode=""></image>
 			</view>
-			<view class="" @click="gonext('cashOut')">
+			<view class="m-b-16" @click="gonext('cashOut')">
 				<view class="font-26 font-weight-6">
 					提现
 				</view>

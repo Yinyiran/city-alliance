@@ -189,3 +189,5 @@ export const reviewStatus=params=>server('/api/api/reviewStatus',params)
 export const getVerifyCode=params=>server('/api/order/verifyCode',params)
 //商家商品分类列表
 export const siteCategoryList=params=>server('/api/goodscategory/siteCategoryList',params)
+export const myIncomeSummary=params=>server('/api/memberlevel/myIncomeSummary',params)
+export const myIncomeList=params=>server('/api/memberlevel/myIncomeList',params)

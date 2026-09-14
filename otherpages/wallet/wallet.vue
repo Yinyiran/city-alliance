@@ -1,4 +1,4 @@
-﻿<template>
+<template>
 	<view>
 		<nvabar type='1' title='我的钱包' titleStyle='color:#222'></nvabar>
 		<image src="/otherpages/static/bg7.png" class="bgs" mode=""></image>
@@ -10,6 +10,9 @@
 				<view class="">
 					<view class="fcolor">今日现金奖励 (元)</view>
 					<view class="fcolor1 font-weight-6 font-32">{{today_money}}</view>
+				</view>
+				<view class="fcolor1 acea-row row-middle row-center btn1" @click="$util.redirectTo('/otherpages/income/income')">收益明细
+					<uv-icon name="arrow-right" color="#fff" size="12"></uv-icon>
 				</view>
 				<view class="yline"></view>
 				<view class="">
