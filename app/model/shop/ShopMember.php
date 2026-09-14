@@ -31,7 +31,7 @@ class ShopMember extends BaseModel
         $sub_num = 0;
         if (!empty($shop_member_info)) {
             if($is_subscribe == 1){
-                $res = model("shop_member")->update([ 'is_subscribe' => $is_subscribe, 'create_time' => time(), 'cancel_time' => 0 ], [ [ 'site_id', '=', $site_id ], [ 'member_id', '=', $member_id ] ]);
+                $res = model("shop_member")->update([ 'is_subscribe' => $is_subscribe, 'subscribe_time' => time(), 'create_time' => time(), 'cancel_time' => 0 ], [ [ 'site_id', '=', $site_id ], [ 'member_id', '=', $member_id ] ]);
 
                 if ($shop_member_info[ 'is_subscribe' ] == 0 && $is_subscribe == 1) {
                     $sub_num = 1;
@@ -137,7 +137,7 @@ class ShopMember extends BaseModel
     {
         $longitude = $data['longitude'];
         $latitude = $data['latitude'];
-        $field = 'ns.site_id, ns.site_name, ns.is_own, ns.logo,ns.sub_num, nsm.subscribe_time,
+        $field = 'ns.site_id, ns.site_name, ns.is_own, ns.logo,ns.sub_num, nsm.subscribe_time, nsm.create_time,
         ns.shop_desccredit,ns.shop_servicecredit,ns.shop_deliverycredit,ns.shop_sales,ns.shop_sales,ns.is_own';
         $condition[] = [ 'nm.is_delete', '=', 0 ];
         $alias = 'nsm';
@@ -159,6 +159,9 @@ class ShopMember extends BaseModel
         $list = model("shop_member")->pageList($condition, $field, $order, $page, $page_size, $alias, $join);
 
         foreach ($list['list'] as $key => $value) {
+            if (empty($value['subscribe_time']) || $value['subscribe_time'] <= 0) {
+                $list['list'][$key]['subscribe_time'] = !empty($value['create_time']) ? $value['create_time'] : time();
+            }
             //获取门店信息
             $store = model('store')->getInfo(['site_id'=>$value['site_id']]);
             $list['list'][$key]['store_id'] = $store['store_id'];

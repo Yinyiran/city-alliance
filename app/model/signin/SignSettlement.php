@@ -16,10 +16,14 @@ class SignSettlement extends BaseModel
 {
     const CONFIG_KEY = 'SIGN_SETTLEMENT_CONFIG';
 
+    private static $is_initialized = false;
+
     public function __construct()
     {
-        parent::__construct();
-        $this->initTable();
+        if (!self::$is_initialized) {
+            $this->initTable();
+            self::$is_initialized = true;
+        }
     }
 
     /**
@@ -133,9 +137,8 @@ class SignSettlement extends BaseModel
                 ];
                 Db::name('cron')->insert($cron_data);
             }
-        } catch (\Exception $e) {
-            // 数据库若尚未启动或连接不可用时忽略，运行期由外部捕获
-            Log::write('SignSettlement initTable notice: ' . $e->getMessage(), 'notice');
+        } catch (\Throwable $e) {
+            // 静默忽略初始化异常，避免在未完成框架服务绑定或无库连接时中断业务
         }
     }
 

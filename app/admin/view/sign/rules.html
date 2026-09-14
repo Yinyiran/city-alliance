@@ -225,7 +225,7 @@
 			});
 		});
 		form.on('select(reward_type)', function (data) {
-			conoole.log(data.value);
+			console.log(data.value);
 			if (data.value == 3) {
 				$(this).parents(".rewards").find(".goodsdiv").show();
 				$(this).parents(".rewards").find("input[name='reward_value']").hide();
