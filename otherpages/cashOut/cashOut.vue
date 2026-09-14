@@ -1,4 +1,4 @@
-﻿<template>
+<template>
 	<view>
 		<uv-sticky bg-color="#fff">
 			<nvabar type='1' title='申请提现' titleStyle='color:#222'></nvabar>
@@ -36,17 +36,34 @@
 				<input type="number" v-model="apply_money" placeholder="请输入" />
 				<text @click="alls">全部提现</text>
 			</view>
-			<view class="m-t-20" style="color: #999999;"> 当前可提现金额 <text>{{ balance_money }}元</text>，一天最高可提现额度为{{ max }}元
+			<view class="m-t-20" style="color: #999999;"> 当前可提现金额 <text>{{ balance_money }}元</text>，单笔最低100元，一天最高可提现额度为{{ max }}元
 			</view>
-			<!-- <view class="rules m-t-40" v-if="rules.length">
-				<view class="rules-title acea-row row-middle">
-					<text class="rules-icon"></text>提现规则
+			<view class="calc-card m-t-32" v-if="taxDetail && Number(apply_money) > 0">
+				<view class="calc-header acea-row row-middle row-between">
+					<view class="calc-title font-28 font-weight-6">预估到账明细</view>
+					<view class="calc-badge">依法代扣代缴</view>
 				</view>
-				<view class="rule-item acea-row row-middle row-between" v-for="(item, index) in rules" :key="index">
-					<text class="rule-label">{{ item.label }}</text>
-					<text class="rule-value">{{ item.value }}</text>
+				<view class="calc-row acea-row row-between m-t-16 font-26">
+					<text style="color: #666;">申请提现</text>
+					<text class="font-weight-6">￥{{ taxDetail.apply_money }}</text>
 				</view>
-			</view> -->
+				<view class="calc-row acea-row row-between m-t-12 font-26">
+					<text style="color: #666;">平台手续费 ({{ taxDetail.charge_rate }}%)</text>
+					<text style="color: #F55606;">-￥{{ taxDetail.charge_money }}</text>
+				</view>
+				<view class="calc-row acea-row row-between m-t-12 font-26">
+					<text style="color: #666;">劳务报酬个税代扣 ({{ taxDetail.tax_rate }}%)</text>
+					<text style="color: #F55606;">-￥{{ taxDetail.tax_money }}</text>
+				</view>
+				<view class="calc-divider m-t-16 m-b-16"></view>
+				<view class="calc-row acea-row row-between font-28">
+					<text class="font-weight-6">预计实际到账</text>
+					<text class="font-weight-6 font-32" style="color: #07c160;">￥{{ taxDetail.real_money }}</text>
+				</view>
+				<view class="calc-tip m-t-12 font-22" style="color: #999;">
+					* 提现需满足单笔最少100元；单次及月800元以内免缴个税，超出800元按国家劳务报酬税率代扣代缴。
+				</view>
+			</view>
 			<view class="m-t-40 introduction-box" v-if="introduction" v-html="introduction">
 			</view>
 			<view class="btms iphone-x">
@@ -57,7 +74,7 @@
 </template>
 
 <script>
-import { memberbankaccountPage, memberwithdrawapply, memberwithdrawconfig, memberopenaccountInfo } from "@/common/js/api.js"
+import { memberbankaccountPage, memberwithdrawapply, memberwithdrawconfig, memberopenaccountInfo, memberwithdrawCalculateTax } from "@/common/js/api.js"
 export default {
 	data() {
 		return {
@@ -67,8 +84,14 @@ export default {
 			max: "",
 			rules: [],
 			cashInfo: {},
-			balance_money: ""
+			balance_money: "",
+			taxDetail: null
 		};
+	},
+	watch: {
+		apply_money(val) {
+			this.calcTax(val);
+		}
 	},
 	onShow() {
 		// this.memberbankaccountPage()
@@ -76,6 +99,21 @@ export default {
 		this.memberwithdrawconfig()
 	},
 	methods: {
+		calcTax(val) {
+			let money = parseFloat(val);
+			if (!money || isNaN(money) || money <= 0) {
+				this.taxDetail = null;
+				return;
+			}
+			clearTimeout(this._calcTimer);
+			this._calcTimer = setTimeout(() => {
+				memberwithdrawCalculateTax({ apply_money: money }).then(res => {
+					if (res.code == 0 && res.data) {
+						this.taxDetail = res.data;
+					}
+				}).catch(() => {});
+			}, 300);
+		},
 		alls() {
 			this.apply_money = this.balance_money
 		},
@@ -99,7 +137,7 @@ export default {
 			let max = Number(cfg.max) > 0 ? Number(cfg.max) : 700
 			this.max = max
 			// 最低提现金额（元）
-			let min = Number(cfg.min) > 0 ? Number(cfg.min) : 1
+			let min = Number(cfg.min) > 0 ? Number(cfg.min) : 100
 			// 提现手续费率
 			let feeRate = (cfg.fee !== undefined && cfg.fee !== null && cfg.fee !== '') ? cfg.fee : '0.35'
 			let feePercent = feeRate + '%'
@@ -199,6 +237,13 @@ export default {
 				})
 				return
 			}
+			if (money < 100) {
+				uni.showToast({
+					title: '最低提现金额需满足最少100元',
+					icon: 'none'
+				})
+				return
+			}
 			if (money > Number(this.balance_money)) {
 				uni.showToast({
 					title: '提现金额不能超过当前可提现金额',
@@ -213,12 +258,23 @@ export default {
 				})
 				return
 			}
+			if (!this.cashInfo || !this.cashInfo.card_no) {
+				uni.showToast({
+					title: '请先完成实名认证并绑定提现银行卡',
+					icon: 'none'
+				})
+				return
+			}
 			let params = {
 				apply_money: this.apply_money,
-				// transfer_type:this.cashInfo.withdraw_type,
-				// realname:this.cashInfo.realname,
-				// bank_name:this.cashInfo.branch_bank_name,
-				// account_number:this.cashInfo.bank_account
+				realname: this.cashInfo.realname || this.cashInfo.card_name || '',
+				bank_name: this.cashInfo.branch_bank_name || this.cashInfo.bank_name || '银行卡',
+				account_number: this.cashInfo.card_no || this.cashInfo.bank_account || '',
+				mobile: this.cashInfo.mobile || this.cashInfo.mobile_no || '',
+				id_card: this.cashInfo.cert_no || this.cashInfo.id_card || '',
+				job_type: '其它',
+				face_auth_status: 1,
+				face_auth_sn: 'FACE_' + new Date().getTime()
 			}
 			memberwithdrawapply(params).then(res => {
 				if (res.code == 0) {
@@ -227,9 +283,15 @@ export default {
 						success: () => {
 							setTimeout(() => {
 								this.apply_money = ''
+								this.taxDetail = null
 								this.memberwithdrawconfig()
 							}, 2000)
 						}
+					})
+				} else {
+					uni.showToast({
+						title: res.message,
+						icon: 'none'
 					})
 				}
 			})
@@ -479,6 +541,30 @@ page {
 				}
 			}
 		}
+	}
+}
+
+.calc-card {
+	background: #FAFAFA;
+	border: 1rpx solid #EFEFEF;
+	border-radius: 16rpx;
+	padding: 24rpx;
+
+	.calc-badge {
+		font-size: 20rpx;
+		background: #E8F4D9;
+		color: #52C41A;
+		padding: 4rpx 12rpx;
+		border-radius: 6rpx;
+	}
+
+	.calc-divider {
+		height: 1rpx;
+		background: #E8E8E8;
+	}
+
+	.text-red {
+		color: #F55606;
 	}
 }
 </style>

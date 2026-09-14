@@ -63,6 +63,8 @@ export const memberbankaccountPage=params=>server('/api/memberbankaccount/page',
 export const memberbankaccountadd=params=>server('/api/memberbankaccount/add',params)
 //申请提现
 export const memberwithdrawapply=params=>server('/api/memberwithdraw/apply',params)
+//提现个税与手续费试算
+export const memberwithdrawCalculateTax=params=>server('/api/memberwithdraw/calculatetax',params)
 //提现设置
 // 返回 data.value 需包含以下字段（用于提现页面展示提现规则）：
 // max: 单日最高可提现额度(元)  min: 最低提现金额(元)  day_num: 每日提现次数
