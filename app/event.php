@@ -51,6 +51,10 @@ return [
         'CronShopClose' => [
             'app\event\CronShopClose'
         ],
+        // 签到周结算
+        'CronSignSettlement' => [
+            'app\event\CronSignSettlement'
+        ],
 
         //添加门店事件
         'AddStore' => [

@@ -12,6 +12,7 @@ use app\model\signin\Rules as RulesModel;
 use app\model\signin\Records as MemberRecordModel;
 use app\model\shop\Shop as ShopModel;
 use app\model\member\Member as MemberModel;
+use app\model\signin\SignSettlement as SignSettlementModel;
 use addon\weapp\model\Weapp;
 
 /**
@@ -28,6 +29,7 @@ class Sign extends BaseAdmin
     protected $memberrecordmodel;
     protected $shopmodel;
     protected $membermodel;
+    protected $settlementmodel;
     /**
      * 构造方法
      * Sign constructor.
@@ -40,6 +42,7 @@ class Sign extends BaseAdmin
         $this->memberrecordmodel = new MemberRecordModel();
         $this->shopmodel = new ShopModel();
         $this->membermodel = new MemberModel();
+        $this->settlementmodel = new SignSettlementModel();
         $shoplist=$this->shopmodel->getShopList([],'*');
         $this->assign("shoplist",$shoplist['data']);
 
@@ -272,5 +275,136 @@ class Sign extends BaseAdmin
         var_dump($result);die;
         return $result;
        
+    }
+
+    /**
+     * 签到收费与返现结算设置
+     */
+    public function config()
+    {
+        if (request()->isAjax()) {
+            $data = [
+                'is_open' => input('is_open', 0),
+                'shop_fee' => input('shop_fee', '3.00'),
+                'user_reward' => input('user_reward', '2.00'),
+                'cycle_type' => input('cycle_type', 'week'),
+                'settle_day' => input('settle_day', 1),
+                'remark' => input('remark', '')
+            ];
+            $res = $this->settlementmodel->setConfig($data);
+            return $res;
+        }
+
+        $config = $this->settlementmodel->getConfig();
+        $this->assign('config', $config['data']);
+        return $this->fetch('sign/config');
+    }
+
+    /**
+     * 签到收费与返现流水明细
+     */
+    public function settlementrecords()
+    {
+        if (request()->isAjax()) {
+            $page = input('page', 1);
+            $page_size = input('page_size', PAGE_LIST_ROWS);
+            $search_shop = input('shop_id', '');
+            $search_member = input('search_member', '');
+            $settle_status = input('settle_status', '');
+            $period_key = input('period_key', '');
+            $start_time = input('start_time', '');
+            $end_time = input('end_time', '');
+
+            $condition = [];
+            if (!empty($search_shop)) {
+                $condition[] = ['r.site_id', '=', $search_shop];
+            }
+            if (!empty($search_member)) {
+                $condition[] = ['m.nickname|m.username|m.mobile', 'like', '%' . trim($search_member) . '%'];
+            }
+            if ($settle_status !== '' && $settle_status !== null) {
+                $condition[] = ['r.settle_status', '=', (int)$settle_status];
+            }
+            if (!empty($period_key)) {
+                $condition[] = ['r.period_key', '=', trim($period_key)];
+            }
+            if (!empty($start_time) && empty($end_time)) {
+                $condition[] = ['r.create_time', '>=', date_to_time($start_time)];
+            } elseif (empty($start_time) && !empty($end_time)) {
+                $condition[] = ['r.create_time', '<=', date_to_time($end_time)];
+            } elseif (!empty($start_time) && !empty($end_time)) {
+                $condition[] = ['r.create_time', 'between', [date_to_time($start_time), date_to_time($end_time)]];
+            }
+
+            $res = $this->settlementmodel->getRecordPageList($condition, $page, $page_size);
+            return $res;
+        }
+
+        $stats = $this->settlementmodel->getSettlementStats();
+        $this->assign('stats', $stats['data']);
+        return $this->fetch('sign/settlement_records');
+    }
+
+    /**
+     * 周结算账单汇总管理
+     */
+    public function bills()
+    {
+        if (request()->isAjax()) {
+            $page = input('page', 1);
+            $page_size = input('page_size', PAGE_LIST_ROWS);
+            $bill_type = input('bill_type', '');
+            $pay_status = input('pay_status', '');
+            $period_key = input('period_key', '');
+            $search_text = input('search_text', '');
+
+            $condition = [];
+            if (!empty($bill_type)) {
+                $condition[] = ['b.bill_type', '=', $bill_type];
+            }
+            if ($pay_status !== '' && $pay_status !== null) {
+                $condition[] = ['b.pay_status', '=', (int)$pay_status];
+            }
+            if (!empty($period_key)) {
+                $condition[] = ['b.period_key', '=', trim($period_key)];
+            }
+            if (!empty($search_text)) {
+                $condition[] = ['b.bill_no|s.site_name|m.nickname|m.mobile', 'like', '%' . trim($search_text) . '%'];
+            }
+
+            $res = $this->settlementmodel->getBillPageList($condition, $page, $page_size);
+            return $res;
+        }
+
+        $stats = $this->settlementmodel->getSettlementStats();
+        $this->assign('stats', $stats['data']);
+        return $this->fetch('sign/bills');
+    }
+
+    /**
+     * 管理员一键手动触发周结算
+     */
+    public function settlemanual()
+    {
+        if (request()->isAjax()) {
+            $force_all = input('force_all', 0); // 是否结算包含当前周的所有待结明细
+            $res = $this->settlementmodel->cronWeeklySettlement(0, (bool)$force_all);
+            return $res;
+        }
+        return error(-1, '非法请求');
+    }
+
+    /**
+     * 管理员风控作废异常签到流水
+     */
+    public function invalidrecord()
+    {
+        if (request()->isAjax()) {
+            $id = input('id', 0);
+            $remark = input('remark', '管理员作废');
+            $res = $this->settlementmodel->invalidRecord($id, $remark);
+            return $res;
+        }
+        return error(-1, '非法请求');
     }
 }

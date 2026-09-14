@@ -14,6 +14,7 @@ use app\model\signin\Rules as RulesModel;
 use app\model\api\SignMemberRecord as SignMemberRecordModel;
 use app\model\member\MemberAccount as MemberAccountModel;
 use app\model\order\orderCreate as orderCreateModel;
+use app\model\signin\SignSettlement as SignSettlementModel;
 
 
 
@@ -236,12 +237,17 @@ class Records extends BaseModel
                     break;
             }
 
+            // 记录签到收费与用户返现待结算流水（周结算）
+            $settlement_model = new SignSettlementModel();
+            $settle_res = $settlement_model->createSettlementRecord($record_id, $shop_id, $member_id);
+
             Db::commit();
             return success(0, "签到成功！恭喜获得：" . $rewardtxt, [
                 'signin_id' => $record_id,
                 'rewardtxt' => $rewardtxt,
                 'sign_day' => $need_day,
-                'sign_rounds' => $shop_sign_round
+                'sign_rounds' => $shop_sign_round,
+                'settlement' => $settle_res['data'] ?? null
             ]);
         } catch (\Exception $e) {
             Db::rollback();

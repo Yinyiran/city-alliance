@@ -55,15 +55,30 @@ class Sign extends BaseApi
             if(empty($member_id)) {
                return $this->response(["code"=>-101,"msg"=>"参数错误"]);
             }
-            $result = $this->modelrules->getRulesList($member_id);
-            
+            $settlement_model = new \app\model\signin\SignSettlement();
+            $settlement_cfg = $settlement_model->getConfig();
+
             if($result["code"]==0){
-                 return $this->response(["code"=>$result["code"],"message"=>$result["message"],"data"=>$result["data"]["list"],"signcount"=>$result["data"]["signcount"]]);
+                 return $this->response([
+                     "code"=>$result["code"],
+                     "message"=>$result["message"],
+                     "data"=>$result["data"]["list"],
+                     "signcount"=>$result["data"]["signcount"],
+                     "settlement"=>$settlement_cfg["data"] ?? null
+                 ]);
             }else{
                 return $this->response(["code"=>$result["code"],"message"=>$result["message"]]);
             }
-           
-           
+    }
+
+    /**
+     * 获取签到结算与返现配置（供小程序端查询是否开启及返现金额）
+     */
+    public function getsettlementconfig()
+    {
+        $settlement_model = new \app\model\signin\SignSettlement();
+        $config = $settlement_model->getConfig();
+        return $this->response($config);
     }
 
     /**

@@ -192,7 +192,8 @@ class Sign extends Common
             'data' => [
                 'member' => $member,
                 'member_id' => $member_id,
-                'shop_id' => $shop_id
+                'shop_id' => $shop_id,
+                'settlement' => $result['data']['settlement'] ?? null
             ]
         ]);
     }

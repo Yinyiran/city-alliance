@@ -1,0 +1,132 @@
+{extend name="base"/}
+{block name="resources"}
+<style>
+	.ns-form-row {
+		margin-top: 25px;
+	}
+	.ns-money-unit {
+		margin-left: 8px;
+		line-height: 34px;
+		color: #666;
+	}
+	.ns-flex-item {
+		display: flex;
+		align-items: center;
+	}
+</style>
+{/block}
+{block name="main"}
+<div class="layui-collapse ns-tips">
+	<div class="layui-colla-item">
+		<h2 class="layui-colla-title">操作提示</h2>
+		<ul class="layui-colla-content layui-show">
+			<li>配置商家门店扫码签到的收费标准与签到用户的现金返还奖励标准。</li>
+			<li>系统按自然周汇总对账，每周一凌晨自动将用户奖励结算至会员现金钱包（可提现），并从商家店铺账户扣除周总费用。</li>
+			<li>商家单次扣费金额必须大于或等于用户单次奖励金额，差额部分为平台毛利技术服务费。</li>
+		</ul>
+	</div>
+</div>
+
+<div class="layui-form ns-form">
+	<div class="layui-form-item">
+		<label class="layui-form-label">是否启用计费：</label>
+		<div class="layui-input-block">
+			<input type="checkbox" name="is_open" value="1" lay-skin="switch" {if condition="!empty($config.is_open)"}checked{/if} lay-text="开启|关闭">
+		</div>
+		<div class="ns-word-aux">关闭后，扫码签到将不再产生商家扣费与用户返现流水</div>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label"><span class="required">*</span>商家单次扣费：</label>
+		<div class="layui-input-block ns-flex-item">
+			<input type="number" name="shop_fee" step="0.01" min="0" lay-verify="required|number" value="{$config.shop_fee|default='3.00'}" placeholder="例如 3.00" autocomplete="off" class="layui-input ns-len-short">
+			<span class="ns-money-unit">元 / 次</span>
+		</div>
+		<div class="ns-word-aux">商家门店每次成功扫描用户签到码，周结时向平台应付的推广费用（默认 3.00 元）</div>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label"><span class="required">*</span>用户单次返现：</label>
+		<div class="layui-input-block ns-flex-item">
+			<input type="number" name="user_reward" step="0.01" min="0" lay-verify="required|number" value="{$config.user_reward|default='2.00'}" placeholder="例如 2.00" autocomplete="off" class="layui-input ns-len-short">
+			<span class="ns-money-unit">元 / 次</span>
+		</div>
+		<div class="ns-word-aux">用户每次被扫码成功，周结时平台返还给用户的现金奖励（默认 2.00 元，入账至会员钱包余额）</div>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label">结算周期模式：</label>
+		<div class="layui-input-block">
+			<input type="radio" name="cycle_type" value="week" title="按周结算（每周一出账）" checked>
+		</div>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label">规则描述说明：</label>
+		<div class="layui-input-block">
+			<textarea name="remark" placeholder="请输入结算规则说明" class="layui-textarea ns-len-long">{$config.remark|default='商家门店扫码签到每次扣除商家3元，被扫会员获得2元，每周一汇总结算'}</textarea>
+		</div>
+	</div>
+
+	<div class="ns-form-row">
+		<button class="layui-btn ns-bg-color" lay-submit lay-filter="save">保存配置</button>
+		<a href="{:url('admin/sign/settlementrecords')}" class="layui-btn layui-btn-primary">查看流水明细</a>
+		<a href="{:url('admin/sign/bills')}" class="layui-btn layui-btn-primary">周结算账单</a>
+	</div>
+</div>
+{/block}
+{block name="script"}
+<script>
+	layui.use(['form'], function() {
+		var form = layui.form,
+			repeat_flag = false;
+		form.render();
+
+		form.on('submit(save)', function(data) {
+			if (repeat_flag) return;
+			var shop_fee = parseFloat(data.field.shop_fee);
+			var user_reward = parseFloat(data.field.user_reward);
+
+			if (isNaN(shop_fee) || shop_fee < 0) {
+				layer.msg("商家扣费金额格式不正确", {icon: 5});
+				return false;
+			}
+			if (isNaN(user_reward) || user_reward < 0) {
+				layer.msg("用户奖励金额格式不正确", {icon: 5});
+				return false;
+			}
+			if (shop_fee < user_reward) {
+				layer.msg("商家扣费金额不能低于用户返现奖励金额", {icon: 5});
+				return false;
+			}
+
+			if (!data.field.is_open) {
+				data.field.is_open = 0;
+			}
+
+			repeat_flag = true;
+			$.ajax({
+				type: 'POST',
+				dataType: 'JSON',
+				url: ns.url("admin/sign/config"),
+				data: data.field,
+				success: function(res) {
+					repeat_flag = false;
+					if (res.code >= 0) {
+						layer.msg("配置保存成功", {icon: 6}, function() {
+							location.reload();
+						});
+					} else {
+						layer.msg(res.message || "保存失败", {icon: 5});
+					}
+				},
+				error: function() {
+					repeat_flag = false;
+					layer.msg("网络请求异常", {icon: 5});
+				}
+			});
+			return false;
+		});
+	});
+</script>
+{/block}
