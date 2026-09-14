@@ -148,4 +148,54 @@ class Memberlevel extends BaseAdmin
 			return $member_level_model->editMemberLevel(['point_feedback' => $point_feedback], [ [ 'level_id', '=', $level_id ] ]);
 		}
 	}
+
+	/**
+	 * 会员开通分润明细列表
+	 */
+	public function settlementList()
+	{
+		if (request()->isAjax()) {
+			$page = input('page', 1);
+			$page_size = input('page_size', PAGE_LIST_ROWS);
+			$order_no = input('order_no', '');
+			$status = input('status', '');
+
+			$condition = [];
+			if ($order_no !== '') {
+				$condition[] = ['order_no', 'like', '%' . $order_no . '%'];
+			}
+			if ($status !== '') {
+				$condition[] = ['status', '=', intval($status)];
+			}
+
+			$settle_model = new \app\model\member\MemberLevelSettlement();
+			return $settle_model->getSettlementPageList($condition, $page, $page_size);
+		}
+		return $this->fetch('memberlevel/settlement_list');
+	}
+
+	/**
+	 * 手动执行会员奖励满7天+消费自动解冻
+	 */
+	public function cronUnlock()
+	{
+		if (request()->isAjax()) {
+			$settle_model = new \app\model\member\MemberLevelSettlement();
+			$this->addLog("手动触发会员开通奖励解冻");
+			return $settle_model->cronCheckUnlockReward();
+		}
+	}
+
+	/**
+	 * 会员分润作废退款
+	 */
+	public function refundSettlement()
+	{
+		if (request()->isAjax()) {
+			$order_id = input('order_id', 0);
+			$settle_model = new \app\model\member\MemberLevelSettlement();
+			$this->addLog("会员开通分润作废冲正: order_id=" . $order_id);
+			return $settle_model->refundSettlement($order_id);
+		}
+	}
 }

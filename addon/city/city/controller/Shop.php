@@ -1147,4 +1147,78 @@ class Shop extends BaseCity
             return $res;
         }
     }
+
+    /**
+     * 各门店带单收益与会员收益报表 (分公司视角)
+     */
+    public function revenueReport()
+    {
+        if (request()->isAjax()) {
+            $page = input('page', 1);
+            $page_size = input('page_size', PAGE_LIST_ROWS);
+            $search_text = input('search_text', '');
+
+            $condition = [
+                ['s.website_id', '=', $this->site_id]
+            ];
+            if (!empty($search_text)) {
+                $condition[] = ['s.site_name', 'like', '%' . $search_text . '%'];
+            }
+
+            $shop_list = \think\facade\Db::name('shop')->alias('s')
+                ->leftJoin('shop_employee se', 'se.employee_id = s.zlr_employee_id')
+                ->leftJoin('shop_cert sc', 'sc.site_id = s.site_id')
+                ->field('s.site_id, s.site_name, s.logo, s.account, s.account_withdraw, s.zlr_employee_id, se.username as zlr_name, se.mobile as zlr_mobile, sc.business_licence_number_electronic, sc.bank_account_name, sc.bank_account_number, sc.bank_name, sc.bank_code')
+                ->where($condition)
+                ->paginate(['list_rows' => $page_size, 'page' => $page]);
+
+            $items = $shop_list->items();
+            foreach ($items as &$shop) {
+                $site_id = $shop['site_id'];
+
+                // 获取店铺全部员工member_id
+                $emp_members = \think\facade\Db::name('shop_employee')
+                    ->where('shop_id', $site_id)
+                    ->where('is_deleted', 0)
+                    ->column('member_id');
+                if (empty($emp_members)) $emp_members = [0];
+
+                // 1. 门店带单收益 (主理人2%提成)
+                $shop['bring_income'] = floatval(\think\facade\Db::name('fenxiao_money')
+                    ->where('staff_member_id', 'in', $emp_members)
+                    ->sum('staff_commission'));
+                $shop['bring_order_count'] = \think\facade\Db::name('fenxiao_money')
+                    ->where('staff_member_id', 'in', $emp_members)
+                    ->count();
+
+                // 2. 分公司从该店带单获得的提成 (1.5%)
+                $shop['city_bring_commission'] = floatval(\think\facade\Db::name('fenxiao_money')
+                    ->where('city_id', $this->site_id)
+                    ->where('staff_member_id', 'in', $emp_members)
+                    ->sum('city_commission'));
+
+                // 3. 门店会员总业绩收益 (主理人25%分成 + 自定义开通)
+                $shop['member_income'] = floatval(\think\facade\Db::name('member_level_settlement')
+                    ->where('shop_id', $site_id)
+                    ->sum('shop_money'));
+                $shop['member_order_count'] = \think\facade\Db::name('member_level_settlement')
+                    ->where('shop_id', $site_id)
+                    ->count();
+
+                // 4. 分公司从该店会员获得的提成 (25%)
+                $shop['city_member_commission'] = floatval(\think\facade\Db::name('member_level_settlement')
+                    ->where('city_id', $this->site_id)
+                    ->where('shop_id', $site_id)
+                    ->sum('city_money'));
+            }
+
+            return (new BaseModel())->success([
+                'list' => $items,
+                'count' => $shop_list->total(),
+                'page_count' => ceil($shop_list->total() / $page_size)
+            ]);
+        }
+
+        return $this->fetch('shop/revenue_report', [], $this->replace);
+    }
 }

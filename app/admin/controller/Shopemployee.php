@@ -105,4 +105,28 @@ class Shopemployee extends BaseAdmin
 		
 	}
 	
+	/**
+	 * 设置主理人
+	 */
+	public function setManager()
+	{
+		if (request()->isAjax()) {
+			$site_id = input('site_id', 0);
+			$employee_id = input('employee_id', 0);
+			if (empty($site_id) || empty($employee_id)) {
+				return error(-1, '参数错误');
+			}
+			Db::name('shop_employee')->where('shop_id', $site_id)->update(['is_manager' => 0]);
+			Db::name('shop_employee')->where('employee_id', $employee_id)->update(['is_manager' => 1]);
+			Db::name('shop')->where('site_id', $site_id)->update(['zlr_employee_id' => $employee_id]);
+			$member_id = Db::name('shop_employee')->where('employee_id', $employee_id)->value('member_id');
+			if (!empty($member_id)) {
+				Db::name('member')->where('member_id', $member_id)->update([
+					'member_level' => 4,
+					'member_level_name' => '合伙人'
+				]);
+			}
+			return success(0, '设置主理人成功');
+		}
+	}
 }

@@ -137,207 +137,193 @@ class FenxiaoOrder extends BaseModel
 
 
     /***
-     * 返余额
+     * 返余额 (自消费/自签单2% vs 被动带单6%)
      */
     public function fanMoney($order)
     {
-        //普通商品返积分
+        //普通商品返积分与余额
         if ($order['goods_type'] != 0) {
             return;
         }
 
-        //返余额比例
-        $reward_config = model('reward_config')->getInfo(['id'=>1]);
-
-        $member = model('member')->getInfo(['member_id'=>$order['member_id']]); //下单用户
-        $fenxiao = Db::name('fenxiao')->where('fenxiao_id', $member['fenxiao_id'])->find();
-        $p_fenxiao = Db::name('fenxiao')->where('fenxiao_id', $fenxiao['parent'])->find();
-
-        //商家比例
-        $site_rate = $reward_config['site_rate'];
-        //商会比例
-        $city_rate = $reward_config['city_rate'];
-        //平台分商家比例
-        $site_rate2 = $reward_config['site_rate2'];
-        //员工比例
-        $staff_rate = $reward_config['staff_rate'];
-
-        //上级邀请人分销比例
-        $two_rate = 0;
-        //邀请人ID
-        $two_member_id = 0;
-        //员工member_id
-        $staff_member_id = 0;
-
-        if ($p_fenxiao) {
-            $p_member = model('member')->getInfo(['member_id'=>$p_fenxiao['member_id']]); //上级用户
-            if ($p_member) {
-                $two_member_id = $p_member['member_id'];
-                $two_member_level = $p_member['member_level'];
-                $two_member_level_name = $p_member['member_level_name'];
-                if ($p_member['member_level'] == 2) { //钻石会员
-                    $two_rate = $reward_config['level2'];
-                } elseif ($p_member['member_level'] == 3) { //黑钻会员
-                    $two_rate = $reward_config['level3'];
-                } elseif ($p_member['member_level'] == 4) { //合伙人
-                    $two_rate = $reward_config['level4'];
-                }
-                //判断上级是否是员工
-                $staff_member_id = $member['staff_member_id'];
-            }
+        // 获取全局分润配置
+        $reward_config = model('reward_config')->getInfo(['id' => 1]);
+        if (empty($reward_config)) {
+            $reward_config = [
+                'self_order_rate' => 2.00,
+                'self_city_rate' => 0.50,
+                'self_platform_rate' => 1.50,
+                'bring_order_rate' => 6.00,
+                'bring_shop_rate' => 2.00,
+                'bring_city_rate' => 1.50,
+                'bring_level1_rate' => 0.00,
+                'bring_level2_rate' => 0.20,
+                'bring_level3_rate' => 0.30,
+                'bring_level4_rate' => 0.50,
+            ];
         }
 
+        $member = model('member')->getInfo(['member_id' => $order['member_id']]); // 下单用户
+        $fenxiao = Db::name('fenxiao')->where('fenxiao_id', $member['fenxiao_id'] ?? 0)->find();
+        $p_fenxiao = $fenxiao ? Db::name('fenxiao')->where('fenxiao_id', $fenxiao['parent'])->find() : null;
 
+        $two_member_id = 0;
+        $two_member_level = 1;
+        $two_member_level_name = '普通会员';
+        $p_member = null;
 
+        if ($p_fenxiao) {
+            $p_member = model('member')->getInfo(['member_id' => $p_fenxiao['member_id']]);
+        } elseif (!empty($member['source_member'])) {
+            $p_member = model('member')->getInfo(['member_id' => $member['source_member']]);
+        }
 
-        //下单用户上级获得金额
+        if ($p_member) {
+            $two_member_id = $p_member['member_id'];
+            $two_member_level = $p_member['member_level'];
+            $two_member_level_name = $p_member['member_level_name'];
+        }
+
+        $user_site_id = intval($member['site_id'] ?? 0);
+        $inviter_site_id = intval($p_member['site_id'] ?? 0);
+
+        // 下单商品列表
         $order_goods = model("order_goods")->getList([ [ 'order_id', '=', $order[ 'order_id' ] ] ], '*');
         foreach ($order_goods as $k => $v) {
+            $goods_site_id = intval($v['site_id']);
+            $city_id = intval($order['website_id']);
 
-            //总下单金额
-            $real_goods_money = $v['real_goods_money'];
-            //计算分销金额
-            //商家金额
-            $site_money = floatval(number_format($v['real_goods_money'] * $site_rate * 0.01, 2, '.', ''));
-            //商会金额
-            $city_money = floatval(number_format($v['real_goods_money'] * $city_rate * 0.01, 2, '.', ''));
-            //平台分商家金额
-            $site_money2 = floatval(number_format($v['real_goods_money'] * $site_rate2 * 0.01, 2, '.', ''));
-            //员工金额
-            $staff_money = floatval(number_format($v['real_goods_money'] * $staff_rate * 0.01, 2, '.', ''));
-            //上级会员金额
-            $two_money = floatval(number_format($v['real_goods_money'] * $two_rate * 0.01, 2, '.', ''));
+            // 判断是否为自签单/自消费：会员在自己归属门店下单，且无跨店上级
+            $is_self_order = ($goods_site_id > 0 && $user_site_id == $goods_site_id && ($inviter_site_id == 0 || $inviter_site_id == $goods_site_id));
 
-            $fenxiao_site_id = $v['site_id'];
-            $city_id = $order['website_id'];
-            $site2_id = $v['site_id'];
+            if ($is_self_order) {
+                // 自签单/自消费服务费 2% (分公司0.5%, 总部1.5%, 商家得98%)
+                $site_fee = floatval($reward_config['self_order_rate'] ?: 2.00);
+                $site_rate = 100.00 - $site_fee;
+                $city_rate = floatval($reward_config['self_city_rate'] ?: 0.50);
+                $pt_rate = floatval($reward_config['self_platform_rate'] ?: 1.50);
+                $two_rate = 0.00;
+                $staff_rate = 0.00;
+                $staff_member_id = 0;
+                $site_rate2 = 0.00;
+                $site2_id = $goods_site_id;
+            } else {
+                // 被动带单总佣金 6% (会员0%~0.5%, 主理人2%, 分公司1.5%, 总部2%~2.5%, 商家得94%)
+                $bring_total = floatval($reward_config['bring_order_rate'] ?: 6.00);
+                $site_rate = 100.00 - $bring_total;
+                $staff_rate = floatval($reward_config['bring_shop_rate'] ?: 2.00);
+                $city_rate = floatval($reward_config['bring_city_rate'] ?: 1.50);
 
-            if (!$fenxiao_site_id) {
-                $site_money = 0;
-            }
-            if (!$city_id) {
-                $city_money = 0;
-            }
-            if (!$site2_id) {
-                $site_money2 = 0;
-            }
-            if ($staff_member_id) {
-                $staff_money = 0;
-            }
-            if (!$two_member_id) {
-                $two_money = 0;
+                // 带单会员比例
+                $two_rate = 0.00;
+                if ($two_member_level == 2) {
+                    $two_rate = floatval($reward_config['bring_level2_rate'] ?? ($reward_config['level2'] ?? 0.20));
+                } elseif ($two_member_level == 3) {
+                    $two_rate = floatval($reward_config['bring_level3_rate'] ?? ($reward_config['level3'] ?? 0.30));
+                } elseif ($two_member_level == 4) {
+                    $two_rate = floatval($reward_config['bring_level4_rate'] ?? ($reward_config['level4'] ?? 0.50));
+                }
+
+                $pt_rate = round($bring_total - $two_rate - $staff_rate - $city_rate, 2);
+                if ($pt_rate < 0) $pt_rate = 0.00;
+
+                // 寻找带单门店主理人员工ID
+                $bring_store_id = ($inviter_site_id > 0) ? $inviter_site_id : $user_site_id;
+                $staff_member_id = 0;
+                if ($bring_store_id > 0) {
+                    $bring_shop = Db::name('shop')->where('site_id', $bring_store_id)->find();
+                    if ($bring_shop && !empty($bring_shop['zlr_employee_id'])) {
+                        $staff_member_id = Db::name('shop_employee')->where('employee_id', $bring_shop['zlr_employee_id'])->value('member_id') ?: 0;
+                    }
+                    if (empty($staff_member_id) && $bring_shop && !empty($bring_shop['member_id'])) {
+                        $staff_member_id = $bring_shop['member_id'];
+                    }
+                }
+                $site_rate2 = 0.00;
+                $site2_id = $bring_store_id;
             }
 
-            $website = model('website')->getInfo(['site_id'=>$city_id]);
+            // 计算金额
+            $real_goods_money = floatval($v['real_goods_money']);
+            $site_money = floatval(number_format($real_goods_money * $site_rate * 0.01, 2, '.', ''));
+            $city_money = floatval(number_format($real_goods_money * $city_rate * 0.01, 2, '.', ''));
+            $staff_money = floatval(number_format($real_goods_money * $staff_rate * 0.01, 2, '.', ''));
+            $two_money = floatval(number_format($real_goods_money * $two_rate * 0.01, 2, '.', ''));
+            $pt_money = floatval(number_format($real_goods_money * $pt_rate * 0.01, 2, '.', ''));
+            $site_money2 = 0.00;
 
+            $fenxiao_site_id = $goods_site_id;
+            if (!$fenxiao_site_id) $site_money = 0;
+            if (!$city_id) $city_money = 0;
+            if (!$staff_member_id) $staff_money = 0;
+            if (!$two_member_id) $two_money = 0;
+
+            $website = model('website')->getInfo(['site_id' => $city_id]);
 
             $res = model("fenxiao_money")->getInfo([
                 'order_id' => $order[ 'order_id' ],
                 'order_goods_id' => $v[ 'order_goods_id' ],
             ]);
+
+            $save_data = [
+                'order_id' => $order[ 'order_id' ],
+                'order_no' => $order[ 'order_no' ],
+                'order_goods_id' => $v[ 'order_goods_id' ],
+                'site_id' => $order[ 'site_id' ],
+                'site_name' => $order[ 'site_name' ],
+                'goods_id' => $v[ 'goods_id' ],
+                'sku_id' => $v[ 'sku_id' ],
+                'sku_name' => $v[ 'sku_name' ],
+                'sku_image' => $v[ 'sku_image' ],
+                'price' => $v[ 'price' ],
+                'num' => $v[ 'num' ],
+                'real_goods_money' => $v[ 'real_goods_money' ],
+                'member_id' => $order[ 'member_id' ],
+                'member_name' => $order[ 'name' ],
+                'member_mobile' => $order[ 'mobile' ],
+                'full_address' => $order[ 'full_address' ] . $order[ 'address' ],
+                'one_fenxiao_id' => $fenxiao['fenxiao_id'] ?? 0,
+                'one_fenxiao_name' => $fenxiao['fenxiao_name'] ?? '',
+                'create_time' => time(),
+                'member_level' => $member['member_level'],
+                'member_level_name' => $member['member_level_name'],
+                'one_member_level' => $member['member_level'],
+                'one_member_level_name' => $member['member_level_name'],
+                'one_member_id' => $member['member_id'],
+                'two_member_id' => $two_member_id,
+                'two_rate' => $two_rate,
+                'two_commission' => $two_money,
+                'two_fenxiao_id' => $p_fenxiao['fenxiao_id'] ?? 0,
+                'two_fenxiao_name' => $p_fenxiao['fenxiao_name'] ?? '',
+                'staff_rate' => $staff_rate,
+                'staff_member_id' => $staff_member_id,
+                'staff_commission' => $staff_money,
+                'site2_rate' => $site_rate2,
+                'site2_id' => $site2_id,
+                'site2_commission' => $site_money2,
+                'city_rate' => $city_rate,
+                'city_id' => $city_id,
+                'city_title' => $website['title'] ?? '',
+                'city_commission' => $city_money,
+                'site_rate' => $site_rate,
+                'fenxiao_site_id' => $fenxiao_site_id,
+                'site_commission' => $site_money,
+                'pt_rate' => $pt_rate,
+                'pt_commission' => $pt_money,
+                'two_member_level' => $two_member_level ?? '',
+                'two_member_level_name' => $two_member_level_name ?? '',
+            ];
+
             if (!$res) {
-                $data = [
-                    'order_id' => $order[ 'order_id' ],
-                    'order_no' => $order[ 'order_no' ],
-                    'order_goods_id' => $v[ 'order_goods_id' ],
-                    'site_id' => $order[ 'site_id' ],
-                    'site_name' => $order[ 'site_name' ],
-                    'goods_id' => $v[ 'goods_id' ],
-                    'sku_id' => $v[ 'sku_id' ],
-                    'sku_name' => $v[ 'sku_name' ],
-                    'sku_image' => $v[ 'sku_image' ],
-                    'price' => $v[ 'price' ],
-                    'num' => $v[ 'num' ],
-                    'real_goods_money' => $order_goods[ $k ][ 'real_goods_money' ],
-                    'member_id' => $order[ 'member_id' ],
-                    'member_name' => $order[ 'name' ],
-                    'member_mobile' => $order[ 'mobile' ],
-                    'full_address' => $order[ 'full_address' ] . $order[ 'address' ],
-                    'one_fenxiao_id' => $fenxiao['fenxiao_id'] ?? 0,
-                    'one_fenxiao_name' => $fenxiao['fenxiao_name'],
-                    'create_time' => time(),
-                    'member_level' => $member['member_level'],
-                    'member_level_name' => $member['member_level_name'],
-                    'one_member_level' => $member['member_level'],
-                    'one_member_level_name' => $member['member_level_name'],
-                    'one_member_id' => $member['member_id'],
-                    'two_member_id' => $two_member_id,
-                    'two_rate' => $two_rate,
-                    'two_commission' => $two_money,
-                    'two_fenxiao_id' => $p_fenxiao['fenxiao_id'] ?? 0,
-                    'two_fenxiao_name' => $p_fenxiao['fenxiao_name'] ?? '',
-                    'staff_rate' => $staff_rate,
-                    'staff_member_id' => $staff_member_id,
-                    'staff_commission' => $staff_money,
-                    'site2_rate' => $site_rate2,
-                    'site2_id' => $site2_id,
-                    'site2_commission' => $site_money2,
-                    'city_rate' => $city_rate,
-                    'city_id' => $city_id,
-                    'city_title' => $website['title'] ?? '',
-                    'city_commission' => $city_money,
-                    'site_rate' => $site_rate,
-                    'fenxiao_site_id' => $fenxiao_site_id,
-                    'site_commission' => $site_money,
-                    'two_member_level' => $two_member_level ?? '',
-                    'two_member_level_name' => $two_member_level_name ?? '',
-                ];
-                model("fenxiao_money")->add($data);
+                model("fenxiao_money")->add($save_data);
             } else {
-                $data = [
-                    'order_id' => $order[ 'order_id' ],
-                    'order_no' => $order[ 'order_no' ],
-                    'order_goods_id' => $v[ 'order_goods_id' ],
-                    'site_id' => $order[ 'site_id' ],
-                    'site_name' => $order[ 'site_name' ],
-                    'goods_id' => $v[ 'goods_id' ],
-                    'sku_id' => $v[ 'sku_id' ],
-                    'sku_name' => $v[ 'sku_name' ],
-                    'sku_image' => $v[ 'sku_image' ],
-                    'price' => $v[ 'price' ],
-                    'num' => $v[ 'num' ],
-                    'real_goods_money' => $order_goods[ $k ][ 'real_goods_money' ],
-                    'member_id' => $order[ 'member_id' ],
-                    'member_name' => $order[ 'name' ],
-                    'member_mobile' => $order[ 'mobile' ],
-                    'full_address' => $order[ 'full_address' ] . $order[ 'address' ],
-                    'one_fenxiao_id' => $fenxiao['fenxiao_id'] ?? 0,
-                    'one_fenxiao_name' => $fenxiao['fenxiao_name'],
-                    'create_time' => time(),
-                    'member_level' => $member['member_level'],
-                    'member_level_name' => $member['member_level_name'],
-                    'one_member_level' => $member['member_level'],
-                    'one_member_level_name' => $member['member_level_name'],
-                    'one_member_id' => $member['member_id'],
-                    'two_member_id' => $two_member_id,
-                    'two_rate' => $two_rate,
-                    'two_commission' => $two_money,
-                    'two_fenxiao_id' => $p_fenxiao['fenxiao_id'] ?? 0,
-                    'two_fenxiao_name' => $p_fenxiao['fenxiao_name'] ?? '',
-                    'staff_rate' => $staff_rate,
-                    'staff_member_id' => $staff_member_id,
-                    'staff_commission' => $staff_money,
-                    'site2_rate' => $site_rate2,
-                    'site2_id' => $site2_id,
-                    'site2_commission' => $site_money2,
-                    'city_rate' => $city_rate,
-                    'city_id' => $city_id,
-                    'city_title' => $website['title'] ?? '',
-                    'city_commission' => $city_money,
-                    'site_rate' => $site_rate,
-                    'fenxiao_site_id' => $fenxiao_site_id,
-                    'site_commission' => $site_money,
-                    'two_member_level' => $two_member_level ?? '',
-                    'two_member_level_name' => $two_member_level_name ?? '',
-                ];
-                model("fenxiao_money")->update($data, ['fenxiao_order_id'=>$res['fenxiao_order_id']]);
+                model("fenxiao_money")->update($save_data, ['fenxiao_order_id' => $res['fenxiao_order_id']]);
             }
         }
-
     }
 
     /***
-     * 返积分
+     * 返积分 (普通1:1, 钻石1:1.2, 黑钻1:1.3, 合伙人1:1.5)
      */
     public function fanPoint($order)
     {
@@ -345,99 +331,80 @@ class FenxiaoOrder extends BaseModel
         if ($order['goods_type'] != 0) {
             return;
         }
-        //返积分比例
-        $member = model('member')->getInfo(['member_id'=>$order['member_id']]); //下单用户
+
+        $member = model('member')->getInfo(['member_id' => $order['member_id']]); //下单用户
+        if (empty($member)) {
+            return;
+        }
+
+        // 默认倍率回退: 普通 1.0, 钻石 1.2, 黑钻 1.3, 合伙人 1.5
+        $p_rate = 1.00;
         $city_member_level = model('city_member_level')->getInfo([
             'level_id' => $member['member_level'],
             'website_id' => $member['website_id'],
         ]);
-        if (!$city_member_level) {
-            return;
-        }
-        if ($city_member_level['point_feedback'] > 0) { //返积分
-            $p_fenxiao = Db::name('fenxiao')->where('fenxiao_id', $member['fenxiao_id'])->find();
-            $p_rate = $city_member_level['point_feedback'];
-
-
-            $order_goods = model("order_goods")->getList([ [ 'order_id', '=', $order[ 'order_id' ] ] ], '*');
-
-            foreach ($order_goods as $k => $v) {
-                $jc_money = $v['real_goods_money'] * $p_rate;
-                $jc_money = floatval(number_format($jc_money, 2, '.', ''));
-                if ($jc_money > 0) {
-                    $res = model("fenxiao_money")->getInfo([
-                        'order_id' => $order[ 'order_id' ],
-                        'order_goods_id' => $v[ 'order_goods_id' ],
-                    ]);
-                    if (!$res) {
-                        //启动分销
-                        $data = [
-                            'order_id' => $order[ 'order_id' ],
-                            'order_no' => $order[ 'order_no' ],
-                            'order_goods_id' => $v[ 'order_goods_id' ],
-                            'site_id' => $order[ 'site_id' ],
-                            'site_name' => $order[ 'site_name' ],
-                            'goods_id' => $v[ 'goods_id' ],
-                            'sku_id' => $v[ 'sku_id' ],
-                            'sku_name' => $v[ 'sku_name' ],
-                            'sku_image' => $v[ 'sku_image' ],
-                            'price' => $v[ 'price' ],
-                            'num' => $v[ 'num' ],
-                            'real_goods_money' => $order_goods[ $k ][ 'real_goods_money' ],
-                            'member_id' => $order[ 'member_id' ],
-                            'member_name' => $order[ 'name' ],
-                            'member_mobile' => $order[ 'mobile' ],
-                            'full_address' => $order[ 'full_address' ] . $order[ 'address' ],
-                            'one_fenxiao_id' => $p_fenxiao['fenxiao_id'] ?? 0,
-                            'one_fenxiao_name' => $p_fenxiao['fenxiao_name'],
-                            'create_time' => time(),
-                            'member_level' => $member['member_level'],
-                            'member_level_name' => $member['member_level_name'],
-                            'one_member_level' => $member['member_level'],
-                            'one_member_level_name' => $member['member_level_name'],
-                            'one_member_id' => $member['member_id'],
-                            'one_rate_point' => $p_rate,
-                            'one_commission_point' => $jc_money,
-                        ];
-                        model("fenxiao_money")->add($data);
-                    } else {
-                        $data = [
-                            'order_id' => $order[ 'order_id' ],
-                            'order_no' => $order[ 'order_no' ],
-                            'order_goods_id' => $v[ 'order_goods_id' ],
-                            'site_id' => $order[ 'site_id' ],
-                            'site_name' => $order[ 'site_name' ],
-                            'goods_id' => $v[ 'goods_id' ],
-                            'sku_id' => $v[ 'sku_id' ],
-                            'sku_name' => $v[ 'sku_name' ],
-                            'sku_image' => $v[ 'sku_image' ],
-                            'price' => $v[ 'price' ],
-                            'num' => $v[ 'num' ],
-                            'real_goods_money' => $order_goods[ $k ][ 'real_goods_money' ],
-                            'member_id' => $order[ 'member_id' ],
-                            'member_name' => $order[ 'name' ],
-                            'member_mobile' => $order[ 'mobile' ],
-                            'full_address' => $order[ 'full_address' ] . $order[ 'address' ],
-                            'one_fenxiao_id' => $p_fenxiao['fenxiao_id'] ?? 0,
-                            'one_fenxiao_name' => $p_fenxiao['fenxiao_name'],
-                            'create_time' => time(),
-                            'member_level' => $member['member_level'],
-                            'member_level_name' => $member['member_level_name'],
-                            'one_member_level' => $member['member_level'],
-                            'one_member_level_name' => $member['member_level_name'],
-                            'one_member_id' => $member['member_id'],
-                            'one_rate_point' => $p_rate,
-                            'one_commission_point' => $jc_money,
-                        ];
-                        model("fenxiao_money")->update($data, ['fenxiao_order_id'=>$res['fenxiao_order_id']]);
-                    }
-
-                }
-
+        if ($city_member_level && floatval($city_member_level['point_feedback']) > 0) {
+            $p_rate = floatval($city_member_level['point_feedback']);
+        } else {
+            $ml = model('member_level')->getInfo(['level_id' => $member['member_level']]);
+            if ($ml && floatval($ml['point_feedback']) > 0) {
+                $p_rate = floatval($ml['point_feedback']);
             }
+        }
 
+        $p_fenxiao = Db::name('fenxiao')->where('fenxiao_id', $member['fenxiao_id'])->find();
+        $order_goods = model("order_goods")->getList([ [ 'order_id', '=', $order[ 'order_id' ] ] ], '*');
+
+        foreach ($order_goods as $k => $v) {
+            $jc_money = $v['real_goods_money'] * $p_rate;
+            $jc_money = floatval(number_format($jc_money, 2, '.', ''));
+            if ($jc_money > 0) {
+                $res = model("fenxiao_money")->getInfo([
+                    'order_id' => $order[ 'order_id' ],
+                    'order_goods_id' => $v[ 'order_goods_id' ],
+                ]);
+                if (!$res) {
+                    //启动分销
+                    $data = [
+                        'order_id' => $order[ 'order_id' ],
+                        'order_no' => $order[ 'order_no' ],
+                        'order_goods_id' => $v[ 'order_goods_id' ],
+                        'site_id' => $order[ 'site_id' ],
+                        'site_name' => $order[ 'site_name' ],
+                        'goods_id' => $v[ 'goods_id' ],
+                        'sku_id' => $v[ 'sku_id' ],
+                        'sku_name' => $v[ 'sku_name' ],
+                        'sku_image' => $v[ 'sku_image' ],
+                        'price' => $v[ 'price' ],
+                        'num' => $v[ 'num' ],
+                        'real_goods_money' => $v[ 'real_goods_money' ],
+                        'member_id' => $order[ 'member_id' ],
+                        'member_name' => $order[ 'name' ],
+                        'member_mobile' => $order[ 'mobile' ],
+                        'full_address' => $order[ 'full_address' ] . $order[ 'address' ],
+                        'one_fenxiao_id' => $p_fenxiao['fenxiao_id'] ?? 0,
+                        'one_fenxiao_name' => $p_fenxiao['fenxiao_name'] ?? '',
+                        'create_time' => time(),
+                        'member_level' => $member['member_level'],
+                        'member_level_name' => $member['member_level_name'],
+                        'one_member_level' => $member['member_level'],
+                        'one_member_level_name' => $member['member_level_name'],
+                        'one_member_id' => $member['member_id'],
+                        'one_rate_point' => $p_rate,
+                        'one_commission_point' => $jc_money,
+                    ];
+                    model("fenxiao_money")->add($data);
+                } else {
+                    $data = [
+                        'one_rate_point' => $p_rate,
+                        'one_commission_point' => $jc_money,
+                    ];
+                    model("fenxiao_money")->update($data, [ 'fenxiao_order_id' => $res[ 'fenxiao_order_id' ] ]);
+                }
+            }
         }
     }
+
 
 
     /**

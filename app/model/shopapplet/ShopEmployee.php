@@ -217,10 +217,16 @@ class ShopEmployee extends BaseModel
         if($res>0){
             $employee_id=Db::name("shop_employee")->where("shop_id=".$params["site_id"]." and is_manager=1")->value("employee_id");
             Db::name("shop")->where("site_id=".$params["site_id"])->update(["zlr_employee_id"=>$employee_id]);
+            // 员工/主理人自动转为合伙人
+            if(!empty($member_id)){
+                Db::name("member")->where("member_id", $member_id)->update([
+                    "member_level" => 4,
+                    "member_level_name" => "合伙人"
+                ]);
+            }
             return $this->success("操作成功");
         }else{
             return $this->error("新增失败");
-
         }
     }
 
@@ -265,10 +271,15 @@ class ShopEmployee extends BaseModel
                 $employee_id=0;
             }
             Db::name("shop")->where("site_id=".$params["site_id"])->update(["zlr_employee_id"=>$employee_id]);
+            if(!empty($member_id)){
+                Db::name("member")->where("member_id", $member_id)->update([
+                    "member_level" => 4,
+                    "member_level_name" => "合伙人"
+                ]);
+            }
             return $this->success("操作成功");
         }else{
             return $this->error("新增失败");
-
         }
     }
     

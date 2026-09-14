@@ -209,6 +209,10 @@ class Member extends BaseModel
     {
         $condition[] = [ 'is_delete', '=', 0 ];
         $member_info = model('member')->getInfo($condition, $field);
+        if (!empty($member_info) && isset($member_info['member_id'])) {
+            $member_info['member_code'] = sprintf("%06d", $member_info['member_id']);
+            $member_info['member_id_str'] = sprintf("%06d", $member_info['member_id']);
+        }
         return $this->success($member_info);
     }
 
@@ -219,10 +223,12 @@ class Member extends BaseModel
      */
     public function getMemberDetail($member_id)
     {
-        $field = 'member_id,source_member,username,nickname,mobile,email,status,headimg,member_level,member_level_name,member_label,member_label_name,qq,realname,sex,location,birthday,reg_time,point,balance,growth,balance_money,account5,pay_password,website_id';
+        $field = 'member_id,source_member,username,nickname,mobile,email,status,headimg,member_level,member_level_name,member_label,member_label_name,qq,realname,sex,location,birthday,reg_time,point,balance,growth,balance_money,account5,pay_password,website_id,is_face_auth,id_card,job_type';
         $member_info = model('member')->getInfo([ [ 'member_id', '=', $member_id ] ], $field);
         if (!empty($member_info)) {
             $member_info[ 'balance_total' ] = $member_info[ 'balance' ] + $member_info[ 'balance_money' ];
+            $member_info['member_code'] = sprintf("%06d", $member_info['member_id']);
+            $member_info['member_id_str'] = sprintf("%06d", $member_info['member_id']);
             return $this->success($member_info);
         }
         return $this->error();

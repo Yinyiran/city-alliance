@@ -152,13 +152,17 @@ class SignSettlement extends BaseModel
         ];
         $res = $config_model->getConfig($condition);
         if (empty($res['data']) || empty($res['data']['value'])) {
+            // 尝试读取 reward_config 中的 sign_shop_fee 和 sign_user_reward
+            $rc = Db::name('reward_config')->find();
+            $shop_fee = (!empty($rc) && isset($rc['sign_shop_fee'])) ? (string)$rc['sign_shop_fee'] : '2.00';
+            $user_reward = (!empty($rc) && isset($rc['sign_user_reward'])) ? (string)$rc['sign_user_reward'] : '1.00';
             $default = [
                 'is_open' => 1,
-                'shop_fee' => '3.00',
-                'user_reward' => '2.00',
+                'shop_fee' => $shop_fee,
+                'user_reward' => $user_reward,
                 'cycle_type' => 'week',
                 'settle_day' => 1,
-                'remark' => '商家门店扫码签到每次扣除商家3元，被扫会员获得2元，每周一汇总结算'
+                'remark' => '商家门店扫码签到每次扣除商家2元，被扫会员获得1元，每周一汇总结算'
             ];
             return $this->success($default);
         }

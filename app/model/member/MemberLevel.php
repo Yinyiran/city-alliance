@@ -302,10 +302,18 @@ class MemberLevel extends BaseModel
                 model('pay')->update(['pay_type' => 'HUIFU', 'pay_status' => 2, 'pay_time' => time()], ['id' => $payModel['id']]);
 
                 //开通送积分
-                if ($order_info['fan_point'] > 0) {
-                    $member_account = new MemberAccount();
-                    $member_account->addMemberAccount2($order_info['member_id'], 'point', $order_info['fan_point'], 'member_level', $order_info['order_id'], "成为会员送积分".$order_info['fan_point'], '成为会员');
+                $send_point = $order_info['fan_point'];
+                if ($send_point <= 0 && !empty($levelModel['send_point'])) {
+                    $send_point = $levelModel['send_point'];
                 }
+                if ($send_point > 0) {
+                    $member_account = new MemberAccount();
+                    $member_account->addMemberAccount2($order_info['member_id'], 'point', $send_point, 'member_level', $order_info['order_id'], "成为会员送积分".$send_point, '成为会员');
+                }
+
+                // 计算并执行会员开通多级分润 (邀约人、主理人25%、分公司25%、总部剩余)
+                $settle_model = new MemberLevelSettlement();
+                $settle_model->calculateSettlement($order_info['order_id']);
 
                 //如果升级合伙人 归属每个城市下城盟联创 下面成为员工
                 if ($order_info['level_id'] == 4) {

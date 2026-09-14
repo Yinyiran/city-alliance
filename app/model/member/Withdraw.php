@@ -52,6 +52,68 @@ class Withdraw extends BaseModel
     }
 
     /**
+     * 计算提现手续费与预扣个税
+     * @param float $apply_money 申请提现金额
+     * @param int $member_id 会员ID
+     * @return array
+     */
+    public function calculateWithdrawTax($apply_money, $member_id = 0)
+    {
+        $config_result = $this->getConfig();
+        $config = $config_result["data"]['value'] ?? [];
+        $rate = isset($config["rate"]) && $config["rate"] !== '' ? floatval($config["rate"]) : 0.35;
+
+        // 提现手续费 0.35%
+        $service_money = round($apply_money * $rate / 100, 2);
+
+        // 计算当月历史累计提现金额
+        $month_withdrawn = 0.00;
+        if ($member_id > 0) {
+            $current_month_start = strtotime(date('Y-m-01 00:00:00'));
+            $current_month_end = strtotime(date('Y-m-t 23:59:59'));
+            $month_withdrawn = floatval(model('member_withdraw')
+                ->where('member_id', $member_id)
+                ->where('status', 'in', [0, 1, 2])
+                ->whereBetween('apply_time', [$current_month_start, $current_month_end])
+                ->sum('apply_money'));
+        }
+
+        // 800内不需要缴纳税款 (单次和当月累计都不超过800时免税)
+        $tax_rate = 0.00;
+        $tax_base = 0.00;
+        $tax_money = 0.00;
+        if (($month_withdrawn + $apply_money) > 800.00) {
+            // 金额先乘以80%，用户20%的成本不进行计算
+            $tax_base = round($apply_money * 0.80, 2);
+            if ($tax_base <= 20000.00) {
+                $tax_rate = 20.00;
+                $tax_money = round($tax_base * 0.20, 2);
+            } elseif ($tax_base <= 50000.00) {
+                $tax_rate = 30.00;
+                $tax_money = round($tax_base * 0.30 - 2000.00, 2);
+            } else {
+                $tax_rate = 40.00;
+                $tax_money = round($tax_base * 0.40 - 7000.00, 2);
+            }
+            if ($tax_money < 0) $tax_money = 0.00;
+        }
+
+        $actual_money = round($apply_money - $service_money - $tax_money, 2);
+        if ($actual_money < 0) $actual_money = 0.00;
+
+        return [
+            'apply_money' => $apply_money,
+            'fee_rate' => $rate,
+            'service_money' => $service_money,
+            'tax_base' => $tax_base,
+            'tax_rate' => $tax_rate,
+            'tax_money' => $tax_money,
+            'money' => $actual_money,
+            'month_withdrawn' => $month_withdrawn,
+        ];
+    }
+
+    /**
      * 申请提现
      * @param $data
      * @return array
@@ -66,17 +128,37 @@ class Withdraw extends BaseModel
 
         $withdraw_no = $this->createWithdrawNo();
         $apply_money = round($data[ "apply_money" ], 2);
-        if ($apply_money < $config[ "min" ])
-            return $this->error([], "申请提现金额不能小于最低提现额度" . $config[ "min" ]);
-        if ($apply_money > $config[ "max" ])
+        $min_limit = !empty($config[ "min" ]) ? floatval($config[ "min" ]) : 100.00;
+        if ($min_limit < 100.00) $min_limit = 100.00;
+
+        if ($apply_money < $min_limit)
+            return $this->error([], "申请提现金额不能小于最低提现额度" . $min_limit . "元");
+        if (!empty($config[ "max" ]) && $apply_money > $config[ "max" ])
             return $this->error([], "申请提现金额不能大于最高提现额度" . $config[ "max" ]);
 
         $member_id = $data[ "member_id" ];
         $member_model = new Member();
-        $member_info_result = $member_model->getMemberInfo([ [ "member_id", "=", $member_id ] ], "balance_money,headimg,wx_openid,username,weapp_openid");
+        $member_info_result = $member_model->getMemberInfo([ [ "member_id", "=", $member_id ] ], "balance_money,headimg,wx_openid,username,weapp_openid,realname,mobile,id_card,job_type,is_face_auth");
         $member_info = $member_info_result[ "data" ];
         if (empty($member_info))
             return $this->error([], "MEMBER_NOT_EXIST");
+
+        // 实名与人脸核身校验
+        $realname = trim($data["realname"] ?? ($member_info["realname"] ?? ''));
+        $mobile = trim($data["mobile"] ?? ($member_info["mobile"] ?? ''));
+        $id_card = trim($data["id_card"] ?? ($member_info["id_card"] ?? ''));
+        $job_type = trim($data["job_type"] ?? ($member_info["job_type"] ?? '其它'));
+        if (empty($job_type)) $job_type = '其它';
+
+        if (empty($realname) || empty($id_card) || empty($mobile)) {
+            return $this->error([], "提现须完成实名认证，请填写真实姓名、身份证号码及手机号");
+        }
+
+        $face_auth_status = intval($data["face_auth_status"] ?? ($member_info["is_face_auth"] ?? 0));
+        $face_auth_sn = trim($data["face_auth_sn"] ?? '');
+        if ($face_auth_status != 1) {
+            return $this->error([], "请先完成人脸认证核身，核身通过后方可发起提现");
+        }
 
         $balance_money = $member_info[ "balance_money" ];
         if ($apply_money > $balance_money)
@@ -88,16 +170,27 @@ class Withdraw extends BaseModel
         if (empty($transfer_type_name))
             return $this->error([], "不支持的提现方式");
 
+        // 计算提现手续费 0.35% 与个税代扣
+        $tax_calc = $this->calculateWithdrawTax($apply_money, $member_id);
+        $service_money = $tax_calc['service_money'];
+        $rate = $tax_calc['fee_rate'];
+        $tax_money = $tax_calc['tax_money'];
+        $tax_rate = $tax_calc['tax_rate'];
+        $tax_base = $tax_calc['tax_base'];
+        $money = $tax_calc['money'];
+
+        if ($money <= 0) {
+            return $this->error([], "扣除手续费及代扣个税后实际到账金额不足，请增加提现金额");
+        }
+
         model('member_withdraw')->startTrans();
         try {
-            $rate = $config[ "rate" ];
             $bank_name = "";
             $account_number = "";
             switch ( $transfer_type ) {
                 case "bank":
                     $bank_name = $data[ "bank_name" ];
                     $account_number = $data[ "account_number" ];
-
                     break;
                 case "alipay":
                     $bank_name = '';
@@ -114,12 +207,9 @@ class Withdraw extends BaseModel
                         return $this->error("");
                     }
                     break;
-
             }
 
-            $service_money = round($apply_money * $rate / 100, 2);//手续费
-            $money = $apply_money - $service_money;
-            $data = array (
+            $withdraw_record_data = array (
                 "withdraw_no" => $withdraw_no,
                 "member_name" => $member_info[ "username" ],
                 "member_id" => $data[ "member_id" ],
@@ -129,16 +219,33 @@ class Withdraw extends BaseModel
                 "service_money" => $service_money,
                 "rate" => $rate,
                 "money" => $money,
+                "pre_tax_money" => $apply_money,
+                "after_tax_money" => $money,
+                "tax_base" => $tax_base,
+                "tax_rate" => $tax_rate,
+                "tax_money" => $tax_money,
+                "id_card" => $id_card,
+                "job_type" => $job_type,
+                "face_auth_status" => $face_auth_status,
+                "face_auth_sn" => $face_auth_sn,
                 "apply_time" => time(),
                 "status" => 0,
                 "status_name" => "待审核",
                 "member_headimg" => $member_info[ "headimg" ],
-                "realname" => $data[ "realname" ],
+                "realname" => $realname,
                 "bank_name" => $bank_name,
                 "account_number" => $account_number,
-                "mobile" => $data[ "mobile" ]
+                "mobile" => $mobile
             );
-            $result = model("member_withdraw")->add($data);
+            $result = model("member_withdraw")->add($withdraw_record_data);
+
+            // 更新用户实名及人脸核身信息
+            model("member")->update([
+                "realname" => $realname,
+                "id_card" => $id_card,
+                "job_type" => $job_type,
+                "is_face_auth" => $face_auth_status
+            ], [ [ "member_id", "=", $member_id ] ]);
 
             //减少可提现余额
             model("member")->setDec([ [ "member_id", "=", $member_id ] ], "balance_money", $apply_money);

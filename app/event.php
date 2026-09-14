@@ -139,6 +139,10 @@ return [
         'CronOrderComplete' => [
             'app\event\CronOrderComplete'
         ],
+        //会员购买奖励满7天+消费自动解冻
+        'CronMemberLevelRewardUnlock' => [
+            'app\event\CronMemberLevelRewardUnlock'
+        ],
 
 
 

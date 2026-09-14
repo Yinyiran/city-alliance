@@ -96,7 +96,11 @@ class Memberwithdraw extends BaseApi
         $bank_name = isset($this->params[ 'bank_name' ]) ? $this->params[ 'bank_name' ] : '';//银行名称
         $account_number = isset($this->params[ 'account_number' ]) ? $this->params[ 'account_number' ] : '';//账号名称
         $mobile = isset($this->params[ 'mobile' ]) ? $this->params[ 'mobile' ] : '';//手机号
-        $app_type = $this->params[ 'app_type' ];
+        $id_card = isset($this->params[ 'id_card' ]) ? $this->params[ 'id_card' ] : '';//身份证号
+        $job_type = isset($this->params[ 'job_type' ]) ? $this->params[ 'job_type' ] : '其它';
+        $face_auth_status = isset($this->params[ 'face_auth_status' ]) ? $this->params[ 'face_auth_status' ] : 0;
+        $face_auth_sn = isset($this->params[ 'face_auth_sn' ]) ? $this->params[ 'face_auth_sn' ] : '';
+        $app_type = $this->params[ 'app_type' ] ?? 'weapp';
         $withdraw_model = new WithdrawModel();
         $transfer_type_list = $withdraw_model->getTransferType();
         if (!array_key_exists($transfer_type, $transfer_type_list)) {
@@ -110,10 +114,28 @@ class Memberwithdraw extends BaseApi
             "account_number" => $account_number,
             "apply_money" => $apply_money,
             "mobile" => $mobile,
+            "id_card" => $id_card,
+            "job_type" => $job_type,
+            "face_auth_status" => $face_auth_status,
+            "face_auth_sn" => $face_auth_sn,
             "app_type" => $app_type
         );
         $result = $withdraw_model->apply($data);
         return $this->response($result);
+    }
+
+    /**
+     * 实时试算提现手续费与预扣个税
+     */
+    public function calculateTax()
+    {
+        $token = $this->checkToken();
+        if ($token['code'] < 0) return $this->response($token);
+
+        $apply_money = floatval($this->params['apply_money'] ?? 0);
+        $withdraw_model = new WithdrawModel();
+        $res = $withdraw_model->calculateWithdrawTax($apply_money, $token['data']['member_id']);
+        return $this->response($this->success($res));
     }
 
     /**
