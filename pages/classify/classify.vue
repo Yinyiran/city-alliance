@@ -117,6 +117,9 @@
 					</view>
 				</view>
 				<view class="sign-msg-txt m-t-20">{{ signMessage || '会员已成功完成签到，签到奖励已发放！' }}</view>
+				<view class="sign-fee-tip m-t-16 acea-row row-middle row-center" v-if="signSettlement && parseFloat(signSettlement.shop_fee) > 0">
+					<text class="font-24" style="color: #ff5722; font-weight: 500;">本次签到计费：¥ {{ signSettlement.shop_fee }}（周一统一划扣）</text>
+				</view>
 				<view class="sign-modal-btn acea-row row-middle row-center m-t-32" @click="closeSignSuccess">
 					我知道了
 				</view>
@@ -166,6 +169,7 @@ export default {
 			info: {},
 			signMember: null,
 			signMessage: '',
+			signSettlement: null,
 			manualCode: '',
 			token: '',
 			localUserInfo: {}
@@ -347,6 +351,7 @@ export default {
 				if (res.code == 0) {
 					this.signMember = (res.data && res.data.member) || {}
 					this.signMessage = res.message || '签到成功'
+					this.signSettlement = (res.data && res.data.settlement) || null
 					if (this.$refs.signSuccessPopup) {
 						this.$refs.signSuccessPopup.open()
 					} else {
@@ -374,6 +379,7 @@ export default {
 		},
 		closeSignSuccess() {
 			this.$refs.signSuccessPopup.close()
+			this.signSettlement = null
 		},
 		openManualSign() {
 			if (!uni.getStorageSync('token')) {
