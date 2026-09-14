@@ -91,7 +91,17 @@
 				</view>
 			</view>
 		</view>
-		<view class="btns acea-row row-middle row-between" v-if="(info.myinfo||{}).is_manager==1">
+		<view class="btns acea-row row-middle row-between" style="flex-wrap: wrap;" v-if="(info.myinfo||{}).is_manager==1">
+			<view class="acea-row row-middle row-center m-b-20" @click="gonext('incomeDetail')">
+				<image src="/static/icon1.png" class="w-40 h-40" mode=""></image>
+				<text>收益明细</text>
+				<image src="/static/go.png" class="w-16 h-16" mode=""></image>
+			</view>
+			<view class="acea-row row-middle row-center m-b-20" @click="gonext('openPartner')">
+				<image src="/static/icon2.png" class="w-40 h-40" mode=""></image>
+				<text>开通合伙人</text>
+				<image src="/static/go.png" class="w-16 h-16" mode=""></image>
+			</view>
 			<view class="acea-row row-middle row-center" @click="gonext('deposit')">
 				<image src="/static/icon3.png" class="w-40 h-40" mode=""></image>
 				<text>保证金充值</text>

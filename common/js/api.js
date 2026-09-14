@@ -81,3 +81,11 @@ export const shopBannerList=params=>server('/shopapplet/shop/bannerList',params)
 export const shopBannerAdd=params=>server('/shopapplet/shop/bannerAdd',params)
 //删除门店Banner
 export const shopBannerDelete=params=>server('/shopapplet/shop/bannerDelete',params)
+//商家收益汇总（带单收益 & 会员收益）
+export const getIncomeSummary=params=>server('/shopapplet/shop/getIncomeSummary',params)
+//商家带单订单明细
+export const getBringOrderList=params=>server('/shopapplet/shop/getBringOrderList',params)
+//商家会员收益明细
+export const getMemberIncomeList=params=>server('/shopapplet/shop/getMemberIncomeList',params)
+//老板主动添加合伙人
+export const openPartnerByBoss=params=>server('/shopapplet/shop/openPartnerByBoss',params)

@@ -140,6 +140,24 @@
 				"navigationBarTitleText" : "Banner管理",
 				"navigationBarBackgroundColor": "#F5F5F5"
 			}
+		},
+		{
+			"path" : "incomeDetail/incomeDetail",
+			"style" : 
+			{
+				"navigationBarTitleText" : "收益明细",
+				"navigationBarBackgroundColor": "#101014",
+				"navigationBarTextStyle": "white"
+			}
+		},
+		{
+			"path" : "openPartner/openPartner",
+			"style" : 
+			{
+				"navigationBarTitleText" : "添加合伙人",
+				"navigationBarBackgroundColor": "#101014",
+				"navigationBarTextStyle": "white"
+			}
 		}]
 	}],
 	"tabBar": {

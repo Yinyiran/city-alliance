@@ -107,7 +107,7 @@
 				let max=Number(cfg.max)>0?Number(cfg.max):5000
 				this.max=max
 				// 最低提现金额（元）
-				let min=Number(cfg.min)>0?Number(cfg.min):1
+				let min=Number(cfg.min)>0?Number(cfg.min):100
 				// 每日提现次数
 				let dayNum=Number(cfg.day_num||cfg.times||cfg.withdraw_num)>0?Number(cfg.day_num||cfg.times||cfg.withdraw_num):1
 				// 提现时间
@@ -116,9 +116,11 @@
 				// 到账时间
 				let arriveTime=cfg.arrive_time||cfg.arrive_desc||'审核通过后1-3个工作日内到账'
 				// 提现手续费
-				let feeText=(cfg.fee!==undefined&&cfg.fee!==null&&Number(cfg.fee)>0)?('按提现金额收取'+cfg.fee+'%手续费'):'免手续费'
+				let feeRate=(cfg.fee!==undefined&&cfg.fee!==null&&cfg.fee!=='')?cfg.fee:'0.35'
+				let feeText='提现手续费 '+feeRate+'%（内扣）'
 				this.rules=[
 					{label:'可提现额度',value:'单日最高可提现'+max+'元'},
+					{label:'最低提现金额',value:'单笔最低'+min+'元'},
 					{label:'每日提现次数',value:'每日限'+dayNum+'次'},
 					{label:'提现时间',value:'每日 '+startTime+' - '+endTime},
 					{label:'到账时间',value:arriveTime},
@@ -130,6 +132,13 @@
 				if(!this.apply_money||isNaN(money)||money<=0){
 					uni.showToast({
 						title:'请输入正确的提现金额',
+						icon:'none'
+					})
+					return
+				}
+				if(money<100){
+					uni.showToast({
+						title:'最低提现金额需满足最少100元',
 						icon:'none'
 					})
 					return
