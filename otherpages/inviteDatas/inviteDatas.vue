@@ -1,4 +1,4 @@
-﻿<template>
+<template>
 	<view>
 		<view class="tops">
 			<image :src="$util.img('upload/uniapp/invite-bg.png')" mode=""></image>
@@ -96,7 +96,9 @@
 				</view>
 			</view>
 			<view class="btn m-t-48 m-r-32 m-l-32">
-				<image src="/otherpages/static/Invite-button.png" class="h-136" style="width: 100%;" mode=""></image>
+				<button open-type="share" class="share-btn" hover-class="none" @click="handleShare">
+					<image src="/otherpages/static/Invite-button.png" class="h-136" style="width: 100%;" mode=""></image>
+				</button>
 			</view>
 		</view>
 	</view>
@@ -106,9 +108,16 @@
 	import {
 		invitation
 	} from "@/common/js/api.js"
+	import {
+		appendShareParams
+	} from "@/common/js/share.js"
 	export default {
 		data() {
 			return {
+				share: {
+					title: '邀请您加入同城联盟，专享多重好礼！',
+					path: '/pages/local/index'
+				},
 				yao_point:"",
 				invitation_num:0,//成功邀请人数
 				invitation_point:0,//邀请积分奖励
@@ -120,6 +129,32 @@
 		onLoad() {
 			this.getinfo()
 		},
+		onShareAppMessage(res) {
+			const finalPath = appendShareParams('/pages/local/index');
+			return {
+				title: '邀请您加入同城联盟，专享多重好礼！',
+				path: finalPath,
+				success: () => {
+					uni.showToast({
+						title: '分享成功'
+					});
+				},
+				fail: () => {
+					uni.showToast({
+						title: '分享失败',
+						icon: 'none'
+					});
+				}
+			};
+		},
+		onShareTimeline() {
+			const finalPath = appendShareParams('/pages/local/index');
+			const query = finalPath.indexOf('?') !== -1 ? finalPath.split('?')[1] : '';
+			return {
+				title: '邀请您加入同城联盟，专享多重好礼！',
+				query: query
+			};
+		},
 		methods: {
 			getinfo() {
 				invitation().then(res => {
@@ -129,6 +164,14 @@
 					this.invitation_money=res.data.invitation_money
 					this.list=res.data.list
 				})
+			},
+			handleShare() {
+				// #ifndef MP-WEIXIN
+				uni.showToast({
+					title: '请在微信小程序中点击分享',
+					icon: 'none'
+				});
+				// #endif
 			}
 		}
 	}
@@ -237,6 +280,21 @@
 		>image {
 			width: 100%;
 			height: 100%;
+		}
+	}
+	.share-btn {
+		background: transparent !important;
+		border: none !important;
+		padding: 0 !important;
+		margin: 0 !important;
+		line-height: 1 !important;
+		border-radius: 0 !important;
+		overflow: visible !important;
+		display: block !important;
+		width: 100% !important;
+		&::after {
+			border: none !important;
+			display: none !important;
 		}
 	}
 </style>

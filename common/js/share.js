@@ -1,8 +1,8 @@
 export function appendShareParams(path) {
   if (!path) path = '/pages/index/index';
-  const site_id = uni.getStorageSync('user_site_id') || uni.getStorageSync('share_site_id') || '';
-  let suid = '';
   const userInfo = uni.getStorageSync('userInfo');
+  const site_id = uni.getStorageSync('user_site_id') || uni.getStorageSync('share_site_id') || uni.getStorageSync('site_id') || (userInfo && userInfo.site_id) || '';
+  let suid = '';
   if (userInfo && (userInfo.member_id || userInfo.id)) {
     suid = userInfo.member_id || userInfo.id;
   }
