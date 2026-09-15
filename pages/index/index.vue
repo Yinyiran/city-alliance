@@ -28,7 +28,7 @@
 				</view>
 				<view class="line1 m-t-24"></view>
 				<view class="acea-row row-middle row-between m-t-24">
-					<view class="acea-row row-middle" style="color: #CCCCCC;">主理人收益 (元)：<text style="color: #F5B67F;"
+					<view class="acea-row row-middle" style="color: #CCCCCC;">{{ incomeSummary.is_manager == 1 ? '主理人收益 (元)：' : '员工提成收益 (元)：' }}<text style="color: #F5B67F;"
 							class="font-40">{{totalIncome}}</text></view>
 					<view class="acea-row row-middle" @click="gonext('incomeDetail')" style="color: #CCCCCC;">查看明细
 						<image src="/static/go1.png" class="w-16 h-16 m-l-4" mode=""></image>

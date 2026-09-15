@@ -113,6 +113,13 @@
 				<image src="/static/go.png" class="w-16 h-16" mode=""></image>
 			</view>
 		</view>
+		<view class="btns acea-row row-middle row-between" style="flex-wrap: wrap;" v-else>
+			<view class="acea-row row-middle row-center m-b-20" @click="gonext('incomeDetail')">
+				<image src="/static/icon1.png" class="w-40 h-40" mode=""></image>
+				<text>收益明细</text>
+				<image src="/static/go.png" class="w-16 h-16" mode=""></image>
+			</view>
+		</view>
 		<view class="container">
 			<view class="row-between m-b-32">
 				<scroll-view scroll-x="true">
