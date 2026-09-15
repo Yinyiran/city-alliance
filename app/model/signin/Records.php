@@ -293,15 +293,16 @@ class Records extends BaseModel
     public function getSigninByday($member_id,$rules_id,$shop_sign_round){
         $condition=[
             ['a.member_id',"=",$member_id],
-            ['rules_id',"=",$rules_id], 
-            ['sign_rounds',"=",$shop_sign_round],
+            ['a.rules_id',"=",$rules_id], 
+            ['a.sign_rounds',"=",$shop_sign_round],
         ];
        
         $alias="a";
-        $join[]=['shop s','s.site_id=a.shop_id','inner'];
-        $field="s.site_name,s.logo,a.signin_id,a.sign_day,a.sign_rounds,a.rewardtxt,a.rewardname,a.rewardtype,a.rewardnum,a.goods_id";
+        $join = [
+            ['shop s','s.site_id=a.shop_id','left']
+        ];
+        $field="s.site_name,s.logo,s.avatar,a.signin_id,a.sign_day,a.sign_rounds,a.rewardtxt,a.rewardname,a.rewardtype,a.rewardnum,a.goods_id";
         
-       // $res=Db::name("sign_member_record")->where($condition)->join($join)->field($field)->select();
         $res=model("sign_member_record")->getList($condition,$field,"",$alias,$join);
         if(empty($res)){
             return [];
