@@ -63,9 +63,9 @@ class Shop extends Common
      */
     public function getInfo(){
         $shop_model=new ShopModel();
-        $site_id=request()->param("site_id");
+        $site_id=(int)request()->param("site_id");
         if(empty($site_id)){
-            $site_id=$this->site_id;
+            $site_id=(int)$this->site_id;
         }
         $shopinfo=Db::name("shop")->alias("s")->join("shop_employee se","se.employee_id=s.zlr_employee_id","left")
         ->field("s.*,se.username as employee_username,se.mobile as employee_mobile,se.headimg as employee_headimg")
@@ -74,18 +74,41 @@ class Shop extends Common
         if(empty($shopinfo)){
             return $this->response($this->error('', '店铺不存在'));
         }
-        $myinfo=Db::name("shop_employee")->where("member_id",$this->member_id)->find();
-        if(empty($myinfo)){
-            $myinfo=[];
+
+        // 查询当前登录用户信息
+        $member = Db::name("member")->where("member_id", $this->member_id)->field("headimg,nickname,username,mobile")->find();
+        $user_headimg = $member['headimg'] ?? '';
+        $user_nickname = $member['nickname'] ?? '';
+        $mobile = trim($member['mobile'] ?? '');
+
+        // 判定用户在当前店铺是否是老板
+        $is_owner = ($shopinfo['member_id'] == $this->member_id) || (!empty($mobile) && ($shopinfo['mobile'] == $mobile || $shopinfo['telephone'] == $mobile));
+
+        // 查询当前店铺下的员工记录
+        $myinfo = Db::name("shop_employee")->where([
+            ['shop_id', '=', $site_id],
+            ['is_deleted', '=', 0]
+        ])->where(function($q) use ($mobile) {
+            $q->where('member_id', $this->member_id);
+            if (!empty($mobile)) {
+                $q->whereOr('mobile', $mobile);
+            }
+        })->find();
+
+        if (empty($myinfo)) {
+            $myinfo = [];
         }
-        // 查询当前登录用户的 member 信息以补充头像与昵称
-        $member = Db::name("member")->where("member_id", $this->member_id)->field("headimg,nickname,username")->find();
-        $user_headimg = '';
-        $user_nickname = '';
-        if (!empty($member)) {
-            $user_headimg = $member['headimg'] ?? '';
-            $user_nickname = $member['nickname'] ?? '';
+
+        if ($is_owner) {
+            $myinfo['is_manager'] = 1;
+            if (empty($myinfo['username'])) {
+                $myinfo['username'] = !empty($user_nickname) ? $user_nickname : '主理人';
+            }
+            if (empty($myinfo['shop_id'])) {
+                $myinfo['shop_id'] = $site_id;
+            }
         }
+
         if (!empty($myinfo)) {
             if (empty($myinfo['headimg']) && !empty($user_headimg)) {
                 $myinfo['headimg'] = $user_headimg;
@@ -99,7 +122,6 @@ class Shop extends Common
         $shopinfo["user_headimg"] = !empty($myinfo['headimg']) ? $myinfo['headimg'] : (!empty($user_headimg) ? $user_headimg : '');
         $shopinfo["user_nickname"] = !empty($myinfo['username']) ? $myinfo['username'] : (!empty($user_nickname) ? $user_nickname : '');
         return $this->response($this->success($shopinfo));
-
     }
 
     /**

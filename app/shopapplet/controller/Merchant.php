@@ -146,6 +146,7 @@ class Merchant extends Common
     {
         $data = [
             'site_id' => $this->site_id,
+            'member_id' => $this->member_id,
             'employee' => session('employee_info'),
         ];
         $model = new MerchantModel();

@@ -42,79 +42,117 @@ class Common extends BaseApi
           echo $this->response($token);
           exit;
         }
-        $this->member_id=$token[ 'data' ][ 'member_id' ];
-        $memberinfo=Db::name("member")->where("member_id=".$this->member_id)->find();
-        if(!empty($memberinfo)){
-          $mobile=$memberinfo["mobile"];
+        $this->member_id = $token['data']['member_id'];
+        $memberinfo = Db::name("member")->where("member_id", $this->member_id)->find();
+        $mobile = trim($memberinfo["mobile"] ?? '');
+
+        $site_id = (int)($this->params['site_id'] ?? 0);
+        if ($site_id <= 0) {
+            $site_id = (int)session('site_id');
         }
 
-        //增加传递site_id
-        $site_id = $this->params['site_id'] ?? 0;
-        if ($site_id) {
-            $employeeinfo=$this->employeeModel->getInfo([ ['mobile', '=', $mobile ], ['is_deleted', '=', 0], ['shop_id', '=', $site_id] ],'member_id,shop_id');
-        } else {
-            $employeeinfo=$this->employeeModel->getInfo([ ['mobile', '=', $mobile ], ['is_deleted', '=', 0] ],'member_id,shop_id');
+        // 查找用户在该店铺是否合法（老板或员工）
+        $is_owner = false;
+        $employeeinfo = null;
+
+        if ($site_id > 0) {
+            $shop = Db::name('shop')->where('site_id', $site_id)->find();
+            if (!empty($shop)) {
+                if ($shop['member_id'] == $this->member_id || (!empty($mobile) && ($shop['mobile'] == $mobile || $shop['telephone'] == $mobile))) {
+                    $is_owner = true;
+                }
+            }
+            $emp_check = Db::name('shop_employee')->where([
+                ['shop_id', '=', $site_id],
+                ['is_deleted', '=', 0]
+            ])->where(function($q) use ($mobile, $memberinfo) {
+                $q->where('member_id', $memberinfo['member_id']);
+                if (!empty($mobile)) {
+                    $q->whereOr('mobile', $mobile);
+                }
+            })->find();
+            if (!empty($emp_check)) {
+                $employeeinfo = $emp_check;
+            }
         }
 
-        if(empty($employeeinfo)){
-          echo $this->response([
-              'code' => -1,
-              'msg' => '员工不存在',
-              'data' => [],
-          ]);
-          exit;
+        // 若未指定有效 site_id，自动查找名下首个店铺（优先老板店铺）
+        if (!$is_owner && empty($employeeinfo)) {
+            $owner_shop = null;
+            if (!empty($mobile)) {
+                $owner_shop = Db::name('shop')->where('member_id', $this->member_id)->whereOr('mobile', $mobile)->whereOr('telephone', $mobile)->find();
+            } else {
+                $owner_shop = Db::name('shop')->where('member_id', $this->member_id)->find();
+            }
+            if (!empty($owner_shop)) {
+                $site_id = (int)$owner_shop['site_id'];
+                $is_owner = true;
+            } else {
+                $emp = Db::name('shop_employee')->where([['is_deleted', '=', 0]])
+                    ->where(function($q) use ($mobile, $memberinfo) {
+                        $q->where('member_id', $memberinfo['member_id']);
+                        if (!empty($mobile)) {
+                            $q->whereOr('mobile', $mobile);
+                        }
+                    })->order('is_manager desc, employee_id asc')->find();
+                if (!empty($emp)) {
+                    $site_id = (int)$emp['shop_id'];
+                    $employeeinfo = $emp;
+                }
+            }
         }
-        if(empty($employeeinfo["member_id"])){
-            Db::name("shop_employee")->where("mobile",$mobile)->update(["member_id"=>$this->member_id]);
+
+        if (!$is_owner && empty($employeeinfo)) {
+            echo $this->response([
+                'code' => -1,
+                'msg' => '员工不存在，不能登录',
+                'data' => [],
+            ]);
+            exit;
         }
-      
 
-        $result=$this->getshopInfobyemployee();
-       
-        $this->site_id = $result["site_id"] ?? 0;
-        $this->city_id = $result["city_id"] ?? 0;
-        $this->shopinfo = $result["shopinfo"] ?? [];
+        if (!empty($employeeinfo) && empty($employeeinfo["member_id"])) {
+            Db::name("shop_employee")->where("employee_id", $employeeinfo['employee_id'])->update(["member_id" => $this->member_id]);
+        }
 
-        session("shopinfo",$result["shopinfo"]);
-        session("city_id",$result["city_id"]);
-        session("site_id",$result["site_id"]);
-        session("shop_id",$result["site_id"]);
-        session("employee_info",$result["employee_info"]);
+        if ($is_owner && empty($employeeinfo)) {
+            $employeeinfo = [
+                'employee_id' => 0,
+                'shop_id' => $site_id,
+                'username' => $memberinfo['nickname'] ?: '主理人',
+                'mobile' => $mobile,
+                'is_manager' => 1,
+                'member_id' => $this->member_id
+            ];
+        }
 
+        $shopdata = Db::name("shop")->where("site_id", $site_id)->find();
+        if (empty($shopdata)) {
+            echo $this->response([
+                'code' => -1,
+                'msg' => '店铺不存在',
+                'data' => [],
+            ]);
+            exit;
+        }
 
+        $this->site_id = $site_id;
+        $this->city_id = $shopdata["website_id"] ?? ($shopdata["city"] ?? 0);
+        $this->shopinfo = $shopdata;
+
+        session("shopinfo", $this->shopinfo);
+        session("city_id", $this->city_id);
+        session("site_id", $this->site_id);
+        session("shop_id", $this->site_id);
+        session("employee_info", $employeeinfo);
     }
 
     public function getshopInfobyemployee(){
-      $emptoyee_info=$this->employeeModel->getInfo([ ['member_id', '=', $this->member_id ],['is_deleted', '=', 0 ] ],'member_id,shop_id');
-      if(empty($emptoyee_info)){
-        return $this->response([
-            'code' => -1,
-            'msg' => '员工不存在',
-            'data' => [],
-        ]);
-     }
-      $site_id=$emptoyee_info["shop_id"];
-     
-       $shopdata=Db::name("shop")->where("site_id",$site_id)->find();
-
-     if(empty($shopdata)){
-        return $this->response([
-            'code' => -1,
-            'msg' => '店铺不存在',
-            'data' => [],
-        ]);
-     }
-
-       $this->shopinfo=$shopdata;
-       $this->city_id=$this->shopinfo["city"];
-       $result=[
-        "shopinfo"=>$this->shopinfo,
-        "city_id"=>$this->city_id,
-        "site_id"=>$site_id,
-        'employee_info'=>$emptoyee_info,
-       ];
-       return $result;
-      
-
+        return [
+            "shopinfo" => $this->shopinfo,
+            "city_id" => $this->city_id,
+            "site_id" => $this->site_id,
+            'employee_info' => session('employee_info'),
+        ];
     }
 }

@@ -8,6 +8,7 @@ use app\api\controller\BaseApi;
 use app\model\BaseModel;
 use app\model\pay\Huifu;
 use app\model\shop\OpenAccount;
+use think\facade\Db;
 
 class Merchant extends BaseModel
 {
@@ -76,58 +77,173 @@ class Merchant extends BaseModel
         return $this->success($result);
     }
 
-    //关联企业列表-新方法-根据员工表主理人手机号
+    //关联企业列表-根据当前用户（老板+店员+归属）
     public function shopList($data)
     {
-        $employee = $data['employee'];
-        //所有这个手机号的主理人
-        $shop_ids = model('shop_employee')->getColumn([
-            ['mobile', '=', $employee['mobile']],
-            ['is_deleted', '=', 0],
-            ['is_manager', '=', 1]
-        ], 'shop_id');
-        $condition = [];
+        $member_id = $data['member_id'] ?? 0;
+        $employee = $data['employee'] ?? [];
+        $mobile = $employee['mobile'] ?? '';
 
-        $alias = 'shop';
-        $join = [
-            ['store s', 'shop.site_id = s.site_id', 'inner'],
-        ];
-        $order = 'shop.site_id desc';
-        $condition[] = ['shop.site_id', 'in', $shop_ids];
-        $field = 's.store_id,s.site_id,s.store_name,s.store_image,s.store_logo';
-        $list = model('shop')->getList($condition, $field, $order, $alias, $join);
-        foreach ($list as $key => $value) {
-            //团队人数
-            $team_num = $this->teamNum($value['site_id']);
-            $list[$key]['team_num'] = $team_num;
-        }
-        return $this->success($list);
-    }
-
-    //老方法-根据shop表关联
-    public function shopListOld($data)
-    {
-        $info = model('shop')->getInfo(['site_id' => $data['site_id']]);
-        $shop_mobile = $info['shop_mobile'];
-        $condition = [];
-        if (empty($shop_mobile)) {
-            $condition[] = ['shop.site_id', '=', -1];
+        if (empty($mobile) && $member_id > 0) {
+            $member = Db::name('member')->where('member_id', $member_id)->field('mobile,site_id')->find();
+            $mobile = trim($member['mobile'] ?? '');
+            $belong_site_id = (int)($member['site_id'] ?? 0);
+        } else {
+            $belong_site_id = 0;
+            if ($member_id > 0) {
+                $belong_site_id = (int)Db::name('member')->where('member_id', $member_id)->value('site_id');
+            }
         }
 
-        $alias = 'shop';
-        $join = [
-            ['store s', 'shop.site_id = s.site_id', 'inner'],
-        ];
-        $order = 'shop.site_id desc';
-        $condition[] = ['shop.shop_mobile', '=', $shop_mobile];
-        $field = 's.store_id,s.site_id,s.store_name,s.store_image,s.store_logo';
-        $list = model('shop')->getList($condition, $field, $order, $alias, $join);
-        foreach ($list as $key => $value) {
-            //团队人数
-            $team_num = $this->teamNum($value['site_id']);
-            $list[$key]['team_num'] = $team_num;
+        // 1. 我是老板的店铺
+        $owner_site_ids = [];
+        if ($member_id > 0) {
+            $created_shop_ids = Db::name('shop')->where('member_id', $member_id)->column('site_id');
+            if (!empty($created_shop_ids)) {
+                $owner_site_ids = array_merge($owner_site_ids, $created_shop_ids);
+            }
         }
-        return $this->success($list);
+        if (!empty($mobile)) {
+            $mobile_shop_ids = Db::name('shop')->where(function ($q) use ($mobile) {
+                $q->where('mobile', $mobile)->whereOr('telephone', $mobile);
+            })->column('site_id');
+            if (!empty($mobile_shop_ids)) {
+                $owner_site_ids = array_merge($owner_site_ids, $mobile_shop_ids);
+            }
+        }
+        // 员工表中被设为主理人 (is_manager = 1)
+        $manager_cond = [['is_deleted', '=', 0], ['is_manager', '=', 1]];
+        if (!empty($mobile) && $member_id > 0) {
+            $emp_manager_ids = Db::name('shop_employee')->where($manager_cond)->where(function ($q) use ($member_id, $mobile) {
+                $q->where('member_id', $member_id)->whereOr('mobile', $mobile);
+            })->column('shop_id');
+        } elseif (!empty($mobile)) {
+            $emp_manager_ids = Db::name('shop_employee')->where($manager_cond)->where('mobile', $mobile)->column('shop_id');
+        } elseif ($member_id > 0) {
+            $emp_manager_ids = Db::name('shop_employee')->where($manager_cond)->where('member_id', $member_id)->column('shop_id');
+        } else {
+            $emp_manager_ids = [];
+        }
+        if (!empty($emp_manager_ids)) {
+            $owner_site_ids = array_merge($owner_site_ids, $emp_manager_ids);
+        }
+        $owner_site_ids = array_values(array_unique(array_filter(array_map('intval', $owner_site_ids))));
+
+        // 2. 我是店员的店铺 (is_manager = 0，排除老板店铺)
+        $staff_site_ids = [];
+        $staff_cond = [['is_deleted', '=', 0], ['is_manager', '=', 0]];
+        if (!empty($mobile) && $member_id > 0) {
+            $emp_staff_ids = Db::name('shop_employee')->where($staff_cond)->where(function ($q) use ($member_id, $mobile) {
+                $q->where('member_id', $member_id)->whereOr('mobile', $mobile);
+            })->column('shop_id');
+        } elseif (!empty($mobile)) {
+            $emp_staff_ids = Db::name('shop_employee')->where($staff_cond)->where('mobile', $mobile)->column('shop_id');
+        } elseif ($member_id > 0) {
+            $emp_staff_ids = Db::name('shop_employee')->where($staff_cond)->where('member_id', $member_id)->column('shop_id');
+        } else {
+            $emp_staff_ids = [];
+        }
+        if (!empty($emp_staff_ids)) {
+            foreach ($emp_staff_ids as $sid) {
+                $sid = (int)$sid;
+                if ($sid > 0 && !in_array($sid, $owner_site_ids)) {
+                    $staff_site_ids[] = $sid;
+                }
+            }
+        }
+        $staff_site_ids = array_values(array_unique($staff_site_ids));
+
+        // 3. 我所归属的店铺
+        $belong_site_ids = [];
+        if ($belong_site_id > 0 && !in_array($belong_site_id, $owner_site_ids) && !in_array($belong_site_id, $staff_site_ids)) {
+            $belong_site_ids[] = $belong_site_id;
+        }
+
+        $all_site_ids = array_values(array_unique(array_merge($owner_site_ids, $staff_site_ids, $belong_site_ids)));
+        if (empty($all_site_ids)) {
+            return $this->success([]);
+        }
+
+        // 查询店铺详情
+        $shop_list = Db::name('shop')
+            ->whereIn('site_id', $all_site_ids)
+            ->field('site_id, site_name, logo, avatar, mobile, telephone, address, full_address, shop_status')
+            ->select()
+            ->toArray();
+
+        // 查询首家门店
+        $store_map = [];
+        $stores = Db::name('store')
+            ->whereIn('site_id', $all_site_ids)
+            ->field('store_id, site_id, store_name, store_image, store_logo, address, full_address')
+            ->order('store_id asc')
+            ->select()
+            ->toArray();
+        foreach ($stores as $st) {
+            $sid = (int)$st['site_id'];
+            if (!isset($store_map[$sid])) {
+                $store_map[$sid] = $st;
+            }
+        }
+
+        $result_list = [];
+        foreach ($shop_list as $shop) {
+            $sid = (int)$shop['site_id'];
+            $store_info = $store_map[$sid] ?? null;
+
+            if (in_array($sid, $owner_site_ids)) {
+                $role = 'owner';
+                $role_name = '我的店铺(老板)';
+                $role_sort = 1;
+                $is_manager = 1;
+            } elseif (in_array($sid, $staff_site_ids)) {
+                $role = 'staff';
+                $role_name = '我是店员';
+                $role_sort = 2;
+                $is_manager = 0;
+            } else {
+                $role = 'member';
+                $role_name = '我的归属';
+                $role_sort = 3;
+                $is_manager = 0;
+            }
+
+            $img = '';
+            if ($store_info && !empty($store_info['store_image'])) {
+                $img = $store_info['store_image'];
+            } elseif ($store_info && !empty($store_info['store_logo'])) {
+                $img = $store_info['store_logo'];
+            } elseif (!empty($shop['logo'])) {
+                $img = $shop['logo'];
+            } elseif (!empty($shop['avatar'])) {
+                $img = $shop['avatar'];
+            }
+
+            $name = ($store_info['store_name'] ?? '') ?: ($shop['site_name'] ?: '商家店铺');
+
+            $result_list[] = [
+                'site_id' => $sid,
+                'store_id' => $store_info['store_id'] ?? 0,
+                'store_name' => $name,
+                'site_name' => $shop['site_name'] ?: $name,
+                'store_image' => $img,
+                'store_logo' => $shop['logo'] ?: $img,
+                'role' => $role,
+                'role_name' => $role_name,
+                'role_sort' => $role_sort,
+                'is_manager' => $is_manager,
+                'team_num' => $this->teamNum($sid)
+            ];
+        }
+
+        usort($result_list, function ($a, $b) {
+            if ($a['role_sort'] === $b['role_sort']) {
+                return $b['site_id'] <=> $a['site_id'];
+            }
+            return $a['role_sort'] <=> $b['role_sort'];
+        });
+
+        return $this->success($result_list);
     }
 
     //团队人数
@@ -142,20 +258,58 @@ class Merchant extends BaseModel
     //切换商家
     public function shopLogin($data)
     {
-        $employee = model('shop_employee')->getInfo([
-            ['shop_id', '=', $data['new_site_id']],
-            ['is_deleted', '=', 0],
-            ['member_id', '=', $data['member_id']],
-            ['is_manager', '=', 1],
-        ]);
-        if (!$employee) {
-            return $this->error('', '不是主理人身份');
+        $new_site_id = (int)($data['new_site_id'] ?? 0);
+        $member_id = (int)($data['member_id'] ?? 0);
+        if ($new_site_id <= 0) {
+            return $this->error('', '店铺ID不合法');
         }
 
-        //生成token
-        $token =(new BaseApi())->createToken($data['member_id']);
-        return $this->success(['token' => $token, 'site_id' => $data['new_site_id']]);
+        $shop = Db::name('shop')->where('site_id', $new_site_id)->find();
+        if (empty($shop)) {
+            return $this->error('', '店铺不存在');
+        }
 
+        // 验证用户是否有权限切换到该店铺
+        $member = Db::name('member')->where('member_id', $member_id)->field('mobile')->find();
+        $mobile = trim($member['mobile'] ?? '');
+
+        // 1. 是否是老板
+        $is_owner = ($shop['member_id'] == $member_id) || (!empty($mobile) && ($shop['mobile'] == $mobile || $shop['telephone'] == $mobile));
+
+        // 2. 是否是该店铺员工
+        $employee = Db::name('shop_employee')->where([
+            ['shop_id', '=', $new_site_id],
+            ['is_deleted', '=', 0]
+        ])->where(function ($q) use ($member_id, $mobile) {
+            $q->where('member_id', $member_id);
+            if (!empty($mobile)) {
+                $q->whereOr('mobile', $mobile);
+            }
+        })->find();
+
+        if ($is_owner) {
+            $is_manager = 1;
+        } elseif (!empty($employee)) {
+            $is_manager = $employee['is_manager'] ?? 0;
+        } else {
+            $belong_id = Db::name('member')->where('member_id', $member_id)->value('site_id');
+            if ($belong_id == $new_site_id) {
+                $is_manager = 0;
+            } else {
+                return $this->error('', '您不属于该店铺，无权切换');
+            }
+        }
+
+        // 生成token
+        $token = (new BaseApi())->createToken($member_id);
+        session('site_id', $new_site_id);
+        session('shop_id', $new_site_id);
+
+        return $this->success([
+            'token' => $token,
+            'site_id' => $new_site_id,
+            'is_manager' => $is_manager,
+            'site_name' => $shop['site_name']
+        ]);
     }
-
 }
