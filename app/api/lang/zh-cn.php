@@ -14,7 +14,7 @@ return [
 	'PARAMETER_ERROR' => '参数错误',
 	'REQUEST_SITE_ID' => '缺少必须参数站点id',
 	'REQUEST_APP_MODULE' => '缺少必须参数应用模块',
-	'TOKEN_NOT_EXIST' => 'token不存在',
+	'TOKEN_NOT_EXIST' => '此页面数据需要登录后才能查看',
 	'TOKEN_ERROR' => 'token错误',
 	'TOKEN_EXPIRE' => 'token已过期',
 	'CAPTCHA_FAILURE' => '验证码已失效',
