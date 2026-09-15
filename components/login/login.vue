@@ -95,6 +95,12 @@
 	} from '@/common/js/api.js';
 	export default {
 		name: "authbox",
+		props: {
+			autoOpen: {
+				type: Boolean,
+				default: true
+			}
+		},
 		data() {
 			return {
 				is_show: false,
@@ -120,23 +126,47 @@
 			this.suid = uni.getStorageSync('invite_code') || ''
 			this.checkLoginStatus()
 			uni.$on('loginChange', this.onLoginChange)
+			uni.$on('loginPromptChange', this.onPromptChange)
+		},
+		mounted() {
+			this.checkLoginStatus()
+			// 首次进入小程序未登录且未点击“不再提示”时，自动弹出登录提示
+			if (this.autoOpen && !this.isLoggedIn && !this.noPrompt) {
+				const app = typeof getApp === 'function' ? getApp() : null
+				if (app && app.globalData && !app.globalData.hasAutoPromptedLogin) {
+					app.globalData.hasAutoPromptedLogin = true
+					setTimeout(() => {
+						this.open()
+					}, 600)
+				}
+			}
 		},
 		beforeDestroy() {
 			uni.$off('loginChange', this.onLoginChange)
+			uni.$off('loginPromptChange', this.onPromptChange)
 		},
 		unmounted() {
 			uni.$off('loginChange', this.onLoginChange)
+			uni.$off('loginPromptChange', this.onPromptChange)
 		},
 		methods: {
 			checkLoginStatus() {
 				this.isLoggedIn = !!uni.getStorageSync('token')
 				this.noPrompt = !!uni.getStorageSync('login_no_prompt')
 			},
+			onPromptChange(data) {
+				if (data && typeof data.noPrompt === 'boolean') {
+					this.noPrompt = data.noPrompt
+				} else {
+					this.checkLoginStatus()
+				}
+			},
 			onLoginChange(data) {
 				if (data && data.isLogin) {
 					this.isLoggedIn = true
 					this.noPrompt = false
 					uni.removeStorageSync('login_no_prompt')
+					uni.$emit('loginPromptChange', { noPrompt: false })
 				} else if (data && data.isLogin === false) {
 					this.isLoggedIn = false
 					this.noPrompt = !!uni.getStorageSync('login_no_prompt')
@@ -147,6 +177,7 @@
 			handleNoPrompt() {
 				this.noPrompt = true
 				uni.setStorageSync('login_no_prompt', true)
+				uni.$emit('loginPromptChange', { noPrompt: true })
 				this.close()
 			},
 			onPopupClose() {
