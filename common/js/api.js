@@ -190,4 +190,6 @@ export const getVerifyCode=params=>server('/api/order/verifyCode',params)
 //商家商品分类列表
 export const siteCategoryList=params=>server('/api/goodscategory/siteCategoryList',params)
 export const myIncomeSummary=params=>server('/api/memberlevel/myIncomeSummary',params)
-export const myIncomeList=params=>server('/api/memberlevel/myIncomeList',params)
+export const myIncomeList=params=>server('/api/memberlevel/myIncomeList',params)
+// 我的关联商家店铺列表（老板+店员+归属）
+export const myShopList=params=>server('/api/shop/myshoplist',params)

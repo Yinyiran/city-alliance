@@ -9,7 +9,13 @@
 				</view>
 			</template>
 			<template v-slot:center>
-				<view class="nav-fixed-title">城盟优选</view>
+				<view class="nav-shop-switch-wrap acea-row row-middle" style="flex-wrap: nowrap;" @click="openMerchantSelect">
+					<text class="nav-shop-title text-more">{{ currentMerchantTitle }}</text>
+					<uv-icon name="arrow-down-fill" size="9" color="#FFFFFF" customStyle="margin-left: 6rpx; flex-shrink: 0;"></uv-icon>
+					<view class="nav-switch-badge" v-if="myShops.length > 1">
+						<text>{{ myShops.length }}店</text>
+					</view>
+				</view>
 			</template>
 		</uv-navbar>
 
@@ -317,6 +323,50 @@
 
 
 
+		<!-- 商家店铺切换弹窗（我的店铺[老板] + 我是店员 + 我所归属） -->
+		<uv-popup ref="merchantSelectPopup" round="24" mode="bottom">
+			<view class="merchant-popup-container">
+				<view class="popup-title acea-row row-middle row-between">
+					<view class="acea-row row-middle">
+						<text class="popup-title-text">切换商家店铺</text>
+						<text class="popup-store-count" v-if="myShops.length > 0">（共{{ myShops.length }}家关联店铺）</text>
+					</view>
+					<uv-icon name="close" size="16" color="#999" @click="closeMerchantSelect"></uv-icon>
+				</view>
+				<scroll-view scroll-y class="merchant-select-scroll">
+					<view v-for="(shop, mIdx) in myShops" :key="mIdx"
+						class="merchant-option-item acea-row row-middle row-between"
+						:class="{ 'active': isCurrentShop(shop) }" @click="onSelectMerchant(shop)">
+						<view class="merchant-opt-left acea-row row-middle">
+							<image :src="shop.shop_image ? $util.img(shop.shop_image) : '/static/stores.png'"
+								class="merchant-opt-img" mode="aspectFill"></image>
+							<view class="merchant-opt-info">
+								<view class="merchant-opt-name-row acea-row row-middle">
+									<text class="merchant-opt-name text-more">{{ shop.site_name || shop.store_name }}</text>
+									<view class="shop-role-tag" :class="'tag-' + shop.role">
+										{{ shop.role_name }}
+									</view>
+								</view>
+								<view class="merchant-opt-meta acea-row row-middle" v-if="shop.distance || shop.telephone">
+									<text class="merchant-opt-distance" v-if="shop.distance">距您 {{ shop.distance }}</text>
+									<text class="merchant-opt-tel" v-if="shop.telephone">📞 {{ shop.telephone }}</text>
+								</view>
+								<view class="merchant-opt-addr text-more" v-if="shop.address">{{ shop.address }}</view>
+							</view>
+						</view>
+						<view class="merchant-opt-right acea-row row-middle">
+							<uv-icon name="checkmark-circle-fill" color="#FF5500" size="22"
+								v-if="isCurrentShop(shop)"></uv-icon>
+							<view class="select-btn" v-else>进店</view>
+						</view>
+					</view>
+					<view class="merchant-empty-box acea-row row-column row-center row-middle" v-if="myShops.length === 0">
+						<text class="empty-tip">暂无可切换的关联店铺（老板/店员/归属）</text>
+					</view>
+				</scroll-view>
+			</view>
+		</uv-popup>
+
 		<!-- 登录弹窗 -->
 		<login ref="login" @loginsuccess="onLoginSuccess"></login>
 	</view>
@@ -332,7 +382,8 @@ import {
 	goodslist,
 	websiteStore,
 	siteCategoryList,
-	tranAddressInfo
+	tranAddressInfo,
+	myShopList
 } from "@/common/js/api.js";
 import WecomGroupBtn from "@/components/wecom-group-btn/wecom-group-btn.vue";
 
@@ -388,12 +439,24 @@ export default {
 			// 门店列表（用于Tab模式换店）
 			storeList: [],
 
+			// 用户关联商家列表（老板+店员+归属）
+			myShops: [],
+
 			// 用户位置
 			latitude: null,
 			longitude: null
 		};
 	},
 	computed: {
+		currentMerchantTitle() {
+			if (this.sinfo && this.sinfo.site_name) {
+				return this.sinfo.site_name;
+			}
+			if (this.sinfo && this.sinfo.store_name) {
+				return this.sinfo.store_name;
+			}
+			return '城盟优选';
+		},
 		displaySales() {
 			if (!this.sinfo) return 0;
 			if (this.sinfo.total_sales !== undefined && this.sinfo.total_sales !== null) {
@@ -483,17 +546,21 @@ export default {
 					let res = await userinfo();
 					if (res && res.code >= 0 && res.data) {
 						let info = res.data;
-						site_id = info.site_id ? String(info.site_id) : '';
+						// 优先查看用户是否有主动切换过的店铺
+						let selectedSiteId = uni.getStorageSync('selected_site_id');
+						if (selectedSiteId) {
+							site_id = String(selectedSiteId);
+						} else {
+							site_id = info.site_id ? String(info.site_id) : String(uni.getStorageSync('user_site_id') || uni.getStorageSync('site_id') || '');
+						}
 						if (site_id) {
 							uni.setStorageSync('user_site_id', site_id);
 							uni.setStorageSync('site_id', site_id);
-						} else {
-							uni.removeStorageSync('user_site_id');
 						}
 						uni.setStorageSync('userInfo', info);
 					}
 				} catch (e) {
-					site_id = String(uni.getStorageSync('user_site_id') || uni.getStorageSync('site_id') || '');
+					site_id = String(uni.getStorageSync('selected_site_id') || uni.getStorageSync('user_site_id') || uni.getStorageSync('site_id') || '');
 				}
 			} else {
 				// 未登录状态，清除 user_site_id，商家 ID 视为空
@@ -542,6 +609,11 @@ export default {
 
 			// 5. 加载选定门店的详情
 			await this.initByStoreId(targetId || site_id || '');
+
+			// 6. 若已登录，异步拉取关联商家列表（老板+店员+归属）
+			if (currentToken) {
+				this.fetchMyShopList();
+			}
 		},
 
 		// 获取商家/城市下的门店列表
@@ -929,6 +1001,86 @@ export default {
 			this.$refs.storeSelectPopup.close();
 		},
 
+		// 拉取我的关联商家店铺列表（老板+店员+归属）
+		async fetchMyShopList(openAfterFetch = false) {
+			if (!uni.getStorageSync('token')) {
+				this.myShops = [];
+				return;
+			}
+			try {
+				let res = await myShopList({
+					latitude: this.latitude || '',
+					longitude: this.longitude || ''
+				});
+				if (res && res.code >= 0 && Array.isArray(res.data)) {
+					this.myShops = res.data;
+				} else {
+					this.myShops = [];
+				}
+				if (openAfterFetch) {
+					this.$refs.merchantSelectPopup.open();
+				}
+			} catch (e) {
+				console.error('获取关联商家列表失败', e);
+				if (openAfterFetch) {
+					this.$refs.merchantSelectPopup.open();
+				}
+			}
+		},
+
+		// 打开商家切换弹窗
+		openMerchantSelect() {
+			if (!uni.getStorageSync('token')) {
+				this.$refs.login.open();
+				return;
+			}
+			if (this.myShops.length === 0) {
+				this.fetchMyShopList(true);
+			} else {
+				this.$refs.merchantSelectPopup.open();
+			}
+		},
+
+		// 关闭商家切换弹窗
+		closeMerchantSelect() {
+			this.$refs.merchantSelectPopup.close();
+		},
+
+		// 判断店铺是否当前选中
+		isCurrentShop(shop) {
+			if (!shop || !shop.site_id) return false;
+			return String(shop.site_id) === String(this.activeSiteId || (this.sinfo && this.sinfo.site_id) || '');
+		},
+
+		// 切换选中的商家店铺
+		async onSelectMerchant(shop) {
+			let siteId = shop.site_id;
+			if (!siteId) return;
+			this.closeMerchantSelect();
+			if (String(siteId) === String(this.activeSiteId)) {
+				return;
+			}
+			uni.showLoading({ title: '切换店铺中...' });
+			uni.setStorageSync('selected_site_id', siteId);
+			uni.setStorageSync('user_site_id', siteId);
+			uni.setStorageSync('site_id', siteId);
+			uni.removeStorageSync('store_id');
+			this.activeSiteId = siteId;
+
+			// 重新拉取新商家的线下分店
+			await this.fetchWebsiteStores(siteId);
+			let targetStoreId = '';
+			if (this.storeList.length > 0) {
+				targetStoreId = this.storeList[0].store_id || this.storeList[0].id;
+			}
+			await this.initByStoreId(targetStoreId || siteId);
+			uni.hideLoading();
+			uni.showToast({
+				title: '已切换至: ' + (shop.site_name || '新店铺'),
+				icon: 'none'
+			});
+		},
+
 		// 选定新门店
 		onSelectStore(store) {
 			let storeId = store.store_id || store.id;
@@ -1020,7 +1172,41 @@ export default {
 	font-size: 34rpx;
 	font-weight: 600;
 	color: #FFFFFF;
-	letter-spacing: 2rpx;
+}
+
+/* 顶部导航商家切换触发器 */
+.nav-shop-switch-wrap {
+	max-width: 380rpx;
+	cursor: pointer;
+	flex-wrap: nowrap !important;
+	white-space: nowrap;
+
+	.nav-shop-title {
+		font-size: 32rpx;
+		font-weight: 600;
+		color: #FFFFFF;
+		max-width: 260rpx;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.nav-switch-badge {
+		background: rgba(255, 255, 255, 0.25);
+		border: 1rpx solid rgba(255, 255, 255, 0.6);
+		padding: 2rpx 10rpx;
+		border-radius: 16rpx;
+		margin-left: 8rpx;
+		line-height: 24rpx;
+		flex-shrink: 0;
+
+		text {
+			font-size: 18rpx;
+			color: #FFFFFF;
+			font-weight: 600;
+			white-space: nowrap;
+		}
+	}
 }
 
 .navbar-center-title {
@@ -1724,6 +1910,160 @@ export default {
 				.store-opt-name {
 					color: #F55606;
 				}
+			}
+		}
+	}
+}
+
+/* 商家店铺切换弹窗样式 */
+.merchant-popup-container {
+	background: #FFFFFF;
+	padding: 32rpx 28rpx 48rpx;
+	box-sizing: border-box;
+
+	.popup-title {
+		padding-bottom: 24rpx;
+		border-bottom: 1rpx solid #F0F0F0;
+
+		.popup-title-text {
+			font-size: 32rpx;
+			font-weight: 700;
+			color: #1A1A1A;
+		}
+
+		.popup-store-count {
+			font-size: 24rpx;
+			color: #999999;
+			margin-left: 8rpx;
+		}
+	}
+
+	.merchant-select-scroll {
+		max-height: 60vh;
+		min-height: 200rpx;
+		padding-top: 16rpx;
+
+		.merchant-option-item {
+			padding: 24rpx 16rpx;
+			border-radius: 16rpx;
+			margin-bottom: 16rpx;
+			background: #FAFAFA;
+			transition: all 0.2s;
+
+			&:last-child {
+				margin-bottom: 0;
+			}
+
+			.merchant-opt-left {
+				flex: 1;
+				overflow: hidden;
+
+				.merchant-opt-img {
+					width: 96rpx;
+					height: 96rpx;
+					border-radius: 14rpx;
+					margin-right: 18rpx;
+					flex-shrink: 0;
+					background: #ECECEC;
+				}
+
+				.merchant-opt-info {
+					flex: 1;
+					overflow: hidden;
+
+					.merchant-opt-name-row {
+						gap: 12rpx;
+
+						.merchant-opt-name {
+							font-size: 28rpx;
+							font-weight: 600;
+							color: #222222;
+							line-height: 38rpx;
+							max-width: 320rpx;
+						}
+
+						/* 身份徽标样式 */
+						.shop-role-tag {
+							font-size: 18rpx;
+							font-weight: 600;
+							padding: 2rpx 10rpx;
+							border-radius: 6rpx;
+							flex-shrink: 0;
+
+							&.tag-owner {
+								background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+								color: #FFFFFF;
+							}
+
+							&.tag-staff {
+								background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+								color: #FFFFFF;
+							}
+
+							&.tag-member {
+								background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+								color: #FFFFFF;
+							}
+						}
+					}
+
+					.merchant-opt-meta {
+						margin-top: 8rpx;
+						gap: 16rpx;
+						font-size: 22rpx;
+
+						.merchant-opt-distance {
+							color: #F55606;
+							font-weight: 600;
+						}
+
+						.merchant-opt-tel {
+							color: #4B7902;
+							background: #F2F7EC;
+							padding: 2rpx 10rpx;
+							border-radius: 6rpx;
+						}
+					}
+
+					.merchant-opt-addr {
+						font-size: 22rpx;
+						color: #999999;
+						margin-top: 6rpx;
+						line-height: 32rpx;
+					}
+				}
+			}
+
+			.merchant-opt-right {
+				margin-left: 20rpx;
+				flex-shrink: 0;
+
+				.select-btn {
+					padding: 8rpx 24rpx;
+					border-radius: 24rpx;
+					border: 2rpx solid #E0E0E0;
+					font-size: 22rpx;
+					color: #666666;
+				}
+			}
+
+			&.active {
+				background: #FFF5F0;
+				border: 1rpx solid #FFD0BD;
+
+				.merchant-opt-name {
+					color: #FF5500;
+				}
+			}
+		}
+
+		.merchant-empty-box {
+			padding: 60rpx 0;
+			text-align: center;
+
+			.empty-tip {
+				font-size: 26rpx;
+				color: #999999;
 			}
 		}
 	}
