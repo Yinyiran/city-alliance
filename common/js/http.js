@@ -63,8 +63,12 @@ export function server(url, params, methods) {
           uni.hideLoading();
         } else {
           // console.log(res.data);
+          let msg = responseData.message || responseData.msg || 'Request failed';
+          if (msg === 'token不存在' || msg === 'token不能为空' || msg === 'TOKEN_NOT_EXIST') {
+            msg = '此页面数据需要登录后才能查看';
+          }
           uni.showToast({
-            title: responseData.message || 'Request failed',
+            title: msg,
             icon: 'none',
             duration: 3000,
             success: () => {
