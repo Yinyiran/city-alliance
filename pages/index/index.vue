@@ -12,8 +12,37 @@ export default {
 		};
 	},
 	onLoad(options) {
-		if (options && (options.id || options.store_id)) {
-			this.storeId = options.id || options.store_id;
+		if (options) {
+			if (options.id || options.store_id) {
+				this.storeId = options.id || options.store_id;
+			}
+			if (options.site_id) {
+				uni.setStorageSync('share_site_id', options.site_id);
+				if (!this.storeId) this.storeId = options.site_id;
+			}
+			if (options.suid) {
+				uni.setStorageSync('invite_code', options.suid);
+			}
+			if (options.scene) {
+				try {
+					const sceneStr = decodeURIComponent(options.scene);
+					const pairs = sceneStr.split('&');
+					pairs.forEach(item => {
+						const parts = item.includes('-') ? item.split('-') : item.split('=');
+						const k = parts[0];
+						const v = parts[1];
+						if (k === 'site_id' || k === 's') {
+							uni.setStorageSync('share_site_id', v);
+							if (!this.storeId) this.storeId = v;
+						}
+						if (k === 'suid' || k === 'invite_code') {
+							uni.setStorageSync('invite_code', v);
+						}
+					});
+				} catch (e) {
+					console.error('parse scene error', e);
+				}
+			}
 		}
 	},
 	onShow() {

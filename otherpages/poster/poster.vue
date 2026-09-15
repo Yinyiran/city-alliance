@@ -66,13 +66,17 @@
 					const res = await userinfo()
 					if (res && res.data) {
 						this.member_id = res.data.member_id
+						this.site_id = res.data.site_id || uni.getStorageSync('user_site_id') || uni.getStorageSync('share_site_id') || ''
+						if (this.site_id) {
+							uni.setStorageSync('user_site_id', this.site_id)
+						}
 					}
 				} catch (e) {
 					console.error('获取用户信息失败', e)
 				}
 			},
 			async getinfo() {
-				const site_id = uni.getStorageSync('user_site_id') || uni.getStorageSync('share_site_id') || '';
+				const site_id = this.site_id || uni.getStorageSync('user_site_id') || uni.getStorageSync('share_site_id') || '';
 				let params = {
 					page: '/pages/index/index',
 					qrcode_param: JSON.stringify({
