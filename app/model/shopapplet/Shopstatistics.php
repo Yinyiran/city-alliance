@@ -222,7 +222,7 @@ class Shopstatistics extends BaseModel
 
             }
         }
-        $res[]=["level_name"=>"用户总数","member_counts"=>$totalnum];
+        $res[]=["level_name"=>"用户总数","member_counts"=>$totalnum,"percent"=>$totalnum>0?100:0];
         return $res;
     }
 

@@ -7,10 +7,18 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <link rel="icon" href="/pc/favicon.ico">
     <title>数据大屏</title>
+    <script>
+        (function () {
+            var p = new URLSearchParams(window.location.search);
+            if (p.get("website_id") == "25") {
+                document.title = "淮北市数据大屏";
+            }
+        })();
+    </script>
     <script defer="defer" src="/pc/js/chunk-vendors.cca6b37f.js"></script>
-    <script defer="defer" src="/pc/js/app.5f9b8cf0.js"></script>
+    <script defer="defer" src="/pc/js/app.v2.js?v=20260915_04"></script>
     <link href="/pc/css/chunk-vendors.94dbbe42.css" rel="stylesheet">
-    <link href="/pc/css/app.a6141941.css" rel="stylesheet">
+    <link href="/pc/css/app.v2.css?v=20260915_04" rel="stylesheet">
 </head>
 
 <body><noscript><strong>We're sorry but 数据大屏 doesn't work properly without JavaScript enabled. Please enable it to
