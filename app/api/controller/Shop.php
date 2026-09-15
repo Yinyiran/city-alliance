@@ -227,7 +227,7 @@ class Shop extends BaseApi
             ->whereIn('site_id', $all_site_ids)
             ->where([['status', '=', 1], ['is_pickup', '=', 1]])
             ->field('store_id, site_id, store_name, store_image, address, full_address, telphone, longitude, latitude')
-            ->order('is_default desc, store_id asc')
+            ->order('store_id asc')
             ->select()
             ->toArray();
         foreach ($stores as $st) {
