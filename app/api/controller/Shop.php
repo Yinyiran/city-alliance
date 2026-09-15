@@ -134,9 +134,19 @@ class Shop extends BaseApi
         $mobile = trim($member['mobile'] ?? '');
         $belong_site_id = (int)($member['site_id'] ?? 0);
 
-        // 1. 我的店铺（老板）：shop.member_id = $member_id 或 员工表主理人 is_manager = 1
+        // 1. 我的店铺（老板）：shop.member_id = $member_id 或 shop.mobile/telephone = $mobile 或 员工表主理人 is_manager = 1
         $owner_site_ids = [];
-        $created_shop_ids = Db::name('shop')->where('member_id', $member_id)->column('site_id');
+        if (!empty($mobile)) {
+            $created_shop_ids = Db::name('shop')
+                ->where(function ($query) use ($member_id, $mobile) {
+                    $query->where('member_id', $member_id)
+                          ->whereOr('mobile', $mobile)
+                          ->whereOr('telephone', $mobile);
+                })
+                ->column('site_id');
+        } else {
+            $created_shop_ids = Db::name('shop')->where('member_id', $member_id)->column('site_id');
+        }
         if (!empty($created_shop_ids)) {
             $owner_site_ids = array_merge($owner_site_ids, $created_shop_ids);
         }
