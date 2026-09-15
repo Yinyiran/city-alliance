@@ -1,4 +1,4 @@
-﻿<template>
+<template>
 	<view>
 		<!-- <uv-sticky> -->
 		<nvabar title='门店签到'></nvabar>
@@ -20,14 +20,12 @@
 			</view>
 			<view class="relative acea-row row-middle">
 				<view class="" v-for="(item, index) in listA" :key="index">
-					<view v-if="item.signdata.length == 0" class="item1">
-						+{{ item.reward_value }}{{ item.reward_typename }}
-					</view>
-				</view>
-				<view class="" v-for="(item, index) in listA" :key="index">
-					<view class="item2" v-if="item.signdata > 0">
-						<image :src="$util.img(item.signdata.logo)" mode=""></image>
+					<view class="item2" v-if="item.is_signed">
+						<image :src="item.store_logo || '/static/shop.png'" mode="aspectFit" @error="onImgError(item)"></image>
 						<image src="/otherpages/static/checked.png" mode=""></image>
+					</view>
+					<view class="item1" v-else>
+						+{{ item.reward_value }}{{ item.reward_typename }}
 					</view>
 				</view>
 			</view>
@@ -129,8 +127,35 @@ export default {
 		getsignininfo() {
 			getsignininfo().then(res => {
 				this.signcount = res.signcount
-				this.listA = res.data
+				let list = res.data || []
+				this.listA = list.map(item => {
+					let is_signed = false
+					let store_logo = ''
+					if (item.signdata) {
+						if (Array.isArray(item.signdata)) {
+							if (item.signdata.length > 0) {
+								is_signed = true
+								store_logo = item.signdata[0].logo || item.signdata[0].avatar || item.signdata[0].shop_logo || ''
+							}
+						} else if (typeof item.signdata === 'object') {
+							if (item.signdata.signin_id || item.signdata.logo || Object.keys(item.signdata).length > 0) {
+								is_signed = true
+								store_logo = item.signdata.logo || item.signdata.avatar || item.signdata.shop_logo || ''
+							}
+						}
+					}
+					return {
+						...item,
+						is_signed,
+						store_logo: store_logo ? this.$util.img(store_logo) : '/static/shop.png'
+					}
+				})
 			})
+		},
+		onImgError(item) {
+			if (item) {
+				item.store_logo = '/static/shop.png'
+			}
 		},
 		daohang(e) {
 			uni.openLocation({
@@ -203,7 +228,13 @@ export default {
 			height: 100%;
 			box-sizing: border-box;
 			border: 2rpx solid #FFAE85;
+			border-radius: 6rpx;
 			position: relative;
+			background: #fff;
+			overflow: hidden;
+			display: flex;
+			align-items: center;
+			justify-content: center;
 
 			>image:first-child {
 				width: 100%;
@@ -216,12 +247,14 @@ export default {
 				position: absolute;
 				right: 0;
 				bottom: 0;
+				z-index: 2;
 			}
 		}
 
 		.item1 {
 			background: #FFFDF9;
 			border: 2rpx dashed #F0F0F0;
+			border-radius: 6rpx;
 			font-weight: 400;
 			font-size: 22rpx;
 			line-height: 52rpx;
