@@ -88,4 +88,76 @@ class Account extends BaseCity
         return $this->fetch('account/fee', [], $this->replace);
     }
 
+    /**
+     * 城市分站订单交易与结算流水
+     */
+    public function orderlist()
+    {
+        $order_common_model = new \app\model\order\OrderCommon();
+
+        // 统计金额
+        $wait_condition = [
+            ['website_id', '=', $this->site_id],
+            ['order_status', '=', 10],
+            ['is_settlement', '=', 0]
+        ];
+        $wait_money = \think\facade\Db::name('order')->where($wait_condition)->sum('order_money - refund_shop_money');
+        $this->assign('wait_settlement', number_format($wait_money ?: 0, 2, '.', ''));
+
+        $ing_condition = [
+            ['website_id', '=', $this->site_id],
+            ['order_status', 'not in', [0, -1, 10]]
+        ];
+        $ing_money = \think\facade\Db::name('order')->where($ing_condition)->sum('order_money - refund_shop_money');
+        $this->assign('settlement', number_format($ing_money ?: 0, 2, '.', ''));
+
+        $finish_condition = [
+            ['website_id', '=', $this->site_id],
+            ['order_status', '=', 10],
+            ['is_settlement', '=', 1]
+        ];
+        $finish_money = \think\facade\Db::name('order')->where($finish_condition)->sum('order_money - refund_shop_money');
+        $this->assign('finish_settlement', number_format($finish_money ?: 0, 2, '.', ''));
+
+        if (request()->isAjax()) {
+            $page = input('page', 1);
+            $page_size = input('page_size', PAGE_LIST_ROWS);
+
+            $condition = [
+                ['website_id', '=', $this->site_id]
+            ];
+
+            $order_status = input('order_status', '');
+            if ($order_status != '') {
+                switch ($order_status) {
+                    case 1: // 进行中
+                        $condition[] = ['order_status', 'not in', [0, -1, 10]];
+                        break;
+                    case 2: // 待结算
+                        $condition[] = ['order_status', '=', 10];
+                        $condition[] = ['is_settlement', '=', 0];
+                        break;
+                    case 3: // 已结算
+                        $condition[] = ['order_status', '=', 10];
+                        $condition[] = ['is_settlement', '=', 1];
+                        break;
+                }
+            }
+
+            $start_time = input('start_time', '');
+            $end_time = input('end_time', '');
+            if (!empty($start_time) && empty($end_time)) {
+                $condition[] = ['finish_time', '>=', $start_time];
+            } elseif (empty($start_time) && !empty($end_time)) {
+                $condition[] = ['finish_time', '<=', $end_time];
+            } elseif (!empty($start_time) && !empty($end_time)) {
+                $condition[] = ['finish_time', 'between', [$start_time, $end_time]];
+            }
+
+            $field = 'order_id,order_no,order_money,refund_shop_money,platform_money,shop_money,order_status_name,finish_time';
+            return $order_common_model->getOrderPageList($condition, $page, $page_size, 'order_id desc', $field);
+        }
+
+        return $this->fetch('account/order_list', [], $this->replace);
+    }
 }

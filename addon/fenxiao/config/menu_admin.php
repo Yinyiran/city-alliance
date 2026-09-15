@@ -146,6 +146,23 @@ return [
 				]
 			],
 			[
+				'name' => 'PROMOTION_FENXIAO_MONEY',
+				'title' => '分销结算明细',
+				'url' => 'fenxiao://admin/fxorder/lists',
+				'is_show' => 1,
+				'is_control' => 1,
+				'is_icon' => 0,
+				'sort' => 4,
+				'child_list' => [
+					[
+						'name' => 'PROMOTION_FENXIAO_MONEY_DETAIL',
+						'title' => '分销结算详情',
+						'url' => 'fenxiao://admin/fxorder/detail',
+						'is_show' => 0,
+					],
+				]
+			],
+			[
 				'name' => 'PROMOTION_FENXIAO_WITHDRAW',
 				'title' => '提现管理',
 				'url' => 'fenxiao://admin/withdraw/lists',

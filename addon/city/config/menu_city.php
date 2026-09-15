@@ -124,6 +124,14 @@ return [
                         'picture' => '',
                         'sort' => 3,
                     ],
+                    [
+                        'name' => 'ADDON_CITY_SHOP_REVENUE_REPORT',
+                        'title' => '门店收益与业绩报表',
+                        'url' => 'city://city/shop/revenuereport',
+                        'is_show' => 1,
+                        'picture' => '',
+                        'sort' => 4,
+                    ],
                 ],
             ],
         ],
@@ -344,16 +352,14 @@ return [
                 'is_control' => 1,
                 'is_icon' => 0,
                 'sort' => 1,
-                'child_list' => [
-                    [
-                        'name' => 'ADDON_CITY_ACCOUNT_ORDERLIST',
-                        'title' => '交易记录',
-                        'url' => 'city://city/account/orderlist',
-                        'is_show' => 0,
-                        'is_control' => 1,
-                        'sort' => 1,
-                    ],
-                ]
+            ],
+            [
+                'name' => 'ADDON_CITY_ACCOUNT_ORDERLIST',
+                'title' => '分公司账户流水',
+                'url' => 'city://city/account/orderlist',
+                'is_show' => 1,
+                'is_control' => 1,
+                'sort' => 2,
             ],
             [
                 'name' => 'ADDON_CITY_ city://city_WITHDRAW',

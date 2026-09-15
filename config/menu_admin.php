@@ -976,6 +976,14 @@ return [
                 ]
             ],
             [
+                'name' => 'MEMBER_LEVEL_SETTLEMENT',
+                'title' => '开通分润明细',
+                'url' => 'admin/memberlevel/settlementlist',
+                'is_show' => 1,
+                'sort' => 4,
+                'child_list' => []
+            ],
+            [
                 'name' => 'MEMBER_LABEL',
                 'title' => '会员标签',
                 'url' => 'admin/memberlabel/labellist',

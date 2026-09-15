@@ -353,6 +353,38 @@ class MemberLevelSettlement extends BaseModel
     public function getSettlementPageList($condition = [], $page = 1, $page_size = PAGE_LIST_ROWS, $order = 'id desc', $field = '*')
     {
         $list = model('member_level_settlement')->pageList($condition, $field, $order, $page, $page_size);
+        if (!empty($list['list'])) {
+            foreach ($list['list'] as &$item) {
+                // 补充买家昵称/手机号
+                $buyer = Db::name('member')->where('member_id', $item['buy_member_id'])->field('nickname,mobile')->find();
+                $item['buy_nickname'] = $buyer['nickname'] ?? ('ID:' . $item['buy_member_id']);
+                $item['buy_mobile'] = $buyer['mobile'] ?? '';
+
+                // 补充邀约人
+                if ($item['invite_member_id'] > 0) {
+                    $inviter = Db::name('member')->where('member_id', $item['invite_member_id'])->field('nickname,mobile')->find();
+                    $item['invite_nickname'] = $inviter['nickname'] ?? ('ID:' . $item['invite_member_id']);
+                    $item['invite_mobile'] = $inviter['mobile'] ?? '';
+                } else {
+                    $item['invite_nickname'] = '无';
+                    $item['invite_mobile'] = '';
+                }
+
+                // 补充门店名称
+                if ($item['shop_id'] > 0) {
+                    $item['shop_name'] = Db::name('shop')->where('site_id', $item['shop_id'])->value('site_name') ?: ('门店ID:' . $item['shop_id']);
+                } else {
+                    $item['shop_name'] = '平台直属';
+                }
+
+                // 补充城市分站名称
+                if ($item['city_id'] > 0) {
+                    $item['city_name'] = Db::name('website')->where('site_id', $item['city_id'])->value('site_area_name') ?: ('分站ID:' . $item['city_id']);
+                } else {
+                    $item['city_name'] = '全国/总部';
+                }
+            }
+        }
         return $this->success($list);
     }
 }

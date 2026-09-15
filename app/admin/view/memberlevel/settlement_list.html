@@ -1,0 +1,223 @@
+{extend name="base"/}
+{block name="resources"}
+<style>
+    .ns-card-brief { margin-bottom: 15px; }
+    .status-badge-0 { background-color: #FAAD14; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+    .status-badge-1 { background-color: #52C41A; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+    .status-badge-2 { background-color: #F5222D; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+    .condition-tag-yes { color: #52C41A; font-weight: 500; }
+    .condition-tag-no { color: #999; }
+</style>
+{/block}
+{block name="main"}
+<div class="ns-card-brief">
+    <div class="ns-form-content">
+        <h2 class="ns-form-title">会员开通与购买分润结算明细</h2>
+    </div>
+</div>
+
+<!-- 筛选搜索 -->
+<div class="ns-single-filter-box">
+    <div class="layui-form">
+        <div class="layui-input-inline">
+            <input type="text" name="order_no" id="order_no" placeholder="请输入订单号" class="layui-input" autocomplete="off">
+        </div>
+        <div class="layui-input-inline">
+            <select name="status" id="status">
+                <option value="">全部结算状态</option>
+                <option value="0">冻结中 (待满足7天+消费)</option>
+                <option value="1">已解冻入账</option>
+                <option value="2">已作废/退款</option>
+            </select>
+        </div>
+        <button type="button" class="layui-btn layui-btn-primary" lay-filter="search" lay-submit>
+            <i class="layui-icon">&#xe615;</i> 搜索
+        </button>
+        <button type="button" class="layui-btn ns-bg-color" id="btnUnlock">
+            <i class="layui-icon">&#xe605;</i> 手动执行达标解冻
+        </button>
+    </div>
+</div>
+
+<!-- 分润结算明细表格 -->
+<table id="settlement_table" lay-filter="settlement_table"></table>
+
+<!-- 状态模板 -->
+<script type="text/html" id="statusTpl">
+    {{# if(d.status == 0){ }}
+        <span class="status-badge-0">冻结中</span>
+    {{# } else if(d.status == 1){ }}
+        <span class="status-badge-1">已解冻入账</span>
+    {{# } else if(d.status == 2){ }}
+        <span class="status-badge-2">已作废退款</span>
+    {{# } }}
+</script>
+
+<!-- 解冻条件模板 -->
+<script type="text/html" id="conditionTpl">
+    {{# if(d.invite_money > 0){ }}
+        <div style="font-size: 12px; line-height: 1.6;">
+            <div>7天无理由: {{# if(d.is_seven_days == 1){ }}<span class="condition-tag-yes">已满足</span>{{# } else { }}<span class="condition-tag-no">未满7天</span>{{# } }}</div>
+            <div>平台消费: {{# if(d.is_consume == 1){ }}<span class="condition-tag-yes">已消费</span>{{# } else { }}<span class="condition-tag-no">未产生消费</span>{{# } }}</div>
+        </div>
+    {{# } else { }}
+        <span style="color:#999;">无邀约奖励</span>
+    {{# } }}
+</script>
+
+<!-- 操作模板 -->
+<script type="text/html" id="actionTpl">
+    <div class="ns-table-btn">
+        {{# if(d.status != 2){ }}
+            <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="refund">退款作废</a>
+        {{# } else { }}
+            <span style="color: #999; font-size: 12px;">已冲正作废</span>
+        {{# } }}
+    </div>
+</script>
+{/block}
+
+{block name="script"}
+<script>
+    layui.use(['form', 'table', 'layer'], function() {
+        var form = layui.form,
+            table = layui.table,
+            layer = layui.layer;
+
+        form.render();
+
+        var settleTable = new Table({
+            elem: '#settlement_table',
+            url: ns.url("admin/memberlevel/settlementList"),
+            cols: [[
+                { field: 'order_no', title: '订单编号', width: '13%', unresize: true },
+                { 
+                    field: 'buy_nickname', 
+                    title: '购买会员', 
+                    width: '10%',
+                    templet: function(d) {
+                        return '<div>' + (d.buy_nickname || '-') + '</div><div style="font-size:11px;color:#888;">' + (d.buy_mobile || '') + '</div>';
+                    }
+                },
+                { 
+                    field: 'level_name', 
+                    title: '等级 / 实付', 
+                    width: '10%',
+                    templet: function(d) {
+                        return '<div><span class="layui-badge layui-bg-blue">' + d.level_name + '</span></div><div style="font-weight:bold;color:#ff5722;margin-top:2px;">￥' + Number(d.order_money).toFixed(2) + '</div>';
+                    }
+                },
+                { 
+                    title: '邀约人奖励', 
+                    width: '13%',
+                    templet: function(d) {
+                        if(Number(d.invite_money) > 0) {
+                            return '<div>' + (d.invite_nickname || '-') + '</div><div style="font-size:11px;color:#666;">比例: ' + d.invite_rate + '% (￥' + Number(d.invite_money).toFixed(2) + ')</div>';
+                        }
+                        return '<span style="color:#999;">无邀约人</span>';
+                    }
+                },
+                { title: '邀约解冻达标', width: '10%', templet: '#conditionTpl' },
+                { 
+                    title: '主理人门店 (25%)', 
+                    width: '12%',
+                    templet: function(d) {
+                        return '<div>' + (d.shop_name || '-') + '</div><div style="font-weight:bold;color:#1890ff;">￥' + Number(d.shop_money).toFixed(2) + '</div>';
+                    }
+                },
+                { 
+                    title: '城市分站 (25%)', 
+                    width: '11%',
+                    templet: function(d) {
+                        return '<div>' + (d.city_name || '-') + '</div><div style="font-weight:bold;color:#2f54eb;">￥' + Number(d.city_money).toFixed(2) + '</div>';
+                    }
+                },
+                { 
+                    field: 'platform_money', 
+                    title: '平台留存', 
+                    width: '8%',
+                    templet: function(d) {
+                        return '<span style="color:#52c41a;font-weight:bold;">￥' + Number(d.platform_money).toFixed(2) + '</span>';
+                    }
+                },
+                { field: 'status', title: '结算状态', width: '8%', templet: '#statusTpl', align: 'center' },
+                { 
+                    field: 'create_time', 
+                    title: '开通时间', 
+                    width: '11%',
+                    templet: function(d) {
+                        return ns.time_to_date(d.create_time);
+                    }
+                },
+                { title: '操作', width: '7%', templet: '#actionTpl', fixed: 'right', align: 'center' }
+            ]]
+        });
+
+        // 搜索筛选
+        form.on('submit(search)', function(data) {
+            settleTable.reload({
+                page: { curr: 1 },
+                where: data.field
+            });
+            return false;
+        });
+
+        // 手动执行达标解冻
+        $('#btnUnlock').on('click', function() {
+            var loadIndex = layer.load(2);
+            $.ajax({
+                url: ns.url("admin/memberlevel/cronUnlock"),
+                type: 'POST',
+                dataType: 'JSON',
+                success: function(res) {
+                    layer.close(loadIndex);
+                    if (res.code >= 0) {
+                        layer.msg(res.message || '执行成功', { icon: 1 });
+                        settleTable.reload();
+                    } else {
+                        layer.msg(res.message || '执行失败', { icon: 2 });
+                    }
+                },
+                error: function() {
+                    layer.close(loadIndex);
+                    layer.msg('网络异常，请重试', { icon: 2 });
+                }
+            });
+        });
+
+        // 退款作废事件
+        table.on('tool(settlement_table)', function(obj) {
+            var data = obj.data;
+            if (obj.event === 'refund') {
+                layer.confirm('确定要作废并冲正此会员分润记录吗？（若邀约人、门店、分公司已到账将对应扣减）', {
+                    title: '退款作废确认',
+                    icon: 3
+                }, function(index) {
+                    var loadIndex = layer.load(2);
+                    $.ajax({
+                        url: ns.url("admin/memberlevel/refundSettlement"),
+                        type: 'POST',
+                        data: { order_id: data.order_id },
+                        dataType: 'JSON',
+                        success: function(res) {
+                            layer.close(loadIndex);
+                            layer.close(index);
+                            if (res.code >= 0) {
+                                layer.msg('已成功作废冲正', { icon: 1 });
+                                settleTable.reload();
+                            } else {
+                                layer.msg(res.message || '作废失败', { icon: 2 });
+                            }
+                        },
+                        error: function() {
+                            layer.close(loadIndex);
+                            layer.close(index);
+                            layer.msg('操作失败', { icon: 2 });
+                        }
+                    });
+                });
+            }
+        });
+    });
+</script>
+{/block}
