@@ -94,6 +94,29 @@ class Rules extends BaseModel
     }
 
     /**
+     * 删除签到规则
+     * @param int|array $rules_id
+     * @return array
+     */
+    public function delrules($rules_id)
+    {
+        if (empty($rules_id)) {
+            return $this->error("请选择要删除的规则");
+        }
+
+        try {
+            $res = Db::name('sign_rules')->whereIn('rules_id', $rules_id)->delete();
+            if ($res) {
+                return $this->success("删除成功");
+            } else {
+                return $this->error("规则不存在或已被删除");
+            }
+        } catch (\Exception $e) {
+            return $this->error("删除失败: " . $e->getMessage());
+        }
+    }
+
+    /**
      * 获取指定规则
      */
     public function getrules($title){

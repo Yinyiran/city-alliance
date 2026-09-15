@@ -109,6 +109,7 @@
 <script type="text/html" id="action">
 	<div class="ns-table-btn">
 		<a class="layui-btn" lay-event="edits">编辑</a>
+		<a class="layui-btn" lay-event="delete">删除</a>
 	</div>
 </script>
 {/block}
@@ -161,7 +162,7 @@
 						}
 					}, {
 						title: '操作',
-						width: '7%',
+						width: '15%',
 						unresize: 'false',
 						toolbar: '#action'
 					}
@@ -180,9 +181,37 @@
 					$("#goods_id").hide();
 					editrules(data);
 					break;
-
+				case 'delete': //删除
+					deleterules(data.rules_id);
+					break;
 			}
 		});
+
+		function deleterules(rules_id) {
+			if (repeat_flag) return;
+			repeat_flag = true;
+			layer.confirm('确定要删除该签到规则吗？', function () {
+				$.ajax({
+					url: ns.url("admin/sign/delrules"),
+					data: { rules_id: rules_id },
+					dataType: 'JSON',
+					type: 'POST',
+					success: function (res) {
+						layer.msg(res.message);
+						repeat_flag = false;
+						if (res.code == 0) {
+							table.reload();
+						}
+					},
+					error: function () {
+						repeat_flag = false;
+					}
+				});
+			}, function () {
+				repeat_flag = false;
+				layer.close();
+			});
+		}
 
 		$(document).click(function (event) {
 			if ($(event.target).attr('lay-event') != 'more' && $('.more-operation').not(':hidden').length) {

@@ -106,6 +106,26 @@ class Sign extends BaseAdmin
     }
 
     /**
+     * 删除规则
+     */
+    public function delrules()
+    {
+        if (request()->isAjax()) {
+            $rules_id = input('rules_id', '');
+            if (empty($rules_id)) {
+                return error(-1, "请选择要删除的规则");
+            }
+            $res = $this->modelrules->delrules($rules_id);
+            return $res;
+        }
+    }
+
+    public function deleterules()
+    {
+        return $this->delrules();
+    }
+
+    /**
      * 商家签到记录
      */
     public function shoplists(){
