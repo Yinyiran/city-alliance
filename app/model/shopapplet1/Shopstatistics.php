@@ -273,7 +273,7 @@ class Shopstatistics extends BaseModel
         ) mf";
         $lists=Db::name("shop")->alias("s")
             ->join($sql,"mf.site_id=s.site_id","left")
-            ->field("s.site_name,s.logo,order_count,s.site_id")
+            ->field("s.site_name,s.logo,s.logo as shop_logo,order_count,s.site_id")
             ->where("s.website_id=".$website_id)
             ->group("s.site_id")
             ->order("order_count desc")
@@ -292,7 +292,7 @@ class Shopstatistics extends BaseModel
         ) mf";
         $lists=Db::name("shop")->alias("s")
             ->join($sql,"mf.site_id=s.site_id and s.site_id<>mf.se_site_id","left")
-            ->field("count(order_id) as order_count,s.site_name,s.logo")
+            ->field("count(order_id) as order_count,s.site_name,s.logo,s.logo as shop_logo")
             ->where("s.website_id=".$website_id)
             ->group("s.site_id")
             ->order("order_count desc")
@@ -311,7 +311,7 @@ class Shopstatistics extends BaseModel
         ) mf";
         $lists=Db::name("shop")->alias("s")
             ->join($sql,"mf.site_id<>s.site_id and s.site_id=mf.se_site_id","left")
-            ->field("count(order_id) as order_count,s.site_name,s.logo")
+            ->field("count(order_id) as order_count,s.site_name,s.logo,s.logo as shop_logo")
             ->where("s.website_id=".$website_id)
             ->group("s.site_id")
             ->order("order_count desc")
