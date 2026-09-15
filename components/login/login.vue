@@ -1,7 +1,7 @@
 <template>
 	<view>
 		<!-- 第一步：手机号快捷登录 -->
-		<uv-popup ref="showpopref" :zIndex="10070" round="10" mode="bottom">
+		<uv-popup ref="showpopref" :zIndex="10070" round="10" mode="bottom" closeable @close="onPopupClose">
 			<view class="activity-box ">
 				<view class="">
 					<view class="tit">
@@ -18,6 +18,9 @@
 							@getphonenumber="getPhoneNumber">
 							手机号快捷登录
 						</button>
+						<view class="no-prompt-action" @click="handleNoPrompt">
+							<text>不再提示</text>
+						</view>
 						<view class="xieyibox m-t-38 p-b-70">
 							<radio value="" style="transform: scale(0.8);" :checked="is_show"
 								@click="is_show=!is_show" />
@@ -66,6 +69,17 @@
 				</scroll-view>
 			</view>
 		</uv-popup>
+
+		<!-- 底部浮动提示条：当用户点击了“不再提示”且未登录时显示 -->
+		<view v-if="showBottomBar" class="login-bottom-bar acea-row row-middle row-between">
+			<view class="acea-row row-middle bar-left">
+				<image src="/static/avatar.png" class="bar-avatar" mode="aspectFill"></image>
+				<text class="bar-tip">您当前处于未登录状态</text>
+			</view>
+			<view class="bar-btn acea-row row-middle row-center" @click="open(true)">
+				<text>请登录</text>
+			</view>
+		</view>
 	</view>
 </template>
 
@@ -92,13 +106,52 @@
 					logo: ""
 				},
 				suid: '',
-				weapp_openid: ""
+				weapp_openid: "",
+				noPrompt: false,
+				isLoggedIn: false
 			};
+		},
+		computed: {
+			showBottomBar() {
+				return !this.isLoggedIn && this.noPrompt;
+			}
 		},
 		created() {
 			this.suid = uni.getStorageSync('invite_code') || ''
+			this.checkLoginStatus()
+			uni.$on('loginChange', this.onLoginChange)
+		},
+		beforeDestroy() {
+			uni.$off('loginChange', this.onLoginChange)
+		},
+		unmounted() {
+			uni.$off('loginChange', this.onLoginChange)
 		},
 		methods: {
+			checkLoginStatus() {
+				this.isLoggedIn = !!uni.getStorageSync('token')
+				this.noPrompt = !!uni.getStorageSync('login_no_prompt')
+			},
+			onLoginChange(data) {
+				if (data && data.isLogin) {
+					this.isLoggedIn = true
+					this.noPrompt = false
+					uni.removeStorageSync('login_no_prompt')
+				} else if (data && data.isLogin === false) {
+					this.isLoggedIn = false
+					this.noPrompt = !!uni.getStorageSync('login_no_prompt')
+				} else {
+					this.checkLoginStatus()
+				}
+			},
+			handleNoPrompt() {
+				this.noPrompt = true
+				uni.setStorageSync('login_no_prompt', true)
+				this.close()
+			},
+			onPopupClose() {
+				// 弹窗关闭
+			},
 			handleNicknameInput() {
 				// 允许中英文、数字、下划线和部分常用符号
 				const allowedChars = /[^\u4e00-\u9fa5a-zA-Z0-9_·]/g
@@ -145,7 +198,14 @@
 				this.$refs.infopopref.close()
 				this.$emit('loginsuccess')
 			},
-			async open() {
+			async open(force = false) {
+				this.checkLoginStatus()
+				if (this.isLoggedIn) {
+					return
+				}
+				if (this.noPrompt && !force) {
+					return
+				}
 				await this.index()
 				await this.Synopsis()
 				this.$refs.showpopref.open()
@@ -209,6 +269,9 @@
 						mobileauth(params).then(res => {
 							uni.hideLoading()
 							uni.setStorageSync('token', res.data.token)
+							this.isLoggedIn = true
+							this.noPrompt = false
+							uni.removeStorageSync('login_no_prompt')
 							// 登录成功，检查是否已设置昵称
 							this.checkNeedInfo()
 						}).catch(() => {
@@ -222,6 +285,9 @@
 			},
 			// 检查用户资料是否完善，未设置昵称则弹出完善资料弹窗
 			async checkNeedInfo() {
+				this.isLoggedIn = true
+				this.noPrompt = false
+				uni.removeStorageSync('login_no_prompt')
 				try {
 					const res = await userinfo()
 					const info = res.data || {}
@@ -281,6 +347,9 @@
 					title: "设置成功",
 					icon: 'none'
 				})
+				this.isLoggedIn = true
+				this.noPrompt = false
+				uni.removeStorageSync('login_no_prompt')
 				// 直接通知父级登录成功（不依赖 popup 的 close 事件链）
 				this.avatar = ''
 				this.nickname = ''
@@ -394,11 +463,25 @@
 		.opt-box {
 			margin-top: 52rpx;
 
+			.no-prompt-action {
+				margin-top: 24rpx;
+				text-align: center;
+				font-size: 26rpx;
+				color: #8D93A5;
+				padding: 10rpx 0;
+				cursor: pointer;
+
+				&:active {
+					opacity: 0.7;
+				}
+			}
+
 			.xieyibox {
 				display: flex;
 				align-items: center;
 				flex-wrap: wrap;
 				justify-content: flex-start;
+				margin-top: 30rpx;
 				margin-bottom: 16rpx;
 
 				.circle {
@@ -451,5 +534,69 @@
 
 	.public_btn {
 		background: linear-gradient( 90deg, #F5AB18 0%, #F55606 100%) !important;
+	}
+
+	.login-bottom-bar {
+		position: fixed;
+		left: 30rpx;
+		right: 30rpx;
+		bottom: calc(var(--window-bottom, 0px) + 24rpx);
+		z-index: 9990;
+		height: 88rpx;
+		background: rgba(28, 39, 76, 0.92);
+		backdrop-filter: blur(10px);
+		border-radius: 44rpx;
+		padding: 0 16rpx 0 24rpx;
+		box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.15);
+		box-sizing: border-box;
+		animation: slideUp 0.3s ease-out;
+
+		.bar-left {
+			flex: 1;
+			overflow: hidden;
+			margin-right: 20rpx;
+
+			.bar-avatar {
+				width: 52rpx;
+				height: 52rpx;
+				border-radius: 50%;
+				margin-right: 16rpx;
+				flex-shrink: 0;
+			}
+
+			.bar-tip {
+				font-size: 26rpx;
+				color: #FFFFFF;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+		}
+
+		.bar-btn {
+			padding: 0 32rpx;
+			height: 60rpx;
+			background: linear-gradient(90deg, #F5AB18 0%, #F55606 100%);
+			border-radius: 30rpx;
+			color: #FFFFFF;
+			font-size: 26rpx;
+			font-weight: 500;
+			flex-shrink: 0;
+
+			&:active {
+				opacity: 0.9;
+			}
+		}
+	}
+
+	@keyframes slideUp {
+		from {
+			transform: translateY(100%);
+			opacity: 0;
+		}
+		to {
+			transform: translateY(0);
+			opacity: 1;
+		}
 	}
 </style>
