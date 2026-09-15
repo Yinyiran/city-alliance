@@ -136,6 +136,8 @@ class ShopEmployee extends BaseModel
             if ($member_id > 0) {
                 Db::name("member")->where("member_id", $member_id)->update(['site_id' => $params["shop_id"]]);
             }
+            // 设为员工后，自动将该账号升级为合伙人
+            self::syncMemberPartnerLevel($member_id, $mobile);
             return $this->success("操作成功");
         }else{
             return $this->error("新增失败");
@@ -296,8 +298,56 @@ class ShopEmployee extends BaseModel
 
     }
 
+    /**
+     * 确保店长和员工自动成为合伙人（member_level = 4）
+     * 无论何时被设为店长/员工，或者员工/店长登录时，均自动执行同步
+     */
+    public static function syncMemberPartnerLevel($member_id = 0, $mobile = '')
+    {
+        if (empty($member_id) && empty($mobile)) return false;
 
+        $member_query = Db::name('member');
+        if (!empty($member_id)) {
+            $member_query->where('member_id', $member_id);
+        } else {
+            $member_query->where('mobile', $mobile);
+        }
+        $member = $member_query->find();
+        if (empty($member)) return false;
 
-    
+        $target_member_id = $member['member_id'];
+        $target_mobile = $member['mobile'] ?: $mobile;
+
+        // 查询该会员是否在有效员工表记录中（主理人 或 员工）
+        $is_employee = Db::name('shop_employee')
+            ->where('is_deleted', 0)
+            ->where(function ($query) use ($target_member_id, $target_mobile) {
+                $query->where('member_id', $target_member_id);
+                if (!empty($target_mobile)) {
+                    $query->whereOr('mobile', $target_mobile);
+                }
+            })
+            ->find();
+
+        if ($is_employee) {
+            // 反向回填 shop_employee 的 member_id（若此前为空）
+            if (empty($is_employee['member_id']) || $is_employee['member_id'] != $target_member_id) {
+                Db::name('shop_employee')->where('employee_id', $is_employee['employee_id'])->update([
+                    'member_id' => $target_member_id
+                ]);
+            }
+
+            // 升级会员等级为 4 (合伙人)
+            if ($member['member_level'] != 4) {
+                Db::name('member')->where('member_id', $target_member_id)->update([
+                    'member_level' => 4,
+                    'member_level_name' => '合伙人'
+                ]);
+            }
+            return true;
+        }
+
+        return false;
+    }
 
 }

@@ -75,13 +75,17 @@ class Login extends BaseApi
                 $login = new LoginModel();
                 $res   = $login->mobileLogin($this->params);
                 if ($res['code'] >= 0) {
-                    $token = $this->createToken($res['data']['member_id']);
+                    $member_id = $res['data']['member_id'];
+                    EmployeeModel::syncMemberPartnerLevel($member_id, $this->params['mobile']);
+                    $token = $this->createToken($member_id);
                     $res   = $this->success(['token' => $token]);
                 }
             } else {
                 $res = $register->mobileRegister($this->params);
                 if ($res['code'] >= 0) {
-                    $token = $this->createToken($res['data']);
+                    $member_id = $res['data'];
+                    EmployeeModel::syncMemberPartnerLevel($member_id, $this->params['mobile']);
+                    $token = $this->createToken($member_id);
                     $res   = $this->success(['token' => $token]);
                 }
             }

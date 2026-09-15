@@ -232,6 +232,9 @@ class Shop extends Common
     /**
      * 主理人收益看板汇总数据 (带单收益及会员收益)
      */
+    /**
+     * 商家端收益看板汇总数据 (支持老板与员工双角色自适应)
+     */
     public function getIncomeSummary()
     {
         $site_id = request()->param("site_id", $this->site_id);
@@ -244,59 +247,114 @@ class Shop extends Common
             return $this->response($this->error('', '店铺不存在'));
         }
 
-        // 获取店铺员工/主理人关联的 member_id 集合
-        $employee_members = Db::name('shop_employee')
+        $this->checkToken();
+        $curr_member_id = $this->member_id;
+
+        // 判断当前登录者是主理人(老板)还是普通员工
+        $emp = Db::name('shop_employee')
             ->where('shop_id', $site_id)
+            ->where('member_id', $curr_member_id)
             ->where('is_deleted', 0)
-            ->column('member_id');
-        if (!empty($shop['member_id']) && !in_array($shop['member_id'], $employee_members)) {
-            $employee_members[] = $shop['member_id'];
-        }
-        if (empty($employee_members)) {
-            $employee_members = [0];
+            ->find();
+
+        $is_manager = 0;
+        if (($emp && $emp['is_manager'] == 1) || ($shop['member_id'] == $curr_member_id)) {
+            $is_manager = 1;
         }
 
-        // 1. 带单收益统计 (主理人 2% 带单佣金)
         $today_start = strtotime(date('Y-m-d 00:00:00'));
         $month_start = strtotime(date('Y-m-01 00:00:00'));
 
-        $bring_total_income = floatval(Db::name('fenxiao_money')
-            ->where('staff_member_id', 'in', $employee_members)
-            ->sum('staff_commission'));
-        $bring_today_income = floatval(Db::name('fenxiao_money')
-            ->where('staff_member_id', 'in', $employee_members)
-            ->where('create_time', '>=', $today_start)
-            ->sum('staff_commission'));
-        $bring_month_income = floatval(Db::name('fenxiao_money')
-            ->where('staff_member_id', 'in', $employee_members)
-            ->where('create_time', '>=', $month_start)
-            ->sum('staff_commission'));
-        $bring_order_count = Db::name('fenxiao_money')
-            ->where('staff_member_id', 'in', $employee_members)
-            ->count();
+        if ($is_manager == 1) {
+            // ==================== 1. 老板角色（主理人2%带单 + 25%会员总业绩） ====================
+            $employee_members = Db::name('shop_employee')
+                ->where('shop_id', $site_id)
+                ->where('is_deleted', 0)
+                ->column('member_id');
+            if (!empty($shop['member_id']) && !in_array($shop['member_id'], $employee_members)) {
+                $employee_members[] = $shop['member_id'];
+            }
+            if (empty($employee_members)) $employee_members = [0];
 
-        // 2. 会员收益统计 (主理人 25% 会员总业绩 + 老板主动开通合伙人分成)
-        $member_total_income = floatval(Db::name('member_level_settlement')
-            ->where('shop_id', $site_id)
-            ->sum('shop_money'));
-        $member_today_income = floatval(Db::name('member_level_settlement')
-            ->where('shop_id', $site_id)
-            ->where('create_time', '>=', $today_start)
-            ->sum('shop_money'));
-        $member_month_income = floatval(Db::name('member_level_settlement')
-            ->where('shop_id', $site_id)
-            ->where('create_time', '>=', $month_start)
-            ->sum('shop_money'));
-        $member_order_count = Db::name('member_level_settlement')
-            ->where('shop_id', $site_id)
-            ->count();
+            $bring_total_income = floatval(Db::name('fenxiao_money')
+                ->where('staff_member_id', 'in', $employee_members)
+                ->sum('staff_commission'));
+            $bring_today_income = floatval(Db::name('fenxiao_money')
+                ->where('staff_member_id', 'in', $employee_members)
+                ->where('create_time', '>=', $today_start)
+                ->sum('staff_commission'));
+            $bring_month_income = floatval(Db::name('fenxiao_money')
+                ->where('staff_member_id', 'in', $employee_members)
+                ->where('create_time', '>=', $month_start)
+                ->sum('staff_commission'));
+            $bring_order_count = Db::name('fenxiao_money')
+                ->where('staff_member_id', 'in', $employee_members)
+                ->count();
 
-        // 3. 汇总数据
+            $member_total_income = floatval(Db::name('member_level_settlement')
+                ->where('shop_id', $site_id)
+                ->sum('shop_money'));
+            $member_today_income = floatval(Db::name('member_level_settlement')
+                ->where('shop_id', $site_id)
+                ->where('create_time', '>=', $today_start)
+                ->sum('shop_money'));
+            $member_month_income = floatval(Db::name('member_level_settlement')
+                ->where('shop_id', $site_id)
+                ->where('create_time', '>=', $month_start)
+                ->sum('shop_money'));
+            $member_order_count = Db::name('member_level_settlement')
+                ->where('shop_id', $site_id)
+                ->count();
+
+            $role = 'manager';
+            $role_name = '主理人/店长';
+        } else {
+            // ==================== 2. 员工角色（员工本人1%带单 + 作为合伙人的会员推广奖励） ====================
+            $target_member_id = $curr_member_id ?: 0;
+
+            $bring_total_income = floatval(Db::name('fenxiao_money')
+                ->where('staff_member_id', $target_member_id)
+                ->sum('staff_commission'));
+            $bring_today_income = floatval(Db::name('fenxiao_money')
+                ->where('staff_member_id', $target_member_id)
+                ->where('create_time', '>=', $today_start)
+                ->sum('staff_commission'));
+            $bring_month_income = floatval(Db::name('fenxiao_money')
+                ->where('staff_member_id', $target_member_id)
+                ->where('create_time', '>=', $month_start)
+                ->sum('staff_commission'));
+            $bring_order_count = Db::name('fenxiao_money')
+                ->where('staff_member_id', $target_member_id)
+                ->count();
+
+            // 员工作为合伙人享受的邀约会员奖励
+            $member_total_income = floatval(Db::name('member_level_settlement')
+                ->where('invite_member_id', $target_member_id)
+                ->sum('invite_money'));
+            $member_today_income = floatval(Db::name('member_level_settlement')
+                ->where('invite_member_id', $target_member_id)
+                ->where('create_time', '>=', $today_start)
+                ->sum('invite_money'));
+            $member_month_income = floatval(Db::name('member_level_settlement')
+                ->where('invite_member_id', $target_member_id)
+                ->where('create_time', '>=', $month_start)
+                ->sum('invite_money'));
+            $member_order_count = Db::name('member_level_settlement')
+                ->where('invite_member_id', $target_member_id)
+                ->count();
+
+            $role = 'staff';
+            $role_name = '门店员工';
+        }
+
         $data = [
             'site_id' => $site_id,
             'site_name' => $shop['site_name'],
-            'account' => floatval($shop['account']), // 可提现余额
-            'account_withdraw' => floatval($shop['account_withdraw']), // 已提现金额
+            'role' => $role,
+            'is_manager' => $is_manager,
+            'role_name' => $role_name,
+            'account' => floatval($shop['account']),
+            'account_withdraw' => floatval($shop['account_withdraw']),
             'bring_income' => [
                 'total' => $bring_total_income,
                 'today' => $bring_today_income,
@@ -309,14 +367,15 @@ class Shop extends Common
                 'month' => $member_month_income,
                 'count' => $member_order_count,
             ],
-            'withdraw_rate' => 0.35, // 提现手续费 0.35%
+            'total_income' => round($bring_total_income + $member_total_income, 2),
+            'withdraw_rate' => 0.35,
         ];
 
         return $this->response($this->success($data));
     }
 
     /**
-     * 商家带单收益订单明细
+     * 商家带单收益订单明细 (自适应老板与员工)
      */
     public function getBringOrderList()
     {
@@ -324,26 +383,50 @@ class Shop extends Common
         $page = request()->param("page", 1);
         $page_size = request()->param("page_size", PAGE_LIST_ROWS);
 
-        $employee_members = Db::name('shop_employee')
-            ->where('shop_id', $site_id)
-            ->where('is_deleted', 0)
-            ->column('member_id');
-        if (empty($employee_members)) $employee_members = [0];
+        $this->checkToken();
+        $curr_member_id = $this->member_id;
 
-        $list = Db::name('fenxiao_money')
-            ->where('staff_member_id', 'in', $employee_members)
-            ->order('create_time desc')
-            ->paginate(['list_rows' => $page_size, 'page' => $page]);
+        $shop = Db::name('shop')->where('site_id', $site_id)->find();
+        $emp = Db::name('shop_employee')
+            ->where('shop_id', $site_id)
+            ->where('member_id', $curr_member_id)
+            ->where('is_deleted', 0)
+            ->find();
+
+        $is_manager = (($emp && $emp['is_manager'] == 1) || ($shop && $shop['member_id'] == $curr_member_id)) ? 1 : 0;
+
+        if ($is_manager == 1) {
+            $employee_members = Db::name('shop_employee')
+                ->where('shop_id', $site_id)
+                ->where('is_deleted', 0)
+                ->column('member_id');
+            if (!empty($shop['member_id']) && !in_array($shop['member_id'], $employee_members)) {
+                $employee_members[] = $shop['member_id'];
+            }
+            if (empty($employee_members)) $employee_members = [0];
+
+            $list = Db::name('fenxiao_money')
+                ->where('staff_member_id', 'in', $employee_members)
+                ->order('create_time desc')
+                ->paginate(['list_rows' => $page_size, 'page' => $page]);
+        } else {
+            // 员工仅查看自己带单提成
+            $list = Db::name('fenxiao_money')
+                ->where('staff_member_id', $curr_member_id ?: 0)
+                ->order('create_time desc')
+                ->paginate(['list_rows' => $page_size, 'page' => $page]);
+        }
 
         return $this->response($this->success([
             'list' => $list->items(),
             'total' => $list->total(),
+            'is_manager' => $is_manager,
             'page_count' => ceil($list->total() / $page_size)
         ]));
     }
 
     /**
-     * 商家会员收益订单明细
+     * 商家会员收益订单明细 (自适应老板与员工)
      */
     public function getMemberIncomeList()
     {
@@ -351,16 +434,39 @@ class Shop extends Common
         $page = request()->param("page", 1);
         $page_size = request()->param("page_size", PAGE_LIST_ROWS);
 
-        $list = Db::name('member_level_settlement')->alias('mls')
-            ->leftJoin('member m', 'm.member_id = mls.buy_member_id')
-            ->field('mls.*, m.nickname, m.headimg, m.mobile')
-            ->where('mls.shop_id', $site_id)
-            ->order('mls.create_time desc')
-            ->paginate(['list_rows' => $page_size, 'page' => $page]);
+        $this->checkToken();
+        $curr_member_id = $this->member_id;
+
+        $shop = Db::name('shop')->where('site_id', $site_id)->find();
+        $emp = Db::name('shop_employee')
+            ->where('shop_id', $site_id)
+            ->where('member_id', $curr_member_id)
+            ->where('is_deleted', 0)
+            ->find();
+
+        $is_manager = (($emp && $emp['is_manager'] == 1) || ($shop && $shop['member_id'] == $curr_member_id)) ? 1 : 0;
+
+        if ($is_manager == 1) {
+            $list = Db::name('member_level_settlement')->alias('mls')
+                ->leftJoin('member m', 'm.member_id = mls.buy_member_id')
+                ->field('mls.*, m.nickname, m.headimg, m.mobile')
+                ->where('mls.shop_id', $site_id)
+                ->order('mls.create_time desc')
+                ->paginate(['list_rows' => $page_size, 'page' => $page]);
+        } else {
+            // 员工查看自己作为合伙人邀请的会员收益明细
+            $list = Db::name('member_level_settlement')->alias('mls')
+                ->leftJoin('member m', 'm.member_id = mls.buy_member_id')
+                ->field('mls.*, m.nickname, m.headimg, m.mobile')
+                ->where('mls.invite_member_id', $curr_member_id ?: 0)
+                ->order('mls.create_time desc')
+                ->paginate(['list_rows' => $page_size, 'page' => $page]);
+        }
 
         return $this->response($this->success([
             'list' => $list->items(),
             'total' => $list->total(),
+            'is_manager' => $is_manager,
             'page_count' => ceil($list->total() / $page_size)
         ]));
     }

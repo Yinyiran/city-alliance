@@ -1066,6 +1066,12 @@ class Shop extends BaseCity
                 'website_id' => $shop['website_id'],
                 'headimg' => $image_url,
             ]);
+            if ($res) {
+                if ($is_manager) {
+                    \think\facade\Db::name('shop')->where('site_id', $site_id)->update(['zlr_employee_id' => $res]);
+                }
+                \app\model\shopapplet\ShopEmployee::syncMemberPartnerLevel(0, $username);
+            }
             $res = (new BaseModel())->success($res);
             return $res;
         } else {
@@ -1120,6 +1126,12 @@ class Shop extends BaseCity
                 'website_id' => $shop['website_id'],
                 'headimg' => $image_url,
             ], ['employee_id' => $id]);
+            if ($res) {
+                if ($is_manager) {
+                    \think\facade\Db::name('shop')->where('site_id', $site_id)->update(['zlr_employee_id' => $id]);
+                }
+                \app\model\shopapplet\ShopEmployee::syncMemberPartnerLevel(0, $username);
+            }
             $res = (new BaseModel())->success($res);
             return $res;
         } else {

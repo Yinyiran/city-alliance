@@ -58,6 +58,16 @@ class Member extends BaseApi
         $member_model = new MemberModel();
         $info = $member_model->getMemberInfo([ [ 'member_id', '=', $token[ 'data' ][ 'member_id' ] ] ], 'member_id,source_member,username,nickname,mobile,email,password,status,headimg,member_level,member_level_name,member_label,member_label_name,qq,qq_openid,wx_openid,wx_unionid,ali_openid,baidu_openid,toutiao_openid,douyin_openid,realname,sex,location,birthday,point,balance,balance_money,growth,sign_days_series,is_edit_username,website_id,site_id');
         if (!empty($info[ 'data' ])) {
+            // 店长/员工自动成为合伙人同步
+            \app\model\shopapplet\ShopEmployee::syncMemberPartnerLevel($info['data']['member_id'], $info['data']['mobile']);
+            if ($info['data']['member_level'] != 4) {
+                // 如果刚刚被升级，重新拉取一次等级
+                $latest = \think\facade\Db::name('member')->where('member_id', $info['data']['member_id'])->field('member_level,member_level_name')->find();
+                if ($latest && $latest['member_level'] == 4) {
+                    $info['data']['member_level'] = 4;
+                    $info['data']['member_level_name'] = '合伙人';
+                }
+            }
             $info[ 'data' ][ 'password' ] = empty($info[ 'data' ][ 'password' ]) ? 0 : 1;
             $member_level_model = new MemberLevelModel();
             $member_level_result = $member_level_model->getMemberLevelInfo([ [ 'level_id', '=', $info[ 'data' ][ 'member_level' ] ] ]);
