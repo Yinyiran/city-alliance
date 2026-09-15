@@ -379,8 +379,8 @@ export default {
 			})
 		},
 		gonext(e) {
-			if (!this.token) {
-				this.$refs.login.open()
+			if (e == 'next') {
+				this.$refs.login.open(true)
 				return
 			}
 			if (e == 'waitpay') {

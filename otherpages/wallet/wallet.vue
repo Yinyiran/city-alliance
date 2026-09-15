@@ -5,7 +5,7 @@
 		<view class="mains">
 			<image src="/otherpages/static/img2.png" mode=""></image>
 			<view class="fcolor">账户总余额 (元)</view>
-			<view class="fcolor1 font-weight-6 font-56">{{(parseFloat(info.balance) + parseFloat(info.balance_money)).toFixed(2)}}</view>
+			<view class="fcolor1 font-weight-6 font-56">{{((parseFloat(info.balance || 0) + parseFloat(info.balance_money || 0)) || 0).toFixed(2)}}</view>
 			<view class="acea-row row-middle m-t-20">
 				<view class="">
 					<view class="fcolor">今日现金奖励 (元)</view>

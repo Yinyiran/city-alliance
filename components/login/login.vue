@@ -464,11 +464,12 @@
 			margin-top: 52rpx;
 
 			.no-prompt-action {
-				margin-top: 24rpx;
+				margin-top: 28rpx;
 				text-align: center;
-				font-size: 26rpx;
+				font-size: 32rpx;
+				font-weight: 500;
 				color: #8D93A5;
-				padding: 10rpx 0;
+				padding: 16rpx 0;
 				cursor: pointer;
 
 				&:active {
