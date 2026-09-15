@@ -168,7 +168,21 @@ class Login extends BaseApi
             $login = new LoginModel();
             $res = $login->mobileLogin($this->params);
             if ($res[ 'code' ] >= 0) {
-                $token = $this->createToken($res[ 'data' ][ 'member_id' ]);
+                $member_id = $res[ 'data' ][ 'member_id' ];
+                $update_data = [];
+                $exist_member = \think\facade\Db::name('member')->where('member_id', $member_id)->field('member_id,site_id,source_member')->find();
+                if (!empty($exist_member)) {
+                    if (empty($exist_member['site_id']) && !empty($this->params['site_id'])) {
+                        $update_data['site_id'] = (int)$this->params['site_id'];
+                    }
+                    if (empty($exist_member['source_member']) && !empty($this->params['suid']) && $this->params['suid'] != $member_id) {
+                        $update_data['source_member'] = (int)$this->params['suid'];
+                    }
+                    if (!empty($update_data)) {
+                        \think\facade\Db::name('member')->where('member_id', $member_id)->update($update_data);
+                    }
+                }
+                $token = $this->createToken($member_id);
                 $res = $this->success([ 'token' => $token ]);
             }
         } else {

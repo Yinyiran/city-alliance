@@ -92,7 +92,8 @@ class Poster extends BaseModel
             $option_res = $poster->create($option);
             if (is_array($option_res)) return $option_res;
 
-            $res = $option_res->jpeg('upload/poster/distribution', 'distribution_' . $qrcode_param[ 'suid' ] . '_' . $app_type);
+            $site_id = !empty($qrcode_param['site_id']) ? $qrcode_param['site_id'] : 0;
+            $res = $option_res->jpeg('upload/poster/distribution', 'distribution_' . $qrcode_param[ 'suid' ] . '_' . $site_id . '_' . $app_type);
             return $res;
         } catch (\Exception $e) {
             return $this->error($e->getMessage() . $e->getFile() . $e->getLine());
@@ -118,13 +119,14 @@ class Poster extends BaseModel
      */
     private function getQrcode($app_type, $page, $qrcode_param)
     {
+        $site_id = !empty($qrcode_param['site_id']) ? $qrcode_param['site_id'] : 0;
         $res = event('Qrcode', [
             'app_type' => $app_type,
             'type' => 'get',
             'data' => $qrcode_param,
             'page' => $page,
             'qrcode_path' => 'upload/qrcode/distribution',
-            'qrcode_name' => 'distribution' . '_' . $qrcode_param[ 'suid' ],
+            'qrcode_name' => 'distribution_' . $qrcode_param[ 'suid' ] . '_' . $site_id,
         ], true);
         return $res;
     }

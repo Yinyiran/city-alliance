@@ -117,6 +117,15 @@ class Fenxiao extends BaseApi
         $qrcode_param = json_decode($qrcode_param, true);
         $qrcode_param[ 'suid' ] = $this->member_id;
 
+        // 确保包含邀请人所属门店ID
+        if (empty($qrcode_param['site_id'])) {
+            $member_model = new \app\model\member\Member();
+            $member_info = $member_model->getMemberInfo([['member_id', '=', $this->member_id]], 'site_id');
+            if (!empty($member_info['data']['site_id'])) {
+                $qrcode_param['site_id'] = $member_info['data']['site_id'];
+            }
+        }
+
         $poster = new Poster();
         $res = $poster->distribution($this->params[ 'app_type' ], $this->params[ 'page' ], $qrcode_param);
 
