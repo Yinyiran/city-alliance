@@ -4,53 +4,71 @@
 		<image src="/otherpages/static/bg7.png" class="bgs" mode=""></image>
 		<view class="mains">
 			<image src="/otherpages/static/img2.png" mode=""></image>
-			<view class="fcolor">账户总余额 (元)</view>
-			<view class="fcolor1 font-weight-6 font-56">{{((parseFloat(info.balance || 0) + parseFloat(info.balance_money || 0)) || 0).toFixed(2)}}</view>
-			<view class="acea-row row-middle m-t-20">
-				<view class="">
-					<view class="fcolor">今日现金奖励 (元)</view>
-					<view class="fcolor1 font-weight-6 font-32">{{today_money}}</view>
+			<view class="fcolor font-24">账户总余额 (元)</view>
+			<view class="fcolor1 font-weight-6 font-56 m-t-8">{{((parseFloat(info.balance || 0) + parseFloat(info.balance_money || 0)) || 0).toFixed(2)}}</view>
+
+			<view class="reward-section m-t-24">
+				<!-- 第一行：今日现金奖励 + 收益明细 + 提现 -->
+				<view class="reward-row acea-row row-middle row-between">
+					<view class="row-label-val acea-row row-middle">
+						<text class="fcolor font-24">今日现金奖励</text>
+						<text class="fcolor1 font-weight-6 font-30 m-l-12">￥{{today_money || '0.00'}}</text>
+					</view>
+					<view class="row-actions acea-row row-middle">
+						<view class="btn-action acea-row row-middle row-center" @click="$util.redirectTo('/otherpages/income/income')">
+							<text class="btn-txt">收益明细</text>
+							<uv-icon name="arrow-right" color="#ffffff" size="10" customStyle="margin-left: 8rpx;"></uv-icon>
+						</view>
+						<view class="btn-action btn-main acea-row row-middle row-center m-l-16" @click="$util.redirectTo('/otherpages/cashOut/cashOut')">
+							<text class="btn-txt-gold">提现</text>
+						</view>
+					</view>
 				</view>
-				<view class="fcolor1 acea-row row-middle row-center btn1" @click="$util.redirectTo('/otherpages/income/income')">收益明细
-					<uv-icon name="arrow-right" color="#fff" size="12"></uv-icon>
+
+				<view class="row-divider"></view>
+
+				<!-- 第二行：积分奖励 + 积分明细 + 积分兑换 -->
+				<view class="reward-row acea-row row-middle row-between">
+					<view class="row-label-val acea-row row-middle">
+						<text class="fcolor font-24">积分奖励</text>
+						<text class="fcolor1 font-weight-6 font-30 m-l-12">{{info.point || 0}}</text>
+					</view>
+					<view class="row-actions acea-row row-middle">
+						<view class="btn-action acea-row row-middle row-center" @click="$util.redirectTo('/otherpages/myPoint/myPoint')">
+							<text class="btn-txt">积分明细</text>
+							<uv-icon name="arrow-right" color="#ffffff" size="10" customStyle="margin-left: 8rpx;"></uv-icon>
+						</view>
+						<view class="btn-action btn-main acea-row row-middle row-center m-l-16" @click="gopage">
+							<text class="btn-txt-gold">积分兑换</text>
+						</view>
+					</view>
 				</view>
-				<view class="yline"></view>
-				<view class="">
-					<view class="fcolor">积分奖励 (个)</view>
-					<view class="fcolor1 font-weight-6 font-32">{{info.point}}</view>
-				</view>
-				<view class="fcolor1 acea-row row-middle row-center btn1" @click="$util.redirectTo('/otherpages/myPoint/myPoint')">积分明细
-					<uv-icon name="arrow-right" color="#fff" size="12"></uv-icon>
-				</view>
-			</view>
-			<view class="btns acea-row row-middle row-between">
-				<view class="" @click="$util.redirectTo('/otherpages/cashOut/cashOut')">提现</view>
-				<view class="" @click="gopage">积分兑换</view>
 			</view>
 		</view>
 		<view class="m-32">
 			<uv-subsection :list="list1" :current="current" custom-style="height: 60rpx;border-radius: 30rpx;"
 				custom-item-style="border-radius: 30rpx;" activeColor='#F55606' bgColor="#FFFFFF" mode="button"
 				@change="change"></uv-subsection>
-				<view class="container p-32 m-t-32">
-					<view class="font-32 font-weight-6 m-b-32">金额明细</view>
-					<view v-for="(item,index) in list" class="items acea-row row-middle row-between" :key="index">
-						<view class="acea-row row-middle">
-							<image src="/static/avatar.png" v-if="!item.headimg" class="w-64 h-64 bor-32" mode=""></image>
-							<image :src="$util.img(item.headimg)" v-else class="w-64 h-64 bor-32" mode=""></image>
-							<view class="">
-								<view class="font-28">{{item.nickname}}</view>
-								<view class="type" v-if='Number(item.account_data>0)'>{{item.type_name}}</view>
-								<view class="type type1" v-else>{{item.type_name}}</view>
-							</view>
-						</view>
-						<view class="" style="text-align: right;">
-							<view class="font-30 font-weight-6" v-if='Number(item.account_data>0)'>{{item.account_data}}</view>
-							<view class="font-30 font-weight-6" v-else style="color: #F51D1D;">{{item.account_data}}</view>
-							<view class="font-22" style="color: #999999;">{{item.create_time}}</view>
+			<view class="container p-32 m-t-32">
+				<view class="font-32 font-weight-6 m-b-32">金额明细</view>
+				<view v-for="(item,index) in list" class="items acea-row row-middle row-between" :key="index">
+					<view class="acea-row row-middle">
+						<image src="/static/avatar.png" v-if="!item.headimg" class="w-64 h-64 bor-32" mode=""></image>
+						<image :src="$util.img(item.headimg)" v-else class="w-64 h-64 bor-32" mode=""></image>
+						<view class="m-l-16">
+							<view class="font-28">{{item.nickname}}</view>
+							<view class="type m-t-8" v-if='Number(item.account_data>0)'>{{item.type_name}}</view>
+							<view class="type type1 m-t-8" v-else>{{item.type_name}}</view>
 						</view>
 					</view>
+					<view class="" style="text-align: right;">
+						<view class="font-30 font-weight-6" v-if='Number(item.account_data>0)'>{{item.account_data}}</view>
+						<view class="font-30 font-weight-6" v-else style="color: #F51D1D;">{{item.account_data}}</view>
+						<view class="font-22" style="color: #999999;">{{item.create_time}}</view>
+					</view>
 				</view>
+				<uv-empty v-if="!list.length" text="暂无明细记录" mode="list" marginTop="60"></uv-empty>
+			</view>
 		</view>
 	</view>
 </template>
@@ -157,7 +175,6 @@
 		margin: 28rpx 32rpx;
 		position: relative;
 		z-index: 2;
-		height: 412rpx;
 		background: linear-gradient(135deg, #F5AB18 0%, #F55606 100%);
 		border-radius: 24rpx;
 		box-sizing: border-box;
@@ -165,37 +182,64 @@
 
 		>image {
 			position: absolute;
-			right: 62rpx;
-			top: 62rpx;
+			right: 48rpx;
+			top: 36rpx;
 			width: 120rpx;
 			height: 120rpx;
+			opacity: 0.9;
 		}
 
-		.yline {
-			width: 1rpx;
-			height: 60rpx;
-			background: #FFB6A3;
-			margin: 0 28rpx;
-		}
+		.reward-section {
+			.reward-row {
+				min-height: 68rpx;
 
-		.btn1 {
-			width: 140rpx;
-			height: 48rpx;
-			background: rgba(255, 255, 255, 0.28);
-			border-radius: 48rpx;
-			margin-left: 25rpx;
-		}
-		.btns{
-			margin-top: 36rpx;
-			>view{
-				width: calc((100% - 16rpx)/2);
-				text-align: center;
-				line-height: 88rpx;
-				font-weight: 600;
-				font-size: 32rpx;
-				color: #F55606;
-				background: rgba(255,255,255,0.92);
-				border-radius: 48rpx;
+				.row-label-val {
+					flex: 1;
+					overflow: hidden;
+					margin-right: 12rpx;
+				}
+
+				.row-actions {
+					flex-shrink: 0;
+
+					.btn-action {
+						width: 140rpx;
+						height: 52rpx;
+						background: rgba(255, 255, 255, 0.22);
+						border: 1px solid rgba(255, 255, 255, 0.5);
+						border-radius: 26rpx;
+						color: #FFFFFF !important;
+						box-sizing: border-box;
+
+						.btn-txt {
+							color: #FFFFFF !important;
+							font-size: 22rpx;
+							font-weight: 400;
+						}
+
+						&:active {
+							opacity: 0.8;
+						}
+					}
+
+					.btn-main {
+						background: rgba(255, 255, 255, 0.8) !important;
+						border: 1px solid rgba(255, 255, 255, 0.9) !important;
+						box-shadow: 0 4rpx 10rpx rgba(0, 0, 0, 0.08);
+
+						.btn-txt-gold {
+							color: #F55606 !important;
+							font-size: 22rpx;
+							font-weight: 400;
+						}
+					}
+				}
+			}
+
+			.row-divider {
+				height: 1px;
+				background: rgba(255, 255, 255, 0.18);
+				margin: 10rpx 0;
 			}
 		}
 	}
