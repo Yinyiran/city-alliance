@@ -239,7 +239,9 @@
 				}
 				await this.index()
 				await this.Synopsis()
-				this.$refs.showpopref.open()
+				if (this.$refs.showpopref && typeof this.$refs.showpopref.open === 'function') {
+					this.$refs.showpopref.open()
+				}
 			},
 			// 获取用户头像
 			chooseavatar(e) {

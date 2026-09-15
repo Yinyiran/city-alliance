@@ -310,6 +310,12 @@ export default {
 		if (this.token) {
 			this.userinfo()
 			this.orderNum()
+		} else {
+			this.$nextTick(() => {
+				if (this.$refs.login && typeof this.$refs.login.open === 'function') {
+					this.$refs.login.open()
+				}
+			})
 		}
 		this.pointRanking()
 	},
