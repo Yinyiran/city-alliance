@@ -32,7 +32,7 @@
 				<image src="/static/ob3.png" v-else-if="infos.member_level == 4" mode=""></image>
 				<image src="/static/ob.png" v-else mode=""></image>
 				<view class="relative" :class="{ fcolor: infos.member_level == 4 }">{{ infos.member_level_name || '普通会员'
-					}}
+				}}
 				</view>
 				<view class="font-weight-6 m-t-12 relative " @click="gonext('myPoint')"
 					:class="{ fcolor: infos.member_level == 4 }">
@@ -43,8 +43,8 @@
 					<!-- <uv-line-progress :percentage="80" :showText='false' activeColor="#FFFFFF" -->
 					<!-- inactiveColor="rgba(255, 255, 255, 0.16)" height='8rpx'></uv-line-progress> -->
 				</view>
-				<view class="acea-row row-middle relative m-t-12" @click="gonext('memberlevel')"
-					v-if="infos.member_level > 1" :class="{ fcolor: infos.member_level == 4 }">
+				<view class="acea-row row-middle relative m-t-12" @click="gonext('memberlevel')" v-if="infos.member_level > 1"
+					:class="{ fcolor: infos.member_level == 4 }">
 					当前可享超多会员权益
 					<uv-icon name="arrow-right" :color="true ? '#FAD5B4' : '#fff'" size="12"></uv-icon>
 				</view>
@@ -58,8 +58,7 @@
 					<view class="" @click="gonext('myPoint')">
 						<view class="acea-row row-middle relative m-t-12" :class="{ fcolor: infos.member_level == 4 }">
 							我的积分
-							<uv-icon name="arrow-right" :color="infos.member_level == 4 ? '#FAD5B4' : '#fff'"
-								size="12"></uv-icon>
+							<uv-icon name="arrow-right" :color="infos.member_level == 4 ? '#FAD5B4' : '#fff'" size="12"></uv-icon>
 						</view>
 						<view class="relative font-32 font-weight" :class="{ fcolor: infos.member_level == 4 }">
 							{{ Math.ceil(infos.point) || 0 }}</view>
@@ -169,8 +168,8 @@
 						<text>积分</text>
 					</view>
 					<view v-for="(item, index) in pointlist" class="m-b-20 defas acea-row row-middle row-between"
-						v-if="check == 0"
-						:class="{ 'rankbg1': index == 0, 'rankbg2': index == 1, 'rankbg3': index == 2 }" :key="index">
+						v-if="check == 0" :class="{ 'rankbg1': index == 0, 'rankbg2': index == 1, 'rankbg3': index == 2 }"
+						:key="index">
 						<view class="acea-row row-middle">
 							<view class="ranks">
 								<image src="/static/rank1.png" v-if="index == 0" mode=""></image>
@@ -179,8 +178,7 @@
 								<image src="/static/rank.png" v-else mode=""></image>
 								<text v-if="index > 2">{{ index + 1 }}</text>
 							</view>
-							<image :src="$util.img(item.headimg)" v-if="item.headimg" class="w-52 h-52 bor-50 m-l-24"
-								mode="">
+							<image :src="$util.img(item.headimg)" v-if="item.headimg" class="w-52 h-52 bor-50 m-l-24" mode="">
 							</image>
 							<image src="/static/avatar.png" v-else class="w-52 h-52 bor-50 m-l-24" mode=""></image>
 							<text class="font-28 m-l-12" style="color: #222;">{{ item.nickname }}</text>
@@ -191,8 +189,7 @@
 						marginTop="80"></uv-empty>
 					<template v-if="check == 1">
 						<view v-for="(item, index) in shoplist" class="m-b-20 defas acea-row row-middle row-between"
-							:class="{ 'rankbg1': index == 0, 'rankbg2': index == 1, 'rankbg3': index == 2 }"
-							:key="index">
+							:class="{ 'rankbg1': index == 0, 'rankbg2': index == 1, 'rankbg3': index == 2 }" :key="index">
 							<view class="acea-row row-middle">
 								<view class="ranks">
 									<image src="/static/rank1.png" v-if="index == 0" mode=""></image>
@@ -204,7 +201,7 @@
 								<image :src="$util.img(item.store_image)" class="w-72 h-52 m-l-24" mode="">
 								</image>
 								<text class="font-28 m-l-12 text-more w-280" style="color: #222;">{{ item.store_name
-									}}</text>
+								}}</text>
 							</view>
 							<view class="font-28" style="color: #222;">{{ item.real_heat }}</view>
 						</view>
@@ -213,7 +210,7 @@
 				</view>
 			</view>
 		</view>
-		<image src="/static/hb.png" class="hb" mode=""></image>
+		<image src="/static/hb.png" class="hb" @click="gonext('poster')" mode=""></image>
 		<!-- <view class="h-100"></view> -->
 		<login ref="login" @loginsuccess='loginsuccess'></login>
 	</view>
