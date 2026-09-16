@@ -289,6 +289,26 @@ class Merchant extends BaseModel
 
         if ($is_owner) {
             $is_manager = 1;
+            // 自动同步 shop.member_id
+            if (empty($shop['member_id'])) {
+                Db::name('shop')->where('site_id', $new_site_id)->update(['member_id' => $member_id]);
+            }
+            if (empty($employee)) {
+                $member_info = Db::name('member')->where('member_id', $member_id)->field('nickname,username,headimg,mobile')->find();
+                Db::name('shop_employee')->insert([
+                    'shop_id' => $new_site_id,
+                    'member_id' => $member_id,
+                    'username' => !empty($member_info['nickname']) ? $member_info['nickname'] : (!empty($member_info['username']) ? $member_info['username'] : '老板'),
+                    'mobile' => $mobile,
+                    'headimg' => $member_info['headimg'] ?? '',
+                    'is_manager' => 1,
+                    'status' => 1,
+                    'is_deleted' => 0,
+                    'create_time' => time()
+                ]);
+            } elseif ($employee['is_manager'] != 1) {
+                Db::name('shop_employee')->where('employee_id', $employee['employee_id'])->update(['is_manager' => 1]);
+            }
         } elseif (!empty($employee)) {
             $is_manager = $employee['is_manager'] ?? 0;
         } else {
@@ -309,6 +329,8 @@ class Merchant extends BaseModel
             'token' => $token,
             'site_id' => $new_site_id,
             'is_manager' => $is_manager,
+            'role_type' => $is_manager == 1 ? 'owner' : 'staff',
+            'role_name' => $is_manager == 1 ? '老板' : '员工',
             'site_name' => $shop['site_name']
         ]);
     }

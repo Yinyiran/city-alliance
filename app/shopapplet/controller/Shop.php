@@ -101,8 +101,30 @@ class Shop extends Common
 
         if ($is_owner) {
             $myinfo['is_manager'] = 1;
+            if (empty($shopinfo['member_id'])) {
+                Db::name('shop')->where('site_id', $site_id)->update(['member_id' => $this->member_id]);
+            }
+            if (empty($myinfo['employee_id'])) {
+                $new_id = Db::name('shop_employee')->insertGetId([
+                    'shop_id' => $site_id,
+                    'member_id' => $this->member_id,
+                    'username' => !empty($user_nickname) ? $user_nickname : '老板',
+                    'mobile' => $mobile,
+                    'headimg' => $user_headimg,
+                    'is_manager' => 1,
+                    'status' => 1,
+                    'is_deleted' => 0,
+                    'create_time' => time()
+                ]);
+                $myinfo['employee_id'] = $new_id;
+                $myinfo['username'] = !empty($user_nickname) ? $user_nickname : '老板';
+                $myinfo['mobile'] = $mobile;
+            } elseif ($myinfo['is_manager'] != 1) {
+                Db::name('shop_employee')->where('employee_id', $myinfo['employee_id'])->update(['is_manager' => 1]);
+                $myinfo['is_manager'] = 1;
+            }
             if (empty($myinfo['username'])) {
-                $myinfo['username'] = !empty($user_nickname) ? $user_nickname : '主理人';
+                $myinfo['username'] = !empty($user_nickname) ? $user_nickname : '老板';
             }
             if (empty($myinfo['shop_id'])) {
                 $myinfo['shop_id'] = $site_id;
@@ -272,16 +294,51 @@ class Shop extends Common
         $this->checkToken();
         $curr_member_id = $this->member_id;
 
-        // 判断当前登录者是主理人(老板)还是普通员工
+        $member = Db::name('member')->where('member_id', $curr_member_id)->field('nickname,username,headimg,mobile')->find();
+        $mobile = trim($member['mobile'] ?? '');
+
+        // 判断是否是老板：
+        // 1. shop.member_id 绑定了当前用户
+        // 2. shop.mobile 或 shop.telephone 是当前用户的手机号
+        $is_owner = ($shop['member_id'] == $curr_member_id)
+            || (!empty($mobile) && ($shop['mobile'] == $mobile || $shop['telephone'] == $mobile));
+
+        // 判断当前登录者在 shop_employee 中记录
         $emp = Db::name('shop_employee')
             ->where('shop_id', $site_id)
-            ->where('member_id', $curr_member_id)
+            ->where(function($q) use ($curr_member_id, $mobile) {
+                $q->where('member_id', $curr_member_id);
+                if (!empty($mobile)) {
+                    $q->whereOr('mobile', $mobile);
+                }
+            })
             ->where('is_deleted', 0)
             ->find();
 
         $is_manager = 0;
-        if (($emp && $emp['is_manager'] == 1) || ($shop['member_id'] == $curr_member_id)) {
+        if ($is_owner || ($emp && $emp['is_manager'] == 1)) {
             $is_manager = 1;
+            // 自动补齐 shop.member_id
+            if (empty($shop['member_id']) && !empty($curr_member_id)) {
+                Db::name('shop')->where('site_id', $site_id)->update(['member_id' => $curr_member_id]);
+                $shop['member_id'] = $curr_member_id;
+            }
+            // 自动补齐 shop_employee
+            if (empty($emp)) {
+                Db::name('shop_employee')->insert([
+                    'shop_id' => $site_id,
+                    'member_id' => $curr_member_id,
+                    'username' => !empty($member['nickname']) ? $member['nickname'] : (!empty($member['username']) ? $member['username'] : '老板'),
+                    'mobile' => $mobile,
+                    'headimg' => $member['headimg'] ?? '',
+                    'is_manager' => 1,
+                    'status' => 1,
+                    'is_deleted' => 0,
+                    'create_time' => time()
+                ]);
+            } elseif ($emp['is_manager'] != 1) {
+                Db::name('shop_employee')->where('employee_id', $emp['employee_id'])->update(['is_manager' => 1]);
+            }
         }
 
         $today_start = strtotime(date('Y-m-d 00:00:00'));
