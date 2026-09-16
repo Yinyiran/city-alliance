@@ -101,14 +101,14 @@ class Account extends BaseCity
             ['order_status', '=', 10],
             ['is_settlement', '=', 0]
         ];
-        $wait_money = \think\facade\Db::name('order')->where($wait_condition)->sum('order_money - refund_shop_money');
+        $wait_money = \think\facade\Db::name('order')->where($wait_condition)->sum(\think\facade\Db::raw('order_money - refund_shop_money'));
         $this->assign('wait_settlement', number_format($wait_money ?: 0, 2, '.', ''));
 
         $ing_condition = [
             ['website_id', '=', $this->site_id],
             ['order_status', 'not in', [0, -1, 10]]
         ];
-        $ing_money = \think\facade\Db::name('order')->where($ing_condition)->sum('order_money - refund_shop_money');
+        $ing_money = \think\facade\Db::name('order')->where($ing_condition)->sum(\think\facade\Db::raw('order_money - refund_shop_money'));
         $this->assign('settlement', number_format($ing_money ?: 0, 2, '.', ''));
 
         $finish_condition = [
@@ -116,7 +116,7 @@ class Account extends BaseCity
             ['order_status', '=', 10],
             ['is_settlement', '=', 1]
         ];
-        $finish_money = \think\facade\Db::name('order')->where($finish_condition)->sum('order_money - refund_shop_money');
+        $finish_money = \think\facade\Db::name('order')->where($finish_condition)->sum(\think\facade\Db::raw('order_money - refund_shop_money'));
         $this->assign('finish_settlement', number_format($finish_money ?: 0, 2, '.', ''));
 
         if (request()->isAjax()) {

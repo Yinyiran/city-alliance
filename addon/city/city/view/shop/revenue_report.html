@@ -47,11 +47,12 @@
 {/block}
 {block name="script"}
 <script>
-    layui.use(['form', 'table', 'laydate'], function() {
-        var table = layui.table,
-            form = layui.form;
+    var table;
+    layui.use(['form', 'laydate'], function() {
+        var form = layui.form;
+        form.render();
 
-        var tableIns = table.render({
+        table = new Table({
             elem: '#revenue_table',
             url: ns.url("city://city/shop/revenuereport"),
             cols: [[
@@ -71,40 +72,39 @@
                     title: '门店带单收益 (2%)',
                     minWidth: 150,
                     templet: function(d) {
-                        return '<span style="color:#fa8c16;font-weight:bold;">￥' + Number(d.bring_income).toFixed(2) + '</span><br><small style="color:#999">单数: ' + d.bring_order_count + '</small>';
+                        return '<span style="color:#fa8c16;font-weight:bold;">￥' + Number(d.bring_income || 0).toFixed(2) + '</span><br><small style="color:#999">单数: ' + (d.bring_order_count || 0) + '</small>';
                     }
                 },
                 {
                     title: '分公司带单提成 (1.5%)',
                     minWidth: 150,
                     templet: function(d) {
-                        return '<span style="color:#52c41a;font-weight:bold;">￥' + Number(d.city_bring_commission).toFixed(2) + '</span>';
+                        return '<span style="color:#52c41a;font-weight:bold;">￥' + Number(d.city_bring_commission || 0).toFixed(2) + '</span>';
                     }
                 },
                 {
                     title: '门店会员总收益 (25%)',
                     minWidth: 150,
                     templet: function(d) {
-                        return '<span style="color:#1890ff;font-weight:bold;">￥' + Number(d.member_income).toFixed(2) + '</span><br><small style="color:#999">办理单数: ' + d.member_order_count + '</small>';
+                        return '<span style="color:#1890ff;font-weight:bold;">￥' + Number(d.member_income || 0).toFixed(2) + '</span><br><small style="color:#999">办理单数: ' + (d.member_order_count || 0) + '</small>';
                     }
                 },
                 {
                     title: '分公司会员提成 (25%)',
                     minWidth: 150,
                     templet: function(d) {
-                        return '<span style="color:#722ed1;font-weight:bold;">￥' + Number(d.city_member_commission).toFixed(2) + '</span>';
+                        return '<span style="color:#722ed1;font-weight:bold;">￥' + Number(d.city_member_commission || 0).toFixed(2) + '</span>';
                     }
                 },
-                {field: 'account', title: '门店可提现金额', minWidth: 130, templet: function(d) { return '￥' + Number(d.account).toFixed(2); }},
+                {field: 'account', title: '门店可提现金额', minWidth: 130, templet: function(d) { return '￥' + Number(d.account || 0).toFixed(2); }},
                 {title: '对公账户状态', toolbar: '#certTpl', width: 130, align: 'center'},
                 {title: '操作', toolbar: '#actionTpl', width: 120, align: 'center'}
-            ]],
-            page: true
+            ]]
         });
 
         // 搜索
         form.on('submit(search)', function(data) {
-            tableIns.reload({
+            table.reload({
                 page: { curr: 1 },
                 where: { search_text: data.field.search_text }
             });
@@ -112,7 +112,7 @@
         });
 
         // 操作监听
-        table.on('tool(revenue_table)', function(obj) {
+        table.tool(function(obj) {
             var data = obj.data;
             if (obj.event === 'detail') {
                 var contentHtml = '<div style="padding: 20px; line-height: 1.8;">' +

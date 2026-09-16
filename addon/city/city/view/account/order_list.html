@@ -136,7 +136,10 @@
                 unresize: 'false',
                 width:'13%',
                 templet: function (data){
-                    return ns.int_to_float(data.order_money-data.refund_shop_money-data.platform_money)
+                    var order_money = parseFloat(data.order_money || 0);
+                    var refund_shop_money = parseFloat(data.refund_shop_money || 0);
+                    var platform_money = parseFloat(data.platform_money || 0);
+                    return ns.int_to_float(order_money - refund_shop_money - platform_money);
                 }
             }, {
                 field:'order_status_name',
