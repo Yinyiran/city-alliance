@@ -1,6 +1,19 @@
 <template>
 	<view>
 		<view class="" style="position: relative;">
+			<!-- 顶部当前店铺与切换栏 -->
+			<view class="index-shop-header acea-row row-middle row-between" @click="openShopSelect">
+				<view class="shop-header-left acea-row row-middle">
+					<image :src="$util.img(currentShopLogo)" class="shop-logo-img" mode="aspectFill" v-if="currentShopLogo"></image>
+					<image src="/static/logo.png" class="shop-logo-img" mode="aspectFit" v-else></image>
+					<text class="shop-title-text text-more">{{ currentSiteName || '商家中心' }}</text>
+					<uv-icon name="arrow-down-fill" size="10" color="#F5B67F" customStyle="margin-left: 8rpx; flex-shrink: 0;"></uv-icon>
+				</view>
+				<view class="shop-role-pill" :class="'pill-' + (isManager ? 'manager' : 'staff')" v-if="token">
+					{{ currentRoleName }}
+				</view>
+			</view>
+
 			<view class="part1">
 				<view class="acea-row row-middle row-between">
 					<view class="acea-row row-middle row-center" @click="gonext('deliveryOrder')">
@@ -28,7 +41,7 @@
 				</view>
 				<view class="line1 m-t-24"></view>
 				<view class="acea-row row-middle row-between m-t-24">
-					<view class="acea-row row-middle" style="color: #CCCCCC;">{{ incomeSummary.is_manager == 1 ? '主理人收益 (元)：' : '员工提成收益 (元)：' }}<text style="color: #F5B67F;"
+					<view class="acea-row row-middle" style="color: #CCCCCC;">{{ isManager ? '主理人收益 (元)：' : '员工提成收益 (元)：' }}<text style="color: #F5B67F;"
 							class="font-40">{{totalIncome}}</text></view>
 					<view class="acea-row row-middle" @click="gonext('incomeDetail')" style="color: #CCCCCC;">查看明细
 						<image src="/static/go1.png" class="w-16 h-16 m-l-4" mode=""></image>
@@ -259,6 +272,9 @@
 				</view>
 			</view>
 		</uv-popup>
+
+		<!-- 切换企业/店铺弹窗 -->
+		<shop-select-popup ref="shopPopup" @change="onShopChange"></shop-select-popup>
 	</view>
 </template>
 
@@ -272,7 +288,12 @@
 		dodelivery,
 		getIncomeSummary
 	} from "@/common/js/api.js"
+	import ShopSelectPopup from "@/components/shop-select-popup/shop-select-popup.vue"
+
 	export default {
+		components: {
+			ShopSelectPopup
+		},
 		data() {
 			return {
 				tablist: ['品牌积分排行榜', '员工积分排行榜'],
@@ -291,7 +312,13 @@
 				verifyOrder: null,
 				scanCodeVal: '',
 				verifying: false,
+				currentSiteId: '',
+				currentSiteName: '',
+				currentShopLogo: '',
+				isManager: 0,
+				currentRoleName: '员工',
 				incomeSummary: {
+					is_manager: 0,
 					bring_income: { total: '0.00', today: '0.00', count: 0 },
 					member_income: { total: '0.00', today: '0.00', count: 0 }
 				}
@@ -305,7 +332,10 @@
 			}
 		},
 		onLoad(res) {
-
+			uni.$on('merchantShopChanged', this.onShopChanged);
+		},
+		beforeDestroy() {
+			uni.$off('merchantShopChanged', this.onShopChanged);
 		},
 		onReachBottom() {
 			if (this.last_page > this.page) {
@@ -319,19 +349,115 @@
 		},
 		onShow() {
 			this.token = uni.getStorageSync('token') || ''
-			// 品牌积分排行榜属于公开数据，未登录也拉取
-			this.getRankList()
-			if (uni.getStorageSync('token')) {
-				this.getnum()
-				this.fetchIncomeSummary()
-				// this.getmemberranklist()
+			let cachedSiteId = uni.getStorageSync('site_id') || '';
+
+			// 检查是否切换过店铺
+			if (cachedSiteId && cachedSiteId !== this.currentSiteId) {
+				this.currentSiteId = cachedSiteId;
+				this.refreshAllData();
+			} else {
+				this.fetchShopInfo();
+				this.getRankList();
+				if (uni.getStorageSync('token')) {
+					this.getnum();
+					this.fetchIncomeSummary();
+				}
 			}
 		},
 		onPullDownRefresh() {
-
-
+			this.refreshAllData();
+			setTimeout(() => {
+				uni.stopPullDownRefresh();
+			}, 1000);
 		},
 		methods: {
+			openShopSelect() {
+				if (!uni.getStorageSync('token')) {
+					this.$refs.login.open();
+					return;
+				}
+				this.$refs.shopPopup.open();
+			},
+			onShopChange(item) {
+				this.currentSiteId = uni.getStorageSync('site_id') || '';
+				if (item) {
+					if (item.is_manager !== undefined || item.role) {
+						let isMgr = (item.is_manager == 1 || item.role === 'owner') ? 1 : 0;
+						this.isManager = isMgr;
+						this.currentRoleName = isMgr ? '老板' : '员工';
+						this.incomeSummary.is_manager = isMgr;
+					}
+					if (item.site_name) {
+						this.currentSiteName = item.site_name;
+						uni.setNavigationBarTitle({ title: item.site_name });
+					}
+					if (item.store_logo || item.store_image) {
+						this.currentShopLogo = item.store_logo || item.store_image;
+					}
+				}
+				this.refreshAllData();
+			},
+			onShopChanged(data) {
+				let siteId = (data && data.site_id) ? data.site_id : (uni.getStorageSync('site_id') || '');
+				if (data) {
+					if (data.is_manager !== undefined || data.role) {
+						let isMgr = (data.is_manager == 1 || data.role === 'owner') ? 1 : 0;
+						this.isManager = isMgr;
+						this.currentRoleName = isMgr ? '老板' : '员工';
+						this.incomeSummary.is_manager = isMgr;
+					}
+					if (data.site_name) {
+						this.currentSiteName = data.site_name;
+						uni.setNavigationBarTitle({ title: data.site_name });
+					}
+					if (data.store_logo || data.store_image) {
+						this.currentShopLogo = data.store_logo || data.store_image;
+					}
+				}
+				if (siteId && siteId !== this.currentSiteId) {
+					this.currentSiteId = siteId;
+				}
+				this.refreshAllData();
+			},
+			refreshAllData() {
+				this.fetchShopInfo();
+				this.page = 1;
+				this.getRankList();
+				if (uni.getStorageSync('token')) {
+					this.getnum();
+					this.fetchIncomeSummary();
+					if (this.check == 1) {
+						this.getmemberranklist();
+					}
+				}
+			},
+			fetchShopInfo() {
+				let site_id = uni.getStorageSync('site_id') || '';
+				getInfo({ site_id }).then(res => {
+					if (res.code == 0 && res.data) {
+						let shop = res.data;
+						this.currentSiteName = shop.site_name || '商家中心';
+						this.currentShopLogo = shop.logo || '';
+						if (!uni.getStorageSync('site_id') && shop.site_id) {
+							uni.setStorageSync('site_id', shop.site_id);
+							this.currentSiteId = shop.site_id;
+						}
+						// 动态修改标题为当前店铺
+						uni.setNavigationBarTitle({
+							title: this.currentSiteName
+						});
+						if (shop.myinfo && shop.myinfo.is_manager !== undefined) {
+							let isMgr = shop.myinfo.is_manager == 1 ? 1 : 0;
+							this.isManager = isMgr;
+							this.currentRoleName = isMgr ? '老板' : '员工';
+							this.incomeSummary = {
+								...this.incomeSummary,
+								is_manager: isMgr
+							};
+						}
+					}
+				}).catch(() => {});
+			},
 			sancode() {
 				if (!uni.getStorageSync('token')) {
 					this.$refs.login.open()
@@ -514,7 +640,13 @@
 				let site_id = uni.getStorageSync('site_id') || 0
 				getIncomeSummary({ site_id }).then(res => {
 					if (res.code == 0 && res.data) {
-						this.incomeSummary = res.data
+						let mgr = res.data.is_manager !== undefined ? (res.data.is_manager == 1 ? 1 : 0) : this.isManager;
+						this.incomeSummary = {
+							...res.data,
+							is_manager: mgr
+						};
+						this.isManager = mgr;
+						this.currentRoleName = mgr == 1 ? '老板' : '员工';
 					}
 				}).catch(() => {})
 			},
@@ -949,6 +1081,58 @@
 				background: #CCCCCC !important;
 				box-shadow: none !important;
 				color: #FFFFFF !important;
+			}
+		}
+	}
+
+	/* 顶部当前店铺展示与切换条 */
+	.index-shop-header {
+		margin: 20rpx 32rpx 20rpx;
+		background: #1D1E24;
+		border: 1rpx solid rgba(245, 182, 127, 0.25);
+		border-radius: 20rpx;
+		padding: 16rpx 24rpx;
+		cursor: pointer;
+		position: relative;
+		z-index: 10;
+
+		.shop-header-left {
+			flex: 1;
+			overflow: hidden;
+
+			.shop-logo-img {
+				width: 52rpx;
+				height: 52rpx;
+				border-radius: 12rpx;
+				margin-right: 14rpx;
+				flex-shrink: 0;
+				background: #333333;
+			}
+
+			.shop-title-text {
+				font-size: 30rpx;
+				font-weight: 700;
+				color: #FFFFFF;
+				max-width: 440rpx;
+			}
+		}
+
+		.shop-role-pill {
+			font-size: 20rpx;
+			font-weight: 600;
+			padding: 4rpx 14rpx;
+			border-radius: 12rpx;
+			flex-shrink: 0;
+			margin-left: 16rpx;
+
+			&.pill-manager {
+				background: linear-gradient(135deg, #FFB000 0%, #F57C00 100%);
+				color: #FFFFFF;
+			}
+
+			&.pill-staff {
+				background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+				color: #FFFFFF;
 			}
 		}
 	}

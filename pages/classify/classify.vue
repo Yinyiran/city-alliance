@@ -5,13 +5,14 @@
 			<view class="acea-row row-middle row-between">
 				<!-- 左侧：第一行店铺名，第二行头像+姓名+员工 -->
 				<view class="header-left" @click="handleHeaderClick">
-					<!-- 第一行：店铺名字 -->
-					<view class="acea-row row-middle" style="flex-wrap: nowrap;" v-if="siteName">
+					<!-- 第一行：店铺名字 + 切换箭头 -->
+					<view class="acea-row row-middle" style="flex-wrap: nowrap;" v-if="siteName" @click.stop="openShopSelect">
 						<image :src="$util.img(info.logo)" v-if="info.logo" class="shop-logo m-r-12" mode="heightFix">
 						</image>
-						<text class="font-36 font-weight-6 text-more" style="color: #fff; max-width: 360rpx;">
+						<text class="font-36 font-weight-6 text-more" style="color: #fff; max-width: 340rpx;">
 							{{ siteName || '门店签到' }}
 						</text>
+						<uv-icon name="arrow-down-fill" size="10" color="#FFFFFF" customStyle="margin-left: 8rpx; flex-shrink: 0;"></uv-icon>
 					</view>
 					<!-- 第二行：头像 + 姓名 + 员工/主理人 -->
 					<view class="acea-row row-middle m-t-12" v-if="userName" style="flex-wrap: nowrap;">
@@ -23,14 +24,11 @@
 						<text class="font-30 m-l-8 font-weight-6" style="color: #fff;" v-if="!token">点击登录</text>
 					</view>
 				</view>
-				<!-- 右侧：扫码签到（改大1/3）以及便捷手动录入 -->
+				<!-- 右侧：扫码签到 -->
 				<view class="acea-row row-middle">
 					<view class="scan-header-btn acea-row row-middle" @click="scanSignIn">
 						<image src="/static/img2.png" class="w-44 h-44 m-r-10" mode=""></image>
 						<text>扫码签到</text>
-					</view>
-					<view class="manual-header-btn acea-row row-middle row-center m-l-12" @click="openManualSign">
-						<text>手动</text>
 					</view>
 				</view>
 			</view>
@@ -143,6 +141,9 @@
 		</uv-popup>
 
 		<login ref="login" @loginsuccess="loginsuccess"></login>
+
+		<!-- 切换企业/店铺弹窗 -->
+		<shop-select-popup ref="shopPopup" @change="onShopChange"></shop-select-popup>
 	</view>
 </template>
 
@@ -153,7 +154,12 @@ import {
 	getInfo,
 	dosignin
 } from "@/common/js/api.js"
+import ShopSelectPopup from "@/components/shop-select-popup/shop-select-popup.vue"
+
 export default {
+	components: {
+		ShopSelectPopup
+	},
 	data() {
 		return {
 			customStyle: "background: #F5F5F5;height: 64rpx;borderRadius:32rpx;paddingLeft:24rpx;",
@@ -172,7 +178,8 @@ export default {
 			signSettlement: null,
 			manualCode: '',
 			token: '',
-			localUserInfo: {}
+			localUserInfo: {},
+			currentSiteId: uni.getStorageSync('site_id') || ''
 		};
 	},
 	computed: {
@@ -205,21 +212,49 @@ export default {
 	},
 	onLoad() {
 		uni.$on('loginsuccess', this.loginsuccess)
+		uni.$on('merchantShopChanged', this.onShopChanged)
 		this.refreshAll()
 	},
 	onShow() {
-		this.refreshAll()
+		let cachedSiteId = uni.getStorageSync('site_id') || '';
+		if (cachedSiteId && cachedSiteId !== this.currentSiteId) {
+			this.currentSiteId = cachedSiteId;
+			this.refreshAll();
+		} else {
+			this.refreshAll();
+		}
 	},
 	beforeUnmount() {
 		uni.$off('loginsuccess', this.loginsuccess)
+		uni.$off('merchantShopChanged', this.onShopChanged)
 	},
 	onUnload() {
 		uni.$off('loginsuccess', this.loginsuccess)
+		uni.$off('merchantShopChanged', this.onShopChanged)
 	},
 	methods: {
+		openShopSelect() {
+			if (!this.token) {
+				this.$refs.login.open();
+				return;
+			}
+			this.$refs.shopPopup.open();
+		},
+		onShopChange(item) {
+			this.currentSiteId = uni.getStorageSync('site_id') || '';
+			this.refreshAll();
+		},
+		onShopChanged(data) {
+			let siteId = (data && data.site_id) ? data.site_id : (uni.getStorageSync('site_id') || '');
+			if (siteId && siteId !== this.currentSiteId) {
+				this.currentSiteId = siteId;
+				this.refreshAll();
+			}
+		},
 		refreshAll() {
 			this.token = uni.getStorageSync('token') || ''
 			this.localUserInfo = uni.getStorageSync('userInfo') || {}
+			this.currentSiteId = uni.getStorageSync('site_id') || ''
 			if (this.token) {
 				this.getInfo()
 				this.signlist()
