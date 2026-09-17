@@ -318,4 +318,47 @@ class Account extends BaseShop
 
     }
 
+    /**
+     * 门店会员开通与购买分润结算明细
+     */
+    public function membersettlement()
+    {
+        if (request()->isAjax()) {
+            $page = input('page', 1);
+            $page_size = input('page_size', PAGE_LIST_ROWS);
+            $order_no = input('order_no', '');
+            $status = input('status', '');
+
+            // 严格限定只查询当前门店的数据
+            $condition = [
+                ['shop_id', '=', $this->site_id]
+            ];
+
+            if ($order_no !== '') {
+                $condition[] = ['order_no', 'like', '%' . $order_no . '%'];
+            }
+            if ($status !== '') {
+                $condition[] = ['status', '=', intval($status)];
+            }
+
+            $settle_model = new \app\model\member\MemberLevelSettlement();
+            return $settle_model->getSettlementPageList($condition, $page, $page_size);
+        }
+
+        // 统计本门店主理人累计分成金额
+        $shop_total_money = \think\facade\Db::name('member_level_settlement')
+            ->where('shop_id', $this->site_id)
+            ->where('status', 'in', [0, 1])
+            ->sum('shop_money');
+        $this->assign('shop_total_money', number_format($shop_total_money ?: 0, 2, '.', ''));
+
+        $member_count = \think\facade\Db::name('member_level_settlement')
+            ->where('shop_id', $this->site_id)
+            ->where('status', 'in', [0, 1])
+            ->count();
+        $this->assign('member_count', $member_count ?: 0);
+
+        return $this->fetch('account/member_settlement');
+    }
+
 }

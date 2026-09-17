@@ -160,4 +160,47 @@ class Account extends BaseCity
 
         return $this->fetch('account/order_list', [], $this->replace);
     }
+
+    /**
+     * 城市分站会员开通与购买分润结算明细
+     */
+    public function membersettlement()
+    {
+        if (request()->isAjax()) {
+            $page = input('page', 1);
+            $page_size = input('page_size', PAGE_LIST_ROWS);
+            $order_no = input('order_no', '');
+            $status = input('status', '');
+
+            // 严格限定只查询当前城市分站的数据
+            $condition = [
+                ['city_id', '=', $this->site_id]
+            ];
+
+            if ($order_no !== '') {
+                $condition[] = ['order_no', 'like', '%' . $order_no . '%'];
+            }
+            if ($status !== '') {
+                $condition[] = ['status', '=', intval($status)];
+            }
+
+            $settle_model = new \app\model\member\MemberLevelSettlement();
+            return $settle_model->getSettlementPageList($condition, $page, $page_size);
+        }
+
+        // 统计本分站会员分润总收益与统计数据
+        $city_total_money = \think\facade\Db::name('member_level_settlement')
+            ->where('city_id', $this->site_id)
+            ->where('status', 'in', [0, 1])
+            ->sum('city_money');
+        $this->assign('city_total_money', number_format($city_total_money ?: 0, 2, '.', ''));
+
+        $member_count = \think\facade\Db::name('member_level_settlement')
+            ->where('city_id', $this->site_id)
+            ->where('status', 'in', [0, 1])
+            ->count();
+        $this->assign('member_count', $member_count ?: 0);
+
+        return $this->fetch('account/member_settlement', [], $this->replace);
+    }
 }

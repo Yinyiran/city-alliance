@@ -98,6 +98,46 @@ $menus = [
         'sort' => 2,
         'desc' => '分公司订单交易与结算流水明细',
         'is_control' => 1
+    ],
+    [
+        'app_module' => 'city',
+        'addon' => 'city',
+        'title' => '会员开通分润明细',
+        'name' => 'ADDON_CITY_ACCOUNT_MEMBER_SETTLEMENT',
+        'parent' => 'ADDON_CITY_ACCOUNT_ROOT',
+        'level' => 2,
+        'url' => 'city://city/account/membersettlement',
+        'is_show' => 1,
+        'sort' => 3,
+        'desc' => '分站查看本区域会员开通分公司分成收益明细',
+        'is_control' => 1
+    ],
+    [
+        'app_module' => 'city',
+        'addon' => 'city',
+        'title' => '会员开通分润明细',
+        'name' => 'ADDON_CITY_SHOP_MEMBER_SETTLEMENT',
+        'parent' => 'ADDON_CITY_SHOP_INDEX',
+        'level' => 3,
+        'url' => 'city://city/account/membersettlement',
+        'is_show' => 1,
+        'sort' => 5,
+        'desc' => '商家管理直达会员开通分润明细',
+        'is_control' => 1
+    ],
+    // 6. 商户端后台 - 资产模块
+    [
+        'app_module' => 'shop',
+        'addon' => '',
+        'title' => '会员开通分润明细',
+        'name' => 'SHOP_ACCOUNT_MEMBER_SETTLEMENT',
+        'parent' => 'ACCOUNT_ROOT',
+        'level' => 2,
+        'url' => 'shop/account/membersettlement',
+        'is_show' => 1,
+        'sort' => 5,
+        'desc' => '门店查看本店会员开通主理人分成收益明细',
+        'is_control' => 1
     ]
 ];
 

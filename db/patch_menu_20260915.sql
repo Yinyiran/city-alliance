@@ -33,5 +33,19 @@ DELETE FROM `menu` WHERE `name` = 'ADDON_CITY_ACCOUNT_ORDERLIST' OR `url` = 'cit
 INSERT INTO `menu` (`app_module`, `addon`, `title`, `name`, `parent`, `level`, `url`, `is_show`, `sort`, `desc`, `is_icon`, `picture`, `picture_select`, `is_control`) 
 VALUES ('city', 'city', '分公司账户流水', 'ADDON_CITY_ACCOUNT_ORDERLIST', 'ADDON_CITY_ACCOUNT_ROOT', 2, 'city://city/account/orderlist', 1, 2, '分公司订单交易与结算流水明细', 0, '', '', 1);
 
--- 7. 补齐财务组（27）、运营组（28）权限
+-- 7. 分站后台「会员开通分润明细」挂载于【资产】与【商家管理】
+DELETE FROM `menu` WHERE `name` IN ('ADDON_CITY_ACCOUNT_MEMBER_SETTLEMENT', 'ADDON_CITY_SHOP_MEMBER_SETTLEMENT');
+INSERT INTO `menu` (`app_module`, `addon`, `title`, `name`, `parent`, `level`, `url`, `is_show`, `sort`, `desc`, `is_control`) 
+VALUES 
+('city', 'city', '会员开通分润明细', 'ADDON_CITY_ACCOUNT_MEMBER_SETTLEMENT', 'ADDON_CITY_ACCOUNT_ROOT', 2, 'city://city/account/membersettlement', 1, 3, '分站查看本区域会员开通分公司分成收益明细', 1),
+('city', 'city', '会员开通分润明细', 'ADDON_CITY_SHOP_MEMBER_SETTLEMENT', 'ADDON_CITY_SHOP_INDEX', 3, 'city://city/account/membersettlement', 1, 5, '商家管理直达会员开通分润明细', 1);
+
+-- 8. 商户电脑端后台「会员开通分润明细」挂载于【资产】
+DELETE FROM `menu` WHERE `name` = 'SHOP_ACCOUNT_MEMBER_SETTLEMENT';
+INSERT INTO `menu` (`app_module`, `addon`, `title`, `name`, `parent`, `level`, `url`, `is_show`, `sort`, `desc`, `is_control`) 
+VALUES 
+('shop', '', '会员开通分润明细', 'SHOP_ACCOUNT_MEMBER_SETTLEMENT', 'ACCOUNT_ROOT', 2, 'shop/account/membersettlement', 1, 5, '门店查看本店会员开通主理人分成收益明细', 1);
+
+-- 9. 补齐财务组（27）、运营组（28）权限
 UPDATE `group` SET menu_array = CONCAT(menu_array, ',MEMBER_LEVEL_SETTLEMENT,PROMOTION_FENXIAO_MONEY,ACCOUNT_FENXIAO_MONEY,ACCOUNT_MEMBER_LEVEL_SETTLEMENT') WHERE group_id IN (27, 28) AND menu_array NOT LIKE '%MEMBER_LEVEL_SETTLEMENT%';
+

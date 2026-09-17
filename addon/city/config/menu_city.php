@@ -362,6 +362,14 @@ return [
                 'sort' => 2,
             ],
             [
+                'name' => 'ADDON_CITY_ACCOUNT_MEMBER_SETTLEMENT',
+                'title' => '会员开通分润明细',
+                'url' => 'city://city/account/membersettlement',
+                'is_show' => 1,
+                'is_control' => 1,
+                'sort' => 3,
+            ],
+            [
                 'name' => 'ADDON_CITY_ city://city_WITHDRAW',
                 'title' => '转账记录',
                 'url' => 'city://city/withdraw/lists',
