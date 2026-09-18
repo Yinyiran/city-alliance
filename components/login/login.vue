@@ -1,22 +1,43 @@
 <template>
 	<view>
-		<uv-popup ref="showpopref" :zIndex="10070" round="10" mode="bottom" @close="close" @open="open">
+		<!-- 第一步：手机号快捷登录 -->
+		<uv-popup ref="showpopref" :zIndex="10070" round="10" mode="bottom" closeable @close="onPopupClose">
 			<view class="activity-box ">
-				<!-- 第一步：手机号快捷登录 -->
-				<template v-if="step == 1">
-					<view class="titlabel">快捷登录</view>
-					<view class="opt-box">
-						<button class="titlePhone public_btn" v-if="is_show" open-type="getPhoneNumber"
-							@getphonenumber="getPhoneNumber">
-							手机号快捷登录
-						</button>
-						<button class="titlePhone" v-else style="color: #ffbaba;" @click="showAgreementTip">
-							手机号快捷登录
-						</button>
+				<view class="">
+					<view class="tit">
+						<image src="/static/logo.png" class="logo" mode="aspectFill"></image>
+						<view class="tit_text">{{ configobj.name }}</view>
 					</view>
-				</template>
-				<!-- 第二步：设置头像昵称 -->
-				<template v-else>
+					<view class="titlabel">手机号快捷登录</view>
+					<view class="titlabel2">未注册的手机号验证通过后将自动创建账号</view>
+					<view class="opt-box">
+						<button v-if="!is_show" class="titlePhone public_btn" @click="showAgreementTip">
+							手机号快捷登录
+						</button>
+						<button v-else class="titlePhone public_btn" open-type="getPhoneNumber" @getphonenumber="getPhoneNumber">
+							手机号快捷登录
+						</button>
+						<view class="no-prompt-action" @click="handleNoPrompt">
+							<text>不再提示</text>
+						</view>
+						<view class="xieyibox m-t-38 p-b-70">
+							<radio value="" style="transform: scale(0.8);" :checked="is_show" @click="is_show = !is_show" />
+							<view class="font-24 fcolor">登录即表示已阅读并同意</view>
+							<text class="font-24" @click="xyopen(2)">《用户协议》</text>
+							<text class="font-24" @click="xyopen(1)">《隐私政策》</text>
+						</view>
+					</view>
+				</view>
+			</view>
+		</uv-popup>
+
+		<!-- 第二步：完善头像昵称（手机号登录成功后，未设置昵称时弹出） -->
+		<uv-popup ref="infopopref" :zIndex="10080" round="10" mode="bottom" closeable @close="infoclose">
+			<view class="activity-box ">
+				<view class="">
+					<view class="tit">
+						<view class="tit_text">完善资料</view>
+					</view>
 					<view class="titlabel">请设置头像、昵称</view>
 					<view class="titlabel2">方便平台及时为您服务</view>
 					<view class="acea-row row-middle row-column row-center m-b-30">
@@ -28,25 +49,38 @@
 					</view>
 					<view class="iptbox graybg">
 						<view class="iptwid">昵称<text class="fcolor1 font-28">*</text></view>
-						<input type="nickname" v-model="nickname" @input="handleNicknameInput" placeholder="请输入昵称">
+						<input type="nickname" :maxlength="8" v-model="nickname" @input="handleNicknameInput" placeholder="请输入昵称" />
 					</view>
 					<view class="opt-box">
-						<button class="titlePhone public_btn" v-if="is_show" @click="showtrip">
-							完成
-						</button>
-						<button class="titlePhone" v-else style="color: #333;" @click="showtrip">
+						<button class="titlePhone public_btn" @click="submitInfo">
 							完成
 						</button>
 					</view>
-				</template>
-				<view class="xieyibox m-t-38 p-b-70">
-					<radio value="" style="transform: scale(0.8);" :checked="is_show" @click="is_show = !is_show" />
-					<view class="font-24 fcolor">请勾选表示您已阅读并同意</view>
-					<text class="font-24" @click="xyopen(2)">《用户协议》</text>
-					<text class="font-24" @click="xyopen(1)">《隐私政策》</text>
 				</view>
 			</view>
 		</uv-popup>
+
+		<!-- 协议查看弹窗 -->
+		<uv-popup ref="xypopref" closeable :zIndex="11080" round="10" mode="center" @close="xyclose">
+			<view class="xieyi-box ">
+				<scroll-view scroll-y="true" class="xyhig">
+					<view>
+						<view v-html="$util.replaceImg(xycontent)"></view>
+					</view>
+				</scroll-view>
+			</view>
+		</uv-popup>
+
+		<!-- 底部浮动提示条：当用户点击了“不再提示”且未登录时显示 -->
+		<view v-if="showBottomBar" class="login-bottom-bar acea-row row-middle row-between">
+			<view class="acea-row row-middle bar-left">
+				<image src="/static/avatar.png" class="bar-avatar" mode="aspectFill"></image>
+				<text class="bar-tip">您当前处于未登录状态</text>
+			</view>
+			<view class="bar-btn acea-row row-middle row-center" @click="open(true)">
+				<text>请登录</text>
+			</view>
+		</view>
 	</view>
 </template>
 
@@ -55,33 +89,92 @@ import {
 	mobileAuth,
 	authcodetoopenid,
 	loginAuth,
-	logincheckLogin
-} from '../../common/js/api';
+	logincheckLogin,
+	getAgreement,
+	modifyheadimg,
+	modifynickname
+} from '../../common/js/api.js';
+
 export default {
 	name: "authbox",
+	props: {
+		autoOpen: {
+			type: Boolean,
+			default: false
+		}
+	},
 	data() {
 		return {
-			step: 1,
 			is_show: false,
+			xycontent: '',
 			nickname: '',
 			avatar: '',
-			weapp_openid: '',
 			configobj: {
-				name: "",
-				logo: ""
+				name: "城盟联创",
+				logo: "/static/logo.png"
 			},
-			inviteCode: ''
+			weapp_openid: "",
+			noPrompt: true,
+			isLoggedIn: false
 		};
 	},
-	created() {
-		this.inviteCode = uni.getStorageSync('inviteCode') || ''
+	computed: {
+		showBottomBar() {
+			return !this.isLoggedIn && this.noPrompt;
+		}
 	},
-	onUnload() {
-		uni.$off('agreeAgreement')
+	created() {
+		this.checkLoginStatus()
+		uni.$on('loginChange', this.onLoginChange)
+		uni.$on('loginPromptChange', this.onPromptChange)
+	},
+	mounted() {
+		this.checkLoginStatus()
+	},
+	beforeDestroy() {
+		uni.$off('loginChange', this.onLoginChange)
+		uni.$off('loginPromptChange', this.onPromptChange)
+	},
+	unmounted() {
+		uni.$off('loginChange', this.onLoginChange)
+		uni.$off('loginPromptChange', this.onPromptChange)
 	},
 	methods: {
+		checkLoginStatus() {
+			this.isLoggedIn = !!uni.getStorageSync('token')
+			this.noPrompt = !!uni.getStorageSync('login_no_prompt')
+		},
+		onPromptChange(data) {
+			if (data && typeof data.noPrompt === 'boolean') {
+				this.noPrompt = data.noPrompt
+			} else {
+				this.checkLoginStatus()
+			}
+		},
+		onLoginChange(data) {
+			if (data && data.isLogin) {
+				this.isLoggedIn = true
+				this.noPrompt = false
+				uni.removeStorageSync('login_no_prompt')
+				uni.$emit('loginPromptChange', { noPrompt: false })
+			} else if (data && data.isLogin === false) {
+				this.isLoggedIn = false
+				this.noPrompt = !!uni.getStorageSync('login_no_prompt')
+			} else {
+				this.checkLoginStatus()
+			}
+		},
+		handleNoPrompt() {
+			this.noPrompt = true
+			uni.setStorageSync('login_no_prompt', true)
+			uni.$emit('loginPromptChange', { noPrompt: true })
+			this.close()
+		},
+		onPopupClose() {
+			// 弹窗关闭
+		},
 		handleNicknameInput() {
-			// 示例：允许中英文、数字、下划线和部分常用符号
+			// 允许中英文、数字、下划线和部分常用符号
 			const allowedChars = /[^\u4e00-\u9fa5a-zA-Z0-9_·]/g
 			this.nickname = this.nickname.replace(allowedChars, '')
 
@@ -105,7 +198,71 @@ export default {
 				})
 			})
 		},
-		// 从接口返回数据中提取昵称，判断是否已设置
+		// 获取微信 openid
+		index() {
+			return new Promise((resolve) => {
+				uni.login({
+					success: async res => {
+						let params = {
+							code: res.code
+						}
+						try {
+							const resA = await authcodetoopenid(params)
+							if (resA.code == 0 && resA.data) {
+								this.weapp_openid = resA.data.openid
+							}
+						} catch (e) {
+							console.log('openid获取失败', e)
+						}
+						resolve()
+					},
+					fail: () => resolve()
+				})
+			})
+		},
+		close() {
+			if (this.$refs.showpopref && typeof this.$refs.showpopref.close === 'function') {
+				this.$refs.showpopref.close()
+			}
+		},
+		// 完善资料弹窗关闭（提交成功或用户跳过），此时已登录成功
+		infoclose() {
+			this.avatar = ''
+			this.nickname = ''
+			if (this.$refs.infopopref && typeof this.$refs.infopopref.close === 'function') {
+				this.$refs.infopopref.close()
+			}
+			this.$emit('loginsuccess')
+			uni.$emit('loginsuccess')
+		},
+		async open(force = true) {
+			this.checkLoginStatus()
+			if (this.isLoggedIn) {
+				return
+			}
+			if (this.noPrompt && !force) {
+				return
+			}
+			await this.index()
+			if (this.$refs.showpopref && typeof this.$refs.showpopref.open === 'function') {
+				this.$refs.showpopref.open()
+			}
+		},
+		// 获取用户头像
+		chooseavatar(e) {
+			this.$util.upload_file_server(e.detail.avatarUrl, {}, '', '').then((res) => {
+				this.avatar = res.path
+			})
+		},
+		// 未勾选协议时的提示（不触发微信手机号授权）
+		showAgreementTip() {
+			uni.showToast({
+				title: "请同意并阅读《用户协议》《隐私政策》",
+				icon: 'none',
+				duration: 2000
+			})
+		},
+		// 从接口返回数据中提取昵称
 		getNickname(res) {
 			const d = res.data || {}
 			let nick = d.nickname || d.nickName || d.nick_name
@@ -114,105 +271,74 @@ export default {
 			}
 			return nick || ''
 		},
-		// 未勾选协议时的提示
-		showAgreementTip() {
-			uni.showToast({
-				title: "请勾选同意《用户协议》《隐私政策》后再登录",
-				icon: 'none',
-				duration: 2000
-			})
-		},
-		// 手机号快捷登录
+		// 微信手机号快捷登录
 		async getPhoneNumber(e) {
-			const {
-				encryptedData,
-				iv,
-				errMsg
-			} = e.detail;
-
-			// 用户未授权（取消/拒绝）时给出友好提示
-			if (errMsg != 'getPhoneNumber:ok') {
-				if (errMsg.indexOf('cancel') == -1 && errMsg.indexOf('deny') == -1) {
-					uni.showToast({
-						title: '手机号授权失败，请重试',
-						icon: 'none',
-						duration: 2000
-					})
-				}
-				return
-			}
 			if (!this.is_show) {
 				uni.showToast({
-					title: "请勾选同意《用户协议》《隐私政策》后再登录",
+					title: "请同意并阅读《用户协议》《隐私政策》",
 					icon: 'none',
 					duration: 2000
 				})
 				return
 			}
+			const {
+				encryptedData,
+				iv,
+				errMsg
+			} = e.detail;
+			if (errMsg != 'getPhoneNumber:ok') {
+				uni.showToast({
+					title: "需授权手机号才能登录",
+					icon: 'none',
+					duration: 2000
+				})
+				return
+			}
+			// 确保 openid 已获取
+			if (!this.weapp_openid) {
+				await this.index()
+			}
 			uni.showLoading({
-				title: '登录中...',
-				mask: true
+				title: '登录中...'
 			})
 			uni.login({
 				success: async res => {
 					try {
-						const params1 = {
-							code: res.code
+						if (!this.weapp_openid && res.code) {
+							const resC = await authcodetoopenid({ code: res.code })
+							if (resC.code == 0 && resC.data) {
+								this.weapp_openid = resC.data.openid
+							}
 						}
-						const resC = await authcodetoopenid(params1)
-						if (resC.code != 0) throw new Error(resC.msg || '获取openid失败')
-						this.weapp_openid = resC.data.openid
 						const params = {
-							nickname: '',
-							headimg: '',
+							code: res.code,
 							iv: iv,
 							encryptedData: encryptedData,
-							weapp_openid: this.weapp_openid
+							weapp_openid: this.weapp_openid,
+							nickname: '',
+							headimg: ''
 						}
 						const resM = await mobileAuth(params)
-						if (resM.code != 0) throw new Error(resM.msg || '登录失败')
-						uni.setStorageSync('token', resM.data.token)
 						uni.hideLoading()
-						// 判断是否已设置昵称：mobileAuth 仅返回 token，需调 checkLogin 查询用户信息。
-						// 注意：authcodetoopenid 已消费当前 code，必须重新 uni.login 获取新 code
-						let hasNick = false
-						try {
-							const newCode = await this.getWxLoginCode()
-							const resCk = await logincheckLogin({
-								code: newCode
-							}, true)
-							if (resCk.code == 0) {
-								hasNick = !!this.getNickname(resCk)
-								if (resCk.data) {
-									uni.setStorageSync('userInfo', {
-										avatar: resCk.data.avatar || '',
-										headimg: resCk.data.avatar || '',
-										nickname: resCk.data.nickname || ''
-									})
-								}
-							}
-						} catch (e) {
-							// checkLogin 异常时进入设置昵称，保证新用户流程可走通
-						}
-						if (hasNick) {
-							// 已设置昵称：直接登录成功
-							uni.$emit('loginsuccess')
-							this.$emit('loginsuccess')
-							this.close()
+						if (resM.code != 0) {
 							uni.showToast({
-								title: '登录成功',
-								icon: 'none'
+								title: resM.message || resM.msg || '登录失败',
+								icon: 'none',
+								duration: 2500
 							})
-						} else {
-							// 未设置昵称：进入设置头像、昵称
-							this.step = 2
+							return
 						}
-					} catch (e) {
+						uni.setStorageSync('token', resM.data.token)
+						this.isLoggedIn = true
+						this.noPrompt = false
+						uni.removeStorageSync('login_no_prompt')
+						// 登录成功，检查是否已设置昵称
+						await this.checkNeedInfo()
+					} catch (err) {
 						uni.hideLoading()
 						uni.showToast({
-							title: '登录失败，请稍后重试',
-							icon: 'none',
-							duration: 2000
+							title: (err && (err.message || err.msg)) || '登录失败，请重试',
+							icon: 'none'
 						})
 					}
 				},
@@ -220,17 +346,62 @@ export default {
 					uni.hideLoading()
 					uni.showToast({
 						title: '微信授权失败，请重试',
-						icon: 'none',
-						duration: 2000
+						icon: 'none'
 					})
 				}
 			})
 		},
-		// 设置头像昵称后完成登录
-		showtrip() {
-			if (!this.is_show) {
+		// 检查用户资料是否完善，未设置昵称则弹出完善资料弹窗
+		async checkNeedInfo() {
+			this.isLoggedIn = true
+			this.noPrompt = false
+			uni.removeStorageSync('login_no_prompt')
+			try {
+				let hasNick = false
+				const newCode = await this.getWxLoginCode()
+				const resCk = await logincheckLogin({
+					code: newCode
+				}, true)
+				if (resCk.code == 0 && resCk.data) {
+					hasNick = !!this.getNickname(resCk)
+					uni.setStorageSync('userInfo', {
+						avatar: resCk.data.avatar || '',
+						headimg: resCk.data.avatar || '',
+						nickname: resCk.data.nickname || ''
+					})
+				}
+				uni.$emit('loginChange', { isLogin: true })
+				uni.$emit('loginsuccess')
+				if (!hasNick) {
+					// 关闭手机号弹窗，打开完善资料弹窗
+					this.close()
+					if (this.$refs.infopopref && typeof this.$refs.infopopref.open === 'function') {
+						this.$refs.infopopref.open()
+					}
+				} else {
+					this.$emit('loginsuccess')
+					this.close()
+					uni.showToast({
+						title: '登录成功',
+						icon: 'none'
+					})
+				}
+			} catch (e) {
+				uni.$emit('loginChange', { isLogin: true })
+				uni.$emit('loginsuccess')
+				this.$emit('loginsuccess')
+				this.close()
 				uni.showToast({
-					title: "请勾选同意《用户协议》《隐私政策》后再登录",
+					title: '登录成功',
+					icon: 'none'
+				})
+			}
+		},
+		// 提交头像昵称
+		async submitInfo() {
+			if (!this.avatar) {
+				uni.showToast({
+					title: "请选择用户头像",
 					icon: 'none',
 					duration: 2000
 				})
@@ -244,88 +415,90 @@ export default {
 				})
 				return
 			}
-			this.beforelogin()
-		},
-		beforelogin() {
 			uni.showLoading({
-				title: '登录中...',
+				title: '保存中...',
 				mask: true
 			})
-			uni.login({
-				success: async res => {
-					try {
-						const params1 = {
-							code: res.code
-						}
-						const resC = await authcodetoopenid(params1)
-						if (resC.code != 0) throw new Error(resC.msg || '获取openid失败')
-						this.weapp_openid = resC.data.openid
-						const params = {
-							weapp_openid: this.weapp_openid,
-							nickName: this.nickname,
-							avatarUrl: this.avatar
-						}
-						const resA = await loginAuth(params)
-						if (resA.code != 0) throw new Error(resA.msg || '登录失败')
-						uni.setStorageSync('token', resA.data.token)
-						uni.setStorageSync('userInfo', {
-							avatar: this.avatar,
-							headimg: this.avatar,
-							nickname: this.nickname
-						})
-						uni.hideLoading()
-						this.close()
-						uni.$emit('loginsuccess')
-						this.$emit('loginsuccess')
-						uni.showToast({
-							title: '登录成功',
-							icon: 'none'
-						})
-					} catch (e) {
-						uni.hideLoading()
-						uni.showToast({
-							title: '登录失败，请稍后重试',
-							icon: 'none',
-							duration: 2000
-						})
-					}
-				},
-				fail: () => {
-					uni.hideLoading()
-					uni.showToast({
-						title: '微信授权失败，请重试',
-						icon: 'none',
-						duration: 2000
+			try {
+				if (this.avatar) {
+					await modifyheadimg({
+						headimg: this.avatar
 					})
 				}
-			})
+				await modifynickname({
+					nickname: this.nickname
+				})
+				uni.hideLoading()
+				uni.showToast({
+					title: "设置成功",
+					icon: 'none'
+				})
+				uni.setStorageSync('userInfo', {
+					avatar: this.avatar,
+					headimg: this.avatar,
+					nickname: this.nickname
+				})
+				this.isLoggedIn = true
+				this.noPrompt = false
+				uni.removeStorageSync('login_no_prompt')
+				this.avatar = ''
+				this.nickname = ''
+				this.$emit('loginsuccess')
+				uni.$emit('loginsuccess')
+				if (this.$refs.infopopref && typeof this.$refs.infopopref.close === 'function') {
+					this.$refs.infopopref.close()
+				}
+			} catch (e) {
+				uni.hideLoading()
+				try {
+					if (!this.weapp_openid) {
+						await this.index()
+					}
+					await loginAuth({
+						weapp_openid: this.weapp_openid,
+						nickName: this.nickname,
+						avatarUrl: this.avatar
+					})
+					uni.setStorageSync('userInfo', {
+						avatar: this.avatar,
+						headimg: this.avatar,
+						nickname: this.nickname
+					})
+				} catch (err) { }
+				this.avatar = ''
+				this.nickname = ''
+				this.$emit('loginsuccess')
+				uni.$emit('loginsuccess')
+				if (this.$refs.infopopref && typeof this.$refs.infopopref.close === 'function') {
+					this.$refs.infopopref.close()
+				}
+			}
 		},
 		xyopen(type) {
-			uni.navigateTo({
-				url: '/otherpages/agreement/agreement?type=' + type
+			let params = {
+				type: type
+			}
+			getAgreement(params).then(res => {
+				if (res.code == 0 && res.data && res.data.content) {
+					this.xycontent = res.data.content
+					if (this.$refs.xypopref && typeof this.$refs.xypopref.open === 'function') {
+						this.$refs.xypopref.open()
+					}
+				} else {
+					uni.navigateTo({
+						url: '/otherpages/agreement/agreement?type=' + type
+					})
+				}
+			}).catch(() => {
+				uni.navigateTo({
+					url: '/otherpages/agreement/agreement?type=' + type
+				})
 			})
 		},
-		close() {
-			this.avatar = ''
-			this.nickname = ''
-			this.step = 1
-			this.$refs.showpopref.close()
-			// this.$emit('loginsuccess')
-		},
-		async open() {
-			uni.$off('agreeAgreement')
-			uni.$once('agreeAgreement', () => {
-				this.is_show = true
-			})
-			this.step = 1
-			this.is_show = false
-			this.$refs.showpopref.open()
-		},
-		// 获取用户头像
-		chooseavatar(e) {
-			this.$util.upload_file_server(e.detail.avatarUrl, {}, '', '').then((res) => {
-				this.avatar = res.path
-			})
+		xyclose() {
+			if (this.$refs.xypopref && typeof this.$refs.xypopref.close === 'function') {
+				this.$refs.xypopref.close()
+			}
 		}
 	}
 }
@@ -340,9 +513,28 @@ export default {
 	color: #A95346;
 }
 
-
 .activity-box {
 	padding: 40rpx 50rpx;
+
+	.tit {
+		display: flex;
+		align-items: center;
+		margin-bottom: 34rpx;
+
+		&_text {
+			color: #1C274C;
+			font-size: 30rpx;
+			font-weight: bold;
+		}
+
+		.logo {
+			width: 80rpx;
+			height: 80rpx;
+			display: block;
+			border-radius: 50%;
+			margin-right: 20rpx;
+		}
+	}
 
 	.loginimg {
 		width: 302rpx;
@@ -352,10 +544,16 @@ export default {
 	}
 
 	.titlabel {
-		font-size: 36rpx;
+		font-size: 32rpx;
 		font-weight: bold;
 		color: #1C274C;
 		margin-bottom: 22rpx;
+	}
+
+	.titlabel2 {
+		color: #8D93A5;
+		font-size: 28rpx;
+		margin-bottom: 56rpx;
 	}
 
 	.graybg {
@@ -367,14 +565,12 @@ export default {
 		border-radius: 16rpx;
 		display: flex;
 		align-items: center;
-
 		margin-bottom: 20rpx;
 
 		.iptwid {
 			margin-right: 36rpx;
 			font-size: 28rpx;
 		}
-
 	}
 
 	.headimg {
@@ -397,11 +593,26 @@ export default {
 	.opt-box {
 		margin-top: 52rpx;
 
+		.no-prompt-action {
+			margin-top: 28rpx;
+			text-align: center;
+			font-size: 32rpx;
+			font-weight: 500;
+			color: #8D93A5;
+			padding: 16rpx 0;
+			cursor: pointer;
+
+			&:active {
+				opacity: 0.7;
+			}
+		}
+
 		.xieyibox {
 			display: flex;
 			align-items: center;
 			flex-wrap: wrap;
 			justify-content: flex-start;
+			margin-top: 30rpx;
 			margin-bottom: 16rpx;
 
 			.circle {
@@ -418,24 +629,103 @@ export default {
 
 			text {
 				font-size: 24rpx;
+				color: #F55606;
 			}
 		}
 	}
-
 
 	.titlePhone {
 		color: #fff;
 		height: 88rpx;
 		line-height: 88rpx;
 		font-size: 28rpx;
-		// background-color: $uni-theme-color;
-		// border-color: $uni-theme-color;
 		border-radius: 98rpx;
 	}
+}
 
+.xieyi-box {
+	padding: 30rpx;
+	width: 95vw;
+	box-sizing: border-box;
+
+	.xyhig {
+		max-height: 70vh;
+	}
+
+	.xieyi-tit {
+		font-size: 30rpx;
+		font-weight: bold;
+		text-align: center;
+		padding: 0 0 30rpx;
+	}
 }
 
 .public_btn {
 	background: linear-gradient(90deg, #F5AB18 0%, #F55606 100%) !important;
+}
+
+.login-bottom-bar {
+	position: fixed;
+	left: 30rpx;
+	right: 30rpx;
+	bottom: calc(var(--window-bottom, 0px) + 24rpx);
+	z-index: 9990;
+	height: 88rpx;
+	background: rgba(28, 39, 76, 0.92);
+	backdrop-filter: blur(10px);
+	border-radius: 44rpx;
+	padding: 0 16rpx 0 24rpx;
+	box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.15);
+	box-sizing: border-box;
+	animation: slideUp 0.3s ease-out;
+
+	.bar-left {
+		flex: 1;
+		overflow: hidden;
+		margin-right: 20rpx;
+
+		.bar-avatar {
+			width: 52rpx;
+			height: 52rpx;
+			border-radius: 50%;
+			margin-right: 16rpx;
+			flex-shrink: 0;
+		}
+
+		.bar-tip {
+			font-size: 26rpx;
+			color: #FFFFFF;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+	}
+
+	.bar-btn {
+		padding: 0 32rpx;
+		height: 60rpx;
+		background: linear-gradient(90deg, #F5AB18 0%, #F55606 100%);
+		border-radius: 30rpx;
+		color: #FFFFFF;
+		font-size: 26rpx;
+		font-weight: 500;
+		flex-shrink: 0;
+
+		&:active {
+			opacity: 0.9;
+		}
+	}
+}
+
+@keyframes slideUp {
+	from {
+		transform: translateY(100%);
+		opacity: 0;
+	}
+
+	to {
+		transform: translateY(0);
+		opacity: 1;
+	}
 }
 </style>

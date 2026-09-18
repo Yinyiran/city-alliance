@@ -333,9 +333,15 @@
 		},
 		onLoad(res) {
 			uni.$on('merchantShopChanged', this.onShopChanged);
+			uni.$on('loginout', this.resetPageData);
+			uni.$on('loginChange', this.onLoginChange);
+			uni.$on('loginsuccess', this.loginsuccess);
 		},
 		beforeDestroy() {
 			uni.$off('merchantShopChanged', this.onShopChanged);
+			uni.$off('loginout', this.resetPageData);
+			uni.$off('loginChange', this.onLoginChange);
+			uni.$off('loginsuccess', this.loginsuccess);
 		},
 		onReachBottom() {
 			if (this.last_page > this.page) {
@@ -348,8 +354,13 @@
 			}
 		},
 		onShow() {
-			this.token = uni.getStorageSync('token') || ''
+			this.token = uni.getStorageSync('token') || '';
 			let cachedSiteId = uni.getStorageSync('site_id') || '';
+
+			if (!this.token) {
+				this.resetPageData();
+				return;
+			}
 
 			// 检查是否切换过店铺
 			if (cachedSiteId && cachedSiteId !== this.currentSiteId) {
@@ -358,10 +369,8 @@
 			} else {
 				this.fetchShopInfo();
 				this.getRankList();
-				if (uni.getStorageSync('token')) {
-					this.getnum();
-					this.fetchIncomeSummary();
-				}
+				this.getnum();
+				this.fetchIncomeSummary();
 			}
 		},
 		onPullDownRefresh() {
@@ -371,6 +380,33 @@
 			}, 1000);
 		},
 		methods: {
+			resetPageData() {
+				this.token = '';
+				this.points = 0;
+				this.total_count = 0;
+				this.leveltotal = [];
+				this.myinfo = {};
+				this.list = [];
+				this.list2 = [];
+				this.currentSiteId = '';
+				this.currentSiteName = '';
+				this.currentShopLogo = '';
+				this.isManager = 0;
+				this.currentRoleName = '员工';
+				this.incomeSummary = {
+					is_manager: 0,
+					bring_income: { total: '0.00', today: '0.00', count: 0 },
+					member_income: { total: '0.00', today: '0.00', count: 0 }
+				};
+			},
+			onLoginChange(isLogin) {
+				if (!isLogin) {
+					this.resetPageData();
+				} else {
+					this.token = uni.getStorageSync('token') || '';
+					this.refreshAllData();
+				}
+			},
 			openShopSelect() {
 				if (!uni.getStorageSync('token')) {
 					this.$refs.login.open();
@@ -621,13 +657,10 @@
 				})
 			},
 			gonext(e, n) {
-				if (!uni.getStorageSync('token')) {
-					this.$refs.login.open()
-					return
-				}
+				let url = n !== undefined ? `/otherpages/${e}/${e}?current=${n}` : `/otherpages/${e}/${e}`;
 				uni.navigateTo({
-					url: `/otherpages/${e}/${e}?current=${n}`
-				})
+					url: url
+				});
 			},
 			getnum() {
 				getnum().then(res => {

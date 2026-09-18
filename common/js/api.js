@@ -89,3 +89,9 @@ export const getBringOrderList=params=>server('/shopapplet/shop/getBringOrderLis
 export const getMemberIncomeList=params=>server('/shopapplet/shop/getMemberIncomeList',params)
 //老板主动添加合伙人
 export const openPartnerByBoss=params=>server('/shopapplet/shop/openPartnerByBoss',params)
+//小程序简介
+export const Synopsis=params=>server('/api/api/info',params)
+//修改头像
+export const modifyheadimg=params=>server('/api/member/modifyheadimg',params)
+//修改昵称
+export const modifynickname=params=>server('/api/member/modifynickname',params)

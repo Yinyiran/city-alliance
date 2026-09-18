@@ -1,8 +1,8 @@
 <template>
 	<view>
 		<uv-sticky bg-color="#fff">
-			<nvabar title="团队总人数" bgcolor='#ffffff' :type='1' :titleStyle='titleStyle'></nvabar>
-			<uv-tabs :list="list1" @click='onclick' :scrollable="false" lineWidth="30"
+			<nvabar :title="pageTitle" bgcolor='#ffffff' :type='1' :titleStyle='titleStyle'></nvabar>
+			<uv-tabs :list="list1" :current="current" @click='onclick' :scrollable="false" lineWidth="30"
 				lineColor="linear-gradient( 90deg, #F5AB18 0%, #F55606 100%)" :activeStyle="{
 					fontWeight: 'bold'
 		    	}" :inactiveStyle="{
@@ -21,7 +21,7 @@
 			</view>
 		</uv-sticky>
 		<view class="nums">
-			<view class="">团队总人数 (人)</view>
+			<view class="">{{ currentTabName }} (人)</view>
 			<view class="">{{count}}</view>
 			<image src="/static/add.png" v-if="ismanager" @click="gonext" mode=""></image>
 		</view>
@@ -49,6 +49,9 @@
 				<view class="font-28" style="color: #222;">{{item.point}}</view>
 			</view>
 		</view>
+		<view class="empty-box acea-row row-column row-center row-middle" v-else>
+			<uv-empty mode="data" text="暂无相关人员数据"></uv-empty>
+		</view>
 	</view>
 </template>
 
@@ -61,45 +64,75 @@
 				count:0,
 				customStyle: "background: #F5F5F5;height: 64rpx;borderRadius:32rpx;paddingLeft:24rpx;",
 				list1: [{
-						name: '团队总人数'
+						name: '团队总人数',
+						level_id: 0
 					},
 					{
-						name: '钻石会员'
+						name: '钻石会员',
+						level_id: 2
 					},
 					{
-						name: '黑钻会员'
+						name: '黑钻会员',
+						level_id: 3
 					},
 					{
-						name: '合伙人'
+						name: '合伙人',
+						level_id: 4
 					}
 				],
 				current:0,
 				page:1,
+				last_page:1,
 				searchtxt:'',
 				list:[],
 				ismanager:0
 			};
 		},
+		computed: {
+			currentTabName() {
+				return (this.list1[this.current] && this.list1[this.current].name) || '团队总人数';
+			},
+			pageTitle() {
+				return this.currentTabName;
+			}
+		},
 		onLoad(res) {
-			this.current=res.current
+			if (res && res.current !== undefined && res.current !== '') {
+				this.current = Number(res.current);
+			}
 		},
 		onShow() {
-			this.getlist()
+			this.page = 1;
+			this.list = [];
+			this.getlist();
+		},
+		onReachBottom() {
+			if (this.last_page > this.page) {
+				this.page++;
+				this.getlist(true);
+			}
 		},
 		methods: {
 			search(){
-				this.getlist()
+				this.page = 1;
+				this.list = [];
+				this.getlist();
 			},
-			getlist(){
+			getlist(append = false){
+				let currentItem = this.list1[this.current] || this.list1[0];
 				let params={
 					page:this.page,
-					member_level:this.current,
+					member_level: currentItem.level_id || 0,
 					searchtxt:this.searchtxt
 				}
 				getteam(params).then(res=>{
-					this.count=res.data.count
-					this.list=res.data.list
-					this.ismanager=res.data.ismanager
+					this.count = (res.data && res.data.count) || 0
+					let dataList = (res.data && res.data.list) || []
+					this.list = append ? this.list.concat(dataList) : dataList
+					this.last_page = (res.data && res.data.page_count) || 1
+					this.ismanager = (res.data && res.data.ismanager) || 0
+				}).catch(() => {
+					if (!append) this.list = []
 				})
 			},
 			gonext(){
@@ -108,7 +141,9 @@
 				})
 			},
 			onclick(e) {
-				this.current=e.index
+				this.current = e.index
+				this.page = 1
+				this.list = []
 				this.getlist()
 			}
 		}
@@ -213,5 +248,10 @@
 		padding: 0 28rpx;
 		border-left: #DDDDDD 1rpx solid;
 		height: 42rpx;
+	}
+
+	.empty-box {
+		margin: 60rpx 32rpx;
+		padding: 60rpx 0;
 	}
 </style>

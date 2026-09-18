@@ -10,7 +10,7 @@
 					<uv-icon name="arrow-down-fill" size="10" color="#fff"
 						customStyle="margin-left: 8rpx; flex-shrink: 0;"></uv-icon>
 				</view>
-				<view class="font-32" style="flex: 1;" v-else @click="$refs.login.open()">
+				<view class="font-32" style="flex: 1;" v-else @click="$refs.login.open(true)">
 					<view class="login-btn">立即登录</view>
 				</view>
 				<image src="/static/qr.png" class="w-48 h-48 m-l-18 qr-btn" mode="aspectFit" @click="goShopQr" v-if="token">
@@ -261,7 +261,6 @@ export default {
 		} else {
 			this.token = ''
 			this.resetPageData()
-			this.showLoginModal()
 		}
 	},
 	beforeUnmount() {
@@ -272,19 +271,11 @@ export default {
 	},
 	methods: {
 		goSetting() {
-			if (!this.token) {
-				this.$refs.login.open()
-				return
-			}
 			uni.navigateTo({
 				url: '/otherpages/setting/setting'
 			})
 		},
 		goShopQr() {
-			if (!this.token) {
-				this.$refs.login.open()
-				return
-			}
 			uni.navigateTo({
 				url: '/otherpages/shopQr/shopQr'
 			})
@@ -311,7 +302,7 @@ export default {
 				cancelText: '取消',
 				success: (res) => {
 					if (res.confirm) {
-						this.$refs.login.open()
+						this.$refs.login.open(true)
 					}
 				}
 			})
@@ -343,25 +334,12 @@ export default {
 			this.token = uni.getStorageSync('token')
 			this.refreshAll()
 		},
-		goSetting() {
-			if (!uni.getStorageSync('token')) {
-				this.$refs.login.open()
-				return
-			}
-			uni.navigateTo({
-				url: '/otherpages/setting/setting'
-			})
-		},
 		shopList() {
 			shopList().then(res => {
 				this.slist = res.data
 			})
 		},
 		caches() {
-			if (!uni.getStorageSync('token')) {
-				this.$refs.login.open()
-				return
-			}
 			uni.navigateTo({
 				url: '/otherpages/cashOUT/cashOUT',
 				fail: e => {
@@ -370,12 +348,8 @@ export default {
 			})
 		},
 		godatas() {
-			if (!uni.getStorageSync('token')) {
-				this.$refs.login.open()
-				return
-			}
 			uni.navigateTo({
-				url: '/otherpages/dataspage/dataspage?site_id=' + this.info.site_id
+				url: '/otherpages/dataspage/dataspage?site_id=' + (this.info && this.info.site_id ? this.info.site_id : '')
 			})
 		},
 		async getInfo1() {
@@ -462,19 +436,11 @@ export default {
 			})
 		},
 		gonext1(e) {
-			if (!uni.getStorageSync('token')) {
-				this.$refs.login.open()
-				return
-			}
 			uni.navigateTo({
 				url: '/otherpages/order/order?current=' + e
 			})
 		},
 		gonext(e) {
-			if (!uni.getStorageSync('token')) {
-				this.$refs.login.open()
-				return
-			}
 			uni.navigateTo({
 				url: `/otherpages/${e}/${e}`
 			})

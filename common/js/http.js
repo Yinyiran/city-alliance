@@ -4,6 +4,19 @@ import Config from './config.js'
 const app_type = 'weappqy';
 const app_type_name = '微信小程序(商家端)';
 // #endif
+let lastTokenToastTime = 0;
+function showTokenToast() {
+	let now = Date.now();
+	if (now - lastTokenToastTime > 2500) {
+		lastTokenToastTime = now;
+		uni.showToast({
+			title: '该页面数据需要登录后查看',
+			icon: 'none',
+			duration: 2500
+		});
+	}
+}
+
 export function server(url, params, methods, silent) {
 	uni.showLoading({
 		title: '加载中'
@@ -30,77 +43,53 @@ export function server(url, params, methods, silent) {
 				'token': token
 			},
 
-			// 这里请求成功根据自己的 code 判断就好了
-			success: function (res) { // 当请求成功时调用的函数。这个函数会得到一个参数：从服务器返回的数据。当请求成功时调用函数，即status==200。
-				// console.log('数据请求响应', res.data.code)
-				if (res.data.code == 0) {
-					resolve(res.data)
-					uni.hideLoading();
-				} else if (res.data.code == -10016) {
-					resolve(res.data)
-					uni.hideLoading();
-				} else if (res.data.code == -10001) {
-					resolve(res.data)
-					uni.hideLoading();
-				} else if (res.data.code == -10010) {
-					// uni.showModal({
-					// 	content: "你还没登录，请先登录",
-					// 	confirmColor: "#363636",
-					// 	cancelColor: '#666666',
-					// 	success: res => {
-					// 		if (res.confirm) {
-					// 			uni.navigateTo({
-					// 				url: '/otherpages/login/login'
-					// 			})
-					// 		}
-					// 	}
-					// })
-					uni.removeStorageSync('token')
-					uni.hideLoading();
-					// 业务错误也 resolve，避免调用方 await 永久挂起
-					resolve(res.data)
-				} else {
-					console.log(res.data);
-					if (silent) {
-						// 静默模式：不弹错误 toast
-						uni.hideLoading();
-					} else {
-						// token 为空时提示用户先登录
-						const msg = res.data.msg == 'token不能为空' ? '请登录后，查看数据' : (res.data.msg ||
-							'请求失败，请稍后重试');
-						uni.hideLoading();
-
-						// uni.showToast({
-						// 	title: msg,
-						// 	icon: 'none',
-						// 	duration: 3000,
-						// 	success: res => {
-						// 		setTimeout(()=>{
-						// 			uni.hideLoading();
-						// 		},3000)
-						// 	}
-						// })
-					}
-					// 业务错误也 resolve，避免调用方 await 永久挂起
-					resolve(res.data)
+			success: function (res) {
+				uni.hideLoading();
+				if (!res || !res.data) {
+					resolve(res || {});
+					return;
 				}
 
+				let code = res.data.code;
+				let msg = res.data.msg || res.data.message || '';
+
+				// 判断是否属于 token 不存在 / token 为空 / token 过期 / 未登录
+				let isTokenMissing = (code == -10010 || code == -10011);
+				if (!isTokenMissing && typeof msg === 'string') {
+					if (msg.indexOf('token') !== -1 || msg.indexOf('未登录') !== -1 || msg === '请先登录') {
+						isTokenMissing = true;
+					}
+				}
+
+				if (isTokenMissing) {
+					uni.removeStorageSync('token');
+					showTokenToast();
+					resolve(res.data);
+					return;
+				}
+
+				if (code == 0 || code == -10016 || code == -10001) {
+					resolve(res.data);
+					return;
+				}
+
+				// 其它错误业务提示
+				if (!silent && msg) {
+					uni.showToast({
+						title: msg,
+						icon: 'none',
+						duration: 2500
+					});
+				}
+				resolve(res.data);
 			},
 			fail: function (res) {
 				console.warn("请求异常", res)
-				// uni.showToast({
-				// 	title: res.data.msg,
-				// 	icon: 'none',
-				// 	duration: 3000,
-				// 	success: res => {
 				uni.hideLoading();
-				// 	}
-				// })
 				reject(res)
 			}
-		});
-	});
-	return promise;
+		})
+	})
 }
 
 export default {

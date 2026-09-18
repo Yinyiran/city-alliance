@@ -12,16 +12,16 @@
 						<text class="font-36 font-weight-6 text-more" style="color: #fff; max-width: 340rpx;">
 							{{ siteName || '门店签到' }}
 						</text>
-						<uv-icon name="arrow-down-fill" size="10" color="#FFFFFF" customStyle="margin-left: 8rpx; flex-shrink: 0;"></uv-icon>
+						<uv-icon name="arrow-down-fill" size="10" color="#FFFFFF"
+							customStyle="margin-left: 8rpx; flex-shrink: 0;"></uv-icon>
 					</view>
 					<!-- 第二行：头像 + 姓名 + 员工/主理人 -->
 					<view class="acea-row row-middle m-t-12" v-if="userName" style="flex-wrap: nowrap;">
-						<text style="color: rgba(255, 255, 255, 0.95); max-width: 200rpx;"
-							class="font-26 font-weight-6 text-more">
+						<text style="color: rgba(255, 255, 255, 0.95); max-width: 200rpx;" class="font-26 font-weight-6 text-more">
 							{{ token ? userName : '' }}
 						</text>
 						<view class="user-role-badge m-l-10" v-if="roleName">{{ roleName }}</view>
-						<text class="font-30 m-l-8 font-weight-6" style="color: #fff;" v-if="!token">点击登录</text>
+						<text class="font-30 m-l-8 font-weight-6" style="color: #fff;" v-if="!token" @click.stop="$refs.login.open(true)">点击登录</text>
 					</view>
 				</view>
 				<!-- 右侧：扫码签到 -->
@@ -80,8 +80,7 @@
 				<view v-for="(item, index) in list" class="h-100 acea-row row-middle row-between p-r-24 p-l-24 items"
 					:key="index">
 					<view class="acea-row row-middle" style="flex-wrap: nowrap;">
-						<image :src="$util.img(item.headimg)" v-if="item.headimg" class="w-52 h-52 bor-26 m-r-12"
-							mode=""></image>
+						<image :src="$util.img(item.headimg)" v-if="item.headimg" class="w-52 h-52 bor-26 m-r-12" mode=""></image>
 						<image src="/static/avatar.png" v-else class="w-52 h-52 bor-26 m-r-12" mode=""></image>
 						<view class="text-more font-28" style="max-width: 140rpx;color: #222222;">{{ item.nickname }}
 						</view>
@@ -103,8 +102,8 @@
 				</view>
 				<view class="sign-modal-title">签到成功</view>
 				<view class="sign-member-card acea-row row-middle m-t-24">
-					<image :src="$util.img(signMember.headimg)" v-if="signMember.headimg"
-						class="w-80 h-80 bor-40 m-r-16" mode=""></image>
+					<image :src="$util.img(signMember.headimg)" v-if="signMember.headimg" class="w-80 h-80 bor-40 m-r-16" mode="">
+					</image>
 					<image src="/static/avatar.png" v-else class="w-80 h-80 bor-40 m-r-16" mode=""></image>
 					<view>
 						<view class="font-30 font-weight-6" style="color: #222;">{{ signMember.nickname || '会员顾客' }}
@@ -115,8 +114,10 @@
 					</view>
 				</view>
 				<view class="sign-msg-txt m-t-20">{{ signMessage || '会员已成功完成签到，签到奖励已发放！' }}</view>
-				<view class="sign-fee-tip m-t-16 acea-row row-middle row-center" v-if="signSettlement && parseFloat(signSettlement.shop_fee) > 0">
-					<text class="font-24" style="color: #ff5722; font-weight: 500;">本次签到计费：¥ {{ signSettlement.shop_fee }}（周一统一划扣）</text>
+				<view class="sign-fee-tip m-t-16 acea-row row-middle row-center"
+					v-if="signSettlement && parseFloat(signSettlement.shop_fee) > 0">
+					<text class="font-24" style="color: #ff5722; font-weight: 500;">本次签到计费：¥ {{ signSettlement.shop_fee
+					}}（周一统一划扣）</text>
 				</view>
 				<view class="sign-modal-btn acea-row row-middle row-center m-t-32" @click="closeSignSuccess">
 					我知道了
@@ -268,7 +269,7 @@ export default {
 		},
 		handleHeaderClick() {
 			if (!this.token) {
-				this.$refs.login.open()
+				this.$refs.login.open(true)
 			}
 		},
 		getInfo() {
@@ -495,6 +496,7 @@ export default {
 	margin: 32rpx;
 
 	.header-left {
+		flex: 1;
 		display: flex;
 		flex-direction: column;
 		justify-content: center;

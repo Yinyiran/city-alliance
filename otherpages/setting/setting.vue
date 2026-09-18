@@ -184,6 +184,8 @@
 							uni.removeStorageSync('token')
 							uni.removeStorageSync('site_id')
 							uni.removeStorageSync('userInfo')
+							uni.$emit('loginout')
+							uni.$emit('loginChange', false)
 							uni.showToast({
 								title: '已退出登录',
 								icon: 'none'
