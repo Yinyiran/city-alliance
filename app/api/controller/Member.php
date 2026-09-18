@@ -152,6 +152,12 @@ class Member extends BaseApi
         $headimg = isset($this->params[ 'headimg' ]) ? $this->params[ 'headimg' ] : '';
         $member_model = new MemberModel();
         $res = $member_model->editMember([ 'headimg' => $headimg ], [ [ 'member_id', '=', $token[ 'data' ][ 'member_id' ] ] ]);
+        // 若该会员属于商家员工/店长，联动同步头像至员工表
+        if ($res['code'] >= 0 && !empty($headimg)) {
+            \think\facade\Db::name('shop_employee')
+                ->where('member_id', $token['data']['member_id'])
+                ->update(['headimg' => $headimg]);
+        }
         return $this->response($res);
     }
 
@@ -167,6 +173,12 @@ class Member extends BaseApi
         $nickname = isset($this->params[ 'nickname' ]) ? $this->params[ 'nickname' ] : '';
         $member_model = new MemberModel();
         $res = $member_model->editMember([ 'nickname' => $nickname ], [ [ 'member_id', '=', $token[ 'data' ][ 'member_id' ] ] ]);
+        // 若该会员属于商家员工/店长，联动同步用户名/昵称至员工表
+        if ($res['code'] >= 0 && !empty($nickname)) {
+            \think\facade\Db::name('shop_employee')
+                ->where('member_id', $token['data']['member_id'])
+                ->update(['username' => $nickname]);
+        }
         return $this->response($res);
     }
     /**
