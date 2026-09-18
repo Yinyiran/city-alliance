@@ -18,80 +18,182 @@ class ShopEmployee extends BaseModel
 {
 
     /**
+     * 构建店铺团队成员的基础查询对象
+     */
+    public function getTeamMemberBaseQuery($member_id, $shop_id)
+    {
+        $emp = Db::name('shop_employee')
+            ->where('shop_id', $shop_id)
+            ->where('member_id', $member_id)
+            ->where('is_deleted', 0)
+            ->find();
+        $shop = Db::name('shop')->where('site_id', $shop_id)->find();
+        $is_manager = (($emp && $emp['is_manager'] == 1) || ($shop && $shop['member_id'] == $member_id)) ? 1 : 0;
+
+        // 该店铺所有员工及店长的 member_id
+        $all_emp_members = Db::name('shop_employee')
+            ->where('shop_id', $shop_id)
+            ->where('is_deleted', 0)
+            ->where('member_id', '>', 0)
+            ->column('member_id');
+        if (!empty($shop['member_id']) && !in_array($shop['member_id'], $all_emp_members)) {
+            $all_emp_members[] = (int)$shop['member_id'];
+        }
+
+        // 店铺其它下属员工（不包含当前登录者）
+        $sub_emp_members = array_values(array_filter($all_emp_members, function($id) use ($member_id) {
+            return $id != $member_id;
+        }));
+
+        $all_emp_fenxiao_ids = [];
+        if (!empty($all_emp_members)) {
+            $all_emp_fenxiao_ids = Db::name('fenxiao')
+                ->where('member_id', 'in', $all_emp_members)
+                ->column('fenxiao_id');
+        }
+
+        $my_fenxiao_id = Db::name('fenxiao')->where('member_id', $member_id)->value('fenxiao_id') ?: 0;
+
+        $query = Db::name('member')->alias('m')
+            ->leftJoin('fenxiao f', 'f.fenxiao_id = m.fenxiao_id')
+            ->where('m.is_delete', 0)
+            ->where('m.member_id', '<>', $member_id);
+
+        if ($is_manager == 1) {
+            // 店长/主理人视角：
+            // 1. 明确归属于该店铺 site_id 的会员
+            // 2. 所属员工 staff_member_id 在该店铺员工列表中的会员
+            // 3. 邀请人 source_member 在该店铺员工列表中的会员
+            // 4. 分销上级 parent 在该店铺员工分销ID列表中的会员
+            // 5. 该店铺的下属员工本身
+            $query->where(function($q) use ($shop_id, $all_emp_members, $all_emp_fenxiao_ids, $sub_emp_members) {
+                $has_condition = false;
+                if (!empty($shop_id)) {
+                    $q->where('m.site_id', $shop_id);
+                    $has_condition = true;
+                }
+                if (!empty($all_emp_members)) {
+                    if ($has_condition) {
+                        $q->whereOr('m.staff_member_id', 'in', $all_emp_members);
+                    } else {
+                        $q->where('m.staff_member_id', 'in', $all_emp_members);
+                        $has_condition = true;
+                    }
+                    $q->whereOr('m.source_member', 'in', $all_emp_members);
+                }
+                if (!empty($all_emp_fenxiao_ids)) {
+                    $q->whereOr('f.parent', 'in', $all_emp_fenxiao_ids);
+                }
+                if (!empty($sub_emp_members)) {
+                    $q->whereOr('m.member_id', 'in', $sub_emp_members);
+                }
+            });
+        } else {
+            // 普通员工视角：仅查看由自己邀请或直属的会员
+            $query->where(function($q) use ($member_id, $my_fenxiao_id) {
+                $q->where('m.staff_member_id', $member_id);
+                $q->whereOr('m.source_member', $member_id);
+                if (!empty($my_fenxiao_id)) {
+                    $q->whereOr('f.parent', $my_fenxiao_id);
+                }
+            });
+        }
+
+        return $query;
+    }
+
+    /**
      * 获取团队列表
      * params:member_id 会员id 
      * return array
      */
-    public function getTeamMember($member_id,$shop_id,$member_level,$page,$searchtxt,$page_size = PAGE_LIST_ROWS)
+    public function getTeamMember($member_id, $shop_id, $member_level, $page, $searchtxt, $page_size = PAGE_LIST_ROWS)
     {
-       $where="se.shop_id=".$shop_id." and se.is_deleted=0 and m.is_delete=0";
-        if(!empty($member_level)){
-            $where.=" and m.member_level=".$member_level;
+        $query = $this->getTeamMemberBaseQuery($member_id, $shop_id);
+
+        if (!empty($member_level) && $member_level > 0) {
+            $query->where('m.member_level', $member_level);
         }
-        if(!empty($searchtxt)){
-            $where=" mobile like '%".$searchtxt."%' or m.nickname like '%".$searchtxt."%'";
+
+        if (!empty($searchtxt)) {
+            $query->where(function($q) use ($searchtxt) {
+                $q->where('m.mobile', 'like', '%' . $searchtxt . '%')
+                  ->whereOr('m.nickname', 'like', '%' . $searchtxt . '%');
+            });
         }
-        $alias = "m";
-        $join[] =  ["shop_employee se", "se.member_id=m.fenxiao_id", "inner"];
-        $field="m.*";
-        $order="m.reg_time desc";
-        //$res=model("member")->pageList($condition, $field , $order, $page , $page_size, $alias, $join);
-        $res=Db::name('member')->alias("m")
-            ->field("m.*")
-            ->join("fenxiao f","f.fenxiao_id=m.fenxiao_id")
-            ->join("fenxiao f_parent","f.parent=f_parent.fenxiao_id")
-            ->join("shop_employee se","se.member_id=f_parent.member_id")
-            ->where($where)
-            ->paginate($page_size);
-            
+
+        $res = $query->field('m.*')
+            ->order('m.point desc, m.reg_time desc')
+            ->paginate(['list_rows' => $page_size, 'page' => $page]);
+
+        $ismanager = $this->ismanager($member_id, $shop_id);
+
         $data = [
             "list" => $res->items(),
             "count" => $res->total(),
-            "page_count" => ceil($res->total() / $page_size)
+            "page_count" => ceil($res->total() / $page_size),
+            "ismanager" => $ismanager
         ];
         return $this->success($data);
     }
 
-    public function ismanager($member_id){
-        $res=Db::name("shop_employee")->where("member_id",$member_id)->value("is_manager");
-        if(empty($res)){
-            $res=0;
+    public function ismanager($member_id, $shop_id = 0)
+    {
+        $emp = Db::name("shop_employee")->where("member_id", $member_id);
+        if (!empty($shop_id)) {
+            $emp->where("shop_id", $shop_id);
         }
-        return $res;
-
+        $res = $emp->where("is_deleted", 0)->value("is_manager");
+        if (empty($res) && !empty($shop_id)) {
+            $shop = Db::name("shop")->where("site_id", $shop_id)->find();
+            if (!empty($shop) && $shop['member_id'] == $member_id) {
+                $res = 1;
+            }
+        }
+        return !empty($res) ? 1 : 0;
     }
 
     /**
-     * 获取团队人数
+     * 获取团队人数及等级统计
      */
-    public function getTeamCount($member_id,$shop_id){
-        $condition = [
-            ["shop_id", "=", $shop_id],
-            ["is_deleted", "=", 0]
-        ];
-        $alias = "m";
-        $join[] =  ["shop_employee se", "se.member_id=m.fenxiao_id", "inner"];
-        $field="m.*";
-        $order="m.reg_time desc";
-       
-        $field="count(m.member_id) as total_count";
-        $total=model("member")->getList($condition, $field , $order, $alias, $join);
-      
-        $joinlevel[] =["member m","m.member_level=ml.level_id","left"];
-        $joinlevel[] =["(select member_id,shop_id from `shop_employee` where shop_id=".$shop_id." and is_deleted=0) se","se.member_id=m.member_id","left"];
-        $group="ml.level_id,level_name";
-        $field="count(m.member_id) as counts,level_id,ml.level_name";
+    public function getTeamCount($member_id, $shop_id)
+    {
+        // 1. 获取团队总人数
+        $total_query = $this->getTeamMemberBaseQuery($member_id, $shop_id);
+        $total_count = $total_query->count('DISTINCT m.member_id');
 
-        $order="ml.sort asc";
-        $alias="ml";
-      
-        $leveltotal=model("member_level")->getList([], $field , $order, $alias, $joinlevel,$group);
-        $result=[
-            'total_count'=>$total[0]["total_count"]??0,
-            'leveltotal'=>$leveltotal,
+        // 2. 按会员等级统计各等级人数
+        $all_levels = Db::name('member_level')
+            ->field('level_id, level_name')
+            ->order('sort asc, level_id asc')
+            ->select()
+            ->toArray();
 
+        $level_count_query = $this->getTeamMemberBaseQuery($member_id, $shop_id);
+        $level_counts = $level_count_query
+            ->field('m.member_level, count(DISTINCT m.member_id) as counts')
+            ->group('m.member_level')
+            ->select()
+            ->toArray();
+
+        $count_map = [];
+        foreach ($level_counts as $row) {
+            $count_map[$row['member_level']] = (int)$row['counts'];
+        }
+
+        $leveltotal = [];
+        foreach ($all_levels as $lvl) {
+            $leveltotal[] = [
+                'level_id' => $lvl['level_id'],
+                'level_name' => $lvl['level_name'],
+                'counts' => $count_map[$lvl['level_id']] ?? 0
+            ];
+        }
+
+        return [
+            'total_count' => $total_count,
+            'leveltotal' => $leveltotal
         ];
-        return $result;
     }
     
 

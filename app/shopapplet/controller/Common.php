@@ -87,6 +87,18 @@ class Common extends BaseApi
             if (!empty($owner_shop)) {
                 $site_id = (int)$owner_shop['site_id'];
                 $is_owner = true;
+                $emp_check = Db::name('shop_employee')->where([
+                    ['shop_id', '=', $site_id],
+                    ['is_deleted', '=', 0]
+                ])->where(function($q) use ($mobile, $memberinfo) {
+                    $q->where('member_id', $memberinfo['member_id']);
+                    if (!empty($mobile)) {
+                        $q->whereOr('mobile', $mobile);
+                    }
+                })->find();
+                if (!empty($emp_check)) {
+                    $employeeinfo = $emp_check;
+                }
             } else {
                 $emp = Db::name('shop_employee')->where([['is_deleted', '=', 0]])
                     ->where(function($q) use ($mobile, $memberinfo) {
@@ -118,25 +130,34 @@ class Common extends BaseApi
         if ($is_owner) {
             Db::name("shop")->where("site_id", $site_id)->where("member_id", 0)->update(["member_id" => $this->member_id]);
             if (empty($employeeinfo) || empty($employeeinfo['employee_id'])) {
-                $new_id = Db::name("shop_employee")->insertGetId([
-                    'shop_id' => $site_id,
-                    'member_id' => $this->member_id,
-                    'username' => !empty($memberinfo['nickname']) ? $memberinfo['nickname'] : (!empty($memberinfo['username']) ? $memberinfo['username'] : '老板'),
-                    'mobile' => $mobile,
-                    'headimg' => $memberinfo['headimg'] ?? '',
-                    'is_manager' => 1,
-                    'status' => 1,
-                    'is_deleted' => 0,
-                    'create_time' => time()
-                ]);
-                $employeeinfo = [
-                    'employee_id' => $new_id,
-                    'shop_id' => $site_id,
-                    'username' => !empty($memberinfo['nickname']) ? $memberinfo['nickname'] : '老板',
-                    'mobile' => $mobile,
-                    'is_manager' => 1,
-                    'member_id' => $this->member_id
-                ];
+                $exist_emp = Db::name('shop_employee')->where([
+                    ['shop_id', '=', $site_id],
+                    ['member_id', '=', $this->member_id],
+                    ['is_deleted', '=', 0]
+                ])->find();
+                if (!empty($exist_emp)) {
+                    $employeeinfo = $exist_emp;
+                } else {
+                    $new_id = Db::name("shop_employee")->insertGetId([
+                        'shop_id' => $site_id,
+                        'member_id' => $this->member_id,
+                        'username' => !empty($memberinfo['nickname']) ? $memberinfo['nickname'] : (!empty($memberinfo['username']) ? $memberinfo['username'] : '老板'),
+                        'mobile' => $mobile,
+                        'headimg' => $memberinfo['headimg'] ?? '',
+                        'is_manager' => 1,
+                        'status' => 1,
+                        'is_deleted' => 0,
+                        'create_time' => time()
+                    ]);
+                    $employeeinfo = [
+                        'employee_id' => $new_id,
+                        'shop_id' => $site_id,
+                        'username' => !empty($memberinfo['nickname']) ? $memberinfo['nickname'] : '老板',
+                        'mobile' => $mobile,
+                        'is_manager' => 1,
+                        'member_id' => $this->member_id
+                    ];
+                }
             } elseif ($employeeinfo['is_manager'] != 1) {
                 Db::name("shop_employee")->where("employee_id", $employeeinfo['employee_id'])->update(["is_manager" => 1]);
                 $employeeinfo['is_manager'] = 1;

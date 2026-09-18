@@ -84,7 +84,7 @@ class Index extends Common
         $searchtxt=request()->param("searchtxt");
         $list=$this->employeeModel->getTeamMember($this->member_id,$this->site_id,$member_level,$page,$searchtxt);
      
-        $ismanager=$this->employeeModel->ismanager($this->member_id);
+        $ismanager=$this->employeeModel->ismanager($this->member_id, $this->site_id);
         $list["data"]["ismanager"]=$ismanager;
         return $this->response($list);
     }
