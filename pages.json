@@ -20,7 +20,7 @@
 		{
 			"path": "pages/classify/classify",
 			"style": {
-				"navigationBarTitleText": "短视频"
+				"navigationBarTitleText": "逛一逛"
 			}
 		},
 		{
@@ -289,7 +289,7 @@
 				"pagePath": "pages/classify/classify",
 				"iconPath": "./static/tabbar/classify.png",
 				"selectedIconPath": "./static/tabbar/classify1.png",
-				"text": "短视频"
+				"text": "逛一逛"
 			},
 			{
 				"pagePath": "pages/car/car",
@@ -307,7 +307,7 @@
 	},
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "厨师上门",
+		"navigationBarTitleText": "城盟优选",
 		"navigationBarBackgroundColor": "#fff",
 		"backgroundColor": "#fff",
 		"mp-weixin": {
