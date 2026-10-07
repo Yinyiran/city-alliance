@@ -33,6 +33,19 @@ export function createApp() {
   };
   app.config.globalProperties.$util = Util;
   app.config.globalProperties.$api = Http;
+
+  // 全局错误兜底：单点渲染异常不再静默放大为整页白屏。
+  // 微信审核判定「页面白屏/页面报错」通常就是某个 v-for 遍历 undefined 或
+  // 深层取值为 null 导致的渲染中断，这里统一上报并提示，避免用户/审核员看到空白页。
+  app.config.errorHandler = (err, instance, info) => {
+    console.error('[app error]', info, err);
+    uni.showToast({
+      title: '页面数据加载异常，请下拉刷新重试',
+      icon: 'none',
+      duration: 2500,
+    });
+  };
+
   app.use(createPinia());
   app.use(uvUiTools);
   app.mixin(share);

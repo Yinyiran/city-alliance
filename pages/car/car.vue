@@ -249,9 +249,11 @@
 			},
 			userinfo() {
 				userinfo().then(res => {
-					this.point = res.data.point
-					this.member_level = res.data.member_level
-					this.member_level_name = res.data.member_level_name
+					// 判空保护：未登录 / token 失效 / 网络异常时 res.data 为 null
+					const d = (res && res.code == 0 && res.data) || {}
+					this.point = d.point || 0
+					this.member_level = d.member_level || 0
+					this.member_level_name = d.member_level_name || ''
 				})
 			},
 			bannerList() {
@@ -260,7 +262,8 @@
 					website_id: this.website_id
 				}
 				bannerList(params).then(res => {
-					this.banner = res.data
+					// 判空保护：模板对 banner 取 .length，置 null 会抛错导致整页白屏
+					this.banner = (res && res.code == 0 && Array.isArray(res.data)) ? res.data : []
 				})
 			},
 			onchange(e) {

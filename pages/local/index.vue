@@ -268,9 +268,11 @@ export default {
 			// console.log(666,res);
 			// return
 			goodslist(params).then(res => {
-				this.last_page = res.data.page_count
-				this.list = this.page > 1 ? this.list.concat(...res.data.list) : res.data.list
-				// this.list.push(res.data.list[0])
+				//判空保护：接口异常时 res.data 为 null，赋值给 list 会被v-for 遍历报错导致白屏
+				const d = (res && res.code == 0 && res.data) || {}
+				const rows = Array.isArray(d.list) ? d.list : []
+				this.last_page = d.page_count || 0
+				this.list = this.page > 1 ? this.list.concat(rows) : rows
 			})
 		},
 		gonext(e) {
@@ -510,7 +512,8 @@ export default {
 				website_id: this.website_id
 			}
 			bannerList(params).then(res => {
-				this.banner = res.data
+				// 判空保护：模板对 banner 取 .length，置 null 会抛错导致整页白屏
+				this.banner = (res && res.code == 0 && Array.isArray(res.data)) ? res.data : []
 			})
 		},
 		websiteInfo() {
@@ -518,7 +521,8 @@ export default {
 				website_id: this.website_id
 			}
 			websiteInfo(params).then(res => {
-				this.usenum = res.data
+				// 判空保护：模板直接取 usenum.shop_num
+				this.usenum = (res && res.code == 0 && res.data) || {}
 			})
 		},
 		onchange(e) {

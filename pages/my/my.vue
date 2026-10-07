@@ -295,6 +295,18 @@ export default {
 			loading: false
 		};
 	},
+	onLoad() {
+		uni.$on('authRequired', this.onAuthRequired)
+	},
+	onUnload() {
+		uni.$off('authRequired', this.onAuthRequired)
+	},
+	beforeDestroy() {
+		uni.$off('authRequired', this.onAuthRequired)
+	},
+	unmounted() {
+		uni.$off('authRequired', this.onAuthRequired)
+	},
 	onReachBottom() {
 		if (this.last_page > this.page) {
 			this.page++
@@ -325,9 +337,12 @@ export default {
 				order_status: 'waitpay,waitstock,cart'
 			}
 			orderNum(params).then(res => {
-				this.gaidlist[0].num = res.data.waitpay
-				this.gaidlist[1].num = res.data.waitstock
-				this.gaidlist[2].num = res.data.cart
+				// 判空保护：接口异常时 res.data 为 null，三层取值会抛错并中断整页渲染
+				const d = (res && res.code == 0 && res.data) || {}
+				const gaid = this.gaidlist || []
+				if (gaid[0]) gaid[0].num = d.waitpay || 0
+				if (gaid[1]) gaid[1].num = d.waitstock || 0
+				if (gaid[2]) gaid[2].num = d.cart || 0
 			})
 		},
 		change(e) {
@@ -345,10 +360,12 @@ export default {
 			}
 			this.loading = true
 			pointRanking(params).then(res => {
-				this.member_data = res.data.member_data
-				this.last_page = res.data.page_count
-				this.pointlist = this.page > 1 ? this.pointlist.concat(...res.data.list) : res.data.list
-				this.ranking = res.data.ranking
+				const d = (res && res.code == 0 && res.data) || {}
+				const rows = Array.isArray(d.list) ? d.list : []
+				this.member_data = d.member_data || {}
+				this.last_page = d.page_count || 0
+				this.pointlist = this.page > 1 ? this.pointlist.concat(rows) : rows
+				this.ranking = d.ranking || {}
 				this.loading = false
 			}).catch(() => {
 				this.loading = false
@@ -361,8 +378,10 @@ export default {
 			}
 			this.loading = true
 			shopRanking(params).then(res => {
-				this.last_page = res.data.page_count
-				this.shoplist = this.page > 1 ? this.shoplist.concat(...res.data.list) : res.data.list
+				const d = (res && res.code == 0 && res.data) || {}
+				const rows = Array.isArray(d.list) ? d.list : []
+				this.last_page = d.page_count || 0
+				this.shoplist = this.page > 1 ? this.shoplist.concat(rows) : rows
 				this.loading = false
 			}).catch(() => {
 				this.loading = false
@@ -375,14 +394,35 @@ export default {
 		},
 		userinfo() {
 			userinfo().then(res => {
-				this.infos = res.data
-				if (res.data) {
-					if (res.data.site_id) {
-						uni.setStorageSync('user_site_id', res.data.site_id)
+				// 判空保护：登录态失效 / 网络异常时 res.data 为 null。
+				// 原实现 `this.infos = res.data` 会把 infos 置为 null，
+				// 模板里 infos.headimg / infos.member_level / Number(infos.balance) 立刻抛错，
+				// 渲染中断 = 整页白屏（微信审核判定为「页面白屏」）。
+				if (!res || res.code != 0 || !res.data) {
+					// 登录态失效时回到未登录空态，其余情况保留骨架数据
+					if (res && res._authRequired) {
+						this.token = ''
+						this.resetLoginState()
 					}
-					uni.setStorageSync('userInfo', res.data)
+					this.infos = this.infos || {}
+					return
 				}
+				this.infos = res.data
+				if (res.data.site_id) {
+					uni.setStorageSync('user_site_id', res.data.site_id)
+				}
+				uni.setStorageSync('userInfo', res.data)
 			})
+		},
+		// 未登录/登录态失效：清空个人数据并回到未登录引导，避免展示过期信息
+		resetLoginState() {
+			this.infos = {}
+			this.gaidlist = (this.gaidlist || []).map(item => ({ ...item, num: 0 }))
+		},
+		onAuthRequired() {
+			// http.js 检测到 token 失效时会派发该事件（跨页面同步登录态）
+			this.token = ''
+			this.resetLoginState()
 		},
 		gonext(e) {
 			if (e == 'next') {

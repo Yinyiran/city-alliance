@@ -60,7 +60,7 @@
 					<text class="font-weight-6 font-32" style="color: #07c160;">￥{{ taxDetail.real_money }}</text>
 				</view>
 				<view class="calc-tip m-t-12 font-22" style="color: #999;">
-					* 提现需满足单笔最少100元；单次及月800元以内免缴个税，超出800元按国家劳务报酬税率代扣代缴。
+					* {{ min > 0 ? '单笔最低提现' + min + '元；' : '不设最低提现额度，可按需分多次提现；' }}单次及月800元以内免缴个税，超出800元按国家劳务报酬税率代扣代缴。
 				</view>
 			</view>
 			<view class="m-t-40 introduction-box" v-if="introduction" v-html="introduction">
@@ -80,6 +80,8 @@ export default {
 			show: false,
 			introduction: '',
 			apply_money: '',
+			// 最低提现额度：后台可配置，0 表示不设门槛（不展示、不校验）
+			min: 0,
 			max: "",
 			rules: [],
 			cashInfo: {},
@@ -132,11 +134,18 @@ export default {
 		},
 		setRules(cfg, balanceMoney) {
 			this.balance_money = balanceMoney
-			// 单日最高可提现额度（元）
-			let max = Number(cfg.max) > 0 ? Number(cfg.max) : 700
+			// 最低提现额度：后台可配置，支持 0 与两位小数；0 表示不设门槛（不展示、不校验）
+			let min = Number(cfg.min) > 0 ? Number(cfg.min) : 0
+			this.min = min
+			// 最高提现额度：后端 max 为 0 / 空 表示不限额度。
+			// 原实现兜底为 700 元属于虚构上限，会与实际逻辑不符并被审核判定为虚假规则。
+			let max = Number(cfg.max) > 0 ? Number(cfg.max) : 0
 			this.max = max
-			// 最低提现金额（元）
-			let min = Number(cfg.min) > 0 ? Number(cfg.min) : 100
+			let maxText = max > 0 ? (max + '元') : '不限'
+			// 最低额度文案片段：min = 0 时改为"不设门槛"
+			let minQuotaHtml = min > 0
+				? '<div class="rule-sec-p">1. 单笔最低提现：' + min + ' 元</div>'
+				: '<div class="rule-sec-p">1. 平台不设最低提现金额门槛，用户可按需分多次提现。</div>'
 			// 提现手续费率
 			let feeRate = (cfg.fee !== undefined && cfg.fee !== null && cfg.fee !== '') ? cfg.fee : '0.35'
 			let feePercent = feeRate + '%'
@@ -189,12 +198,11 @@ export default {
 							</div>
 
 							<div class="rule-sec">
-								<div class="rule-sec-title">四、提现额度限制（最终生效规则）</div>
-								<div class="rule-sec-p">1. 单笔最低提现：${min} 元</div>
-								<div class="rule-sec-sub">（扣除个税、手续费后，实际到账金额低于 ${min} 元无法发起提现）</div>
-								<div class="rule-sec-p">2. 单日累计最高提现：${max} 元</div>
-								<div class="rule-sec-sub">（所有渠道当日合计提现金额不可超过 ${max} 元）</div>
-							</div>
+														<div class="rule-sec-title">四、提现额度说明</div>
+														${minQuotaHtml}
+														<div class="rule-sec-p">2. 单笔最高提现：${maxText}</div>
+														<div class="rule-sec-sub">（单笔提现金额不可超过账户实际可提现余额）</div>
+													</div>
 
 							<div class="rule-sec">
 								<div class="rule-sec-title">五、资金计算方式</div>
@@ -221,29 +229,33 @@ export default {
 			// 顶部核心规则卡片
 			let feeText = (cfg.fee !== undefined && cfg.fee !== null && Number(cfg.fee) > 0) ? ('按提现金额收取' + cfg.fee + '%手续费') : (cfg.fee === '0' || cfg.fee === 0 ? '免手续费' : feePercent + '（内扣）')
 			this.rules = [
-				{ label: '最低提现金额', value: '单笔最低' + min + '元' },
-				{ label: '单日提现额度', value: '单日最高' + max + '元' },
-				{ label: '通道手续费', value: feeText },
-				{ label: '到账时效', value: 'T+1工作日到账' }
-			]
-		},
-		submit() {
-			let money = Number(this.apply_money)
-			if (!this.apply_money || isNaN(money) || money <= 0) {
-				uni.showToast({
-					title: '请输入正确的提现金额',
-					icon: 'none'
-				})
-				return
-			}
-			if (money < 100) {
-				uni.showToast({
-					title: '最低提现金额需满足最少100元',
-					icon: 'none'
-				})
-				return
-			}
-			if (money > Number(this.balance_money)) {
+						{ label: '最低提现金额', value: '单笔最低' + min + '元' },
+						{ label: '单笔提现额度', value: '最高' + maxText },
+						{ label: '通道手续费', value: feeText },
+						{ label: '到账时效', value: 'T+1工作日到账' }
+					]
+					if (min <= 0) {
+						this.rules[0] = { label: '提现门槛', value: '不设最低额度' }
+					}
+				},
+				submit() {
+					let money = Number(this.apply_money)
+					if (!this.apply_money || isNaN(money) || money <= 0) {
+						uni.showToast({
+							title: '请输入正确的提现金额',
+							icon: 'none'
+						})
+						return
+					}
+					// 最低提现额度：后台 min = 0 时不限制（依据微信《小程序平台运营规范》3.3，建议保持 0）
+					if (Number(this.min) > 0 && money < Number(this.min)) {
+						uni.showToast({
+							title: '单笔最低提现' + this.min + '元',
+							icon: 'none'
+						})
+						return
+					}
+					if (money > Number(this.balance_money)) {
 				uni.showToast({
 					title: '提现金额不能超过当前可提现金额',
 					icon: 'none'

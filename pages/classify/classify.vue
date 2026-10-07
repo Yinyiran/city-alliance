@@ -490,13 +490,14 @@ export default {
 		},
 		async getorderlist() {
 			let params = {
-				id: this.list[this.current].id,
+				id: (this.list[this.current] || {}).id,
 				page: this.page2
 			}
 			await vorderList(params).then(res => {
-				if (res.code == 0) {
-					this.listB = this.page2 > 1 ? this.listB.concat(...res.data.list) : res.data.list
-					this.last_page2 = res.data.page_count
+				if (res && res.code == 0 && res.data) {
+					const rows = Array.isArray(res.data.list) ? res.data.list : []
+					this.listB = this.page2 > 1 ? this.listB.concat(rows) : rows
+					this.last_page2 = res.data.page_count || 0
 				}
 			})
 		},
@@ -555,12 +556,13 @@ export default {
 		},
 		async getcommentLists() {
 			let params = {
-				id: this.list[this.current].id,
+				id: (this.list[this.current] || {}).id,
 			}
 			await commentLists(params).then(res => {
-				if (res.code == 0) {
-					this.listA = this.page1 > 1 ? this.listA.concat(...res.data.list) : res.data.list
-					this.last_page1 = res.data.page_count
+				if (res && res.code == 0 && res.data) {
+					const rows = Array.isArray(res.data.list) ? res.data.list : []
+					this.listA = this.page1 > 1 ? this.listA.concat(rows) : rows
+					this.last_page1 = res.data.page_count || 0
 				}
 			})
 		},
@@ -646,7 +648,10 @@ export default {
 			// 记录本次请求对应的门店 ID，用于 onShow 判断城市是否变化
 			this.loadedWebsiteId = uni.getStorageSync('website_id') || ''
 			await videoList(params).then(res => {
-				this.list = this.page > 1 ? this.list.concat(...res.data.list) : res.data.list
+				// 判空保护：接口异常时 res.data 为 null，赋值给 list 会被 v-for 遍历报错导致白屏
+				const d = (res && res.code == 0 && res.data) || {}
+				const rows = Array.isArray(d.list) ? d.list : []
+				this.list = this.page > 1 ? this.list.concat(rows) : rows
 			})
 			// 列表渲染完成后重建视频上下文，供播放/暂停控制使用
 			this.$nextTick(() => {

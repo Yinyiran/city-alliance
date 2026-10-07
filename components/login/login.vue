@@ -8,28 +8,60 @@
 						<image :src="$util.img(configobj.logo)" class="logo" mode=""></image>
 						<view class="tit_text">{{ configobj.name }}</view>
 					</view>
-					<view class="titlabel">手机号快捷登录</view>
-					<view class="titlabel2">未注册的手机号验证通过后将自动创建账号</view>
-					<view class="opt-box">
-						<button v-if="!is_show" class="titlePhone public_btn" @click="showAgreementTip">
-							手机号快捷登录
-						</button>
-						<button v-else class="titlePhone public_btn" open-type="getPhoneNumber" @getphonenumber="getPhoneNumber">
-							手机号快捷登录
-						</button>
-						<view class="no-prompt-action" @click="handleNoPrompt">
-							<text>不再提示</text>
-						</view>
-						<view class="xieyibox m-t-38 p-b-70">
-							<radio value="" style="transform: scale(0.8);" :checked="is_show" @click="is_show = !is_show" />
-							<view class="font-24 fcolor">登录即表示已阅读并同意</view>
-							<text class="font-24" @click="xyopen(2)">《用户协议》</text>
-							<text class="font-24" @click="xyopen(1)">《隐私政策》</text>
-						</view>
-					</view>
-				</view>
-			</view>
-		</uv-popup>
+					<view class="tab-switch acea-row row-center">
+										<view class="tab-item" :class="{ on: loginTab == 'phone' }" @click="switchTab('phone')">手机号快捷登录</view>
+										<view class="tab-item" :class="{ on: loginTab == 'account' }" @click="switchTab('account')">账号密码登录</view>
+									</view>
+
+									<!-- 手机号快捷登录 -->
+									<block v-if="loginTab == 'phone'">
+										<view class="titlabel">手机号快捷登录</view>
+										<view class="titlabel2">未注册的手机号验证通过后将自动创建账号</view>
+										<view class="opt-box">
+											<button v-if="!is_show" class="titlePhone public_btn" @click="showAgreementTip">
+												手机号快捷登录
+											</button>
+											<button v-else class="titlePhone public_btn" open-type="getPhoneNumber" @getphonenumber="getPhoneNumber">
+												手机号快捷登录
+											</button>
+											<view class="no-prompt-action" @click="handleNoPrompt">
+												<text>不再提示</text>
+											</view>
+										</view>
+									</block>
+
+									<!-- 账号密码登录 -->
+									<block v-else>
+										<view class="titlabel">账号密码登录</view>
+										<view class="titlabel2">可使用手机号 / 员工编号 + 密码登录</view>
+										<view class="iptbox graybg m-t-32">
+											<view class="iptwid">账号</view>
+											<input v-model="account" placeholder="请输入手机号或员工编号" placeholder-class="ipt-ph" />
+										</view>
+										<view class="iptbox graybg">
+											<view class="iptwid">密码</view>
+											<input v-model="password" password placeholder="请输入密码" placeholder-class="ipt-ph" />
+										</view>
+										<view class="opt-box">
+											<button class="titlePhone public_btn" @click="submitAccountLogin">登录</button>
+										</view>
+									</block>
+
+									<!-- 只读体验账号：供微信审核 / 演示查看真实数据 -->
+									<view class="demo-entry" @click="loginByDemo">
+										<text class="demo-title">体验账号登录</text>
+										<text class="demo-desc">无需手机号授权，一键查看真实数据（只读，不可提交）</text>
+									</view>
+
+									<view class="xieyibox">
+										<radio value="" style="transform: scale(0.8);" :checked="is_show" @click="is_show = !is_show" />
+										<view class="font-24 fcolor">登录即表示已阅读并同意</view>
+										<text class="font-24" @click="xyopen(2)">《用户协议》</text>
+										<text class="font-24" @click="xyopen(1)">《隐私政策》</text>
+									</view>
+								</view>
+							</view>
+						</uv-popup>
 		<!-- 第二步：完善头像昵称（手机号登录成功后，未设置昵称时弹出） -->
 		<uv-popup ref="infopopref" :zIndex="10080" round="10" mode="bottom" closeable @close="infoclose">
 			<view class="activity-box ">
@@ -89,7 +121,9 @@ import {
 	userinfo,
 	modifyheadimg,
 	modifynickname,
-	Synopsis
+	Synopsis,
+	accountLogin,
+	demoLogin
 } from '@/common/js/api.js';
 export default {
 	name: "authbox",
@@ -105,6 +139,9 @@ export default {
 			xycontent: '',
 			nickname: '',
 			avatar: '',
+			loginTab: 'phone',
+			account: '',
+			password: '',
 			configobj: {
 				name: "",
 				logo: ""
@@ -145,6 +182,94 @@ export default {
 		uni.$off('loginPromptChange', this.onPromptChange)
 	},
 	methods: {
+		switchTab(tab) {
+			this.loginTab = tab;
+		},
+		// 统一登录成功收口：写 token、同步状态、通知页面刷新
+		finishLogin(token, isDemo) {
+			uni.setStorageSync('token', token);
+			if (isDemo) {
+				uni.setStorageSync('is_demo', 1);
+			} else {
+				uni.removeStorageSync('is_demo');
+			}
+			this.isLoggedIn = true;
+			this.noPrompt = false;
+			uni.removeStorageSync('login_no_prompt');
+			uni.$emit('loginPromptChange', { noPrompt: false });
+		},
+		// 账号密码登录
+		async submitAccountLogin() {
+			const account = (this.account || '').trim();
+			if (!account) {
+				uni.showToast({ title: '请输入账号', icon: 'none' });
+				return;
+			}
+			if (!this.password) {
+				uni.showToast({ title: '请输入密码', icon: 'none' });
+				return;
+			}
+			uni.showLoading({ title: '登录中...', mask: true });
+			try {
+				const res = await accountLogin({ account, password: this.password });
+				uni.hideLoading();
+				if (!res || res.code != 0 || !res.data || !res.data.token) {
+					uni.showToast({
+						title: (res && (res.message || res.msg)) || '账号或密码错误',
+						icon: 'none',
+						duration: 2500
+					});
+					return;
+				}
+				this.finishLogin(res.data.token, !!res.data.is_demo);
+				this.password = '';
+				this.close();
+				// 复用手机号登录的后置流程：拉用户信息、同步站点、决定是否补资料
+				await this.checkNeedInfo();
+			} catch (e) {
+				uni.hideLoading();
+				uni.showToast({ title: '登录失败，请重试', icon: 'none' });
+			}
+		},
+		// 只读体验账号登录：微信审核 / 演示无需手机号授权即可查看真实数据
+		async loginByDemo() {
+			uni.showLoading({ title: '加载中', mask: true });
+			try {
+				const res = await demoLogin();
+				uni.hideLoading();
+				if (!res || res.code != 0 || !res.data || !res.data.token) {
+					uni.showToast({
+						title: (res && (res.message || res.msg)) || '体验账号未开通，请联系管理员',
+						icon: 'none',
+						duration: 2500
+					});
+					return;
+				}
+				this.finishLogin(res.data.token, true);
+				this.close();
+				uni.showToast({ title: '已进入只读体验模式', icon: 'none' });
+				this.$emit('loginsuccess');
+			} catch (e) {
+				uni.hideLoading();
+				uni.showToast({ title: '体验账号登录失败，请重试', icon: 'none' });
+			}
+		},
+		// 登录失败：给出可操作的替代路径，避免用户/审核员卡在弹窗里
+		onLoginFail(msg) {
+			uni.showModal({
+				title: '登录未成功',
+				content: msg + '。您可以改用「账号密码登录」，或使用「体验账号」直接查看数据。',
+				confirmText: '账号密码登录',
+				cancelText: '体验账号',
+				success: (res) => {
+					if (res.confirm) {
+						this.loginTab = 'account';
+					} else if (res.cancel) {
+						this.loginByDemo();
+					}
+				}
+			});
+		},
 		checkLoginStatus() {
 			this.isLoggedIn = !!uni.getStorageSync('token')
 			this.noPrompt = !!uni.getStorageSync('login_no_prompt')
@@ -296,14 +421,18 @@ export default {
 					}
 					mobileauth(params).then(res => {
 						uni.hideLoading()
-						uni.setStorageSync('token', res.data.token)
-						this.isLoggedIn = true
-						this.noPrompt = false
-						uni.removeStorageSync('login_no_prompt')
+						// 原实现无条件取 res.data.token，接口返回失败时会抛 TypeError，
+						// 且用户看到的是"无反应"，审核表现为登录页卡死。
+						if (!res || res.code != 0 || !res.data || !res.data.token) {
+							this.onLoginFail((res && (res.message || res.msg)) || '手机号验证未通过')
+							return
+						}
+						this.finishLogin(res.data.token, false)
 						// 登录成功，检查是否已设置昵称
 						this.checkNeedInfo()
 					}).catch(() => {
 						uni.hideLoading()
+						this.onLoginFail('网络异常，请稍后重试')
 					})
 				},
 				fail: () => {
@@ -412,7 +541,7 @@ export default {
 
 
 .activity-box {
-	padding: 40rpx 50rpx;
+	padding: 40rpx 50rpx calc(40rpx + env(safe-area-inset-bottom));
 
 	.tit {
 		display: flex;
@@ -444,6 +573,58 @@ export default {
 		font-size: 32rpx;
 		color: #1C274C;
 		margin-bottom: 22rpx;
+	}
+
+	.tab-switch {
+		margin-bottom: 32rpx;
+		background: #F5F5F5;
+		border-radius: 40rpx;
+		padding: 6rpx;
+
+		.tab-item {
+			flex: 1;
+			text-align: center;
+			line-height: 68rpx;
+			border-radius: 34rpx;
+			font-size: 28rpx;
+			color: #8D93A5;
+			transition: all 0.2s;
+
+			&.on {
+				background: #FFFFFF;
+				color: #F55606;
+				font-weight: 600;
+				box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+			}
+		}
+	}
+
+	.ipt-ph {
+		color: #B2B6C2;
+		font-size: 28rpx;
+	}
+
+	.demo-entry {
+		margin-top: 32rpx;
+		padding: 24rpx;
+		background: #FFF7EC;
+		border: 1rpx solid #FFE0BF;
+		border-radius: 16rpx;
+
+		.demo-title {
+			display: block;
+			font-size: 28rpx;
+			font-weight: 600;
+			color: #F55606;
+			margin-bottom: 8rpx;
+		}
+
+		.demo-desc {
+			display: block;
+			font-size: 24rpx;
+			color: #8D93A5;
+			line-height: 36rpx;
+		}
 	}
 
 	.titlabel2 {
