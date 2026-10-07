@@ -63,8 +63,9 @@
 			},
 			getinfo() {
 				deposit().then(res => {
-					this.deposit_amount = res.data.deposit_amount
-					this.out_trade_no = res.out_trade_no
+					const d = (res && res.code == 0 && res.data) || {}
+					this.deposit_amount = d.deposit_amount || '0.00'
+					this.out_trade_no = (res && res.out_trade_no) || d.out_trade_no || ''
 				})
 			},
 		}

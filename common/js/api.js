@@ -5,12 +5,18 @@ export const authcodetoopenid=params=>server('/weappqy/api/weapp/authcodetoopeni
 export const loginAuth=params=>server('/shopapplet/login/auth',params)
 // 手机号授权登录
 export const mobileAuth=params=>server('/shopapplet/login/mobileAuth',params)
+// 账号密码登录（手机号 / 员工编号 + 密码）
+export const accountLogin=params=>server('/shopapplet/login/accountLogin',params)
+// 只读体验账号登录（供微信审核 / 演示查看真实数据）
+export const demoLogin=params=>server('/shopapplet/login/demoLogin',params,'post',true)
+// 修改登录密码
+export const changePassword=params=>server('/shopapplet/login/changePassword',params)
 //首页头部数据
 export const getnum=params=>server('/shopapplet/index/getnum',params)
 //团队列表
 export const getteam=params=>server('/shopapplet/index/getteam',params)
 //员工积分排行榜
-export const getmemberranklist=params=>server('/shopapplet/index/getmemberranklist ',params)
+export const getmemberranklist=params=>server('/shopapplet/index/getmemberranklist',params)
 //品牌积分排行榜
 export const getRankList=params=>server('/shopapplet/index/getshopranklist',params)
 //添加员工
@@ -79,6 +85,12 @@ export const shopLogin=params=>server('/shopapplet/merchant/shopLogin',params)
 export const memberwithdrawapply=params=>server('/api/memberwithdraw/apply',params)
 //提现设置
 export const memberwithdrawconfig=params=>server('/api/memberwithdraw/config',params)
+// 提现规则（免登录，保证未登录/接口异常时提现页仍能展示完整规则）
+export const memberwithdrawrule=params=>server('/api/memberwithdraw/rule',params,'post',true)
+// 提现手续费与个税实时试算
+export const memberwithdrawtax=params=>server('/api/memberwithdraw/calculateTax',params)
+// 提现记录
+export const memberwithdrawpage=params=>server('/api/memberwithdraw/page',params)
 //获取商家小程序二维码
 export const getShopQrcode=params=>server('/shopapplet/shop/getShopQrcode',params)
 //门店Banner列表

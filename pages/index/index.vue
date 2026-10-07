@@ -641,9 +641,12 @@
 					page: this.page
 				}
 				getRankList(params).then(res => {
-					this.myinfo = res.data.myinfo
-					this.list = this.page > 1 ? this.list.concat(...res.data.list) : res.data.list
-					this.last_page = res.data.page_count
+					// 空值保护：接口异常时 res.data 为 null，直接取字段会抛错并中断页面渲染
+					const d = (res && res.code == 0 && res.data) || {}
+					const rows = Array.isArray(d.list) ? d.list : []
+					this.myinfo = d.myinfo || {}
+					this.list = this.page > 1 ? this.list.concat(rows) : rows
+					this.last_page = d.page_count || 0
 				})
 			},
 			getmemberranklist() {
@@ -652,8 +655,10 @@
 					page: this.page
 				}
 				getmemberranklist(params).then(res => {
-					this.list2 = this.page > 1 ? this.list2.concat(...res.data.list) : res.data.list
-					this.last_page = res.data.page_count
+					const d = (res && res.code == 0 && res.data) || {}
+					const rows = Array.isArray(d.list) ? d.list : []
+					this.list2 = this.page > 1 ? this.list2.concat(rows) : rows
+					this.last_page = d.page_count || 0
 				})
 			},
 			gonext(e, n) {
@@ -664,9 +669,10 @@
 			},
 			getnum() {
 				getnum().then(res => {
-					this.points = res.data.points
-					this.total_count = (res.data.team_total && res.data.team_total.total_count) || 0
-					this.leveltotal = (res.data.team_total && res.data.team_total.leveltotal) || []
+					const d = (res && res.code == 0 && res.data) || {}
+					this.points = d.points || 0
+					this.total_count = (d.team_total && d.team_total.total_count) || 0
+					this.leveltotal = (d.team_total && d.team_total.leveltotal) || []
 				})
 			},
 			fetchIncomeSummary() {

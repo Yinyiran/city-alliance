@@ -43,60 +43,83 @@
 				</view>
 			</view>
 			<image src="/static/bg3.png" mode=""></image>
-		</view>
-		<view class="members acea-row row-middle row-between">
-			<view class="">
+			</view>
+
+			<!-- 只读体验模式提示：微信审核 / 演示账号 -->
+			<view class="demo-bar acea-row row-middle" v-if="isDemo">
+				<text>当前为只读体验模式，仅供查看，提交类操作已禁用</text>
+			</view>
+
+			<!-- 未登录：给出明确引导，而不是留一大片空白（审核判定为白屏） -->
+			<view class="empty-guide" v-if="!token">
+				<image src="/static/avatar.png" class="empty-avatar" mode="aspectFill"></image>
+				<view class="empty-title">登录后查看商家经营数据</view>
+				<view class="empty-desc">订单、销售额、员工业绩排行等数据需登录后展示</view>
+				<view class="empty-btn" @click="$refs.login.open(true)">立即登录</view>
+				<view class="empty-btn plain m-t-20" @click="useDemoAccount">使用体验账号查看示例数据</view>
+			</view>
+
+			<!-- 加载失败：给出重试入口，避免"无法加载完整数据内容" -->
+			<view class="empty-guide" v-else-if="loadError">
+				<view class="empty-title">数据加载失败</view>
+				<view class="empty-desc">{{ loadErrorText }}</view>
+				<view class="empty-btn" @click="refreshAll">重新加载</view>
+			</view>
+
+			<template v-if="token">
+			<view class="members acea-row row-middle row-between">
 				<view class="">
-					<view class="p-20 a-1">
-						<view class="">自营订单 (单)</view>
-						<view class="">{{ ziying.totalcount }}</view>
+					<view class="">
+						<view class="p-20 a-1">
+							<view class="">自营订单 (单)</view>
+							<view class="">{{ ziying.totalcount || 0 }}</view>
+						</view>
+						<view class="line m-r-20 m-l-20"></view>
+						<view class="p-20 a-1">
+							<view class="">金额 (元)</view>
+							<view class="">{{ ziying.totalsum || 0 }}</view>
+						</view>
 					</view>
-					<view class="line m-r-20 m-l-20"></view>
-					<view class="p-20 a-1">
-						<view class="">金额 (元)</view>
-						<view class="">{{ ziying.totalsum }}</view>
+					<view class="acea-row row-middle row-center p-t-12 p-b-12" @click="gonext1(0)" style="color: #B2B6C2;">
+						查看明细
+						<image src="/static/go2.png" class="w-18 h-18 m-l-6" mode=""></image>
 					</view>
 				</view>
-				<view class="acea-row row-middle row-center p-t-12 p-b-12" @click="gonext1(0)" style="color: #B2B6C2;">
-					查看明细
-					<image src="/static/go2.png" class="w-18 h-18 m-l-6" mode=""></image>
+				<view class="">
+					<view class="">
+						<view class="p-20 a-1">
+							<view class="">带单订单 (单)</view>
+							<view class="">{{ daidan.totalcount || 0 }}</view>
+						</view>
+						<view class="line m-r-20 m-l-20"></view>
+						<view class="p-20 a-1">
+							<view class="">金额 (元)</view>
+							<view class="">{{ daidan.totalsum || 0 }}</view>
+						</view>
+					</view>
+					<view class="acea-row row-middle row-center p-t-12 p-b-12" style="color: #B2B6C2;" @click="gonext1(1)">
+						查看明细
+						<image src="/static/go2.png" class="w-18 h-18 m-l-6" mode=""></image>
+					</view>
+				</view>
+				<view class="">
+					<view class="">
+						<view class="p-20 a-1">
+							<view class="">贡献订单 (单)</view>
+							<view class="">{{ gongxian.totalcount || 0 }}</view>
+						</view>
+						<view class="line m-r-20 m-l-20"></view>
+						<view class="p-20 a-1">
+							<view class="">金额 (元)</view>
+							<view class="">{{ gongxian.totalsum || 0 }}</view>
+						</view>
+					</view>
+					<view class="acea-row row-middle row-center p-t-12 p-b-12" style="color: #B2B6C2;" @click="gonext1(2)">
+						查看明细
+						<image src="/static/go2.png" class="w-18 h-18 m-l-6" mode=""></image>
+					</view>
 				</view>
 			</view>
-			<view class="">
-				<view class="">
-					<view class="p-20 a-1">
-						<view class="">带单订单 (单)</view>
-						<view class="">{{ daidan.totalcount }}</view>
-					</view>
-					<view class="line m-r-20 m-l-20"></view>
-					<view class="p-20 a-1">
-						<view class="">金额 (元)</view>
-						<view class="">{{ daidan.totalsum }}</view>
-					</view>
-				</view>
-				<view class="acea-row row-middle row-center p-t-12 p-b-12" style="color: #B2B6C2;" @click="gonext1(1)">
-					查看明细
-					<image src="/static/go2.png" class="w-18 h-18 m-l-6" mode=""></image>
-				</view>
-			</view>
-			<view class="">
-				<view class="">
-					<view class="p-20 a-1">
-						<view class="">贡献订单 (单)</view>
-						<view class="">{{ gongxian.totalcount }}</view>
-					</view>
-					<view class="line m-r-20 m-l-20"></view>
-					<view class="p-20 a-1">
-						<view class="">金额 (元)</view>
-						<view class="">{{ gongxian.totalsum }}</view>
-					</view>
-				</view>
-				<view class="acea-row row-middle row-center p-t-12 p-b-12" style="color: #B2B6C2;" @click="gonext1(2)">
-					查看明细
-					<image src="/static/go2.png" class="w-18 h-18 m-l-6" mode=""></image>
-				</view>
-			</view>
-		</view>
 		<view class="btns acea-row row-middle row-between" style="flex-wrap: wrap;"
 			v-if="(info.myinfo || {}).is_manager == 1">
 			<view class="acea-row row-middle row-center m-b-20" @click="gonext('incomeDetail')">
@@ -196,7 +219,12 @@
 				<view class="font-28" style="color: #222;">{{ item.order_count !== undefined && check != 0 ? item.order_count :
 					item.invite_count || 0 }}</view>
 			</view>
+			<!-- 排行空态：避免只有表头没有内容的大片留白 -->
+			<view class="rank-empty" v-if="!list.length">
+				<text>暂无{{ tablist[check] }}数据</text>
+			</view>
 		</view>
+		</template>
 		<shop-select-popup ref="shopPopup" @change="onShopChange"></shop-select-popup>
 		<login ref="login" @loginsuccess='loginsuccess'></login>
 	</view>
@@ -210,7 +238,8 @@ import {
 	conorderrank,
 	getInfo,
 	shopList,
-	shopLogin
+	shopLogin,
+	demoLogin
 } from "@/common/js/api.js"
 import ShopSelectPopup from "@/components/shop-select-popup/shop-select-popup.vue"
 
@@ -244,15 +273,21 @@ export default {
 			info: {},
 			slist: [],
 			site_id: uni.getStorageSync('site_id'),
-			token: ""
+			token: "",
+			isDemo: false,
+			loadError: false,
+			loadErrorText: ''
 		};
 	},
 	onLoad() {
 		uni.$on('merchantShopChanged', this.onShopChanged)
+		// 登录态在其它页面失效时（token 被清空）同步本页状态，避免展示过期数据
+		uni.$on('authRequired', this.onAuthRequired)
 	},
 	onShow() {
 		if (uni.getStorageSync('token')) {
 			this.token = uni.getStorageSync('token')
+			this.isDemo = !!uni.getStorageSync('is_demo')
 			let cachedSiteId = uni.getStorageSync('site_id')
 			if (cachedSiteId && cachedSiteId != this.site_id) {
 				this.site_id = cachedSiteId
@@ -260,14 +295,17 @@ export default {
 			this.refreshAll()
 		} else {
 			this.token = ''
+			this.isDemo = false
 			this.resetPageData()
 		}
 	},
 	beforeUnmount() {
 		uni.$off('merchantShopChanged', this.onShopChanged)
+		uni.$off('authRequired', this.onAuthRequired)
 	},
 	onUnload() {
 		uni.$off('merchantShopChanged', this.onShopChanged)
+		uni.$off('authRequired', this.onAuthRequired)
 	},
 	methods: {
 		goSetting() {
@@ -279,6 +317,13 @@ export default {
 			uni.navigateTo({
 				url: '/otherpages/shopQr/shopQr'
 			})
+		},
+		// 登录态失效：回到未登录空态，而不是继续展示上一次的空数据
+		onAuthRequired() {
+			this.token = ''
+			this.isDemo = false
+			uni.removeStorageSync('is_demo')
+			this.resetPageData()
 		},
 		// 未登录时清空页面数据，避免残留上一登录账号的内容
 		resetPageData() {
@@ -292,22 +337,29 @@ export default {
 			this.info = {}
 			this.slist = []
 			this.site_id = ''
+			this.loadError = false
+			this.loadErrorText = ''
 		},
-		// 未登录弹窗提示（可取消），点"去登录"打开登录授权弹窗
-		showLoginModal() {
-			uni.showModal({
-				title: '提示',
-				content: '您还未登录，是否前往登录？',
-				confirmText: '去登录',
-				cancelText: '取消',
-				success: (res) => {
-					if (res.confirm) {
-						this.$refs.login.open(true)
-					}
+		// 体验账号登录：供微信审核 / 演示查看真实数据（只读）
+		useDemoAccount() {
+			uni.showLoading({ title: '加载中', mask: true })
+			demoLogin().then(res => {
+				uni.hideLoading()
+				if (!res || res.code != 0) {
+					uni.showToast({ title: (res && (res.message || res.msg)) || '体验账号未开通', icon: 'none' });
+					return;
 				}
-			})
+				uni.setStorageSync('token', res.data.token)
+				uni.setStorageSync('is_demo', 1)
+				this.token = res.data.token
+				this.isDemo = true
+				this.loadError = false
+				this.refreshAll()
+			});
 		},
 		refreshAll() {
+			this.loadError = false
+			this.loadErrorText = ''
 			this.getInfo1()
 			this.myIndex()
 			this.qiehuan()
@@ -332,6 +384,7 @@ export default {
 		},
 		loginsuccess() {
 			this.token = uni.getStorageSync('token')
+			this.isDemo = !!uni.getStorageSync('is_demo')
 			this.refreshAll()
 		},
 		shopList() {
@@ -355,9 +408,16 @@ export default {
 		async getInfo1() {
 			try {
 				const res = await getInfo()
+				if (!res || res.code != 0 || !res.data) return
 				this.site_id = res.data.site_id
 				uni.setStorageSync('site_id', res.data.site_id)
 				this.info = res.data
+				this.isDemo = !!Number(res.data.is_demo)
+				uni.setStorageSync('is_demo', this.isDemo ? 1 : '')
+				if (!this.isDemo && Number(res.data.is_demo) === 0) {
+					// 非体验账号，清理可能残留的标记
+					uni.removeStorageSync('is_demo')
+				}
 			} catch (e) {
 				// 站点信息获取失败不阻断页面其他数据加载
 			}
@@ -395,14 +455,39 @@ export default {
 			this.check1 = e.index
 			this.qiehuan()
 		},
+		// 三个排行榜接口返回结构一致，统一做空值保护：
+		// 原实现直接取 res.data.levelData / res.data.list，字段缺失即抛 TypeError，
+		// 整个页面渲染中断，微信审核表现为「页面白屏 / 页面报错」。
+		applyRankResult(res) {
+			if (!res || res.code != 0) {
+				this.markLoadError(res)
+				return
+			}
+			const data = res.data || {}
+			this.levelData = Array.isArray(data.levelData) ? data.levelData : []
+			this.list = Array.isArray(data.list) ? data.list : []
+			this.myinfo = data.myinfo || {}
+			this.loadError = false
+			this.loadErrorText = ''
+		},
+		markLoadError(res) {
+			// 登录态问题已由 http 层统一处理（清 token + 弹提示），此处不再标记为加载失败
+			if (res && (res._authRequired || res._netError)) {
+				if (res._netError) {
+					this.loadError = true
+					this.loadErrorText = '网络异常，请检查网络后点击重新加载'
+				}
+				return
+			}
+			this.loadError = true
+			this.loadErrorText = (res && (res.message || res.msg)) || '数据加载失败，请点击重新加载'
+		},
 		conorderrank() {
 			let params = {
 				selectby: this.current == 0 ? 'year' : 'month',
 			}
 			conorderrank(params).then(res => {
-				this.levelData = res.data.levelData
-				this.list = res.data.list
-				this.myinfo = res.data.myinfo || null
+				this.applyRankResult(res)
 			})
 		},
 		orderbyselfrank() {
@@ -411,9 +496,7 @@ export default {
 				// member_level: this.check1 + 1
 			}
 			orderbyselfrank(params).then(res => {
-				this.levelData = res.data.levelData
-				this.list = res.data.list
-				this.myinfo = res.data.myinfo || null
+				this.applyRankResult(res)
 			})
 		},
 		invitemember() {
@@ -422,17 +505,20 @@ export default {
 				member_level: this.check1 + 1
 			}
 			invitemember(params).then(res => {
-				this.levelData = res.data.levelData
-				this.list = res.data.list
-				this.myinfo = res.data.myinfo
+				this.applyRankResult(res)
 			})
 		},
 		myIndex() {
 			myIndex().then(res => {
-				this.daidan = res.data.daidan
-				this.gongxian = res.data.gongxian
-				this.ziying = res.data.ziying
-				this.total = res.data.total
+				if (!res || res.code != 0 || !res.data) {
+					this.markLoadError(res)
+					return
+				}
+				const d = res.data
+				this.daidan = d.daidan || {}
+				this.gongxian = d.gongxian || {}
+				this.ziying = d.ziying || {}
+				this.total = d.total || {}
 			})
 		},
 		gonext1(e) {
@@ -706,6 +792,77 @@ export default {
 
 page {
 	background: #181A1F;
+}
+
+.demo-bar {
+	margin: 0 32rpx;
+	margin-top: 20rpx;
+	padding: 16rpx 24rpx;
+	background: rgba(245, 171, 24, 0.14);
+	border: 1rpx solid rgba(245, 171, 24, 0.45);
+	border-radius: 12rpx;
+	font-size: 24rpx;
+	color: #F5AB18;
+}
+
+.empty-guide {
+	margin: 0 32rpx;
+	margin-top: 40rpx;
+	padding: 60rpx 40rpx;
+	background: #272A33;
+	border: 1rpx solid rgba(250, 213, 180, 0.35);
+	border-radius: 24rpx;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+
+	.empty-avatar {
+		width: 120rpx;
+		height: 120rpx;
+		border-radius: 50%;
+		margin-bottom: 28rpx;
+	}
+
+	.empty-title {
+		font-size: 32rpx;
+		font-weight: 600;
+		color: #FFFFFF;
+		margin-bottom: 16rpx;
+		text-align: center;
+	}
+
+	.empty-desc {
+		font-size: 26rpx;
+		color: #B2B6C2;
+		line-height: 40rpx;
+		text-align: center;
+		margin-bottom: 40rpx;
+	}
+
+	.empty-btn {
+		min-width: 320rpx;
+		line-height: 88rpx;
+		text-align: center;
+		border-radius: 44rpx;
+		background: linear-gradient(90deg, #F5AB18 0%, #F55606 100%);
+		color: #FFFFFF;
+		font-size: 30rpx;
+		font-weight: 600;
+
+		&.plain {
+			background: transparent;
+			border: 1rpx solid #FAD5B4;
+			color: #FAD5B4;
+			font-weight: 400;
+		}
+	}
+}
+
+.rank-empty {
+	padding: 60rpx 0;
+	text-align: center;
+	font-size: 26rpx;
+	color: #B2B6C2;
 }
 
 .checkes {

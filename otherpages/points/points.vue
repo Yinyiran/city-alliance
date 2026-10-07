@@ -93,7 +93,8 @@
 			},
 			userinfo() {
 				userinfo().then(res => {
-					this.point = res.data.point
+					const d = (res && res.code == 0 && res.data) || {}
+					this.point = d.point || 0
 				})
 			},
 			getinfo() {
@@ -102,8 +103,10 @@
 					point_type: this.current
 				}
 				pointAccount(params).then(res => {
-					this.list = this.page > 1 ? this.list.concat(...res.data.list) : res.data.list
-					this.last_page = res.data.page_count
+					const d = (res && res.code == 0 && res.data) || {}
+					const rows = Array.isArray(d.list) ? d.list : []
+					this.list = this.page > 1 ? this.list.concat(rows) : rows
+					this.last_page = d.page_count || 0
 				})
 			},
 		}
