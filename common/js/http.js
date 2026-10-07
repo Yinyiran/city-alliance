@@ -90,6 +90,7 @@ export function server(url, params, methods, silent) {
 			}
 		})
 	})
+	return promise;
 }
 
 export default {

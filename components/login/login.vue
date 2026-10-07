@@ -208,7 +208,7 @@ export default {
 						}
 						try {
 							const resA = await authcodetoopenid(params)
-							if (resA.code == 0 && resA.data) {
+							if (resA && resA.code == 0 && resA.data) {
 								this.weapp_openid = resA.data.openid
 							}
 						} catch (e) {
@@ -306,7 +306,7 @@ export default {
 					try {
 						if (!this.weapp_openid && res.code) {
 							const resC = await authcodetoopenid({ code: res.code })
-							if (resC.code == 0 && resC.data) {
+							if (resC && resC.code == 0 && resC.data) {
 								this.weapp_openid = resC.data.openid
 							}
 						}
@@ -320,9 +320,9 @@ export default {
 						}
 						const resM = await mobileAuth(params)
 						uni.hideLoading()
-						if (resM.code != 0) {
+						if (!resM || resM.code != 0) {
 							uni.showToast({
-								title: resM.message || resM.msg || '登录失败',
+								title: (resM && (resM.message || resM.msg)) || '登录失败',
 								icon: 'none',
 								duration: 2500
 							})
