@@ -2335,4 +2335,31 @@ return [
         ],
     ],
 
+    // 小程序审核设置（只读体验账号，用于微信提审/演示）
+    [
+        'name' => 'MINIAPP_ROOT',
+        'title' => '小程序审核',
+        'url' => 'admin/miniapp/demoaccount',
+        'parent' => '',
+        'is_show' => 1,
+        'is_control' => 1,
+        'is_icon' => 0,
+        'picture' => '',
+        'picture_selected' => '',
+        'sort' => 99,
+        'child_list' => [
+            [
+                'name' => 'MINIAPP_DEMO_ACCOUNT',
+                'title' => '体验账号',
+                'url' => 'admin/miniapp/demoaccount',
+                'is_show' => 1,
+                'is_control' => 1,
+                'is_icon' => 0,
+                'picture' => '',
+                'picture_selected' => '',
+                'sort' => 1,
+            ],
+        ],
+    ],
+
 ];

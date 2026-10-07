@@ -8,8 +8,10 @@ namespace app\api\controller;
 use app\model\member\Login as LoginModel;
 use app\model\message\Message;
 use app\model\member\Register as RegisterModel;
+use app\model\shopapplet\DemoAccount;
 use Exception;
 use think\facade\Cache;
+use think\facade\Db;
 use app\model\member\Config as ConfigModel;
 use app\model\web\Config as CaptchaModel;
 use app\model\web\Config;
@@ -17,6 +19,129 @@ use think\facade\Session;
 
 class Login extends BaseApi
 {
+    /**
+     * 账号密码登录
+     *
+     * 与商家端 app/shopapplet/controller/Login::accountLogin 同源实现。
+     * 账号：手机号 或 员工编号(employeeID)；密码：member.password（兼容历史 md5 与 bcrypt）。
+     *
+     * 用途：
+     *  1) 商家端存在「员工没有企业微信/个人微信可授权」的真实场景；
+     *  2) 微信审核人员无法用自己的手机号完成手机号快捷登录，需要账号密码通道。
+     */
+    public function accountLogin()
+    {
+        $account = trim($this->params[ 'account' ] ?? '');
+        $password = (string)($this->params[ 'password' ] ?? '');
+
+        if ($account == '') return $this->response($this->error([], '请输入账号'));
+        if ($password == '') return $this->response($this->error([], '请输入密码'));
+
+        // 账号可匹配员工手机号 / 员工编号；会员手机号也允许直接登录
+        $employee = Db::name('shop_employee')
+            ->where([ [ 'is_deleted', '=', 0 ] ])
+            ->where(function ($q) use ($account) {
+                $q->where('mobile', $account)->whereOr('employeeID', $account);
+            })
+            ->find();
+
+        $memberQuery = Db::name('member')->where([ [ 'is_delete', '=', 0 ] ]);
+        if (!empty($employee)) {
+            $memberQuery->where(function ($q) use ($employee, $account) {
+                $q->where('member_id', intval($employee[ 'member_id' ] ?: 0))
+                    ->whereOr('mobile', $account);
+                if (!empty($employee[ 'mobile' ])) $q->whereOr('mobile', $employee[ 'mobile' ]);
+            });
+        } else {
+            $memberQuery->where('mobile', $account);
+        }
+        $member = $memberQuery->find();
+
+        if (empty($member)) {
+            return $this->response($this->error([], '账号或密码错误'));
+        }
+        if ($member[ 'status' ] == 0) {
+            return $this->response($this->error([], '账号已被禁用，请联系客服'));
+        }
+        if (!$this->verifyPassword($password, $member[ 'password' ] ?? '')) {
+            // 连续失败锁定：10 分钟内 5 次
+            $fail_key = 'API_PWD_FAIL_' . $member[ 'member_id' ];
+            $fail_count = intval(Cache::get($fail_key)) + 1;
+            Cache::set($fail_key, $fail_count, 600);
+            if ($fail_count >= 5) {
+                return $this->response($this->error([], '密码错误次数过多，请 10 分钟后再试'));
+            }
+            return $this->response($this->error([], '账号或密码错误'));
+        }
+        Cache::delete($fail_key);
+
+        $member_id = $member[ 'member_id' ];
+        if (!empty($employee) && (empty($employee[ 'member_id' ]) || $employee[ 'member_id' ] != $member_id)) {
+            Db::name('shop_employee')->where([ [ 'employee_id', '=', $employee[ 'employee_id' ] ] ])
+                ->update([ 'member_id' => $member_id ]);
+        }
+
+        Db::name('member')->where([ [ 'member_id', '=', $member_id ] ])->update([
+            'login_time' => time(),
+            'last_login_time' => time(),
+            'login_type' => $this->params[ 'app_type' ] ?? '',
+            'login_type_name' => $this->params[ 'app_type_name' ] ?? '',
+            'login_ip' => request()->ip(),
+        ]);
+        event('MemberLogin', [ 'member_id' => $member_id ], true);
+
+        $token = $this->createToken($member_id);
+        return $this->response($this->success([
+            'token' => $token,
+            'member_id' => $member_id,
+            'is_demo' => 0,
+        ]));
+    }
+
+    /**
+     * 只读体验账号登录（供微信审核 / 演示使用）
+     *
+     * 配置见 app\model\shopapplet\DemoAccount（后台：小程序审核 → 体验账号）。
+     * 体验账号下资金与下单类接口会被 BaseApi 统一拦截（见 DemoAccount::CLIENT_BLOCK_ACTIONS）。
+     */
+    public function demoLogin()
+    {
+        $config = DemoAccount::config();
+        if (empty($config[ 'enable' ]) || empty($config[ 'member_id' ])) {
+            return $this->response($this->error([], '体验账号未开通，请联系管理员在后台开启'));
+        }
+        $member_id = $config[ 'member_id' ];
+        Db::name('member')->where([ [ 'member_id', '=', $member_id ] ])->update([
+            'login_time' => time(),
+            'last_login_time' => time(),
+            'login_type' => $this->params[ 'app_type' ] ?? '',
+            'login_type_name' => $this->params[ 'app_type_name' ] ?? '',
+            'login_ip' => request()->ip(),
+        ]);
+        $token = $this->createToken($member_id);
+        return $this->response($this->success([
+            'token' => $token,
+            'member_id' => $member_id,
+            'is_demo' => 1,
+        ]));
+    }
+
+    /**
+     * 密码校验：兼容 bcrypt 与历史 md5
+     */
+    private function verifyPassword(string $input, string $stored) : bool
+    {
+        if ($stored == '') return false;
+        $info = password_get_info($stored);
+        if (!empty($info[ 'algo' ])) {
+            return password_verify($input, $stored);
+        }
+        if ($stored === md5($input)) return true;
+        if ($stored === sha1(md5($input))) return true;
+        if ($stored === strtoupper(md5($input))) return true;
+        return false;
+    }
+
     /**
      * 登录方法
      */

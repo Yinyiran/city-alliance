@@ -1,0 +1,158 @@
+{extend name="app/admin/view/base.html"/}
+{block name="resources"}
+{/block}
+{block name="main"}
+<div class="layui-collapse ns-tips">
+	<div class="layui-colla-item">
+		<h2 class="layui-colla-title">使用说明</h2>
+		<ul class="layui-colla-content layui-show">
+			<li>本功能用于<b>微信提审</b>与<b>对外演示</b>：审核人员无需真实手机号授权，即可用体验账号进入小程序查看真实经营数据，避免因「无法登录 / 白屏」被驳回。</li>
+			<li>体验账号为<b>只读模式</b>：提现、核销、保证金充值、添加员工、Banner 管理、开通合伙人、提交开户信息等写操作会被后端统一拦截。</li>
+			<li>体验账号入口：登录弹窗 →「体验账号登录」按钮；商家端「我的」页未登录时也有快捷入口。</li>
+			<li><b>提审前开启、审核通过后请及时关闭</b>，避免长期对外暴露可查看真实数据的入口。</li>
+			<li>所选会员需为<b>已绑定手机号</b>的正常会员。商家端还要求该会员是某店铺的老板或员工，否则进入时会提示「当前账号未开通企业端权限」。</li>
+			<li>保存后配置缓存会立即失效，无需等待。</li>
+		</ul>
+	</div>
+</div>
+
+<div class="layui-form ns-form">
+	<div class="layui-form-item">
+		<label class="layui-form-label">启用体验账号：</label>
+		<div class="layui-input-block">
+			<input type="checkbox" name="enable" lay-filter="enable" value="1" lay-skin="switch" {if !empty($config) && $config.enable == 1} checked{/if} >
+			<div class="ns-word-aux">关闭后，小程序端「体验账号登录」入口将提示未开通</div>
+		</div>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label">体验账号会员：</label>
+		<div class="layui-input-block">
+			<div class="layui-input-inline">
+				<input type="text" id="member-picker" name="member_picker" value="" lay-verify="required" autocomplete="off"
+					class="layui-input ns-len-long" placeholder="输入手机号 / 昵称搜索后选择会员">
+			</div>
+			<button type="button" class="layui-btn layui-btn-primary" id="member-clear">清除</button>
+			<div class="ns-word-aux">仅列出已绑定手机号且未删除的会员</div>
+		</div>
+	</div>
+
+	{if !empty($config.member_id)}
+	<div class="layui-form-item">
+		<label class="layui-form-label">当前已配置：</label>
+		<div class="layui-input-block">
+			<span class="layui-form-mid">
+				会员 ID {$config.member_id}
+				{if !empty($config.mobile)}，手机号 {$config.mobile}{/if}
+				{if !empty($config.shop_name)}，关联店铺 {$config.shop_name}{/if}
+			</span>
+		</div>
+	</div>
+	{/if}
+
+	<div class="ns-form-row">
+		<button class="layui-btn ns-bg-color" lay-submit lay-filter="save">保存</button>
+	</div>
+</div>
+
+<!-- 隐藏域，保存真实 member_id -->
+<input type="hidden" id="member-id" name="member_id" value="{if !empty($config)}{$config.member_id}{/if}">
+{/block}
+{block name="script"}
+<script>
+layui.use(['form', 'layedit', 'element'], function () {
+	var form = layui.form,
+		layer = layui.layer,
+		repeat_flag = false;
+
+	form.render();
+
+	var picked = {if !empty($config)}{$config.member_id}{/if};
+	if (picked) {
+		$('#member-picker').val('已选会员 ID：' + picked);
+	}
+
+	// 会员搜索选择
+	$('#member-picker').on('input', function () {
+		var kw = $(this).val();
+		if (!kw || kw.indexOf('已选会员') === 0) return;
+		$.ajax({
+			type: 'GET',
+			dataType: 'JSON',
+			url: ns.url("admin/miniapp/searchmember"),
+			data: { keyword: kw },
+			success: function (res) {
+				if (res.code !== 0 || !res.data || !res.data.length) {
+					layer.msg('未找到匹配的会员', { icon: 0 });
+					return;
+				}
+				var items = res.data.map(function (i) {
+					return '<li data-id="' + i.id + '">' + i.text + '</li>';
+				}).join('');
+				layer.tips('<ul class="member-tips">' + items + '</ul>', '#member-picker', {
+					tips: [4, '#fff'],
+					time: 0,
+					skin: 'member-tips-layer'
+				});
+				$('.member-tips-layer').off('click').on('click', 'li', function () {
+					var id = $(this).data('id');
+					var txt = $(this).text();
+					picked = id;
+					$('#member-id').val(id);
+					$('#member-picker').val(txt);
+					layer.closeAll('tips');
+				});
+			}
+		});
+	});
+
+	$('#member-clear').on('click', function () {
+		picked = '';
+		$('#member-id').val('');
+		$('#member-picker').val('');
+	});
+
+	form.verify({
+		required: function (value) {
+			if (picked) return;
+			if (value && value.indexOf('已选会员') !== -1) return;
+			return '请选择体验账号会员';
+		}
+	});
+
+	form.on('submit(save)', function (data) {
+		if (repeat_flag) return;
+		repeat_flag = true;
+		$.ajax({
+			type: 'POST',
+			dataType: 'JSON',
+			url: ns.url("admin/miniapp/demoaccount"),
+			data: {
+				enable: $('#enable').is(':checked') ? 1 : 0,
+				member_id: $('#member-id').val() || 0
+			},
+			success: function (res) {
+				layer.msg(res.message, { icon: res.code == 0 ? 1 : 2 });
+				if (res.code == 0) {
+					setTimeout(function () { location.reload(); }, 800);
+				} else {
+					repeat_flag = false;
+				}
+			}
+		});
+	});
+
+	// 开启开关时才要求选会员
+	form.on('switch(enable)', function (data) {
+		$('#member-picker').attr('lay-verify', data.value == '1' ? 'required' : '');
+	});
+
+	$('#member-picker').attr('lay-verify', {if !empty($config) && $config.enable == 1}'required'{else/}''{/if});
+});
+</script>
+<style>
+	.member-tips { max-height: 200px; overflow-y: auto; padding: 0; margin: 0; list-style: none; }
+	.member-tips li { padding: 6px 12px; font-size: 12px; line-height: 20px; cursor: pointer; color: #333; }
+	.member-tips li:hover { background: #f2f2f2; }
+</style>
+{/block}

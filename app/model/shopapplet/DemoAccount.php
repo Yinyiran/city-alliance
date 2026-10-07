@@ -22,6 +22,9 @@ use think\facade\Db;
 
 class DemoAccount extends BaseModel
 {
+    /** 配置缓存键（后台保存后需主动失效） */
+    const CACHE_KEY = 'SHOP_APPLET_DEMO_CONFIG';
+
     /** 体验账号下被禁止的写操作（方法名 => 提示语） */
     const BLOCK_ACTIONS = [
         'dodelivery' => '体验账号为只读模式，无法执行核销操作',
@@ -36,13 +39,55 @@ class DemoAccount extends BaseModel
     ];
 
     /**
+     * 用户端（app/api）体验账号下被禁止的操作
+     *
+     * 用户端与商家端不同：面向消费者，资金与下单动作分散在多个 controller
+     * （提现、下单、支付、退款…）。这里只拦截「会真实产生资金/订单变动」的关键动作，
+     * 其余浏览类接口（商品、店铺、评价、地址列表等）保持可用，保证审核能看到完整页面。
+     *
+     * 键为「控制器/方法」小写，匹配 request()->controller() . '/' . request()->action()
+     */
+    const CLIENT_BLOCK_ACTIONS = [
+        'memberwithdraw/apply' => '体验账号为只读模式，无法发起提现',
+        'memberwithdraw/transfertype' => '体验账号为只读模式，无法变更提现方式',
+        'ordercreate/create' => '体验账号为只读模式，无法下单',
+        'ordercreate/buy' => '体验账号为只读模式，无法下单',
+        'order/cancel' => '体验账号为只读模式，无法取消订单',
+        'order/refund' => '体验账号为只读模式，无法申请退款',
+        'pay/*' => '体验账号为只读模式，无法发起支付',
+        'ordercomplain/add' => '体验账号为只读模式，无法提交投诉',
+        'goodscollect/*' => '体验账号为只读模式，无法修改收藏',
+        'cart/*' => '体验账号为只读模式，无法修改购物车',
+    ];
+
+    /**
+     * 判断用户端某接口是否被体验账号拦截
+     *
+     * @return string 被拒绝时的提示语；空字符串表示允许
+     */
+    public static function blockedMessageForClient(string $key) : string
+    {
+        $key = strtolower(trim($key, '/'));
+        if ($key === '') return '';
+        if (isset(self::CLIENT_BLOCK_ACTIONS[ $key ])) {
+            return self::CLIENT_BLOCK_ACTIONS[ $key ];
+        }
+        // 支持通配：pay/* 之类的前缀匹配
+        foreach (self::CLIENT_BLOCK_ACTIONS as $pattern => $msg) {
+            if (substr($pattern, -2) !== '/*') continue;
+            $prefix = substr($pattern, 0, -1); // 保留末尾 '/'
+            if (strpos($key, $prefix) === 0) return $msg;
+        }
+        return '';
+    }
+
+    /**
      * 读取体验账号配置
      * @return array { enable: bool, member_id: int, mobile: string, shop_name: string }
      */
     public static function config() : array
     {
-        $cache_key = 'SHOP_APPLET_DEMO_CONFIG';
-        $cached = Cache::get($cache_key);
+        $cached = Cache::get(self::CACHE_KEY);
         if (!empty($cached)) return $cached;
 
         $config = [
@@ -80,7 +125,7 @@ class DemoAccount extends BaseModel
             }
         }
 
-        Cache::set($cache_key, $config, 360);
+        Cache::set(self::CACHE_KEY, $config, 360);
         return $config;
     }
 
@@ -102,5 +147,103 @@ class DemoAccount extends BaseModel
     public static function blockedMessage(string $action) : string
     {
         return self::BLOCK_ACTIONS[ $action ] ?? '';
+    }
+
+    /**
+     * 保存体验账号配置（后台「小程序审核设置 → 体验账号」使用）
+     *
+     * @param int $enable    1 开启 / 0 关闭
+     * @param int $member_id 体验账号对应的会员 ID
+     * @return array
+     */
+    public static function saveConfig(int $enable, int $member_id) : array
+    {
+        if ($enable === 1 && $member_id <= 0) {
+            return [
+                'code' => -1,
+                'message' => '请先选择体验账号会员',
+                'data' => [],
+            ];
+        }
+
+        // 开启时必须校验：该会员需存在且未删除
+        if ($enable === 1) {
+            $member = Db::name('member')
+                ->where([ [ 'member_id', '=', $member_id ], [ 'is_delete', '=', 0 ] ])
+                ->find();
+            if (empty($member)) {
+                return [
+                    'code' => -1,
+                    'message' => '所选会员不存在或已删除',
+                    'data' => [],
+                ];
+            }
+        }
+
+        $value = json_encode([
+            'enable' => $enable === 1 ? 1 : 0,
+            'member_id' => $member_id,
+        ], JSON_UNESCAPED_UNICODE);
+
+        $existing = Db::name('config')
+            ->where([
+                [ 'site_id', '=', 0 ],
+                [ 'app_module', '=', 'admin' ],
+                [ 'config_key', '=', 'SHOP_APPLET_DEMO_MEMBER' ],
+            ])
+            ->find();
+
+        if (!empty($existing)) {
+            Db::name('config')->where([ [ 'id', '=', $existing[ 'id' ] ] ])->update([
+                'value' => $value,
+                'config_desc' => '商家/用户小程序只读体验账号（微信审核/演示），关闭后体验登录入口不可用',
+                'modify_time' => time(),
+            ]);
+        } else {
+            Db::name('config')->insert([
+                'site_id' => 0,
+                'app_module' => 'admin',
+                'config_key' => 'SHOP_APPLET_DEMO_MEMBER',
+                'value' => $value,
+                'config_desc' => '商家/用户小程序只读体验账号（微信审核/演示），关闭后体验登录入口不可用',
+                'is_use' => 1,
+                'create_time' => time(),
+                'modify_time' => time(),
+            ]);
+        }
+
+        // 配置变更后立即失效缓存，避免后台改了要等 6 分钟才生效
+        Cache::delete(self::CACHE_KEY);
+
+        return [
+            'code' => 0,
+            'message' => '保存成功',
+            'data' => [],
+        ];
+    }
+
+    /**
+     * 后台选择器用：可作为体验账号的会员列表
+     *
+     * 只返回「已绑定手机号」且未删除的会员，避免选中后无法登录。
+     */
+    public static function candidateMembers(string $keyword = '', int $limit = 50) : array
+    {
+        $query = Db::name('member')
+            ->where([ [ 'is_delete', '=', 0 ] ])
+            ->where('mobile', '<>', '')
+            ->field('member_id,nickname,username,mobile,headimg')
+            ->order('member_id desc');
+
+        $keyword = trim($keyword);
+        if ($keyword !== '') {
+            $query->where(function ($q) use ($keyword) {
+                $q->where('mobile', 'like', '%' . $keyword . '%')
+                    ->whereOr('nickname', 'like', '%' . $keyword . '%')
+                    ->whereOr('username', 'like', '%' . $keyword . '%');
+            });
+        }
+
+        return $query->limit($limit)->select()->toArray();
     }
 }

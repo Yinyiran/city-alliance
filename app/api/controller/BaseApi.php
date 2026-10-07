@@ -7,6 +7,7 @@
 namespace app\api\controller;
 
 use app\model\member\Member as MemberModel;
+use app\model\shopapplet\DemoAccount;
 use app\model\system\Api;
 use extend\RSA;
 use think\facade\Cache;
@@ -98,6 +99,15 @@ class BaseApi
         }
 
         $this->member_id = $data[ 'member_id' ];
+
+        // 只读体验账号（微信审核 / 演示）：拦截会产生资金/订单变动的接口
+        if (DemoAccount::isDemo($this->member_id)) {
+            $route = strtolower((string)request()->controller() . '/' . (string)request()->action());
+            $blocked = DemoAccount::blockedMessageForClient($route);
+            if ($blocked !== '') {
+                return $this->error([], $blocked);
+            }
+        }
 
         return success(0, '', $data);
     }
