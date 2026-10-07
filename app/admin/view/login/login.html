@@ -3,53 +3,43 @@
 <link rel="stylesheet" type="text/css" href="ADMIN_CSS/login.css" />
 {/block}
 {block name="body"}
-<div class="layui-container">
+<div class="login-page">
+
+	<!-- 左侧标语 -->
+	<div class="login-slogan">
+		<h2 class="login-slogan-title">城盟科技<br />科技改变生活</h2>
+		<span class="login-slogan-line"></span>
+		<p class="login-slogan-sub">广州城盟科技有限公司出品</p>
+	</div>
+
+	<!-- 右侧登录卡片 -->
 	<div class="layui-form login-form">
-		<div class="ns-login-logo">
-			<!--			<img src="ADMIN_IMG/login/login_logo.png" />-->
-		</div>
-		<div class="layui-form-title">
-			<h1>后台登录系统</h1>
-		</div>
+		<div class="login-form-title">账号登录</div>
 
 		<div class="layui-form-item">
-			<img class="ns-input-icon" src="ADMIN_IMG/login/username.png" />
-			<input type="text" name="username" lay-verify="userName" placeholder="请输入用户名" autocomplete="off" class="layui-input">
+			<i class="layui-icon layui-icon-username login-input-icon"></i>
+			<input type="text" name="username" lay-verify="userName" placeholder="用户名" autocomplete="off" class="layui-input">
 		</div>
 		<div class="layui-form-item">
-			<img class="ns-input-icon" src="ADMIN_IMG/login/password.png" />
-			<input type="password" name="password" lay-verify="password" placeholder="请输入密码" autocomplete="off" class="layui-input">
+			<i class="layui-icon layui-icon-password login-input-icon"></i>
+			<input type="password" name="password" lay-verify="password" placeholder="密码" autocomplete="off" class="layui-input">
 		</div>
 
 		{if $admin_login == 1}
-		<div class="layui-form-item verify-code-box">
-			<input type="text" name="captcha" lay-verify="verificationCode" placeholder="请输入验证码" class="layui-input" value="">
-			<div class="verify-code-img">
+		<div class="layui-form-item login-verify-box">
+			<i class="layui-icon layui-icon-vercode login-input-icon"></i>
+			<input type="text" name="captcha" lay-verify="verificationCode" placeholder="验证码" class="layui-input" value="">
+			<div class="login-verify-img">
 				<img id='verify_img' src="{$captcha['img']}" alt='captcha' onclick="verificationCode()"/>
 			</div>
 		</div>
 		<input type="hidden" name="captcha_id" value="{$captcha['id']}">
 		{/if}
 
-		<div class="layui-form-item ns-login-btn">
-			<button class="layui-btn layui-btn-fluid ns-bg-color" lay-submit lay-filter="login">登 录</button>
+		<div class="layui-form-item login-btn-box">
+			<button class="layui-btn layui-btn-fluid login-submit-btn" lay-submit lay-filter="login">登 录</button>
 		</div>
 	</div>
-
-	<!--	<div class="ns-login-bottom">-->
-	<!--		<a class="ns-footer-img" href="#"><img src="{if !empty($copyright.logo)} {:img($copyright.logo)} {else /}__STATIC__/img/copyright_logo.png{/if}" /></a>-->
-	<!--		<p>-->
-	<!--			{notempty name="$copyright.company_name"}-->
-	<!--			<a href="{notempty name='$copyright.copyright_link'}{$copyright.copyright_link}{else/}javascript:;{/notempty}" target="_blank">{$copyright.company_name}</a>-->
-	<!--			{else/}-->
-	<!--&lt;!&ndash;			<a href="https://www.niushop.com" target="_blank">上海牛之云网络科技有限公司</a>&ndash;&gt;-->
-	<!--			{/notempty}-->
-	<!--			{notempty name="$copyright.icp"}-->
-	<!--			<a href="https://beian.miit.gov.cn/" target="_blank">&nbsp;&nbsp;备案号{$copyright.icp}</a>-->
-	<!--			{/notempty}-->
-	<!--		</p>-->
-	<!--		{notempty name="$copyright.gov_record"}<a class="gov-box" href="{$copyright.gov_url}" target="_blank"><img src="SHOP_IMG/gov_record.png" alt="">{$copyright.gov_record}</a>{/notempty}-->
-	<!--	</div>-->
 </div>
 {/block}
 {block name="script"}
@@ -87,7 +77,7 @@
 
 		$(document).keydown(function(event) {
 			if (event.keyCode == 13) {
-				$(".ns-login-btn button").trigger("click");
+				$(".login-submit-btn").trigger("click");
 			}
 		});
 

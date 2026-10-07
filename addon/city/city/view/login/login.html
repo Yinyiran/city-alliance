@@ -3,92 +3,52 @@
 <link rel="stylesheet" type="text/css" href="CITY_CSS/login.css" />
 {/block}
 {block name="body"}
-<div class="layui-layout layui-layout-admin">
-	<!--<div class="layui-header ns-login-top">
-		<div class="layui-logo">
-&lt;!&ndash;			<span class="ns-login-split">|</span>&ndash;&gt;
-&lt;!&ndash;			<span class="ns-text-color ns-login-desc">多商户城市分站管理系统</span>&ndash;&gt;
-		</div>
-		<ul class="layui-nav layui-layout-right">
-			<li class="layui-nav-item">
-			</li>
-		</ul>
-	</div>-->
+<div class="login-page">
 
-	<div class="ns-login-middel">
-		<div class="ns-login-box">
-			<div class="ns-login-banner">
-				<div class="layui-carousel" id="test1">
-					<div carousel-item>
-						<div class="ns-banner-box">
-							<img src="CITY_IMG/login/shanghai.png" />
-							<p></p>
-						</div>
-						<div class="ns-banner-box">
-							<img src="CITY_IMG/login/wuhan.png" />
-							<p></p>
-						</div>
-					</div>
-				</div>
+	<!-- 顶部标语 -->
+	<h2 class="login-slogan">城盟科技，科技改变生活</h2>
+
+	<!-- 中间登录面板 -->
+	<div class="login-panel">
+		<div class="login-panel-img">
+			<img src="CITY_IMG/login/login_city.jpg" alt="城盟科技">
+		</div>
+
+		<div class="layui-form login-form">
+			<div class="login-form-title">账号登录<span class="login-form-line"></span></div>
+
+			<div class="layui-form-item">
+				<i class="layui-icon layui-icon-username login-input-icon"></i>
+				<input type="text" name="username" lay-verify="userName" placeholder="用户名" autocomplete="off" class="layui-input">
 			</div>
 
-			<div class="ns-login-mid"></div>
+			<div class="layui-form-item">
+				<i class="layui-icon layui-icon-password login-input-icon"></i>
+				<input type="password" name="password" lay-verify="password" placeholder="密码" autocomplete="off" class="layui-input">
+			</div>
 
-			<div class="layui-form login-form">
-				<h1>城市端管理中心</h1>
+			{if $city_login == 1}
+			<div class="layui-form-item login-verify-box">
+				<i class="layui-icon layui-icon-vercode login-input-icon"></i>
+				<input type="text" name="captcha" lay-verify="verificationCode" placeholder="验证码" class="layui-input" value="">
+				<div class="login-verify-img">
+					<img id='verify_img' src="{$captcha['img']}" alt='captcha' onclick="verificationCode()" />
+				</div>
+			</div>
+			{/if}
 
-				<div class="layui-form-item">
-					<img class="ns-input-icon" src="SHOP_IMG/login/login_username.png" alt="">
-					<input type="text" name="username" lay-verify="userName" placeholder="请输入用户名" autocomplete="off" class="layui-input">
-				</div>
-
-				<div class="layui-form-item">
-					<img class="ns-input-icon" src="SHOP_IMG/login/login_password.png" alt="">
-					<input type="password" name="password" lay-verify="password" placeholder="请输入密码" autocomplete="off" class="layui-input">
-				</div>
-				{if $city_login == 1}
-				<div class="layui-form-item verify-code-box">
-					<input type="text" name="captcha" lay-verify="verificationCode" placeholder="请输入验证码" class="layui-input" value="">
-					<div class="verify-code-img">
-						<img id='verify_img' src="{$captcha['img']}" alt='captcha' onclick="verificationCode()" />
-					</div>
-				</div>
-				{/if}
-				<div class="layui-form-item ns-login-btn">
-					<button class="layui-btn layui-btn-fluid ns-bg-color" lay-submit lay-filter="login">登 录</button>
-				</div>
+			<div class="layui-form-item ns-login-btn">
+				<button class="layui-btn layui-btn-fluid login-submit-btn" lay-submit lay-filter="login">登 录</button>
 			</div>
 		</div>
 	</div>
 
-	<div class="ns-login-bottom" style="display: none">
-		<a class="ns-footer-img" href="#"><img src="{if !empty($copyright.logo)} {:img($copyright.logo)} {else /}__STATIC__/img/copyright_logo.png{/if}" /></a>
-		<p>
-			{notempty name="$copyright.company_name"}
-			<a href="{notempty name='$copyright.copyright_link'}{$copyright.copyright_link}{else/}javascript:;{/notempty}" target="_blank">{$copyright.company_name}</a>
-			{else/}
-			<a href="" target="_blank"></a>
-			{/notempty}
-			{notempty name="$copyright.icp"}
-			<a href="https://beian.miit.gov.cn/" target="_blank">&nbsp;&nbsp;备案号{$copyright.icp}</a>
-			{/notempty}
-		</p>
-		{notempty name="$copyright.gov_record"}<a class="gov-box" href="{$copyright.gov_url}" target="_blank"><img src="SHOP_IMG/gov_record.png" alt="">{$copyright.gov_record}</a>{/notempty}
-	</div>
-
+	<!-- 底部出品信息 -->
+	<div class="login-footer">广州城盟科技有限公司出品</div>
 </div>
 {/block}
 {block name="script"}
 <script>
-	layui.use('carousel', function() {
-		var carousel = layui.carousel;
-		carousel.render({
-			elem: '#test1',
-			width: '100%', //设置容器宽度
-			arrow: 'none', //始终显示箭头
-			anim: 'default' //切换动画方式
-		});
-	});
 	function verificationCode() {
 		$.ajax({
 			type: "get",

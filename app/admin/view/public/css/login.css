@@ -4,154 +4,211 @@ html, body {
 }
 
 body {
-	background: url(../img/login/login_bg.png) no-repeat;
-	background-size: 100% 100%;
+	background: #10152b url(../img/login/city_night.jpg) no-repeat center center;
+	background-size: cover;
+	font-family: "Microsoft YaHei", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+	overflow: hidden;
 }
 
-.layui-container {
+.login-page {
+	position: relative;
 	width: 100%;
 	height: 100%;
-	text-align: center;
-	min-width: 500px;
-	min-height: 500px;
-	padding: 0;
+	min-width: 1000px;
+	min-height: 560px;
 }
 
+/* 整体压暗遮罩，贴近设计稿的深色调 */
+.login-page::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(9, 15, 36, .38);
+}
 
-.login-form {
-	display: inline-block;
-	width: 420px;
-	/* height: 420px; */
-	padding-bottom: 40px;
-	box-sizing: border-box;
-	background-color: rgba(255, 255, 255, .15);
-	position: relative;
+/* ---------------- 左侧标语 ---------------- */
+.login-slogan {
+	position: absolute;
+	left: 9%;
 	top: 50%;
 	transform: translateY(-50%);
-}
-
-.ns-login-logo {
-	position: absolute;
-	top: -16px;
-	left: 50%;
-	transform: translateX(-50%);
-}
-
-.layui-form-title h1 {
 	color: #FFFFFF;
-	font-size: 25px;
-	padding: 35px 0;
+	z-index: 2;
+}
+
+.login-slogan-title {
+	margin: 0;
+	font-size: 62px;
+	line-height: 1.4;
+	font-weight: 700;
+	letter-spacing: 5px;
+	text-shadow: 0 4px 20px rgba(0, 0, 0, .5);
+}
+
+.login-slogan-line {
+	display: block;
+	width: 90px;
+	height: 4px;
+	border-radius: 2px;
+	background: #FFFFFF;
+	margin: 42px 0 30px;
+}
+
+.login-slogan-sub {
+	margin: 0;
+	font-size: 22px;
+	font-weight: 700;
+	letter-spacing: 3px;
+	opacity: .95;
+	text-shadow: 0 2px 12px rgba(0, 0, 0, .5);
+}
+
+/* ---------------- 右侧登录卡片 ---------------- */
+.login-form {
+	position: absolute;
+	right: 13%;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 380px;
+	box-sizing: border-box;
+	padding: 44px 38px 48px;
+	background: rgba(20, 27, 48, .55);
+	border: 1px solid rgba(255, 255, 255, .08);
+	border-radius: 8px;
+	backdrop-filter: blur(8px);
+	-webkit-backdrop-filter: blur(8px);
+	box-shadow: 0 20px 60px rgba(0, 0, 0, .45);
+	z-index: 2;
+}
+
+.login-form-title {
+	color: #FFFFFF;
+	font-size: 20px;
+	letter-spacing: 2px;
+	text-align: center;
+	margin-bottom: 36px;
 }
 
 .layui-form-item {
-	margin: 0 auto;
-	width: 360px;
-	height: 48px;
-	margin-bottom: 24px;
 	position: relative;
+	margin: 0 0 22px;
 }
 
-.ns-login-btn {
-	margin-top: 35px;
-	margin-bottom: 0;
-}
-
-.layui-form-item>input {
-	width: 100%;
-	height: 48px;
-	border-radius: 3px;
-	padding-left: 50px;
+.login-form .layui-input {
+	height: 46px;
+	line-height: 46px;
 	box-sizing: border-box;
-	background-color: rgba(255, 255, 255, .2);
-	border-width: 0;
+	padding-left: 44px;
+	border-radius: 4px;
+	border: 1px solid rgba(255, 255, 255, .18);
+	background-color: rgba(255, 255, 255, .12);
 	color: #FFFFFF;
+	transition: all .2s;
+}
+
+.login-form .layui-input:focus {
+	border-color: #4A7CF7;
+	background-color: rgba(255, 255, 255, .18);
+	box-shadow: 0 0 0 2px rgba(74, 124, 247, .25);
+}
+
+.login-input-icon {
+	position: absolute;
+	left: 15px;
+	top: 50%;
+	transform: translateY(-50%);
+	font-size: 16px;
+	color: rgba(255, 255, 255, .65);
+	z-index: 2;
 }
 
 input::-webkit-input-placeholder {
-	color: rgba(255, 255, 255, .6);
+	color: rgba(255, 255, 255, .55);
 }
 
 input:-moz-placeholder {
-	color: rgba(255, 255, 255, .6);
+	color: rgba(255, 255, 255, .55);
 }
 
 input::-moz-placeholder {
-	color: rgba(255, 255, 255, .6);
+	color: rgba(255, 255, 255, .55);
 }
 
 input:-ms-input-placeholder {
-	color: rgba(255, 255, 255, .6);
+	color: rgba(255, 255, 255, .55);
 }
-
-.layui-input:focus{
-	border-width: 1px !important;
-	border-color: rgba(255, 255, 255) !important;
-	box-shadow: 0 0 6px 3px rgba(255, 255, 255, .1);
-}
-
 
 input:-webkit-autofill {
-	/*box-shadow: 0 0 0px 1000px rgba(255, 255, 0, 0.5) inset !important;*/
-    /*-webkit-box-shadow: 0 0 0px 1000px rgba(255, 255, 255, 0.5) inset !important;*/
-	/*text-fill-color: rgba(255,255,255,1);*/
-	/*-webkit-text-fill-color: rgba(255,255,255,1);*/
-
-	-webkit-text-fill-color: #fff !important;
+	-webkit-text-fill-color: #FFFFFF !important;
 	transition: background-color 9999s ease-in-out 0s;
 	-webkit-transition-delay: 9999s;
 }
 
-.ns-input-icon {
+/* ---------------- 验证码 ---------------- */
+.login-verify-box .layui-input {
+	padding-right: 130px;
+}
+
+.login-verify-img {
 	position: absolute;
-	top: 10px;
-	left: 11px;
-}
-
-.layui-form-forget {
-	display: block;
-	margin: 0 auto;
-	width: 80%;
-	text-align: right;
-	font-size: 13px;
-	color: #C2C2C2;
-	margin-top: 10px;
-}
-
-.layui-btn {
-	height: 50px;
+	right: 8px;
+	top: 8px;
+	width: 110px;
+	height: 30px;
 	border-radius: 3px;
-	font-size: 16px;
-	box-shadow: 0 0 10px 3px rgba(255, 255, 255, .15);
-}
-
-/* 验证码 */
-.verify-code-box input {
-	padding-left: 20px;
-}
-
-.verify-code-img {
-	position: absolute;
-	right: 0;
-	top: 0;
-	width: 120px;
-	height: 48px;
 	overflow: hidden;
-	border-top-right-radius: 3px;
-	border-bottom-right-radius: 3px;
+	background: rgba(255, 255, 255, .9);
+	cursor: pointer;
 }
 
-.verify-code-box .verify-code-img {
-	text-align: right;
-}
-
-.verify-code-img img {
+.login-verify-img img {
+	display: block;
+	width: 100%;
 	height: 100%;
-	opacity: 0.3;
 }
 
+/* ---------------- 登录按钮 ---------------- */
+.login-btn-box {
+	margin: 34px 0 0;
+}
 
-.ns-login-bottom{color: #fff;box-sizing: border-box;text-align: center;padding-bottom: 50px;padding-top: 50px;line-height: 1.8;position: absolute; bottom: 0;left: 50%;transform: translateX(-50%);}
-.ns-login-bottom a {color: #FFFFFF;}
-.ns-login-bottom .gov-box img{max-width: 20px;max-height: 20px;margin-right: 5px;}
-.ns-footer-img{margin-bottom: 18px;}
-.ns-footer-img img{max-width: 100px;max-height: 27px;}
+.login-submit-btn {
+	height: 46px;
+	line-height: 46px;
+	border: none;
+	border-radius: 4px;
+	font-size: 16px;
+	letter-spacing: 8px;
+	text-indent: 8px;
+	color: #FFFFFF;
+	background: linear-gradient(90deg, #3D7BFD, #5B8CFF);
+	box-shadow: 0 8px 20px rgba(61, 123, 253, .35);
+	cursor: pointer;
+}
+
+.login-submit-btn:hover {
+	opacity: .9;
+}
+
+/* ---------------- 小屏适配 ---------------- */
+@media only screen and (max-width: 1280px) {
+	.login-slogan {
+		left: 5%;
+	}
+	.login-form {
+		right: 6%;
+	}
+}
+
+@media only screen and (max-width: 1000px) {
+	.login-slogan {
+		display: none;
+	}
+	.login-form {
+		right: 50%;
+		transform: translate(50%, -50%);
+	}
+}

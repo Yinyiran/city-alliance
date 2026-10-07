@@ -1,65 +1,48 @@
 {extend name="base"/}
 {block name="resources"}
 <link rel="stylesheet" href="SHOP_CSS/login.css">
-<style>
-	/* .login-body{background-image: url("{:img('SHOP_IMG/login/login_bg.png')}"); background-size: cover;} */
-</style>
 {/block}
 {block name="body"}
-<div class="layui-layout layui-layout-admin">
-	<div class="apply-header">
-		<div class="apply-header-box">
-			<div class="apply-header-title">
+<div class="login-page">
 
-			</div>
-			<!--			<span class="phone">联系电话：{$website_info['web_phone']} </span>-->
+	<!-- 顶部标语 -->
+	<h2 class="login-slogan">城盟科技，科技改变生活</h2>
+
+	<!-- 中间登录面板 -->
+	<div class="login-panel">
+		<div class="login-panel-img">
+			<img src="SHOP_IMG/login/login_city.jpg" alt="城盟科技">
 		</div>
-	</div>
-</div>
-<div class="login-body">
-	<div class="login-content">
-		<h2>商家管理系统登录</h2>
-		<!--		<h3>登录之后可进入店铺或申请入驻</h3>-->
-		<div class="layui-form">
-			<div class="login-input login-info">
-				<div class="login-icon">
-					<img src="SHOP_IMG/login/login_username.png" alt="">
-				</div>
-				<input type="text" name="username" lay-verify="userName" placeholder="请输入用户名" autocomplete="off" class="layui-input">
+
+		<div class="layui-form login-form">
+			<div class="login-form-title">账号登录<span class="login-form-line"></span></div>
+
+			<div class="layui-form-item">
+				<i class="layui-icon layui-icon-username login-input-icon"></i>
+				<input type="text" name="username" lay-verify="userName" placeholder="用户名" autocomplete="off" class="layui-input">
 			</div>
-			<div class="login-input login-info">
-				<div class="login-icon">
-					<img src="SHOP_IMG/login/login_password.png" alt="">
-				</div>
-				<input type="password" name="password" lay-verify="password" placeholder="请输入密码" autocomplete="off" class="layui-input">
+			<div class="layui-form-item">
+				<i class="layui-icon layui-icon-password login-input-icon"></i>
+				<input type="password" name="password" lay-verify="password" placeholder="密码" autocomplete="off" class="layui-input">
 			</div>
 			{if $shop_login == 1}
-			<div class="login-input login-verification">
-				<input type="text" name="captcha" lay-verify="verificationCode" placeholder="请输入验证码" autocomplete="off" class="layui-input">
-				<div class="login-verify-code-img">
+			<div class="layui-form-item login-verify-box">
+				<i class="layui-icon layui-icon-vercode login-input-icon"></i>
+				<input type="text" name="captcha" lay-verify="verificationCode" placeholder="验证码" autocomplete="off" class="layui-input" value="">
+				<div class="login-verify-img">
 					<img id='verify_img' src="{$captcha['img']}" alt='captcha' onclick="verificationCode()"/>
 				</div>
 			</div>
 			<input type="hidden" name="captcha_id" value="{$captcha['id']}">
 			{/if}
-			<button id="login_btn" type="button" class="layui-btn ns-bg-color ns-login-btn" lay-submit lay-filter="login">登录</button>
-			<!--			<p class="operation-register">还没有成为我们的伙伴？<a href="javascript:register();" class="ns-text-color">&nbsp;申请入驻</a></p>-->
+			<div class="layui-form-item ns-login-btn">
+				<button id="login_btn" type="button" class="layui-btn layui-btn-fluid login-submit-btn" lay-submit lay-filter="login">登 录</button>
+			</div>
 		</div>
 	</div>
 
-	<div class="ns-login-bottom">
-		<a class="ns-footer-img" href="#"><img src="{if !empty($copyright.logo)} {:img($copyright.logo)} {else /}{/if}" /></a>
-		<p>
-			{notempty name="$copyright.company_name"}
-			<a href="{notempty name='$copyright.copyright_link'}{$copyright.copyright_link}{else/}javascript:;{/notempty}" target="_blank">{$copyright.company_name}</a>
-			{else/}
-			{/notempty}
-			{notempty name="$copyright.icp"}
-			<a href="https://beian.miit.gov.cn/" target="_blank">&nbsp;&nbsp;备案号{$copyright.icp}</a>
-			{/notempty}
-		</p>
-		{notempty name="$copyright.gov_record"}<a class="gov-box" href="{$copyright.gov_url}" target="_blank"><img src="SHOP_IMG/gov_record.png" alt="">{$copyright.gov_record}</a>{/notempty}
-	</div>
+	<!-- 底部出品信息 -->
+	<div class="login-footer">广州城盟科技有限公司出品</div>
 </div>
 {/block}
 {block name="script"}
@@ -139,13 +122,6 @@
 	function register(){
 		location.href = ns.url("shop/login/register");
 	}
-
-	$("body").on("blur",".login-content .login-input",function(){
-		$(this).removeClass("login-input-select");
-	});
-	$("body").on("focus",".login-content .login-input",function(){
-		$(this).addClass("login-input-select");
-	});
 
 	$(document).keydown(function (event) {
 		if (event.keyCode == 13) {
