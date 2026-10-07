@@ -13,9 +13,9 @@
 		<view class="acea-row row-middle row-center row-column status status2" v-else-if="info.order_status==1">
 			<view class="acea-row row-middle">
 				<image src="/otherpages/static/pay1.png" class="w-36 h-36 m-r-12" mode=""></image>
-				已支付
+				{{statusTitle}}
 			</view>
-			<view class="m-t-12" style="color: #999;">订单已支付，请前往门店出示核销码提货</view>
+			<view class="m-t-12" style="color: #999;">{{statusDesc}}</view>
 		</view>
 		<view class="acea-row row-middle row-center row-column status status-pending" v-else-if="info.order_status==2">
 			<view class="acea-row row-middle" style="color: #FE780F;">
@@ -39,14 +39,32 @@
 			<view class="m-t-12" style="color: #999;">订单已关闭</view>
 		</view>
 
+		<!-- 预约信息卡片 -->
+		<view class="verify-card appt-card" v-if="info.trade_type==2 && info.appointment_date">
+			<view class="verify-header acea-row row-middle row-between">
+				<view class="acea-row row-middle">
+					<uv-icon name="clock" size="16" color="#C24E00"></uv-icon>
+					<text class="verify-title m-l-8">预约信息</text>
+				</view>
+				<view class="verify-badge">{{apptStatusText}}</view>
+			</view>
+			<view class="appt-body">
+				<view class="appt-row"><text class="k">预约时间</text><text class="v">{{info.appointment_date}} {{info.appointment_slot}}</text></view>
+				<view class="appt-row" v-if="info.delivery_store_name"><text class="k">到店门店</text><text class="v">{{info.delivery_store_name}}</text></view>
+				<view class="appt-row" v-if="info.appointment_user"><text class="k">联系人</text><text class="v">{{info.appointment_user}} {{info.appointment_mobile}}</text></view>
+				<view class="appt-row" v-if="info.appointment_remark"><text class="k">备注</text><text class="v">{{info.appointment_remark}}</text></view>
+				<view class="appt-tip">迟到可正常履约；超时未支付名额将自动释放</view>
+			</view>
+		</view>
+
 		<!-- 核销二维码模块 -->
 		<view class="verify-card" v-if="canShowVerifyCode">
 			<view class="verify-header acea-row row-middle row-between">
 				<view class="acea-row row-middle">
 					<image src="/otherpages/static/img2.png" class="w-36 h-36 m-r-12" mode=""></image>
-					<text class="verify-title">提货核销码</text>
+					<text class="verify-title">{{verifyTitle}}</text>
 				</view>
-				<view class="verify-badge">到店出示</view>
+				<view class="verify-badge">{{verifyBadge}}</view>
 			</view>
 			<view class="verify-body acea-row row-column row-center row-middle">
 				<view class="qrcode-box">
@@ -200,8 +218,14 @@
 		<view class="h-300"></view>
 		<view class="btms iphone-x" v-if="info.order_status==0">
 			<view class="acea-row row-middle row-right">
-				<view class="btn2">取消订单</view>
+				<view class="btn2" @click="orderClose">取消订单</view>
 				<view class="btn1" @click="huifupay">立即付款</view>
+			</view>
+		</view>
+		<view class="btms iphone-x" v-else-if="info.order_status==1">
+			<view class="acea-row row-middle row-right">
+				<view class="btn2" v-if="info.trade_type==2 && info.appointment_status==1" @click="doCancelAppointment">取消预约</view>
+				<view class="btn2" v-if="info.trade_type!=2" @click="goRefund">申请退款</view>
 			</view>
 		</view>
 	</view>
@@ -211,7 +235,9 @@
 	import {
 		orderDetail,
 		huifupay,
-		getVerifyCode
+		getVerifyCode,
+		cancelAppointment,
+		orderClose as closeOrderApi
 	} from '@/common/js/api.js';
 	export default {
 		data() {
@@ -233,6 +259,41 @@
 			}
 		},
 		computed: {
+			//已支付状态标题（按交易类型）
+			statusTitle() {
+				const t = Number(this.info.trade_type || 0);
+				const map = { 0: '已支付', 1: '待到店消费', 2: '已预约', 3: '待自提', 4: '待发货' };
+				return map[t] || '已支付';
+			},
+			//已支付状态说明
+			statusDesc() {
+				const t = Number(this.info.trade_type || 0);
+				if (t === 1) return '订单已支付，可到店消费并出示核销码';
+				if (t === 2) return '请按预约时间到店，商家扫码核销';
+				if (t === 3) return '请到店出示核销码，扫码核销提货';
+				if (t === 4) return '商家正在为您配送，请保持电话畅通';
+				return '订单已支付，请前往门店出示核销码提货';
+			},
+			//核销码标题
+			verifyTitle() {
+				const t = Number(this.info.trade_type || 0);
+				if (t === 1) return '到店消费码';
+				if (t === 2) return '到店服务核销码';
+				if (t === 3) return '自提核销码';
+				return '提货核销码';
+			},
+			verifyBadge() {
+				const t = Number(this.info.trade_type || 0);
+				if (t === 1) return '到店出示';
+				if (t === 2) return '到店核销';
+				if (t === 3) return '提货核销';
+				return '到店出示';
+			},
+			//预约状态文案
+			apptStatusText() {
+				const map = { 0: '待付款', 1: '已预约', 2: '已取消', 3: '已过期', 4: '已完成' };
+				return map[Number(this.info.appointment_status)] || '已预约';
+			},
 			isOrderVerified() {
 				return this.info.order_status == 4 || this.info.order_status == 10 || (this.info.delivery_status == 1 && this.info.order_status != 0);
 			},
@@ -259,6 +320,38 @@
 			},
 		},
 		methods: {
+			//取消预约
+			doCancelAppointment() {
+				uni.showModal({
+					title: '取消预约',
+					content: '确定取消该预约吗？名额将释放',
+					success: r => {
+						if (!r.confirm) return;
+						cancelAppointment({ order_id: this.id }).then(res => {
+							uni.showToast({ title: res.message || '已取消', icon: 'none' });
+							this.getinfo();
+						});
+					}
+				});
+			},
+			//取消订单
+			orderClose() {
+				uni.showModal({
+					title: '取消订单',
+					content: '确定取消当前订单',
+					success: r => {
+						if (!r.confirm) return;
+						closeOrderApi({ order_id: this.id }).then(() => {
+							uni.showToast({ title: '已取消', icon: 'none' });
+							this.getinfo();
+						});
+					}
+				});
+			},
+			//申请退款
+			goRefund() {
+				this.$util.redirectTo('/otherpages/refund/refund', { id: this.id });
+			},
 			formatCode(code) {
 				if (!code) return '';
 				return code.replace(/(.{4})/g, '$1 ').trim();
@@ -599,6 +692,36 @@
 		background: linear-gradient(180deg, #F0F9EB 0%, #F5F5F5 100%);
 		>view:first-child {
 			color: #25B85B;
+		}
+	}
+
+	/* 预约信息卡片 */
+	.appt-card {
+		background: #FFF9F4;
+		border: 2rpx solid #FFE2CE;
+	}
+
+	.appt-body {
+		.appt-row {
+			display: flex;
+			justify-content: space-between;
+			font-size: 26rpx;
+			padding: 10rpx 0;
+
+			.k {
+				color: #999;
+			}
+
+			.v {
+				color: #333;
+				font-weight: 600;
+			}
+		}
+
+		.appt-tip {
+			font-size: 22rpx;
+			color: #999;
+			margin-top: 10rpx;
 		}
 	}
 

@@ -20,11 +20,17 @@
 							<uv-icon color="#555555" size="8" name="arrow-right"></uv-icon>
 						</view>
 					</view>
-					<view class="status" v-if="item.order_status==0">{{item.order_status_name}}</view>
-					<view class="status" v-else-if="item.order_status==1">{{item.order_status_name}}</view>
-					<view class="status" v-else-if="item.order_status==2" style="color: #FE780F;">待核销</view>
-					<view class="" v-else>{{item.order_status_name}}</view>
-				</view>
+					<view class="status" v-if="item.order_status==0">{{statusText(item)}}</view>
+						<view class="status" v-else-if="item.order_status==1">{{statusText(item)}}</view>
+						<view class="status" v-else-if="item.order_status==2" style="color: #FE780F;">{{statusText(item)}}</view>
+						<view class="" v-else>{{statusText(item)}}</view>
+					</view>
+					<!-- 预约信息 -->
+					<view class="appt" v-if="item.trade_type==2 && item.appointment_date">
+						<text class="appt-label">预约</text>
+						<text>{{item.appointment_date}} {{item.appointment_slot}}</text>
+						<text class="appt-store" v-if="item.delivery_store_name">· {{item.delivery_store_name}}</text>
+					</view>
 				<view class="acea-row row-middle m-t-28 row-between" v-for="(items,indexs) in item.order_goods">
 					<image :src="$util.img(items.sku_image)" class="w-140 h-140 bor-16" mode=""></image>
 					<view class="widths h-140 acea-row row-between row-column">
@@ -50,11 +56,12 @@
 				</view> -->
 				<view class="btns acea-row row-middle row-right">
 					<view class="btn1" v-if="item.order_status==0" @click="orderClose(item.order_id)">取消订单</view>
-					<view class="btn2" v-if="item.order_status==0">立即支付</view>
-					<view class="btn3" v-if="item.order_status==1">申请退款</view>
-					<view class="btn4" v-if="item.order_status==1">再次购买</view>
-					<view class="btn1" v-if="item.order_status==2">申请售后</view>
-					<view class="btn5" v-if="item.order_status==2">去核销</view>
+					<view class="btn2" v-if="item.order_status==0" @click="goPay(item)">立即支付</view>
+					<view class="btn1" v-if="item.trade_type==2 && item.appointment_status==1" @click="cancelAppointment(item)">取消预约</view>
+					<view class="btn3" v-if="item.order_status==1" @click="goRefund(item)">申请退款</view>
+					<view class="btn5" v-if="isVerifyOrder(item)" @click="goDetail(item)">去核销</view>
+					<view class="btn1" v-if="item.order_status==2" @click="goRefund(item)">申请售后</view>
+					<view class="btn4" v-if="item.order_status==10" @click="againBuy(item)">再次购买</view>
 				</view>
 			</view>
 		</view>
@@ -62,7 +69,7 @@
 </template>
 
 <script>
-	import {orderlist,orderClose} from "@/common/js/api.js"
+	import {orderlist,orderClose,cancelAppointment,huifupay} from "@/common/js/api.js"
 	export default {
 		data() {
 			return {
@@ -73,6 +80,10 @@
 					{
 						name: "待支付",
 						id:"waitpay"
+					},
+					{
+						name: "待到店",
+						id:'waitappointment'
 					},
 					{
 						name: "待收货",
@@ -104,6 +115,51 @@
 			this.getlist()
 		},
 		methods:{
+			//按交易类型显示状态文案
+			statusText(item){
+				const t = Number(item.trade_type||0);
+				if(item.order_status === 2) return '待核销';
+				if(t === 2 && item.appointment_status === 1 && item.order_status !== 2) return '待到店';
+				if(t === 1 && item.order_status === 1) return '待到店消费';
+				if(t === 3 && item.order_status === 1) return '待自提';
+				if(t === 4 && item.order_status === 1) return '待发货';
+				return item.order_status_name;
+			},
+			//是否可核销（到店类且未核销）
+			isVerifyOrder(item){
+				const t = Number(item.trade_type||0);
+				return [1,2,3].includes(t) && item.delivery_status != 1 && item.order_status != 0 && item.order_status != -1;
+			},
+			goDetail(item){
+				this.$util.redirectTo('/otherpages/orderDetail/orderDetail',{id:item.order_id});
+			},
+			goPay(item){
+				this.$util.redirectTo('/otherpages/orderDetail/orderDetail',{id:item.order_id});
+			},
+			goRefund(item){
+				this.$util.redirectTo('/otherpages/orderDetail/orderDetail',{id:item.order_id});
+			},
+			againBuy(item){
+				if(item.order_goods && item.order_goods.length){
+					const sku = item.order_goods[0];
+					this.$util.redirectTo('/otherpages/goods_detail/goods_detail',{id:sku.sku_id});
+				}
+			},
+			//取消预约
+			cancelAppointment(item){
+				uni.showModal({
+					title:'取消预约',
+					content:'确定取消该预约吗？名额将释放',
+					success:r=>{
+						if(r.confirm){
+							cancelAppointment({ order_id: item.order_id }).then(res=>{
+								uni.showToast({ title: res.message || '已取消', icon:'none' });
+								this.getlist();
+							})
+						}
+					}
+				})
+			},
 			orderClose(e){
 				uni.showModal({
 					content:'确定取消当前订单',
@@ -190,6 +246,29 @@
 					right: 20rpx;
 					top: 50%;
 					transform: translateY(-50%);
+				}
+			}
+
+			.appt {
+				background: #FFF6F0;
+				border-radius: 8rpx;
+				padding: 12rpx 16rpx;
+				margin-top: 16rpx;
+				font-size: 24rpx;
+				color: #C24E00;
+
+				.appt-label {
+					background: #C24E00;
+					color: #fff;
+					border-radius: 4rpx;
+					padding: 2rpx 10rpx;
+					margin-right: 10rpx;
+					font-size: 20rpx;
+				}
+
+				.appt-store {
+					color: #999;
+					margin-left: 8rpx;
 				}
 			}
 

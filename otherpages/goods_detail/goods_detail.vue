@@ -44,8 +44,25 @@
 			<!-- <view class="tags" v-if="goods_type==3">
 				全国包邮
 			</view> -->
-			<view class="tags" v-if="goods_type!=3">
-				门店核销
+			<!-- 交易类型标签与服务说明 -->
+			<view class="acea-row row-middle trade-tags m-t-16">
+				<view class="trade-tag">{{tradeName}}</view>
+				<view class="trade-tag" v-if="info.service_duration>0">服务{{info.service_duration}}分钟</view>
+				<view class="trade-tag" v-if="info.trade_type==1&&Number(info.allow_custom_amount)===1">金额自定</view>
+				<view class="trade-tag" v-if="info.trade_type==3">到店扫码核销</view>
+				<view class="trade-tag" v-if="info.trade_type==4">同城配送</view>
+			</view>
+			<view class="trade-desc" v-if="info.trade_type>0">{{tradeDesc}}</view>
+
+			<!-- 到店类：门店选择 -->
+			<view class="part2 m-t-20" v-if="info.trade_type==1||info.trade_type==2||info.trade_type==3">
+				<view class="font-36 font-weight-6 m-b-24">到店服务</view>
+				<view class="store-item" v-for="(s,idx) in storeList" :key="s.store_id" :class="{active: idx==storeIndex}" @click="selectStore(idx)">
+					<view class="store-name">{{s.store_name}}</view>
+					<view class="store-addr">{{s.address||s.full_address||''}}</view>
+					<view class="store-check" v-if="idx==storeIndex">✓</view>
+				</view>
+				<view class="store-empty" v-if="!storeList.length">该商品暂无可用门店</view>
 			</view>
 			<view class="acea-row row-middle row-between m-t-22">
 				<view class="acea-row row-middle font-32" style="color: #C24E00;">
@@ -124,7 +141,7 @@
 		</view>
 		<login ref="login"></login>
 		<ns-goods-sku ref="goodsSku" :goodstype='goods_type' :video_id='video_id' @refresh="refreshGoodsSkuDetail" :goods-detail="info"
-			:max-buy="info.max_buy" :min-buy="info.min_buy"></ns-goods-sku>
+			:max-buy="info.max_buy" :min-buy="info.min_buy" :store-id="currentStore() ? currentStore().store_id : 0"></ns-goods-sku>
 		<!-- <uv-popup mode="bottom" :round='10' ref="popup">
 			<view class="acea-row row-middle shares1 row-around">
 				<view class="">
@@ -173,6 +190,25 @@
 				}
 				return 1
 			},
+			//交易类型名称
+			tradeName() {
+				const map = {0:'普通商品',1:'到店消费',2:'预约到店',3:'到店自提',4:'外卖配送'};
+				return map[Number(this.info.trade_type||0)] || '';
+			},
+			//交易类型说明
+			tradeDesc() {
+				switch(Number(this.info.trade_type||0)){
+					case 1: return '到店消费，可扫码付款' + (Number(this.info.allow_custom_amount)===1 ? '，支持自定义金额' : '');
+					case 2: return '选择到店时段，商家按同时接待人数为你安排服务';
+					case 3: return '下单后到店出示核销码，扫码核销提货';
+					case 4: return '商家配送到家，同城即时送达';
+					default: return '';
+				}
+			},
+			//到店门店列表
+			storeList() {
+				return (this.info.trade_info && this.info.trade_info.store_list) ? this.info.trade_info.store_list : [];
+			},
 		},
 		data() {
 			return {
@@ -184,7 +220,8 @@
 				token: "",
 				type: 1,
 				member_id: "",
-				video_id:""
+				video_id:"",
+				storeIndex: 0
 			};
 		},
 		onShow() {
@@ -324,9 +361,22 @@
 				// }
 			},
 			buyit() {
+				//预约到店需先选择门店
+				if (Number(this.info.trade_type) === 2 && !this.currentStore()) {
+					uni.showToast({ title: '请选择到店门店', icon: 'none' });
+					return;
+				}
 				this.$refs.goodsSku.show("buy_now", () => {
 					// this.getCartCount();
 				});
+			},
+			//选择门店
+			selectStore(idx) {
+				this.storeIndex = idx;
+			},
+			//当前选中门店
+			currentStore() {
+				return this.storeList[this.storeIndex] || null;
 			},
 			daohang() {
 				uni.openLocation({
@@ -396,6 +446,57 @@
 		width: fit-content;
 		margin-top: 10rpx;
 		padding: 10rpx 15rpx;
+	}
+
+	/* 交易类型标签 */
+	.trade-tag {
+		background: #FFF3EC;
+		color: #C24E00;
+		border-radius: 6rpx;
+		font-size: 22rpx;
+		font-weight: 600;
+		padding: 6rpx 16rpx;
+		margin-right: 12rpx;
+	}
+	.trade-desc {
+		font-size: 24rpx;
+		color: #999;
+		margin-top: 12rpx;
+	}
+	/* 到店门店选择 */
+	.store-item {
+		position: relative;
+		background: #F7F8FA;
+		border: 2rpx solid transparent;
+		border-radius: 12rpx;
+		padding: 20rpx;
+		margin-bottom: 16rpx;
+	}
+	.store-item.active {
+		border-color: #C24E00;
+		background: #FFF9F4;
+	}
+	.store-name {
+		font-size: 28rpx;
+		font-weight: 600;
+	}
+	.store-addr {
+		font-size: 24rpx;
+		color: #999;
+		margin-top: 8rpx;
+	}
+	.store-check {
+		position: absolute;
+		right: 20rpx;
+		top: 20rpx;
+		color: #C24E00;
+		font-size: 28rpx;
+	}
+	.store-empty {
+		font-size: 26rpx;
+		color: #999;
+		text-align: center;
+		padding: 30rpx 0;
 	}
 
 	.shares1 {

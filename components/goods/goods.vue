@@ -24,8 +24,8 @@
 				<view class="acea-row row-middle prices">
 					<view class="acea-row row-column row-between" style="flex-wrap: nowrap;">
 						<view class="acea-row row-middle">
-							<view class="">限时特价</view>
-							<view class="">门店核销</view>
+							<view class="">{{tradeText(item)}}</view>
+							<view class="">{{secondText(item)}}</view>
 						</view>
 						<view class="acea-row row-middle">
 							<text>￥</text>
@@ -59,6 +59,19 @@
 				uni.navigateTo({
 					url:'/otherpages/goods_detail/goods_detail?id='+e
 				})
+			},
+			//交易类型主标签
+			tradeText(item){
+				const map = {0:'限时特价',1:'到店消费',2:'预约到店',3:'到店自提',4:'外卖配送'};
+				return map[Number(item.trade_type||0)] || '限时特价';
+			},
+			//交易类型副标签
+			secondText(item){
+				const t = Number(item.trade_type||0);
+				if(t === 2) return item.service_duration ? `服务${item.service_duration}分钟` : '需预约';
+				if(t === 1) return Number(item.allow_custom_amount)===1 ? '金额自定' : '门店核销';
+				if(t === 4) return '同城配送';
+				return '门店核销';
 			}
 		}
 	}

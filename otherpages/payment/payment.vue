@@ -112,6 +112,59 @@
 			</view>
 		</view>
 
+		<!-- 到店消费：自定义金额 -->
+		<view class="infos1" v-if="tradeType==1">
+			<view class="acea-row row-middle row-between m-b-16">
+				<view class="font-32 font-weight-4">消费金额</view>
+				<view class="font-24" style="color:#999;">到店支付，可扫码付款</view>
+			</view>
+			<view class="acea-row row-middle amount-box" v-if="allowCustom">
+				<text class="font-28">￥</text>
+				<input class="font-32 amount-input" type="digit" v-model="customAmount" placeholder="请输入消费金额" placeholder-class="ph" />
+				<text class="font-24 m-l-8" style="color:#999;">元</text>
+			</view>
+			<view class="font-24" style="color:#999;" v-if="allowCustom">
+				{{minAmount>0?'起付'+minAmount+'元':''}}{{maxAmount>0?(minAmount>0?'，':'（')+'最高'+maxAmount+'元':''}}{{minAmount>0&&maxAmount>0?'，不填则按商品价格':''}}
+			</view>
+			<view class="font-26" v-else>按商品价格结算：¥{{orderinfo.pay_money}}</view>
+		</view>
+
+		<!-- 预约到店：日期 + 时段 -->
+		<view class="infos1" v-if="tradeType==2">
+			<view class="font-32 font-weight-4 m-b-16">预约到店</view>
+			<scroll-view scroll-x class="date-scroll" v-if="dateList.length">
+				<view class="acea-row date-item" v-for="(d,idx) in dateList" :key="d.date" :class="{active: idx==dateIndex}" @click="selectDate(idx)">
+					<view class="date-day">{{d.date.slice(5)}}</view>
+					<view class="date-week">{{d.week_name}}</view>
+				</view>
+			</scroll-view>
+			<view class="font-24" style="color:#999;" v-else>该商品暂无可预约日期</view>
+
+			<view class="font-28 m-t-20 m-b-12" v-if="dateList.length">到店门店</view>
+			<view class="store-item" v-for="(s,idx) in storeList" :key="s.store_id" :class="{active: idx==storeIndex}" @click="selectStore(idx)">
+				<view class="store-name">{{s.store_name}}</view>
+				<view class="store-addr">{{s.address||''}}</view>
+				<view class="store-check" v-if="idx==storeIndex">✓</view>
+			</view>
+
+			<view class="font-28 m-t-20 m-b-12" v-if="slotList.length">选择时段</view>
+			<view class="slot-wrap" v-if="slotList.length">
+				<view class="slot-item" v-for="s in slotList" :key="s.start_time" :class="{active: s.start_time==startTime, disabled: !s.can_select}" @click="selectSlot(s)">
+					{{s.slot_text}}
+					<text class="font-20" v-if="!s.can_select"> (已约满)</text>
+					<text class="font-20" v-else> (余{{s.remain_num}})</text>
+				</view>
+			</view>
+			<view class="font-24" style="color:#999;" v-if="!slotList.length">该门店当日暂无可预约时段</view>
+
+			<view class="font-28 m-t-20" v-if="dateList.length">预约人信息</view>
+			<view class="info-row" v-if="dateList.length">
+				<input class="info-input" v-model="appointment.user_name" placeholder="请输入联系人" placeholder-class="ph" />
+				<input class="info-input" v-model="appointment.mobile" type="number" placeholder="请输入联系电话" placeholder-class="ph" />
+			</view>
+			<view class="font-24" style="color:#999;">迟到可正常履约，超时未支付将自动释放名额</view>
+		</view>
+
 		<view class="h-300"></view>
 		<view class="btms iphone-x">
 			<view class="acea-row row-middle row-between">
@@ -136,14 +189,29 @@
 		ordercalculate,
 		pointcreate,
 		storecreate,
-		huifupay
+		huifupay,
+		Gdetail,
+		slotList
 	} from "@/common/js/api.js"
 	export default {
 		data() {
 			return {
 				check: 0,
 				info1: {},
-				orderinfo: {}
+				orderinfo: {},
+				//交易类型
+				tradeType: 0,
+				allowCustom: false,
+				minAmount: 0,
+				maxAmount: 0,
+				customAmount: '',
+				storeList: [],
+				storeIndex: 0,
+				dateList: [],
+				dateIndex: 0,
+				slotList: [],
+				startTime: '',
+				appointment: { user_name: '', mobile: '', remark: '' }
 			};
 		},
 		async onLoad() {
@@ -154,12 +222,147 @@
 			if (this.info1.goodstype == 2) {
 				this.check = 1
 			}
+			this.tradeType = Number(this.info1.trade_type || 0);
+			this.initTradeInfo();
 		},
 		async onShow() {
 			await this.payment()
 			await this.ordercalculate()
 		},
 		methods: {
+			//初始化交易类型相关信息
+			async initTradeInfo() {
+				if (!this.tradeType) return;
+				const goods_id = this.info1.goods_id || 0;
+				const sku_id = this.info1.sku_id || 0;
+				//自定义金额配置
+				if (this.tradeType === 1) {
+					await this.loadGoodsTrade(goods_id, sku_id);
+				}
+				//到店门店
+				if (this.tradeType === 1 || this.tradeType === 2 || this.tradeType === 3) {
+					await this.loadStoreList(goods_id, sku_id);
+				}
+				//预约日期与时段
+				if (this.tradeType === 2) {
+					await this.loadDateList(goods_id, sku_id);
+				}
+			},
+			//读取商品交易配置（允许自定义金额等）
+			loadGoodsTrade(goods_id, sku_id) {
+				return new Promise(resolve => {
+					if (!sku_id) return resolve();
+					Gdetail({ sku_id }).then(res => {
+						const d = (res.data && res.data.goods_sku_detail) || {};
+						const ti = d.trade_info || {};
+						this.allowCustom = Number(ti.allow_custom_amount) === 1;
+						this.minAmount = Number(ti.min_order_amount || 0);
+						this.maxAmount = Number(ti.max_order_amount || 0);
+						resolve();
+					}).catch(() => resolve());
+				});
+			},
+			//门店列表
+			loadStoreList(goods_id, sku_id) {
+				return new Promise(resolve => {
+					Gdetail({ sku_id }).then(res => {
+						const d = (res.data && res.data.goods_sku_detail) || {};
+						const ti = d.trade_info || {};
+						this.storeList = ti.store_list || [];
+						//优先使用详情页选中的门店
+						if (this.info1.store_id) {
+							const idx = this.storeList.findIndex(s => Number(s.store_id) === Number(this.info1.store_id));
+							if (idx > -1) this.storeIndex = idx;
+						}
+						resolve();
+					}).catch(() => resolve());
+				});
+			},
+			//预约日期
+			loadDateList(goods_id, sku_id) {
+				return new Promise(resolve => {
+					slotList({ goods_id, sku_id, days: 7 }).then(res => {
+						this.dateList = (res.data || []).filter(d => (d.store_list || []).length);
+						if (this.dateList.length) {
+							this.dateIndex = 0;
+							this.loadSlotList();
+						}
+						resolve();
+					}).catch(() => resolve());
+				});
+			},
+			//切换日期
+			selectDate(idx) {
+				this.dateIndex = idx;
+				this.startTime = '';
+				this.loadSlotList();
+			},
+			//切换门店
+			selectStore(idx) {
+				this.storeIndex = idx;
+				this.startTime = '';
+				this.loadSlotList();
+			},
+			//选中时段
+			selectSlot(s) {
+				if (!s.can_select) {
+					uni.showToast({ title: '该时段不可预约', icon: 'none' });
+					return;
+				}
+				this.startTime = s.start_time;
+			},
+			//加载时段
+			loadSlotList() {
+				const date = this.dateList[this.dateIndex];
+				const store = this.storeList[this.storeIndex];
+				if (!date || !store) {
+					this.slotList = [];
+					return;
+				}
+				slotList({
+					goods_id: this.info1.goods_id || 0,
+					sku_id: this.info1.sku_id || 0,
+					store_id: store.store_id,
+					date: date.date,
+					num: this.info1.num || 1
+				}).then(res => {
+					this.slotList = res.data || [];
+					this.startTime = '';
+				});
+			},
+			//提交前校验
+			validateTrade() {
+				if (this.tradeType === 2) {
+					if (!this.dateList.length) {
+						uni.showToast({ title: '该商品暂无可预约日期', icon: 'none' });
+						return false;
+					}
+					if (!this.startTime) {
+						uni.showToast({ title: '请选择预约时段', icon: 'none' });
+						return false;
+					}
+					if (!this.appointment.user_name || !this.appointment.mobile) {
+						uni.showToast({ title: '请填写联系人与电话', icon: 'none' });
+						return false;
+					}
+				}
+				if (this.tradeType === 1 && this.allowCustom && this.customAmount) {
+					const v = Number(this.customAmount);
+					if (isNaN(v) || v <= 0) {
+						uni.showToast({ title: '请输入正确的金额', icon: 'none' });
+						return false;
+					}
+					if (this.minAmount > 0 && v < this.minAmount) {
+						uni.showToast({ title: `金额不能低于${this.minAmount}元`, icon: 'none' });
+						return false;
+					}
+					if (this.maxAmount > 0 && v > this.maxAmount) {
+						uni.showToast({ title: `金额不能高于${this.maxAmount}元`, icon: 'none' });
+						return false;
+					}
+				}
+				return true;
+			},
 			pointgi() {
 				let delivery = JSON.stringify(this.orderinfo.delivery);
 				let params = {
@@ -197,8 +400,34 @@
 					cart_ids: this.info1.cart_ids,
 					video_id:this.info1.video_id||''
 				}
+				//交易类型参数
+				this.fillTradeParams(params);
 				storecreate(params).then(res => {
 					if (res.code == 0) {
+						//到店消费：支持顾客扫商家收款码
+						if (this.tradeType === 1) {
+							uni.showModal({
+								title: '下单成功',
+								content: '可到店出示付款码由商家扫码收款，或在小程序内完成支付',
+								confirmText: '去支付',
+								cancelText: '查看订单',
+								success: (r) => {
+									if (r.confirm) {
+										//拉起收银台支付
+										huifupay({ out_trade_no: res.data }).then(resA => {
+											if (resA.code == 0) {
+												this.topay(resA);
+											} else {
+												uni.showToast({ title: resA.message || '支付失败', icon: 'none' });
+											}
+										});
+									} else {
+										uni.navigateTo({ url: '/otherpages/order/order' });
+									}
+								}
+							});
+							return;
+						}
 						let params1 = {
 							out_trade_no: res.data
 						}
@@ -213,10 +442,50 @@
 								})
 							}
 						})
+					} else {
+						uni.showToast({
+							title: res.message || '下单失败',
+							icon: 'none'
+						})
 					}
 				})
 			},
+			//填充交易类型相关参数
+			fillTradeParams(params) {
+				if (!this.tradeType) return;
+				const store = this.storeList[this.storeIndex];
+				if (store) {
+					//强制到店/外卖配送方式
+					const delivery_type = this.tradeType === 4 ? 'local' : 'store';
+					const site_id = this.orderinfo.site_id || (this.info1.site_id || 0);
+					const key = site_id;
+					const deliveryObj = this.orderinfo.delivery || {};
+					const cur = deliveryObj[key] || {};
+					cur.delivery_type = delivery_type;
+					cur.store_id = store.store_id;
+					deliveryObj[key] = cur;
+					this.orderinfo.delivery = deliveryObj;
+					params.delivery = JSON.stringify(deliveryObj);
+				}
+				if (this.tradeType === 1 && this.allowCustom && this.customAmount) {
+					params.custom_amount = this.customAmount;
+				}
+				if (this.tradeType === 2) {
+					const date = this.dateList[this.dateIndex];
+					params.appointment = JSON.stringify({
+						appointment_date: date ? date.date : '',
+						start_time: this.startTime,
+						num: this.info1.num || 1,
+						user_name: this.appointment.user_name,
+						mobile: this.appointment.mobile,
+						remark: this.appointment.remark || ''
+					});
+				}
+				params.pay_scene = this.tradeType === 1 ? 1 : 0;
+			},
 			submit() {
+				//交易类型校验（预约时段/自定义金额）
+				if (!this.validateTrade()) return;
 				if (this.info1.goodstype == 1) {
 					this.monpay()
 					return
@@ -574,6 +843,114 @@
 			font-size: 36rpx;
 			color: #F51D1D;
 		}
+	}
+
+	/* 到店/预约交互 */
+	.amount-box {
+		background: #F7F8FA;
+		border-radius: 10rpx;
+		padding: 20rpx 24rpx;
+		margin-bottom: 12rpx;
+	}
+	.amount-input {
+		flex: 1;
+		margin-left: 10rpx;
+		font-weight: 600;
+	}
+	.ph {
+		color: #BBB;
+		font-size: 26rpx;
+	}
+	.date-scroll {
+		white-space: nowrap;
+	}
+	.date-item {
+		display: inline-flex;
+		flex-direction: column;
+		align-items: center;
+		background: #F7F8FA;
+		border-radius: 10rpx;
+		padding: 16rpx 28rpx;
+		margin-right: 16rpx;
+	}
+	.date-item.active {
+		background: #C24E00;
+	}
+	.date-day {
+		font-size: 26rpx;
+		font-weight: 600;
+	}
+	.date-week {
+		font-size: 22rpx;
+		color: #999;
+		margin-top: 4rpx;
+	}
+	.date-item.active .date-day,
+	.date-item.active .date-week {
+		color: #fff;
+	}
+	.store-item {
+		position: relative;
+		background: #F7F8FA;
+		border: 2rpx solid transparent;
+		border-radius: 12rpx;
+		padding: 18rpx 20rpx;
+		margin-bottom: 14rpx;
+	}
+	.store-item.active {
+		border-color: #C24E00;
+		background: #FFF9F4;
+	}
+	.store-name {
+		font-size: 28rpx;
+		font-weight: 600;
+	}
+	.store-addr {
+		font-size: 22rpx;
+		color: #999;
+		margin-top: 6rpx;
+	}
+	.store-check {
+		position: absolute;
+		right: 20rpx;
+		top: 18rpx;
+		color: #C24E00;
+		font-size: 28rpx;
+	}
+	.slot-wrap {
+		display: flex;
+		flex-wrap: wrap;
+	}
+	.slot-item {
+		background: #F7F8FA;
+		border: 2rpx solid transparent;
+		border-radius: 8rpx;
+		padding: 14rpx 22rpx;
+		margin: 0 16rpx 16rpx 0;
+		font-size: 26rpx;
+	}
+	.slot-item.active {
+		border-color: #C24E00;
+		color: #C24E00;
+		background: #FFF9F4;
+	}
+	.slot-item.disabled {
+		color: #BBB;
+	}
+	.info-row {
+		display: flex;
+		margin-bottom: 16rpx;
+	}
+	.info-input {
+		flex: 1;
+		background: #F7F8FA;
+		border-radius: 10rpx;
+		padding: 18rpx 20rpx;
+		margin-right: 16rpx;
+		font-size: 26rpx;
+	}
+	.info-input:last-child {
+		margin-right: 0;
 	}
 
 	.infos1 {

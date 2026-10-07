@@ -205,6 +205,10 @@ import { useAppStore } from '@/store';
 			video_id:{
 				type:Number,
 				default:''
+			},
+			storeId:{
+				type:[Number,String],
+				default:0
 			}
 		},
 		data() {
@@ -1063,7 +1067,11 @@ import { useAppStore } from '@/store';
 							sku_id: this.skuId,
 							num: this.number,
 							goodstype:this.goodstype,
-							video_id:this.video_id
+							video_id:this.video_id,
+							trade_type: Number(this.goodsDetail.trade_type||0),
+							store_id: this.storeId || 0,
+							goods_id: this.goodsDetail.goods_id || 0,
+							site_id: this.goodsDetail.site_id || 0
 						};
 
 						uni.setStorage({

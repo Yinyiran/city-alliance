@@ -187,9 +187,15 @@ export const shareAdd=params=>server('/api/video/shareAdd',params)
 export const reviewStatus=params=>server('/api/api/reviewStatus',params)
 //获取/刷新订单动态核销码
 export const getVerifyCode=params=>server('/api/order/verifyCode',params)
+//预约时段列表
+export const slotList=params=>server('/api/ordercreate/slotList',params)
+//取消预约
+export const cancelAppointment=params=>server('/api/order/cancelAppointment',params)
+//门店收银台收款码
+export const cashierCode=params=>server('/api/pay/cashierCode',params)
 //商家商品分类列表
 export const siteCategoryList=params=>server('/api/goodscategory/siteCategoryList',params)
 export const myIncomeSummary=params=>server('/api/memberlevel/myIncomeSummary',params)
 export const myIncomeList=params=>server('/api/memberlevel/myIncomeList',params)
 // 我的关联商家店铺列表（老板+店员+归属）
-export const myShopList=params=>server('/api/shop/myshoplist',params)
+export const myShopList=params=>server('/api/shop/myshoplist',params)
