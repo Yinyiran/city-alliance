@@ -75,11 +75,11 @@ body {
 	width: 380px;
 	box-sizing: border-box;
 	padding: 44px 38px 48px;
-	background: rgba(20, 27, 48, .55);
-	border: 1px solid rgba(255, 255, 255, .08);
+	background: linear-gradient(to top, rgba(200, 206, 218, .38) 0%, rgba(170, 178, 195, .2) 55%, rgba(140, 150, 170, .09) 100%);
+	border: 1px solid rgba(255, 255, 255, .18);
 	border-radius: 8px;
-	backdrop-filter: blur(8px);
-	-webkit-backdrop-filter: blur(8px);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
 	box-shadow: 0 20px 60px rgba(0, 0, 0, .45);
 	z-index: 2;
 }
