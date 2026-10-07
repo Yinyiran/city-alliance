@@ -23,6 +23,7 @@ use app\model\system\Cron;
 use think\facade\Cache;
 use app\model\express\Express;
 use app\model\system\Pay;
+use app\model\goods\Appointment;
 use app\model\goods\Cart;
 use app\model\member\MemberAddress;
 use app\model\express\Config as ExpressConfig;
@@ -63,6 +64,47 @@ class OrderCreate extends BaseModel
     public $pay_point = 0; //支付总积分金额
     public $pay_point_yuan = 0; //支付总积分原价
 
+    public $is_create = 0;     //是否创建订单（0=试算，1=下单）
+    public $trade_type = 0;    //本次下单的交易类型（取订单商品的最大类型）
+    public $trade_info = [];   //交易类型附加信息（预约、自定义金额等）
+    public $appointment_log_id = 0; //预约占用记录ID
+
+    //交易类型常量
+    const TRADE_NORMAL = 0;   //普通商品
+    const TRADE_CONSUME = 1;  //到店消费
+    const TRADE_APPOINTMENT = 2; //预约到店
+    const TRADE_PICKUP = 3;   //到店自提
+    const TRADE_LOCAL = 4;    //外卖配送
+
+    /**
+     * 交易类型名称
+     */
+    public static function tradeTypeName($trade_type)
+    {
+        $name = [
+            self::TRADE_NORMAL => '普通商品',
+            self::TRADE_CONSUME => '到店消费',
+            self::TRADE_APPOINTMENT => '预约到店',
+            self::TRADE_PICKUP => '到店自提',
+            self::TRADE_LOCAL => '外卖配送',
+        ];
+        return $name[ intval($trade_type) ] ?? '普通商品';
+    }
+
+    /**
+     * 交易类型 -> 配送方式
+     */
+    public static function tradeTypeDelivery($trade_type)
+    {
+        $map = [
+            self::TRADE_CONSUME => 'store',
+            self::TRADE_APPOINTMENT => 'store',
+            self::TRADE_PICKUP => 'store',
+            self::TRADE_LOCAL => 'local',
+        ];
+        return $map[ intval($trade_type) ] ?? '';
+    }
+
 
     /**
      * 订单创建
@@ -71,6 +113,7 @@ class OrderCreate extends BaseModel
      */
     public function create($data)
     {
+        $this->is_create = 1;
         $calculate_data = $this->calculate($data);
         if (isset($calculate_data['code']) && $calculate_data['code'] < 0)
             return $calculate_data;
@@ -176,6 +219,18 @@ class OrderCreate extends BaseModel
                     'invoice_email' => $v["invoice_email"] ?? '',
                     'invoice_title_type' => $v["invoice_title_type"] ?? 0,
                     'video_id' => $calculate_data['video_id'] ?? 0,
+                    //交易类型相关
+                    'trade_type' => $v[ 'trade_type' ] ?? 0,
+                    'custom_amount' => $v[ 'trade_info' ][ 'custom_amount' ] ?? 0,
+                    'appointment_id' => $v[ 'trade_info' ][ 'appointment_id' ] ?? 0,
+                    'appointment_date' => $v[ 'trade_info' ][ 'appointment_date' ] ?? '',
+                    'appointment_slot' => $v[ 'trade_info' ][ 'appointment_slot' ] ?? '',
+                    'appointment_num' => $v[ 'trade_info' ][ 'appointment_num' ] ?? 0,
+                    'appointment_user' => $data[ 'appointment' ][ 'user_name' ] ?? '',
+                    'appointment_mobile' => $data[ 'appointment' ][ 'mobile' ] ?? '',
+                    'appointment_remark' => $data[ 'appointment' ][ 'remark' ] ?? '',
+                    'appointment_status' => (($v[ 'trade_type' ] ?? 0) == self::TRADE_APPOINTMENT) ? 0 : -1,
+                    'pay_scene' => intval($data[ 'pay_scene' ] ?? 0),
                 ];
 
                 $order_id = model("order")->add($data_order);
@@ -203,6 +258,7 @@ class OrderCreate extends BaseModel
                         'cost_money' => $order_goods['cost_price'] * $order_goods['num'],
                         'commission_rate' => $order_goods['commission_rate'],
                         'goods_id' => $order_goods['goods_id'],
+                        'trade_type' => $v[ 'trade_type' ] ?? 0,
                         'delivery_status' => 0,
                         'delivery_status_name' => "未发货",
                         'real_goods_money' => $order_goods['real_goods_money'] ?? 0,
@@ -387,6 +443,12 @@ class OrderCreate extends BaseModel
 
 
             $this->addOrderCronClose($order_id);//增加关闭订单自动事件
+
+            //绑定预约占用记录到订单（多店铺时取第一笔）
+            if ($this->appointment_log_id > 0) {
+                $appointment_model = new Appointment();
+                $appointment_model->bindOrder($this->appointment_log_id, $order_id, $order_no);
+            }
 
             $cart_ids = isset($data['cart_ids']) ? $data['cart_ids'] : '';
             if (!empty($cart_ids)) {
@@ -587,6 +649,7 @@ class OrderCreate extends BaseModel
                         'cost_money' => $order_goods['cost_price'] * $order_goods['num'],
                         'commission_rate' => $order_goods['commission_rate'],
                         'goods_id' => $order_goods['goods_id'],
+                        'trade_type' => $v[ 'trade_type' ] ?? 0,
                         'delivery_status' => 0,
                         'delivery_status_name' => "未发货",
                         'real_goods_money' => $order_goods['real_goods_money'] ?? 0,
@@ -1408,6 +1471,18 @@ class OrderCreate extends BaseModel
             $delivery_array = $data['delivery'][$site_id] ?? [];
             $delivery_type = $delivery_array["delivery_type"] ?? 'express';
 
+            //交易类型（到店消费/预约到店/到店自提/外卖）强制配送方式
+            $trade_type = $this->resolveTradeType($shop_goods);
+            if ($trade_type > 0) {
+                $delivery_type = self::tradeTypeDelivery($trade_type);
+                $delivery_array[ 'delivery_type' ] = $delivery_type;
+                $data['delivery'][ $site_id ] = $delivery_array;
+                $shop_goods['delivery']['delivery_type'] = $delivery_type;
+                $shop_goods['delivery']['delivery_type_name'] = $delivery_type == 'local' ? '外卖配送' : '到店消费';
+                $shop_goods['trade_type'] = $trade_type;
+                $this->trade_type = $trade_type;
+            }
+
             //只判断物流的
             if ($delivery_type == "express") {
                 if (empty($data['member_address'])) {
@@ -1475,21 +1550,217 @@ class OrderCreate extends BaseModel
                     //门店自提
                     $delivery_money = 0;
                     $shop_goods['delivery']['delivery_type'] = 'store';
-                    if ($shop_goods["store_config"]["is_use"] == 0) {
+                    //到店类交易不校验门店自提开关（由商家自行配置门店）
+                    if ($shop_goods["store_config"]["is_use"] == 0 && empty($trade_type)) {
                         $self->error = 1;
                         $self->error_msg = "门店自提方式未开启!";
+                    }
+                    if (empty($delivery_array["store_id"]) && !empty($trade_type)) {
+                        //到店类交易未指定门店时自动取第一个可用门店
+                        $auto_store = $this->getFirstStore($site_id);
+                        if (empty($auto_store)) {
+                            $self->error = 1;
+                            $self->error_msg = "该商品暂无可用门店，请联系商家!";
+                        } else {
+                            $delivery_array["store_id"] = $auto_store;
+                        }
                     }
                     if (empty($delivery_array["store_id"])) {
                         $self->error = 1;
                         $self->error_msg = "门店未选择!";
                     }
-                    $shop_goods['delivery']['store_id'] = $delivery_array["store_id"];
+                    $shop_goods['delivery']['store_id'] = $delivery_array["store_id"] ?? 0;
                     $shop_goods = $this->storeOrderData($shop_goods, $data, $self);
+
+                    //预约到店：校验并占用时段
+                    if (!empty($trade_type) && $trade_type == self::TRADE_APPOINTMENT) {
+                        $shop_goods = $this->appointmentPrepare($shop_goods, $data, $self);
+                    }
+
+                    //到店消费：自定义金额
+                    if (!empty($trade_type) && $trade_type == self::TRADE_CONSUME && !empty($data[ 'custom_amount' ])) {
+                        $shop_goods = $this->customAmountPrepare($shop_goods, $data, $self);
+                    }
                 }
             }
 
         }
         $shop_goods['delivery_money'] = $delivery_money;
+        return $shop_goods;
+    }
+
+    /**
+     * 解析本次下单的交易类型（取订单商品中的最大交易类型）
+     * @param $shop_goods
+     * @return int
+     */
+    public function resolveTradeType($shop_goods)
+    {
+        $trade_type = 0;
+        if (empty($shop_goods['goods_list']) || !is_array($shop_goods['goods_list'])) return 0;
+
+        foreach ($shop_goods['goods_list'] as $goods) {
+            //优先取SKU冗余字段
+            $item_type = intval($goods[ 'trade_type' ] ?? 0);
+            if ($item_type <= 0 && !empty($goods[ 'goods_id' ])) {
+                $goods_info = model('goods')->getInfo([ [ 'goods_id', '=', $goods[ 'goods_id' ] ] ], 'trade_type,min_order_amount,max_order_amount,allow_custom_amount')[ 'data' ] ?? [];
+                $item_type = intval($goods_info[ 'trade_type' ] ?? 0);
+                $goods[ 'allow_custom_amount' ] = $goods_info[ 'allow_custom_amount' ] ?? 0;
+                $goods[ 'min_order_amount' ] = $goods_info[ 'min_order_amount' ] ?? 0;
+                $goods[ 'max_order_amount' ] = $goods_info[ 'max_order_amount' ] ?? 0;
+            }
+            if ($item_type > $trade_type) $trade_type = $item_type;
+        }
+        return $trade_type;
+    }
+
+    /**
+     * 获取商户第一个可用门店
+     */
+    public function getFirstStore($site_id)
+    {
+        $store = model('store')->getInfo([
+            [ 'site_id', '=', $site_id ],
+            [ 'is_pickup', '=', 1 ],
+            [ 'status', '=', 1 ],
+            [ 'is_frozen', '=', 0 ],
+        ], 'store_id')[ 'data' ] ?? [];
+        return $store[ 'store_id' ] ?? 0;
+    }
+
+    /**
+     * 预约到店：校验时段并占用名额
+     */
+    public function appointmentPrepare($shop_goods, $data, $self = null)
+    {
+        $self = $self ?? $this;
+        $appointment = $data[ 'appointment' ] ?? [];
+        $store_id = $shop_goods['delivery']['store_id'] ?? 0;
+        $date = $appointment[ 'appointment_date' ] ?? '';
+        $start_time = $appointment[ 'start_time' ] ?? '';
+        $num = intval($appointment[ 'num' ] ?? 1);
+
+        if (empty($date) || empty($start_time)) {
+            $self->error = 1;
+            $self->error_msg = "请选择预约时间!";
+            return $shop_goods;
+        }
+
+        //取第一个商品作为预约主体
+        $main_goods = $shop_goods['goods_list'][0] ?? [];
+        $goods_id = $main_goods[ 'goods_id' ] ?? 0;
+        $appointment_model = new Appointment();
+
+        //试算阶段只校验不占用
+        if ($this->is_create) {
+            $slot_res = $appointment_model->getSlotList($goods_id, $store_id, $date, $num);
+            if ($slot_res[ 'code' ] != 0) {
+                $self->error = 1;
+                $self->error_msg = $slot_res[ 'message' ] ?? '预约时段不可用';
+                return $shop_goods;
+            }
+            $target_slot = null;
+            foreach ($slot_res[ 'data' ] as $slot) {
+                if ($slot[ 'start_time' ] == $start_time) {
+                    $target_slot = $slot;
+                    break;
+                }
+            }
+            if (empty($target_slot) || !$target_slot[ 'can_select' ]) {
+                $self->error = 1;
+                $self->error_msg = "该时段不可预约，请重新选择";
+                return $shop_goods;
+            }
+
+            $occupy_res = $appointment_model->occupy([
+                'goods_id' => $goods_id,
+                'sku_id' => $main_goods[ 'sku_id' ] ?? 0,
+                'sku_name' => $main_goods[ 'sku_name' ] ?? '',
+                'goods_name' => $main_goods[ 'goods_name' ] ?? '',
+                'site_id' => $shop_goods[ 'site_id' ],
+                'site_name' => $shop_goods[ 'site_name' ] ?? '',
+                'website_id' => $shop_goods[ 'website_id' ] ?? 0,
+                'store_id' => $store_id,
+                'store_name' => $shop_goods[ 'delivery' ][ 'store_name' ] ?? '',
+                'appointment_date' => $date,
+                'start_time' => $start_time,
+                'end_time' => $target_slot[ 'end_time' ],
+                'slot_text' => $target_slot[ 'slot_text' ],
+                'num' => $num,
+                'user_name' => $appointment[ 'user_name' ] ?? '',
+                'mobile' => $appointment[ 'mobile' ] ?? '',
+                'remark' => $appointment[ 'remark' ] ?? '',
+                'order_no' => $data[ 'out_trade_no' ] ?? '',
+            ]);
+            if ($occupy_res[ 'code' ] != 0) {
+                $self->error = 1;
+                $self->error_msg = $occupy_res[ 'message' ] ?? '预约失败';
+                return $shop_goods;
+            }
+            $this->appointment_log_id = $occupy_res[ 'data' ][ 'id' ];
+            $this->trade_info[ 'appointment_id' ] = $this->appointment_log_id;
+            $this->trade_info[ 'appointment_date' ] = $date;
+            $this->trade_info[ 'appointment_slot' ] = $target_slot[ 'slot_text' ];
+            $this->trade_info[ 'appointment_num' ] = $num;
+        } else {
+            $this->trade_info[ 'appointment_date' ] = $date;
+            $this->trade_info[ 'appointment_slot' ] = $start_time;
+            $this->trade_info[ 'appointment_num' ] = $num;
+        }
+
+        $shop_goods['trade_info'] = $this->trade_info;
+        return $shop_goods;
+    }
+
+    /**
+     * 到店消费自定义金额
+     */
+    public function customAmountPrepare($shop_goods, $data, $self = null)
+    {
+        $self = $self ?? $this;
+        $custom_amount = round(floatval($data[ 'custom_amount' ] ?? 0), 2);
+        if ($custom_amount <= 0) return $shop_goods;
+
+        //仅到店消费且商品允许自定义金额时生效
+        $allow = 0;
+        $min = 0;
+        $max = 0;
+        foreach ($shop_goods['goods_list'] as $goods) {
+            if (intval($goods[ 'trade_type' ] ?? 0) != self::TRADE_CONSUME) continue;
+            if (empty($goods[ 'goods_id' ])) continue;
+            $info = model('goods')->getInfo([ [ 'goods_id', '=', $goods[ 'goods_id' ] ] ], 'allow_custom_amount,min_order_amount,max_order_amount')[ 'data' ] ?? [];
+            if (intval($info[ 'allow_custom_amount' ] ?? 0) == 1) {
+                $allow = 1;
+                $min = $info[ 'min_order_amount' ] ?? 0;
+                $max = $info[ 'max_order_amount' ] ?? 0;
+                break;
+            }
+        }
+        if (!$allow) {
+            $self->error = 1;
+            $self->error_msg = "该商品不支持自定义金额!";
+            return $shop_goods;
+        }
+        if ($min > 0 && $custom_amount < $min) {
+            $self->error = 1;
+            $self->error_msg = "自定义金额不能低于 {$min} 元!";
+            return $shop_goods;
+        }
+        if ($max > 0 && $custom_amount > $max) {
+            $self->error = 1;
+            $self->error_msg = "自定义金额不能高于 {$max} 元!";
+            return $shop_goods;
+        }
+
+        //覆盖商品金额（同步订单项，保证详情页金额一致）
+        $diff = $custom_amount - $shop_goods[ 'goods_money' ];
+        $shop_goods[ 'goods_money' ] = $custom_amount;
+        if (!empty($shop_goods[ 'goods_list' ][0])) {
+            $shop_goods[ 'goods_list' ][0][ 'goods_money' ] = $custom_amount;
+            $shop_goods[ 'goods_list' ][0][ 'real_goods_money' ] = $custom_amount;
+        }
+        $this->trade_info[ 'custom_amount' ] = $custom_amount;
+        $shop_goods['trade_info'] = $this->trade_info;
         return $shop_goods;
     }
 
@@ -2105,6 +2376,25 @@ class OrderCreate extends BaseModel
 
         //发票相关
         $item = $this->invoice($item, $data);
+
+        //到店消费自定义金额：以自定义金额为最终应付，不与满减/优惠券叠加（避免出现0元单）
+        if (($item[ 'trade_type' ] ?? 0) == self::TRADE_CONSUME && !empty($item[ 'trade_info' ][ 'custom_amount' ])) {
+            $custom_money = round(floatval($item[ 'trade_info' ][ 'custom_amount' ]), 2);
+            $item[ 'promotion_money' ] = 0;
+            $item[ 'coupon_money' ] = 0;
+            $item[ 'coupon_id' ] = 0;
+            $item[ 'platform_coupon_money' ] = 0;
+            $item[ 'platform_coupon_id' ] = 0;
+            $item[ 'manjian_rule_list' ] = [];
+            $item[ 'present_list' ] = [];
+            $item[ 'goods_money' ] = $custom_money;
+            $item[ 'delivery_money' ] = 0;
+            $item[ 'order_money' ] = $custom_money;
+            if (!empty($item[ 'goods_list' ][0])) {
+                $item[ 'goods_list' ][0][ 'goods_money' ] = $custom_money;
+                $item[ 'goods_list' ][0][ 'real_goods_money' ] = $custom_money;
+            }
+        }
 
         $item['order_money'] = $item['order_money'] + $item['invoice_money'] + $item['invoice_delivery_money'];
 

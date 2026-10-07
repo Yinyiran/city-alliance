@@ -105,5 +105,10 @@ return [
     'shopapi/verify/edituser' => 'ORDER_VERIFY_USER_EDIT',// 编辑核销人员
     'shopapi/verify/deleteuser' => 'ORDER_VERIFY_USER_DELETE',// 删除核销人员
     'shopapi/verify/verify' => 'ORDER_VERIFY_CONFIRM',// 核销
+    'shopapi/cashier/index' => 'ORDER_CASHIER',// 收银台
+    'shopapi/cashier/cashierCode' => 'ORDER_CASHIER',// 生成收款码
+    'shopapi/cashier/findOrder' => 'ORDER_CASHIER',// 扫码查单
+    'shopapi/cashier/schedule' => 'ORDER_CASHIER_SCHEDULE',// 预约日程
+    'shopapi/cashier/reschedule' => 'ORDER_CASHIER_SCHEDULE',// 改约
 
 ];

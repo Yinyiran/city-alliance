@@ -5,6 +5,7 @@
 
 namespace app\model\order;
 
+use app\model\goods\Appointment;
 use app\model\goods\GoodsStock;
 use app\model\message\Message;
 use app\model\verify\Verify;
@@ -178,6 +179,10 @@ class StoreOrder extends OrderCommon
         $verify_content_json = $verify->getVerifyJson($item_array, $remark_array);
 
         $code = $verify->addVerify("pickup", $order_info[ 'site_id' ], $order_info[ 'site_name' ], $verify_content_json, $order_info[ "order_id" ]);
+        //标记核销对应的交易类型（到店消费/预约到店/到店自提）
+        model('verify')->update([
+            'trade_type' => intval($order_info[ 'trade_type' ] ?? 0),
+        ], [ [ 'verify_code', '=', $code[ 'data' ][ 'verify_code' ] ] ]);
         $pay_type_list = $this->getPayType();
         $data = array (
             "order_status" => self::ORDER_PENDING_DELIVERY,
@@ -216,6 +221,14 @@ class StoreOrder extends OrderCommon
         //核销发送通知
         $message_model = new Message();
         $message_model->sendMessage([ 'keywords' => "VERIFY", 'order_id' => $order_info[ 'order_id' ] ]);
+
+        //预约到店：核销后预约完成
+        $appointment_model = new Appointment();
+        $appointment_model->finish($order_info[ 'order_id' ]);
+        model('order')->update([
+            'appointment_status' => 4,
+            'modify_time' => time(),
+        ], [ [ 'order_id', '=', $order_info[ 'order_id' ] ], [ 'trade_type', '=', 2 ] ]);
         return $result;
 
 

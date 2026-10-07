@@ -7,6 +7,7 @@ namespace app\model\order;
 
 use addon\coupon\model\Coupon;
 use app\model\api\Video;
+use app\model\goods\Appointment;
 use app\model\goods\Goods;
 use app\model\goods\GoodsStock;
 use app\model\member\Member;
@@ -488,6 +489,13 @@ class OrderCommon extends BaseModel
             ];
             model('order')->update($order_data, [ [ 'order_id', "=", $order_id ] ]);
 
+            //预约到店：关闭订单释放预约名额
+            if (intval($order_info[ 'trade_type' ] ?? 0) == 2) {
+                $appointment_model = new Appointment();
+                $appointment_model->release($order_id, Appointment::STATUS_CANCEL);
+                model('order')->update([ 'appointment_status' => 2 ], [ [ 'order_id', "=", $order_id ] ]);
+            }
+
             //库存处理
             $condition = [ [ "order_id", "=", $order_id ] ];
 
@@ -589,6 +597,15 @@ class OrderCommon extends BaseModel
                         return $this->error('', '订单类型错误');
                 }
                 $order_model->orderPay($order, $pay_type);
+                //预约到店：支付成功后预约生效
+                if (intval($order[ 'trade_type' ] ?? 0) == 2) {
+                    $appointment_model = new Appointment();
+                    $appointment_model->confirm($order[ 'order_id' ], true);
+                    model('order')->update([
+                        'appointment_status' => 1,
+                        'modify_time' => time(),
+                    ], [ [ 'order_id', '=', $order[ 'order_id' ] ] ]);
+                }
                 //同时将用户表的order_money和order_num更新
                 model('member')->setInc([ [ 'member_id', '=', $order[ 'member_id' ] ] ], 'order_money', $order[ 'order_money' ]);
                 model('member')->setInc([ [ 'member_id', '=', $order[ 'member_id' ] ] ], 'order_num');

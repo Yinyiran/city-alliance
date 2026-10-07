@@ -330,7 +330,7 @@ class Store extends BaseModel
             $store_condition[] = ['s.site_id', 'in', [0]];
         }
 
-        $field = 's.store_id,s.store_name,s.telphone,s.store_image,s.site_id,s.province_id,s.city_id,s.district_id,s.address,s.full_address,s.longitude,s.latitude,s.open_date,s.store_desc,s.order_num,s.order_complete_num,sp.shop_sales,sp.sub_num';
+        $field = 's.store_id,s.store_name,s.telphone,s.store_image,s.site_id,s.province_id,s.city_id,s.district_id,s.address,s.full_address,s.longitude,s.latitude,s.open_date,s.store_desc,s.order_num,s.order_complete_num,s.is_pickup,s.is_o2o,sp.shop_sales,sp.sub_num';
         $alias = 's';
         $join = [
             ['shop sp', 'sp.site_id = s.site_id', 'left']
@@ -405,7 +405,7 @@ class Store extends BaseModel
             ['is_frozen', '=', 0],
             ['is_pickup', '=', 1],
         ];
-        $field = 'store_id,store_name,telphone,store_image,store_logo,site_id,province_id,city_id,district_id,address,full_address,longitude,latitude,open_date,store_desc';
+        $field = 'store_id,store_name,telphone,store_image,store_logo,site_id,province_id,city_id,district_id,address,full_address,longitude,latitude,open_date,store_desc,is_pickup,is_o2o';
         $result = null;
 
         // 1. 如果传了 store_id，先按 store_id 查找
@@ -540,7 +540,7 @@ class Store extends BaseModel
             ['is_frozen', '=', 0],
             ['is_pickup', '=', 1],
         ];
-        $field = 'store_id,store_name,telphone,store_image,store_logo,site_id,province_id,city_id,district_id,address,full_address,longitude,latitude,open_date,store_desc';
+        $field = 'store_id,store_name,telphone,store_image,store_logo,site_id,province_id,city_id,district_id,address,full_address,longitude,latitude,open_date,store_desc,is_pickup,is_o2o';
         $list = [];
 
         // 1. 如果传了指定商家 site_id，优先获取该商家名下的所有门店

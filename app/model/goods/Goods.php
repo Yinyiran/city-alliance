@@ -117,6 +117,10 @@ class Goods extends BaseModel
                 'timer_off' => $data[ 'timer_off' ] ?? 0,//定时下线
                 'commission_rate' => $commission_rate,
                 'is_consume_discount' => $data['is_consume_discount'] ?? 0,
+                //到店消费自定义金额配置（仅 goods 表）
+                'min_order_amount' => $data[ 'min_order_amount' ] ?? 0,
+                'max_order_amount' => $data[ 'max_order_amount' ] ?? 0,
+                'allow_custom_amount' => $data[ 'allow_custom_amount' ] ?? 0,
             );
 
             $goods_data[ 'category_name' ] = $category_name;
@@ -152,6 +156,9 @@ class Goods extends BaseModel
 
                 'goods_shop_category_ids' => $data[ 'goods_shop_category_ids' ] ?? '',
                 'supplier_id' => $data[ 'supplier_id' ] ?? 0,
+                //交易类型 0普通 1到店消费 2预约到店 3到店自提 4外卖（goods 与 goods_sku 表均存在）
+                'trade_type' => $data[ 'trade_type' ] ?? 0,
+                'service_duration' => $data[ 'service_duration' ] ?? 0,
 
             );
 
@@ -399,6 +406,9 @@ public function addSignrewardGoods($data)
 
                 'goods_shop_category_ids' => $data[ 'goods_shop_category_ids' ] ?? '',
                 'supplier_id' => $data[ 'supplier_id' ] ?? 0,
+                //交易类型 0普通 1到店消费 2预约到店 3到店自提 4外卖（goods 与 goods_sku 表均存在）
+                'trade_type' => $data[ 'trade_type' ] ?? 0,
+                'service_duration' => $data[ 'service_duration' ] ?? 0,
 
             );
 
@@ -578,6 +588,9 @@ public function addSignrewardGoods($data)
 
                 'goods_shop_category_ids' => $data[ 'goods_shop_category_ids' ] ?? '',
                 'supplier_id' => $data[ 'supplier_id' ] ?? 0,
+                //交易类型 0普通 1到店消费 2预约到店 3到店自提 4外卖（goods 与 goods_sku 表均存在）
+                'trade_type' => $data[ 'trade_type' ] ?? 0,
+                'service_duration' => $data[ 'service_duration' ] ?? 0,
 
             );
 
@@ -723,6 +736,10 @@ public function addSignrewardGoods($data)
                 'timer_off' => $data[ 'timer_off' ],
                 'commission_rate' => $commission_rate,//佣金比率
                 'is_consume_discount' => $data['is_consume_discount'] ?? 0,
+                //到店消费自定义金额配置（仅 goods 表）
+                'min_order_amount' => $data[ 'min_order_amount' ] ?? 0,
+                'max_order_amount' => $data[ 'max_order_amount' ] ?? 0,
+                'allow_custom_amount' => $data[ 'allow_custom_amount' ] ?? 0,
             );
 
             $goods_data[ 'category_name' ] = $category_name;
@@ -753,6 +770,9 @@ public function addSignrewardGoods($data)
                 'verify_state' => $verify_state,
                 'goods_shop_category_ids' => $data[ 'goods_shop_category_ids' ] ?? '',
                 'supplier_id' => $data[ 'supplier_id' ] ?? 0,
+                //交易类型 0普通 1到店消费 2预约到店 3到店自提 4外卖（goods 与 goods_sku 表均存在）
+                'trade_type' => $data[ 'trade_type' ] ?? 0,
+                'service_duration' => $data[ 'service_duration' ] ?? 0,
                 'site_name' => $shop_info[ 'site_name' ],
                 'website_id' => $shop_info[ 'website_id' ],
                 'is_consume_discount' => $data['is_consume_discount'] ?? 0,
@@ -1037,6 +1057,9 @@ public function addSignrewardGoods($data)
                 'verify_state' => $verify_state,
                 'goods_shop_category_ids' => $data[ 'goods_shop_category_ids' ] ?? '',
                 'supplier_id' => $data[ 'supplier_id' ] ?? 0,
+                //交易类型 0普通 1到店消费 2预约到店 3到店自提 4外卖（goods 与 goods_sku 表均存在）
+                'trade_type' => $data[ 'trade_type' ] ?? 0,
+                'service_duration' => $data[ 'service_duration' ] ?? 0,
                 'site_name' => $shop_info[ 'site_name' ],
                 'website_id' => $shop_info[ 'website_id' ],
                 'is_consume_discount' => $data['is_consume_discount'] ?? 0,
@@ -1318,6 +1341,9 @@ public function editSignrewardGoods($data)
                 'verify_state' => $verify_state,
                 'goods_shop_category_ids' => $data[ 'goods_shop_category_ids' ] ?? '',
                 'supplier_id' => $data[ 'supplier_id' ] ?? 0,
+                //交易类型 0普通 1到店消费 2预约到店 3到店自提 4外卖（goods 与 goods_sku 表均存在）
+                'trade_type' => $data[ 'trade_type' ] ?? 0,
+                'service_duration' => $data[ 'service_duration' ] ?? 0,
                 'site_name' => $shop_info[ 'site_name' ],
                 'website_id' => $shop_info[ 'website_id' ],
                 'is_consume_discount' => $data['is_consume_discount'] ?? 0,
@@ -1738,7 +1764,7 @@ public function editSignrewardGoods($data)
      * @param string $field
      * @return array
      */
-    public function getGoodsSkuInfo($condition, $field = "sku_id,sku_name,sku_spec_format,price,market_price,discount_price,promotion_type,start_time,end_time,stock,click_num,sale_num,collect_num,sku_image,sku_images,goods_id,site_id,goods_content,goods_state,verify_state,is_virtual,is_free_shipping,goods_spec_format,goods_attr_format,introduction,unit,video_url,max_buy,min_buy")
+    public function getGoodsSkuInfo($condition, $field = "sku_id,sku_name,sku_spec_format,price,market_price,discount_price,promotion_type,start_time,end_time,stock,click_num,sale_num,collect_num,sku_image,sku_images,goods_id,site_id,goods_content,goods_state,verify_state,is_virtual,is_free_shipping,goods_spec_format,goods_attr_format,introduction,unit,video_url,max_buy,min_buy,trade_type,service_duration")
     {
         $info = model('goods_sku')->getInfo($condition, $field);
         return $this->success($info);
@@ -1753,7 +1779,7 @@ public function editSignrewardGoods($data)
     public function getGoodsSkuDetail($sku_id, $field = '')
     {
         if (empty($field)) {
-            $field = 'gs.goods_id,gs.sku_id,gs.goods_name,gs.sku_name,gs.sku_spec_format,gs.price,gs.market_price,gs.discount_price,gs.promotion_type,gs.start_time,gs.end_time,gs.stock,gs.click_num,g.sale_num,gs.collect_num,gs.sku_image,gs.sku_images,gs.goods_id,gs.site_id,gs.goods_content,gs.goods_state,gs.is_free_shipping,gs.goods_spec_format,gs.goods_attr_format,gs.introduction,gs.unit,gs.video_url,gs.evaluate,gs.is_virtual,gs.max_buy,gs.min_buy,g.goods_image,g.verify_state,gs.point,g.goods_type,g.is_admin,g.website_id';
+            $field = 'gs.goods_id,gs.sku_id,gs.goods_name,gs.sku_name,gs.sku_spec_format,gs.price,gs.market_price,gs.discount_price,gs.promotion_type,gs.start_time,gs.end_time,gs.stock,gs.click_num,g.sale_num,gs.collect_num,gs.sku_image,gs.sku_images,gs.goods_id,gs.site_id,gs.goods_content,gs.goods_state,gs.is_free_shipping,gs.goods_spec_format,gs.goods_attr_format,gs.introduction,gs.unit,gs.video_url,gs.evaluate,gs.is_virtual,gs.max_buy,gs.min_buy,g.goods_image,g.verify_state,gs.point,g.goods_type,g.is_admin,g.website_id,g.trade_type,g.service_duration,g.min_order_amount,g.max_order_amount,g.allow_custom_amount,gs.trade_type,gs.service_duration,g.site_name';
         }
         $join = [
             [ 'goods g', 'g.goods_id = gs.goods_id', 'inner' ],

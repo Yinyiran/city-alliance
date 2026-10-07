@@ -914,6 +914,28 @@ return [
                             ],
                         ]
                     ],
+                    [
+                        'name' => 'ORDER_CASHIER',
+                        'title' => '收银台',
+                        'url' => 'shop/cashier/index',
+                        'is_show' => 1,
+                        'is_control' => 1,
+                        'is_icon' => 0,
+                        'picture' => '',
+                        'picture_selected' => '',
+                        'sort' => 5,
+                    ],
+                    [
+                        'name' => 'ORDER_CASHIER_SCHEDULE',
+                        'title' => '预约日程',
+                        'url' => 'shop/cashier/schedule',
+                        'is_show' => 1,
+                        'is_control' => 1,
+                        'is_icon' => 0,
+                        'picture' => '',
+                        'picture_selected' => '',
+                        'sort' => 6,
+                    ],
                 ]
             ],
             [

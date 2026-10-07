@@ -303,8 +303,10 @@
 					</div>
 				</div>
 
+				{include file="goods/trade_type_box" /}
+
 				<!-- 配送信息 -->
-				<div class="layui-card ns-card-common" style="display: none">
+				<div class="layui-card ns-card-common js-shipping-card" style="display: none">
 					<div class="layui-card-header">
 						<span class="ns-card-title">配送信息</span>
 					</div>
@@ -776,10 +778,15 @@
 </script>
 {/block}
 {block name="script"}
+<script>
+	window.__APPOINTMENT_RULES__ = {$appointment_rules|default='[]'};
+	window.__STORE_LIST__ = {$store_list|default='[]'};
+</script>
 <script src="__STATIC__/ext/drag-arrange.js"></script>
 <script src="__STATIC__/ext/video/videojs-ie8.min.js"></script>
 <script src="__STATIC__/ext/video/video.min.js"></script>
 <script src="__STATIC__/ext/searchable_select/searchable_select.js"></script>
 <script src="SHOP_JS/goods_edit.js"></script>
 <script src="SHOP_JS/category_select.js"></script>
+<script src="SHOP_JS/trade_type.js"></script>
 {/block}

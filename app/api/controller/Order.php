@@ -6,6 +6,7 @@
 namespace app\api\controller;
 
 use app\model\express\ExpressPackage;
+use app\model\goods\Appointment;
 use app\model\goods\Cart as CartModel;
 use app\model\order\Order as OrderModel;
 use app\model\order\OrderCommon as OrderCommonModel;
@@ -58,6 +59,15 @@ class Order extends BaseApi
                 break;
             case "waitstock"://待提货
                 $condition[] = ["order_status", "in", [2]];
+                break;
+            case "waitappointment"://待到店（预约/到店消费未核销）
+                $condition[] = [ "order_status", "in", [ 1, 2 ] ];
+                $condition[] = [ "trade_type", "in", [ 1, 2, 3 ] ];
+                $condition[] = [ "delivery_status", "=", 0 ];
+                break;
+            case "waitexpress"://外卖配送中
+                $condition[] = [ "order_type", "=", 3 ];
+                $condition[] = [ "order_status", "in", [ 1, 3 ] ];
                 break;
             case "after"://售后
                 $order_ids = model('order_goods')->getColumn([
@@ -159,6 +169,52 @@ class Order extends BaseApi
         );
         $result = $order_model->orderClose($close_condition);
         return $this->response($result);
+    }
+
+    /**
+     * 取消预约（仅未核销、未完成的到店预约订单）
+     */
+    public function cancelAppointment()
+    {
+        $token = $this->checkToken();
+        if ($token[ 'code' ] < 0) return $this->response($token);
+
+        $order_id = isset($this->params[ 'order_id' ]) ? intval($this->params[ 'order_id' ] ) : 0;
+        if (empty($order_id)) {
+            return $this->response($this->error('', 'REQUEST_ORDER_ID'));
+        }
+        $order_info = model('order')->getInfo([
+            [ 'order_id', '=', $order_id ],
+            [ 'member_id', '=', $this->member_id ],
+        ], 'order_id,trade_type,order_status,pay_status,delivery_status,appointment_status')[ 'data' ] ?? [];
+        if (empty($order_info)) {
+            return $this->response($this->error('', '未找到该订单'));
+        }
+        if (intval($order_info[ 'trade_type' ]) != 2) {
+            return $this->response($this->error('', '该订单不是预约订单'));
+        }
+        if ($order_info[ 'delivery_status' ] == 1) {
+            return $this->response($this->error('', '该订单已核销，无法取消预约'));
+        }
+
+        //未支付直接关闭订单并释放名额
+        if ($order_info[ 'pay_status' ] == 0) {
+            $order_model = new OrderModel();
+            return $this->response($order_model->orderClose([
+                [ 'order_id', '=', $order_id ],
+                [ 'member_id', '=', $this->member_id ],
+            ]));
+        }
+
+        //已支付：取消预约并退款（按订单退款流程处理）
+        $appointment_model = new Appointment();
+        $appointment_model->release($order_id, Appointment::STATUS_CANCEL);
+        model('order')->update([
+            'appointment_status' => 2,
+            'modify_time' => time(),
+        ], [ [ 'order_id', '=', $order_id ] ]);
+
+        return $this->response($this->success([ 'order_id' => $order_id ], '预约已取消，如需退款请在订单中申请')); 
     }
 
     /**
@@ -299,7 +355,7 @@ class Order extends BaseApi
         $order_info = model('order')->getInfo([
             ['order_id', '=', $order_id],
             ['member_id', '=', $this->member_id]
-        ], 'order_id, order_no, order_status, order_status_name, pay_status, delivery_code, delivery_status, site_id, site_name, is_lock');
+        ], 'order_id, order_no, order_status, order_status_name, pay_status, delivery_code, delivery_status, site_id, site_name, is_lock, trade_type, appointment_date, appointment_slot, appointment_status, delivery_store_name, delivery_store_id');
 
         if (empty($order_info)) {
             return $this->response($this->error('', '未找到该订单'));
@@ -363,7 +419,14 @@ class Order extends BaseApi
             'order_no' => $order_info['order_no'],
             'verify_code' => $verify_code,
             'is_verify' => 0,
-            'timestamp' => time()
+            'timestamp' => time(),
+            'trade_type' => intval($order_info[ 'trade_type' ] ?? 0),
+            'trade_type_name' => \app\model\order\OrderCreate::tradeTypeName($order_info[ 'trade_type' ] ?? 0),
+            'store_id' => $order_info[ 'delivery_store_id' ] ?? 0,
+            'store_name' => $order_info[ 'delivery_store_name' ] ?? '',
+            'appointment_date' => $order_info[ 'appointment_date' ] ?? '',
+            'appointment_slot' => $order_info[ 'appointment_slot' ] ?? '',
+            'appointment_status' => $order_info[ 'appointment_status' ] ?? -1,
         ]));
     }
 }

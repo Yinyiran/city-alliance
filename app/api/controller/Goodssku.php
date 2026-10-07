@@ -5,6 +5,7 @@ namespace app\api\controller;
 
 use addon\coupon\model\CouponType;
 use addon\platformcoupon\model\PlatformcouponType;
+use app\model\goods\Appointment;
 use app\model\goods\Goods as GoodsModel;
 use app\model\goods\GoodsAttribute;
 use app\model\goods\GoodsCategory as GoodsCategoryModel;
@@ -129,6 +130,37 @@ class Goodssku extends BaseApi
         }
 
         $res[ 'shop_info' ]['address'] = $address;
+
+        //交易类型相关信息（到店消费/预约到店/到店自提/外卖）
+        $trade_type = intval($res[ 'goods_sku_detail' ][ 'trade_type' ] ?? 0);
+        $trade_info = [
+            'trade_type' => $trade_type,
+            'trade_type_name' => \app\model\order\OrderCreate::tradeTypeName($trade_type),
+            'service_duration' => intval($res[ 'goods_sku_detail' ][ 'service_duration' ] ?? 0),
+            'allow_custom_amount' => intval($res[ 'goods_sku_detail' ][ 'allow_custom_amount' ] ?? 0),
+            'min_order_amount' => $res[ 'goods_sku_detail' ][ 'min_order_amount' ] ?? 0,
+            'max_order_amount' => $res[ 'goods_sku_detail' ][ 'max_order_amount' ] ?? 0,
+            'store_list' => [],
+            'date_list' => [],
+        ];
+        //到店类商品返回可预约/可核销门店
+        if (in_array($trade_type, [ 1, 2, 3 ])) {
+            $store_list = model('store')->getList([
+                [ 'site_id', '=', $goods_sku_detail[ 'site_id' ] ],
+                [ 'is_pickup', '=', 1 ],
+                [ 'status', '=', 1 ],
+                [ 'is_frozen', '=', 0 ],
+            ], 'store_id,store_name,address,telphone,open_date,longitude,latitude', 'store_id asc', 'a', [], '', 50);
+            $trade_info[ 'store_list' ] = $store_list;
+        }
+        //预约到店返回可预约日期
+        if ($trade_type == 2) {
+            $appointment_model = new Appointment();
+            $date_res = $appointment_model->getDateList($goods_sku_detail[ 'goods_id' ], 0, 7);
+            $trade_info[ 'date_list' ] = $date_res[ 'data' ] ?? [];
+        }
+        $res[ 'goods_sku_detail' ][ 'trade_info' ] = $trade_info;
+
         return $this->response($this->success($res));
 
 
@@ -211,7 +243,7 @@ class Goodssku extends BaseApi
         gs.sale_num,gs.sku_image,gs.goods_name,gs.site_id,gs.website_id,gs.is_own,gs.is_free_shipping,
         gs.introduction,gs.promotion_type,gs.create_time,gs.goods_state,gs.goods_class,gs.goods_class_name,
         gs.max_buy,gs.min_buy,g.goods_image,g.site_name,gs.goods_spec_format,gs.is_virtual,gs.recommend_way,
-        s.site_name,s.logo';
+        s.site_name,s.logo,gs.trade_type,gs.service_duration,g.allow_custom_amount,g.min_order_amount,g.max_order_amount';
 
         $alias = 'gs';
         $join = [
@@ -625,7 +657,7 @@ class Goodssku extends BaseApi
         gs.sale_num,gs.sku_image,gs.goods_name,gs.site_id,gs.website_id,gs.is_own,gs.is_free_shipping,
         gs.introduction,gs.promotion_type,gs.create_time,gs.goods_state,gs.goods_class,gs.goods_class_name,
         gs.max_buy,gs.min_buy,g.goods_image,g.site_name,gs.goods_spec_format,gs.is_virtual,gs.recommend_way,
-        shop.site_name,shop.logo,gs.click_num,gs.point';
+        shop.site_name,shop.logo,gs.click_num,gs.point,gs.trade_type,gs.service_duration,g.allow_custom_amount,g.min_order_amount,g.max_order_amount';
 
         $store_res = $store_model->getStoreOrder($condition, $field, $latlng); //距离排序order
         $condition = $store_res['condition'];

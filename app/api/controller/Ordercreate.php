@@ -3,6 +3,7 @@
 
 namespace app\api\controller;
 
+use app\model\goods\Appointment;
 use app\model\order\OrderCreate as OrderCreateModel;
 
 /**
@@ -41,6 +42,11 @@ class Ordercreate extends BaseApi
 
             'invoice' => isset($this->params[ "invoice" ]) && !empty($this->params[ "invoice" ]) ? json_decode($this->params[ "invoice" ], true) : [],
             'video_id' => isset($this->params[ 'video_id' ]) ? $this->params[ 'video_id' ] : 0,//短视频ID
+
+            //交易类型相关
+            'custom_amount' => isset($this->params[ 'custom_amount' ]) ? $this->params[ 'custom_amount' ] : 0,//到店消费自定义金额
+            'appointment' => isset($this->params[ 'appointment' ]) && !empty($this->params[ 'appointment' ]) ? json_decode($this->params[ 'appointment' ], true) : [],//预约信息
+            'pay_scene' => isset($this->params[ 'pay_scene' ]) ? intval($this->params[ 'pay_scene' ]) : 0,//支付场景 0小程序 1顾客扫商家收款码
 
         ];
         if (empty($data[ 'cart_ids' ]) && empty($data[ 'sku_id' ])) {
@@ -163,6 +169,10 @@ class Ordercreate extends BaseApi
             'longitude' => $this->params[ "longitude" ] ?? null,
 
             'invoice' => isset($this->params[ "invoice" ]) && !empty($this->params[ "invoice" ]) ? json_decode($this->params[ "invoice" ], true) : [],
+
+            //交易类型相关
+            'custom_amount' => isset($this->params[ 'custom_amount' ]) ? $this->params[ 'custom_amount' ] : 0,
+            'appointment' => isset($this->params[ 'appointment' ]) && !empty($this->params[ 'appointment' ]) ? json_decode($this->params[ 'appointment' ], true) : [],
         ];
         if (empty($data[ 'cart_ids' ]) && empty($data[ 'sku_id' ])) {
             return $this->response($this->error('', '缺少必填参数商品数据'));
@@ -170,6 +180,37 @@ class Ordercreate extends BaseApi
         $res = $order_create->calculate($data);
         return $this->response($this->success($res));
 
+    }
+
+    /**
+     * 预约时段查询
+     * 参数：sku_id/goods_id、store_id(可选)、date(可选)、num(可选)
+     */
+    public function slotList()
+    {
+        $goods_id = intval($this->params[ 'goods_id' ] ?? 0);
+        $sku_id = intval($this->params[ 'sku_id' ] ?? 0);
+        $store_id = intval($this->params[ 'store_id' ] ?? 0);
+        $date = $this->params[ 'date' ] ?? '';
+        $num = intval($this->params[ 'num' ] ?? 1);
+
+        if (empty($goods_id) && !empty($sku_id)) {
+            $sku_info = model('goods_sku')->getInfo([ [ 'sku_id', '=', $sku_id ] ], 'goods_id')[ 'data' ] ?? [];
+            $goods_id = intval($sku_info[ 'goods_id' ] ?? 0);
+        }
+        if (empty($goods_id)) {
+            return $this->response($this->error('', '商品参数错误'));
+        }
+
+        $appointment_model = new Appointment();
+        //未指定门店时返回可预约日期与门店
+        if (empty($store_id)) {
+            $date_list = $appointment_model->getDateList($goods_id, 0, intval($this->params[ 'days' ] ?? 7));
+            return $this->response($date_list);
+        }
+
+        $slot_list = $appointment_model->getSlotList($goods_id, $store_id, $date, $num);
+        return $this->response($slot_list);
     }
 
     /**

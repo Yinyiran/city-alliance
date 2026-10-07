@@ -6,6 +6,7 @@ namespace app\shop\controller;
 use addon\supply\model\Supplier as SupplierModel;
 use app\model\express\ExpressTemplate as ExpressTemplateModel;
 use app\model\goods\Config as GoodsConfigModel;
+use app\model\goods\Appointment as AppointmentModel;
 use app\model\goods\Goods as GoodsModel;
 use app\model\goods\GoodsAttribute as GoodsAttributeModel;
 use app\model\goods\GoodsBrand as GoodsBrandModel;
@@ -228,11 +229,28 @@ class Goods extends BaseShop
                 'brand_name' => input("brand_name", ''),//品牌名称
                 'goods_shop_category_ids' => input("goods_shop_category_ids", ""),// 店内分类id,逗号隔开,//供应商id
                 'supplier_id' => input("supplier_id", 0),//供应商id
+                //交易类型 0普通 1到店消费 2预约到店 3到店自提 4外卖
+                'trade_type' => input("trade_type", 0),
+                'service_duration' => input("service_duration", 0),//服务时长(分钟)
+                'min_order_amount' => input("min_order_amount", 0),//到店消费起付金额
+                'max_order_amount' => input("max_order_amount", 0),//自定义金额上限
+                'allow_custom_amount' => input("allow_custom_amount", 0),//是否允许自定义金额
 
             ];
 
             $goods_model = new GoodsModel();
             $res = $goods_model->addGoods($data);
+            //保存预约时段规则
+            if ($res[ 'code' ] == 0 && !empty($data[ 'trade_type' ]) && $data[ 'trade_type' ] == 2) {
+                $rules = json_decode(input("appointment_rules", "[]"), true);
+                $appointment_model = new AppointmentModel();
+                $rule_res = $appointment_model->saveRules($res[ 'data' ], $rules, [
+                    'site_id' => $this->site_id,
+                    'site_name' => $this->shop_info[ 'site_name' ],
+                    'website_id' => $this->website_id,
+                ]);
+                if ($rule_res[ 'code' ] != 0) return $rule_res;
+            }
             return $res;
         } else {
 
@@ -269,6 +287,11 @@ class Goods extends BaseShop
             $attr_class_list = $goods_attr_model->getAttrClassList([ [ 'site_id', 'in', ( "0,$this->site_id" ) ] ], 'class_id,class_name');
             $attr_class_list = $attr_class_list[ 'data' ];
             $this->assign("attr_class_list", $attr_class_list);
+
+            //交易类型：门店列表（预约到店按门店配置规则）+ 默认值
+            $this->assign("store_list", $this->getTradeStoreList());
+            $this->assign("goods_info", [ 'trade_type' => 0, 'service_duration' => 0, 'min_order_amount' => 0, 'max_order_amount' => 0, 'allow_custom_amount' => 0 ]);
+            $this->assign("appointment_rules", '[]');
 
             $is_install_supply = addon_is_exit("supply");
             if ($is_install_supply) {
@@ -339,9 +362,29 @@ class Goods extends BaseShop
                 'brand_name' => input("brand_name", ''),//品牌名称
                 'goods_shop_category_ids' => input("goods_shop_category_ids", ""),// 店内分类id,逗号隔开,//供应商id
                 'supplier_id' => input("supplier_id", 0),//供应商id
+                //交易类型 0普通 1到店消费 2预约到店 3到店自提 4外卖
+                'trade_type' => input("trade_type", 0),
+                'service_duration' => input("service_duration", 0),//服务时长(分钟)
+                'min_order_amount' => input("min_order_amount", 0),//到店消费起付金额
+                'max_order_amount' => input("max_order_amount", 0),//自定义金额上限
+                'allow_custom_amount' => input("allow_custom_amount", 0),//是否允许自定义金额
             ];
 
             $res = $goods_model->editGoods($data);
+            //保存预约时段规则
+            if ($res[ 'code' ] == 0 && ($data[ 'trade_type' ] ?? 0) == 2) {
+                $rules = json_decode(input("appointment_rules", "[]"), true);
+                $appointment_model = new AppointmentModel();
+                $rule_res = $appointment_model->saveRules($data[ 'goods_id' ], $rules, [
+                    'site_id' => $this->site_id,
+                    'site_name' => $this->shop_info[ 'site_name' ],
+                    'website_id' => $this->website_id,
+                ]);
+                if ($rule_res[ 'code' ] != 0) return $rule_res;
+            } elseif ($res[ 'code' ] == 0) {
+                //非预约商品清空规则
+                model('goods_appointment_rule')->delete([ [ 'goods_id', '=', $data[ 'goods_id' ] ] ]);
+            }
             return $res;
         } else {
 
@@ -396,8 +439,35 @@ class Goods extends BaseShop
                 $this->assign("supplier_list", $supplier_list);
             }
             $this->assign("is_install_supply", $is_install_supply);
+
+            //交易类型：门店列表 + 商品交易配置 + 已有预约规则
+            $this->assign("store_list", $this->getTradeStoreList());
+            $appointment_model = new AppointmentModel();
+            $rule_list = $appointment_model->getRuleList([ [ 'goods_id', '=', $goods_id ] ])[ 'data' ] ?? [];
+            $this->assign("appointment_rules", json_encode(array_values($rule_list), JSON_UNESCAPED_UNICODE));
             return $this->fetch("goods/edit_goods");
         }
+    }
+
+    /**
+     * 获取商户的可预约门店列表（交易类型配置用）
+     */
+    private function getTradeStoreList()
+    {
+        $store_list = model('store')->getList([
+            [ 'site_id', '=', $this->site_id ],
+            [ 'is_pickup', '=', 1 ],
+        ], 'store_id,store_name,open_date', 'store_id asc', 'a', [], '', 100);
+
+        $result = [];
+        foreach ($store_list as $store) {
+            $result[] = [
+                'store_id' => $store[ 'store_id' ],
+                'store_name' => $store[ 'store_name' ],
+                'open_date' => $store[ 'open_date' ] ?? '',
+            ];
+        }
+        return $result;
     }
 
     /**
