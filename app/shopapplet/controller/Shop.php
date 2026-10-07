@@ -104,7 +104,7 @@ class Shop extends Common
             if (empty($shopinfo['member_id'])) {
                 Db::name('shop')->where('site_id', $site_id)->update(['member_id' => $this->member_id]);
             }
-            if (empty($myinfo['employee_id'])) {
+            if (empty($myinfo['employee_id']) && !$this->is_demo) {
                 $new_id = Db::name('shop_employee')->insertGetId([
                     'shop_id' => $site_id,
                     'member_id' => $this->member_id,
@@ -140,6 +140,7 @@ class Shop extends Common
             }
         }
         $shopinfo["myinfo"] = $myinfo;
+        $shopinfo["is_demo"] = $this->is_demo;
         $shopinfo["headimg"] = !empty($myinfo['headimg']) ? $myinfo['headimg'] : (!empty($user_headimg) ? $user_headimg : (!empty($shopinfo['logo']) ? $shopinfo['logo'] : ''));
         $shopinfo["user_headimg"] = !empty($myinfo['headimg']) ? $myinfo['headimg'] : (!empty($user_headimg) ? $user_headimg : '');
         $shopinfo["user_nickname"] = !empty($myinfo['username']) ? $myinfo['username'] : (!empty($user_nickname) ? $user_nickname : '');

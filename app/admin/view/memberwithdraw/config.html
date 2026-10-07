@@ -7,6 +7,8 @@
 		<h2 class="layui-colla-title">操作说明</h2>
 		<ul class="layui-colla-content layui-show">
 			<li>会员可提现余额申请提现</li>
+			<li>「最低提现额度」填 0 或留空 = 不设门槛，小程序端不会展示该条规则；依据微信《小程序平台运营规范》3.3，建议保持 0，勿设置过高门槛</li>
+			<li>手续费率与个税代扣属提现规则必披露项，请如实配置</li>
 		</ul>
 	</div>
 </div>
@@ -48,17 +50,21 @@
 		<label class="layui-form-label">最低提现额度：</label>
 		<div class="layui-input-block">
 			<div class="layui-input-inline">
-				<input type="number" name="min" value="{if condition="!empty($config.value)"}{$config.value.min ?: 0}{else/}0{/if}" lay-verify="growthInteger" autocomplete="off" class="layui-input ns-len-short">
+				<input type="number" name="min" value="{if condition="!empty($config.value)"}{$config.value.min ?: 0}{else/}0{/if}" lay-verify="withdrawAmount" autocomplete="off" step="0.01" min="0" class="layui-input ns-len-short">
 			</div>
+			<span class="layui-form-mid">元</span>
 		</div>
+		<div class="ns-word-aux">支持 0 或小数，最多两位小数。<b>填 0 表示不设最低提现门槛</b>，此时小程序端不会展示"最低提现金额"；填入大于 0 的值后，小程序端会同步展示并按该值校验。</div>
 	</div>
 	<div class="layui-form-item">
 		<label class="layui-form-label">最高提现额度：</label>
 		<div class="layui-input-block">
 			<div class="layui-input-inline">
-				<input type="number" name="max" value="{if condition="!empty($config.value)"}{$config.value.max ?: 0}{else/}0{/if}" lay-verify="growthInteger" autocomplete="off" class="layui-input ns-len-short">
+				<input type="number" name="max" value="{if condition="!empty($config.value)"}{$config.value.max ?: 0}{else/}0{/if}" lay-verify="withdrawAmount" autocomplete="off" step="0.01" min="0" class="layui-input ns-len-short">
 			</div>
+			<span class="layui-form-mid">元</span>
 		</div>
+		<div class="ns-word-aux">支持 0 或小数，最多两位小数。填 0 表示不限额度。</div>
 	</div>
 	<div class="layui-form-item">
 		<label class="layui-form-label">转账方式：</label>
@@ -118,6 +124,12 @@
 			growthInteger: function (value) {
 				if(!new RegExp("(^[1-9]\\d*$)").test(value)){
 					return '请输入正整数';
+				}
+			},
+			// 提现金额：允许 0 与最多两位小数的正数（0 表示不限/不设门槛）
+			withdrawAmount: function (value) {
+				if(!new RegExp("^(0|[1-9]\\d{0,5})(\\.\\d{1,2})?$").test(value)){
+					return '请输入 0 或大于 0 的金额，最多两位小数';
 				}
 			}
 		});

@@ -128,13 +128,23 @@ class Withdraw extends BaseModel
 
         $withdraw_no = $this->createWithdrawNo();
         $apply_money = round($data[ "apply_money" ], 2);
-        $min_limit = !empty($config[ "min" ]) ? floatval($config[ "min" ]) : 100.00;
-        if ($min_limit < 100.00) $min_limit = 100.00;
 
-        if ($apply_money < $min_limit)
-            return $this->error([], "申请提现金额不能小于最低提现额度" . $min_limit . "元");
-        if (!empty($config[ "max" ]) && $apply_money > $config[ "max" ])
-            return $this->error([], "申请提现金额不能大于最高提现额度" . $config[ "max" ]);
+        if ($apply_money <= 0)
+            return $this->error([], "请输入正确的提现金额");
+
+        // 最低提现额度：后台可配置，支持 0 与两位小数。
+        // min <= 0（含未配置）视为「不设最低门槛」，跳过校验，同时小程序端不展示该条规则。
+        // 依据微信《小程序平台运营规范》3.3，建议后台保持 0，避免过高门槛被驳回。
+        $min_limit = isset($config["min"]) ? round(floatval($config["min"]), 2) : 0;
+        if ($min_limit > 0 && $apply_money < $min_limit) {
+            return $this->error([], "单笔最低提现 " . $min_limit . " 元，可提现金额需达到该金额后发起提现");
+        }
+
+        // 最高提现额度：0 或空表示不限
+        $max_limit = isset($config["max"]) ? round(floatval($config["max"]), 2) : 0;
+        if ($max_limit > 0 && $apply_money > $max_limit) {
+            return $this->error([], "单笔最高提现 " . $max_limit . " 元，请调整提现金额");
+        }
 
         $member_id = $data[ "member_id" ];
         $member_model = new Member();

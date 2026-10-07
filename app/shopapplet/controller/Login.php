@@ -17,6 +17,7 @@ use think\facade\Session;
 use app\model\shopapplet\Register as RegisterModel;
 use think\facade\Db;
 use addon\weappqy\model\Config as WeappqyConfigModel;
+use app\model\shopapplet\DemoAccount;
 
 
 class Login extends BaseApi
@@ -97,6 +98,162 @@ class Login extends BaseApi
     }
 
     
+
+    /**
+     * 账号密码登录
+     *
+     * 商家端存在「员工没有企业微信/个人微信可授权」的真实场景，且微信审核人员
+     * 无法用自己的手机号完成手机号快捷登录（mobileAuth 仅允许 shop_employee
+     * 中已登记的手机号），因此必须提供账号密码登录通道。
+     *
+     * 账号：手机号 或 员工编号(employeeID)
+     * 密码：member.password（兼容历史 md5 与 bcrypt）
+     */
+    public function accountLogin()
+    {
+        $account = trim($this->params[ 'account' ] ?? '');
+        $password = (string)($this->params[ 'password' ] ?? '');
+
+        if ($account == '') return $this->response($this->error([], '请输入账号'));
+        if ($password == '') return $this->response($this->error([], '请输入密码'));
+
+        // 解析账号 -> 员工记录
+        // 注意：历史数据 employee_status 均为 0，此处不做该字段过滤，仅按 is_deleted 判断
+        $employee = Db::name('shop_employee')
+            ->where([ [ 'is_deleted', '=', 0 ] ])
+            ->where(function ($q) use ($account) {
+                $q->where('mobile', $account)->whereOr('employeeID', $account);
+            })
+            ->find();
+
+        if (empty($employee)) {
+            return $this->response($this->error([], '账号或密码错误'));
+        }
+
+        $member = Db::name('member')
+            ->where([ [ 'is_delete', '=', 0 ] ])
+            ->where(function ($q) use ($employee) {
+                $q->where('member_id', intval($employee[ 'member_id' ] ?: 0));
+                if (!empty($employee[ 'mobile' ])) $q->whereOr('mobile', $employee[ 'mobile' ]);
+            })
+            ->find();
+
+        if (empty($member)) {
+            return $this->response($this->error([], '该员工尚未绑定会员账号，请先用手机号快捷登录一次'));
+        }
+        if ($member[ 'status' ] == 0) {
+            return $this->response($this->error([], '账号已被禁用，请联系管理员'));
+        }
+
+        if (!$this->verifyPassword($password, $member[ 'password' ] ?? '')) {
+            // 连续失败计数（同一账号 10 分钟内 5 次锁定）
+            $fail_key = 'SHOP_PWD_FAIL_' . $member[ 'member_id' ];
+            $fail_count = intval(Cache::get($fail_key)) + 1;
+            Cache::set($fail_key, $fail_count, 600);
+            if ($fail_count >= 5) {
+                return $this->response($this->error([], '密码错误次数过多，请 10 分钟后再试'));
+            }
+            return $this->response($this->error([], '账号或密码错误'));
+        }
+        Cache::delete($fail_key);
+
+        $member_id = $member[ 'member_id' ];
+        // 补齐员工与会员的关联
+        if (empty($employee[ 'member_id' ]) || $employee[ 'member_id' ] != $member_id) {
+            Db::name('shop_employee')->where([ [ 'employee_id', '=', $employee[ 'employee_id' ] ] ])
+                ->update([ 'member_id' => $member_id ]);
+        }
+        EmployeeModel::syncMemberPartnerLevel($member_id, $employee[ 'mobile' ]);
+
+        Db::name('member')->where([ [ 'member_id', '=', $member_id ] ])->update([
+            'login_time' => time(),
+            'last_login_time' => time(),
+            'login_type' => $this->params[ 'app_type' ] ?? '',
+            'login_type_name' => $this->params[ 'app_type_name' ] ?? '',
+            'login_ip' => request()->ip(),
+        ]);
+        event('MemberLogin', [ 'member_id' => $member_id ], true);
+
+        $token = $this->createToken($member_id);
+        return $this->response($this->success([
+            'token' => $token,
+            'member_id' => $member_id,
+            'is_demo' => 0,
+        ]));
+    }
+
+    /**
+     * 修改登录密码
+     */
+    public function changePassword()
+    {
+        $token = $this->checkToken();
+        if ($token[ 'code' ] < 0) return $this->response($token);
+
+        $old_password = (string)($this->params[ 'old_password' ] ?? '');
+        $new_password = (string)($this->params[ 'new_password' ] ?? '');
+        if (strlen($new_password) < 6 || strlen($new_password) > 32) {
+            return $this->response($this->error([], '新密码长度需为 6-32 位'));
+        }
+        if (!preg_match('/^[A-Za-z0-9_@#$%^&*\-.]+$/', $new_password)) {
+            return $this->response($this->error([], '新密码只能包含字母、数字及 _ @ # $ % ^ & * - .'));
+        }
+
+        $member = Db::name('member')->where([ [ 'member_id', '=', $this->member_id ] ])->find();
+        if (empty($member)) return $this->response($this->error([], '账号不存在'));
+
+        if (!empty($member[ 'password' ]) && !$this->verifyPassword($old_password, $member[ 'password' ])) {
+            return $this->response($this->error([], '原密码错误'));
+        }
+
+        Db::name('member')->where([ [ 'member_id', '=', $this->member_id ] ])->update([
+            'password' => password_hash($new_password, PASSWORD_DEFAULT),
+        ]);
+        return $this->response($this->success([], '操作成功'));
+    }
+
+    /**
+     * 只读体验账号登录（供微信审核 / 演示使用）
+     */
+    public function demoLogin()
+    {
+        $config = DemoAccount::config();
+        if (empty($config[ 'enable' ]) || empty($config[ 'member_id' ])) {
+            return $this->response($this->error([], '体验账号未开通，请联系管理员在后台开启'));
+        }
+        $member_id = $config[ 'member_id' ];
+        Db::name('member')->where([ [ 'member_id', '=', $member_id ] ])->update([
+            'login_time' => time(),
+            'last_login_time' => time(),
+            'login_type' => $this->params[ 'app_type' ] ?? '',
+            'login_type_name' => $this->params[ 'app_type_name' ] ?? '',
+            'login_ip' => request()->ip(),
+        ]);
+        $token = $this->createToken($member_id);
+        return $this->response($this->success([
+            'token' => $token,
+            'member_id' => $member_id,
+            'is_demo' => 1,
+            'shop_name' => $config[ 'shop_name' ],
+        ]));
+    }
+
+    /**
+     * 密码校验：兼容 bcrypt 与历史 md5
+     */
+    private function verifyPassword(string $input, string $stored) : bool
+    {
+        if ($stored == '') return false;
+        $info = password_get_info($stored);
+        if (!empty($info[ 'algo' ])) {
+            return password_verify($input, $stored);
+        }
+        // 历史数据：md5 / sha1('sha1(md5)') 等常见格式
+        if ($stored === md5($input)) return true;
+        if ($stored === sha1(md5($input))) return true;
+        if ($stored === strtoupper(md5($input))) return true;
+        return false;
+    }
 
     /**
      * 验证token有效性

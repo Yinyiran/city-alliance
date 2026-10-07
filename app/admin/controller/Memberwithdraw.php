@@ -32,8 +32,9 @@ class Memberwithdraw extends BaseAdmin
                 'rate' => input('rate', 0),//提现手续费比率 (0-100)
                 'transfer_type' => $transfer_type,//转账方式,
                 'is_auto_transfer' => input('is_auto_transfer', 0),//是否自动转账 1 手动转账  2 自动转账
-                'min' => input('min', 0),//提现最低额度
-                'max' => input('max', 0),//提现最高额度
+                // 提现最低额度：支持 0 与两位小数；0 表示不设门槛（校验跳过 + 前端不展示）
+                'min' => round(floatval(input('min', 0)), 2),
+                'max' => round(floatval(input('max', 0)), 2),//提现最高额度，0 表示不限
                 'introduction' => input('introduction', ''),//提现说明
             ];
             $this->addLog("设置会员提现配置");
