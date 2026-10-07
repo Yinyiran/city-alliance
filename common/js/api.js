@@ -39,6 +39,12 @@ export const conorderrank=params=>server('/shopapplet/my/conorderrank',params)
 export const getOrderInfo=params=>server('/shopapplet/order/getOrderInfo',params)
 //立即核销
 export const dodelivery=params=>server('/shopapplet/order/dodelivery',params)
+//收银台：生成顾客扫码付款的收款码
+export const cashierCode=params=>server('/shopapplet/cashier/cashierCode',params)
+//预约日程
+export const cashierSchedule=params=>server('/shopapplet/cashier/schedule',params)
+//商家改约
+export const cashierReschedule=params=>server('/shopapplet/cashier/reschedule',params)
 //我的积分
 export const pointAccount=params=>server('/shopapplet/points/getList',params)
 //保证金缴纳
@@ -94,4 +100,4 @@ export const Synopsis=params=>server('/api/api/info',params)
 //修改头像
 export const modifyheadimg=params=>server('/api/member/modifyheadimg',params)
 //修改昵称
-export const modifynickname=params=>server('/api/member/modifynickname',params)
+export const modifynickname=params=>server('/api/member/modifynickname',params)
