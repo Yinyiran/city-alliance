@@ -7,8 +7,6 @@ export const loginAuth=params=>server('/api/login/auth',params)
 export const mobileauth=params=>server('/api/tripartite/mobileauth',params)
 // 账号密码登录（手机号 / 员工编号 + 密码）
 export const accountLogin=params=>server('/api/login/accountLogin',params)
-// 只读体验账号登录（供微信审核 / 演示查看真实数据）
-export const demoLogin=params=>server('/api/login/demoLogin',params,'post',true)
 //个人信息
 export const userinfo=params=>server('/api/member/info',params)
 //轮播列表

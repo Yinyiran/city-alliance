@@ -10,7 +10,6 @@ const CODE = {
   TOKEN_MISSING: [-10010, -10011, 401], // 未登录 / token 失效
   NO_SHOP_AUTH: -10020, // 无企业端权限（商家端）
   SHOP_NOT_FOUND: -10021, // 店铺不存在
-  DEMO_READONLY: -10030, // 体验账号只读，操作被拦截
 };
 
 // 登录态失效时通知页面（页面据此弹登录引导，而不是留白）
@@ -124,7 +123,6 @@ export function server(url, params, methods, silent) {
 
         if (isTokenMissing) {
           uni.removeStorageSync('token');
-          uni.removeStorageSync('is_demo');
           showTokenToast();
           resolve({ ...responseData, _authRequired: 1 });
           return;
