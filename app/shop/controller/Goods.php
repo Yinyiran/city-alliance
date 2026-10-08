@@ -289,7 +289,10 @@ class Goods extends BaseShop
             $this->assign("attr_class_list", $attr_class_list);
 
             //交易类型：门店列表（预约到店按门店配置规则）+ 默认值
-            $this->assign("store_list", $this->getTradeStoreList());
+            // 注意：视图里以 {$store_list|default='[]'} 输出，ThinkPHP 会对其做 htmlentities，
+            // 必须传JSON 字符串，直接传数组会报
+            // "htmlentities() expects parameter 1 to be string, array given"
+            $this->assign("store_list", json_encode($this->getTradeStoreList(), JSON_UNESCAPED_UNICODE));
             $this->assign("goods_info", [ 'trade_type' => 0, 'service_duration' => 0, 'min_order_amount' => 0, 'max_order_amount' => 0, 'allow_custom_amount' => 0 ]);
             $this->assign("appointment_rules", '[]');
 
@@ -441,7 +444,8 @@ class Goods extends BaseShop
             $this->assign("is_install_supply", $is_install_supply);
 
             //交易类型：门店列表 + 商品交易配置 + 已有预约规则
-            $this->assign("store_list", $this->getTradeStoreList());
+            // 同上：视图以 {$store_list|default='[]'} 输出，须传 JSON 字符串而非数组
+            $this->assign("store_list", json_encode($this->getTradeStoreList(), JSON_UNESCAPED_UNICODE));
             $appointment_model = new AppointmentModel();
             $rule_list = $appointment_model->getRuleList([ [ 'goods_id', '=', $goods_id ] ])[ 'data' ] ?? [];
             $this->assign("appointment_rules", json_encode(array_values($rule_list), JSON_UNESCAPED_UNICODE));
