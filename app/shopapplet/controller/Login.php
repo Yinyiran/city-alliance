@@ -17,7 +17,6 @@ use think\facade\Session;
 use app\model\shopapplet\Register as RegisterModel;
 use think\facade\Db;
 use addon\weappqy\model\Config as WeappqyConfigModel;
-use app\model\shopapplet\DemoAccount;
 
 
 class Login extends BaseApi
@@ -178,7 +177,6 @@ class Login extends BaseApi
         return $this->response($this->success([
             'token' => $token,
             'member_id' => $member_id,
-            'is_demo' => 0,
         ]));
     }
 
@@ -210,32 +208,6 @@ class Login extends BaseApi
             'password' => password_hash($new_password, PASSWORD_DEFAULT),
         ]);
         return $this->response($this->success([], '操作成功'));
-    }
-
-    /**
-     * 只读体验账号登录（供微信审核 / 演示使用）
-     */
-    public function demoLogin()
-    {
-        $config = DemoAccount::config();
-        if (empty($config[ 'enable' ]) || empty($config[ 'member_id' ])) {
-            return $this->response($this->error([], '体验账号未开通，请联系管理员在后台开启'));
-        }
-        $member_id = $config[ 'member_id' ];
-        Db::name('member')->where([ [ 'member_id', '=', $member_id ] ])->update([
-            'login_time' => time(),
-            'last_login_time' => time(),
-            'login_type' => $this->params[ 'app_type' ] ?? '',
-            'login_type_name' => $this->params[ 'app_type_name' ] ?? '',
-            'login_ip' => request()->ip(),
-        ]);
-        $token = $this->createToken($member_id);
-        return $this->response($this->success([
-            'token' => $token,
-            'member_id' => $member_id,
-            'is_demo' => 1,
-            'shop_name' => $config[ 'shop_name' ],
-        ]));
     }
 
     /**

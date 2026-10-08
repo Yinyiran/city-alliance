@@ -8,8 +8,8 @@ namespace app\api\controller;
 use app\model\member\Login as LoginModel;
 use app\model\message\Message;
 use app\model\member\Register as RegisterModel;
-use app\model\shopapplet\DemoAccount;
 use Exception;
+use think\facade\Db;
 use think\facade\Cache;
 use think\facade\Db;
 use app\model\member\Config as ConfigModel;
@@ -94,35 +94,6 @@ class Login extends BaseApi
         return $this->response($this->success([
             'token' => $token,
             'member_id' => $member_id,
-            'is_demo' => 0,
-        ]));
-    }
-
-    /**
-     * 只读体验账号登录（供微信审核 / 演示使用）
-     *
-     * 配置见 app\model\shopapplet\DemoAccount（后台：小程序审核 → 体验账号）。
-     * 体验账号下资金与下单类接口会被 BaseApi 统一拦截（见 DemoAccount::CLIENT_BLOCK_ACTIONS）。
-     */
-    public function demoLogin()
-    {
-        $config = DemoAccount::config();
-        if (empty($config[ 'enable' ]) || empty($config[ 'member_id' ])) {
-            return $this->response($this->error([], '体验账号未开通，请联系管理员在后台开启'));
-        }
-        $member_id = $config[ 'member_id' ];
-        Db::name('member')->where([ [ 'member_id', '=', $member_id ] ])->update([
-            'login_time' => time(),
-            'last_login_time' => time(),
-            'login_type' => $this->params[ 'app_type' ] ?? '',
-            'login_type_name' => $this->params[ 'app_type_name' ] ?? '',
-            'login_ip' => request()->ip(),
-        ]);
-        $token = $this->createToken($member_id);
-        return $this->response($this->success([
-            'token' => $token,
-            'member_id' => $member_id,
-            'is_demo' => 1,
         ]));
     }
 

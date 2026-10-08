@@ -7,7 +7,6 @@ namespace app\shopapplet\controller;
 
 
 use addon\city\admin\controller\Shop;
-use app\model\shopapplet\DemoAccount;
 use app\model\shopapplet\Shop as ShopModel;
 use app\model\shopapplet\ShopEmployee as ShopEmployeeModel;
 use Carbon\Carbon;
@@ -22,11 +21,6 @@ class Common extends BaseApi
     public $site_id;
     public $city_id;
     public $shopinfo;
-    /**
-     * 是否为只读体验账号（微信审核 / 演示）
-     * @var int
-     */
-    public $is_demo = 0;
 
     public function __construct()
     {
@@ -49,20 +43,6 @@ class Common extends BaseApi
           exit;
         }
         $this->member_id = $token['data']['member_id'];
-
-        // 只读体验账号（微信审核 / 演示）：统一拦截所有写操作，避免误操作与资损
-        if (DemoAccount::isDemo($this->member_id)) {
-            $this->is_demo = 1;
-            $blocked = DemoAccount::blockedMessage((string)request()->action());
-            if ($blocked !== '') {
-                echo $this->response([
-                    'code' => -10030,
-                    'msg' => $blocked,
-                    'data' => [],
-                ]);
-                exit;
-            }
-        }
 
         $memberinfo = Db::name("member")->where("member_id", $this->member_id)->find();
         $mobile = trim($memberinfo["mobile"] ?? '');
@@ -204,7 +184,6 @@ class Common extends BaseApi
         session("site_id", $this->site_id);
         session("shop_id", $this->site_id);
         session("employee_info", $employeeinfo);
-        session("is_demo", $this->is_demo);
     }
 
     public function getshopInfobyemployee(){
@@ -212,7 +191,6 @@ class Common extends BaseApi
             "shopinfo" => $this->shopinfo,
             "city_id" => $this->city_id,
             "site_id" => $this->site_id,
-            "is_demo" => $this->is_demo,
             'employee_info' => session('employee_info'),
         ];
     }
