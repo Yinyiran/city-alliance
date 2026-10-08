@@ -47,12 +47,6 @@
 						</view>
 					</block>
 
-					<!-- 只读体验账号：供微信审核 / 演示查看真实数据 -->
-					<view class="demo-entry" @click="loginByDemo">
-						<text class="demo-title">体验账号登录</text>
-						<text class="demo-desc">无需手机号授权，一键查看真实经营数据（只读，不可提交）</text>
-					</view>
-
 					<view class="xieyibox">
 						<radio value="" style="transform: scale(0.8);" :checked="is_show" @click="is_show = !is_show" />
 						<view class="font-24 fcolor">登录即表示已阅读并同意</view>
@@ -125,8 +119,7 @@ import {
 	getAgreement,
 	modifyheadimg,
 	modifynickname,
-	accountLogin,
-	demoLogin
+	accountLogin
 } from '../../common/js/api.js';
 
 export default {
@@ -180,30 +173,23 @@ export default {
 		switchTab(tab) {
 			this.loginTab = tab;
 		},
-		// 手机号快捷登录失败：给出可操作的替代路径，避免用户/审核员卡在弹窗里
+		// 手机号快捷登录失败：引导改用账号密码，避免用户/审核员卡在弹窗里
 		onLoginFail(msg) {
 			uni.showModal({
 				title: '登录未成功',
-				content: msg + '。您可以改用「账号密码登录」，或使用「体验账号」直接查看经营数据。',
+				content: msg + '。您可改用「账号密码登录」，使用手机号或员工编号登录。',
 				confirmText: '账号密码登录',
-				cancelText: '体验账号',
+				showCancel: false,
 				success: (res) => {
 					if (res.confirm) {
 						this.loginTab = 'account';
-					} else if (res.cancel) {
-						this.loginByDemo();
 					}
 				}
 			});
 		},
 		// 统一登录成功收口：写 token、同步状态、通知页面刷新
-		finishLogin(token, isDemo) {
+		finishLogin(token) {
 			uni.setStorageSync('token', token);
-			if (isDemo) {
-				uni.setStorageSync('is_demo', 1);
-			} else {
-				uni.removeStorageSync('is_demo');
-			}
 			this.isLoggedIn = true;
 			this.noPrompt = false;
 			uni.removeStorageSync('login_no_prompt');
@@ -233,7 +219,7 @@ export default {
 					});
 					return;
 				}
-				this.finishLogin(res.data.token, !!res.data.is_demo);
+				this.finishLogin(res.data.token);
 				this.password = '';
 				this.close();
 				uni.showToast({ title: '登录成功', icon: 'none' });
@@ -241,29 +227,6 @@ export default {
 			} catch (e) {
 				uni.hideLoading();
 				uni.showToast({ title: '登录失败，请重试', icon: 'none' });
-			}
-		},
-		// 只读体验账号登录：微信审核 / 演示无需手机号授权即可查看真实数据
-		async loginByDemo() {
-			uni.showLoading({ title: '加载中', mask: true });
-			try {
-				const res = await demoLogin();
-				uni.hideLoading();
-				if (!res || res.code != 0 || !res.data || !res.data.token) {
-					uni.showToast({
-						title: (res && (res.message || res.msg)) || '体验账号未开通，请联系管理员',
-						icon: 'none',
-						duration: 2500
-					});
-					return;
-				}
-				this.finishLogin(res.data.token, true);
-				this.close();
-				uni.showToast({ title: '已进入只读体验模式', icon: 'none' });
-				this.$emit('loginsuccess');
-			} catch (e) {
-				uni.hideLoading();
-				uni.showToast({ title: '体验账号登录失败，请重试', icon: 'none' });
 			}
 		},
 		checkLoginStatus() {
@@ -699,29 +662,6 @@ export default {
 	.ipt-ph {
 		color: #B2B6C2;
 		font-size: 28rpx;
-	}
-
-	.demo-entry {
-		margin-top: 32rpx;
-		padding: 24rpx;
-		background: #FFF7EC;
-		border: 1rpx solid #FFE0BF;
-		border-radius: 16rpx;
-
-		.demo-title {
-			display: block;
-			font-size: 28rpx;
-			font-weight: 600;
-			color: #F55606;
-			margin-bottom: 8rpx;
-		}
-
-		.demo-desc {
-			display: block;
-			font-size: 24rpx;
-			color: #8D93A5;
-			line-height: 36rpx;
-		}
 	}
 
 	.titlabel2 {

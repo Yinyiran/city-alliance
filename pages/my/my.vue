@@ -45,19 +45,13 @@
 			<image src="/static/bg3.png" mode=""></image>
 			</view>
 
-			<!-- 只读体验模式提示：微信审核 / 演示账号 -->
-			<view class="demo-bar acea-row row-middle" v-if="isDemo">
-				<text>当前为只读体验模式，仅供查看，提交类操作已禁用</text>
-			</view>
-
 			<!-- 未登录：给出明确引导，而不是留一大片空白（审核判定为白屏） -->
-			<view class="empty-guide" v-if="!token">
-				<image src="/static/avatar.png" class="empty-avatar" mode="aspectFill"></image>
-				<view class="empty-title">登录后查看商家经营数据</view>
-				<view class="empty-desc">订单、销售额、员工业绩排行等数据需登录后展示</view>
-				<view class="empty-btn" @click="$refs.login.open(true)">立即登录</view>
-				<view class="empty-btn plain m-t-20" @click="useDemoAccount">使用体验账号查看示例数据</view>
-			</view>
+					<view class="empty-guide" v-if="!token">
+						<image src="/static/avatar.png" class="empty-avatar" mode="aspectFill"></image>
+						<view class="empty-title">登录后查看商家经营数据</view>
+						<view class="empty-desc">订单、销售额、员工业绩排行等数据需登录后展示</view>
+						<view class="empty-btn" @click="$refs.login.open(true)">立即登录</view>
+					</view>
 
 			<!-- 加载失败：给出重试入口，避免"无法加载完整数据内容" -->
 			<view class="empty-guide" v-else-if="loadError">
@@ -238,8 +232,7 @@ import {
 	conorderrank,
 	getInfo,
 	shopList,
-	shopLogin,
-	demoLogin
+	shopLogin
 } from "@/common/js/api.js"
 import ShopSelectPopup from "@/components/shop-select-popup/shop-select-popup.vue"
 
@@ -274,7 +267,6 @@ export default {
 			slist: [],
 			site_id: uni.getStorageSync('site_id'),
 			token: "",
-			isDemo: false,
 			loadError: false,
 			loadErrorText: ''
 		};
@@ -287,7 +279,6 @@ export default {
 	onShow() {
 		if (uni.getStorageSync('token')) {
 			this.token = uni.getStorageSync('token')
-			this.isDemo = !!uni.getStorageSync('is_demo')
 			let cachedSiteId = uni.getStorageSync('site_id')
 			if (cachedSiteId && cachedSiteId != this.site_id) {
 				this.site_id = cachedSiteId
@@ -295,7 +286,6 @@ export default {
 			this.refreshAll()
 		} else {
 			this.token = ''
-			this.isDemo = false
 			this.resetPageData()
 		}
 	},
@@ -321,8 +311,6 @@ export default {
 		// 登录态失效：回到未登录空态，而不是继续展示上一次的空数据
 		onAuthRequired() {
 			this.token = ''
-			this.isDemo = false
-			uni.removeStorageSync('is_demo')
 			this.resetPageData()
 		},
 		// 未登录时清空页面数据，避免残留上一登录账号的内容
@@ -339,23 +327,6 @@ export default {
 			this.site_id = ''
 			this.loadError = false
 			this.loadErrorText = ''
-		},
-		// 体验账号登录：供微信审核 / 演示查看真实数据（只读）
-		useDemoAccount() {
-			uni.showLoading({ title: '加载中', mask: true })
-			demoLogin().then(res => {
-				uni.hideLoading()
-				if (!res || res.code != 0) {
-					uni.showToast({ title: (res && (res.message || res.msg)) || '体验账号未开通', icon: 'none' });
-					return;
-				}
-				uni.setStorageSync('token', res.data.token)
-				uni.setStorageSync('is_demo', 1)
-				this.token = res.data.token
-				this.isDemo = true
-				this.loadError = false
-				this.refreshAll()
-			});
 		},
 		refreshAll() {
 			this.loadError = false
@@ -384,7 +355,6 @@ export default {
 		},
 		loginsuccess() {
 			this.token = uni.getStorageSync('token')
-			this.isDemo = !!uni.getStorageSync('is_demo')
 			this.refreshAll()
 		},
 		shopList() {
@@ -412,12 +382,6 @@ export default {
 				this.site_id = res.data.site_id
 				uni.setStorageSync('site_id', res.data.site_id)
 				this.info = res.data
-				this.isDemo = !!Number(res.data.is_demo)
-				uni.setStorageSync('is_demo', this.isDemo ? 1 : '')
-				if (!this.isDemo && Number(res.data.is_demo) === 0) {
-					// 非体验账号，清理可能残留的标记
-					uni.removeStorageSync('is_demo')
-				}
 			} catch (e) {
 				// 站点信息获取失败不阻断页面其他数据加载
 			}
@@ -794,17 +758,6 @@ page {
 	background: #181A1F;
 }
 
-.demo-bar {
-	margin: 0 32rpx;
-	margin-top: 20rpx;
-	padding: 16rpx 24rpx;
-	background: rgba(245, 171, 24, 0.14);
-	border: 1rpx solid rgba(245, 171, 24, 0.45);
-	border-radius: 12rpx;
-	font-size: 24rpx;
-	color: #F5AB18;
-}
-
 .empty-guide {
 	margin: 0 32rpx;
 	margin-top: 40rpx;
@@ -848,13 +801,6 @@ page {
 		color: #FFFFFF;
 		font-size: 30rpx;
 		font-weight: 600;
-
-		&.plain {
-			background: transparent;
-			border: 1rpx solid #FAD5B4;
-			color: #FAD5B4;
-			font-weight: 400;
-		}
 	}
 }
 

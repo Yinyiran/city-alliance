@@ -7,8 +7,6 @@ export const loginAuth=params=>server('/shopapplet/login/auth',params)
 export const mobileAuth=params=>server('/shopapplet/login/mobileAuth',params)
 // 账号密码登录（手机号 / 员工编号 + 密码）
 export const accountLogin=params=>server('/shopapplet/login/accountLogin',params)
-// 只读体验账号登录（供微信审核 / 演示查看真实数据）
-export const demoLogin=params=>server('/shopapplet/login/demoLogin',params,'post',true)
 // 修改登录密码
 export const changePassword=params=>server('/shopapplet/login/changePassword',params)
 //首页头部数据
