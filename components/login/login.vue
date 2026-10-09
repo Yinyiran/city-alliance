@@ -33,7 +33,6 @@
 					<!-- 账号密码登录 -->
 					<block v-else>
 						<view class="titlabel">账号密码登录</view>
-						<view class="titlabel2">员工可使用手机号 / 员工编号 + 密码登录</view>
 						<view class="iptbox graybg m-t-32">
 							<view class="iptwid">账号</view>
 							<input v-model="account" placeholder="请输入手机号或员工编号" placeholder-class="ipt-ph" />
@@ -48,11 +47,12 @@
 					</block>
 
 					<view class="xieyibox">
-						<radio value="" style="transform: scale(0.8);" :checked="is_show" @click="is_show = !is_show" />
-						<view class="font-24 fcolor">登录即表示已阅读并同意</view>
-						<text class="font-24" @click="xyopen(2)">《用户协议》</text>
-						<text class="font-24" @click="xyopen(1)">《隐私政策》</text>
-					</view>
+										<radio value="" style="transform: scale(0.8);" :checked="is_show" @click="is_show = !is_show" />
+										<view class="font-24 fcolor">登录即表示已阅读并同意</view>
+										<text class="font-24" @click="xyopen(2)">《用户协议》</text>
+										<text class="font-24" @click="xyopen(1)">《隐私政策》</text>
+									</view>
+									<view class="agree-tip" v-if="!is_show">请先阅读并勾选同意《用户协议》《隐私政策》</view>
 				</view>
 			</view>
 		</uv-popup>
@@ -198,6 +198,12 @@ export default {
 		},
 		// 账号密码登录
 		async submitAccountLogin() {
+			// 未同意《用户协议》《隐私政策》不允许登录
+			// （微信审核要求：不得在未经用户明示同意的前提下收集/使用账号信息）
+			if (!this.is_show) {
+				this.showAgreementTip();
+				return;
+			}
 			const account = (this.account || '').trim();
 			if (!account) {
 				uni.showToast({ title: '请输入账号', icon: 'none' });
@@ -207,10 +213,10 @@ export default {
 				uni.showToast({ title: '请输入密码', icon: 'none' });
 				return;
 			}
-			uni.showLoading({ title: '登录中...', mask: true });
+			// 请求层 http.js 已统一管理 showLoading/hideLoading（并发计数配对），
+			// 此处不可再手动调用，否则会产生多余的 hideLoading 触发微信告警
 			try {
 				const res = await accountLogin({ account, password: this.password });
-				uni.hideLoading();
 				if (!res || res.code != 0 || !res.data || !res.data.token) {
 					uni.showToast({
 						title: (res && (res.message || res.msg)) || '账号或密码错误',
@@ -225,7 +231,6 @@ export default {
 				uni.showToast({ title: '登录成功', icon: 'none' });
 				this.$emit('loginsuccess');
 			} catch (e) {
-				uni.hideLoading();
 				uni.showToast({ title: '登录失败，请重试', icon: 'none' });
 			}
 		},
@@ -384,56 +389,51 @@ export default {
 				return
 			}
 			// 确保 openid 已获取
-			if (!this.weapp_openid) {
-				await this.index()
-			}
-			uni.showLoading({
-				title: '登录中...'
-			})
-			uni.login({
-				success: async res => {
-					try {
-						if (!this.weapp_openid && res.code) {
-							const resC = await authcodetoopenid({ code: res.code })
-							if (resC && resC.code == 0 && resC.data) {
-								this.weapp_openid = resC.data.openid
-							}
-						}
-						const params = {
-							code: res.code,
-							iv: iv,
-							encryptedData: encryptedData,
-							weapp_openid: this.weapp_openid,
-							nickname: '',
-							headimg: ''
-						}
-						const resM = await mobileAuth(params)
-						uni.hideLoading()
-						if (!resM || resM.code != 0) {
-							this.onLoginFail((resM && (resM.message || resM.msg)) || '登录失败')
-							return
-						}
-						uni.setStorageSync('token', resM.data.token)
-						this.isLoggedIn = true
-						this.noPrompt = false
-						uni.removeStorageSync('login_no_prompt')
-						// 登录成功，检查是否已设置昵称
-						await this.checkNeedInfo()
-						} catch (err) {
-						uni.hideLoading()
-						uni.showToast({
-							title: (err && (err.message || err.msg)) || '登录失败，请重试',
-							icon: 'none'
+					if (!this.weapp_openid) {
+						await this.index()
+					}
+					// loading 由 http.js 统一管理（并发计数配对），此处手动调用会多出 hideLoading
+					uni.login({
+						success: async res => {
+							try {
+								if (!this.weapp_openid && res.code) {
+									const resC = await authcodetoopenid({ code: res.code })
+									if (resC && resC.code == 0 && resC.data) {
+										this.weapp_openid = resC.data.openid
+									}
+								}
+								const params = {
+									code: res.code,
+									iv: iv,
+									encryptedData: encryptedData,
+									weapp_openid: this.weapp_openid,
+									nickname: '',
+									headimg: ''
+								}
+								const resM = await mobileAuth(params)
+								if (!resM || resM.code != 0) {
+									this.onLoginFail((resM && (resM.message || resM.msg)) || '登录失败')
+									return
+								}
+								uni.setStorageSync('token', resM.data.token)
+								this.isLoggedIn = true
+								this.noPrompt = false
+								uni.removeStorageSync('login_no_prompt')
+								// 登录成功，检查是否已设置昵称
+								await this.checkNeedInfo()
+								} catch (err) {
+								uni.showToast({
+									title: (err && (err.message || err.msg)) || '登录失败，请重试',
+									icon: 'none'
 						})
 						}
 				},
 				fail: () => {
-					uni.hideLoading()
-					uni.showToast({
-						title: '微信授权失败，请重试',
-						icon: 'none'
-					})
-				}
+								uni.showToast({
+									title: '微信授权失败，请重试',
+									icon: 'none'
+								})
+							}
 			})
 		},
 		// 检查用户资料是否完善，未设置昵称则弹出完善资料弹窗
@@ -500,65 +500,60 @@ export default {
 				})
 				return
 			}
-			uni.showLoading({
-				title: '保存中...',
-				mask: true
-			})
-			try {
-				if (this.avatar) {
-					await modifyheadimg({
-						headimg: this.avatar
-					})
-				}
-				await modifynickname({
-					nickname: this.nickname
-				})
-				uni.hideLoading()
-				uni.showToast({
-					title: "设置成功",
-					icon: 'none'
-				})
-				uni.setStorageSync('userInfo', {
-					avatar: this.avatar,
-					headimg: this.avatar,
-					nickname: this.nickname
-				})
-				this.isLoggedIn = true
-				this.noPrompt = false
-				uni.removeStorageSync('login_no_prompt')
-				this.avatar = ''
-				this.nickname = ''
-				this.$emit('loginsuccess')
-				uni.$emit('loginsuccess')
-				if (this.$refs.infopopref && typeof this.$refs.infopopref.close === 'function') {
-					this.$refs.infopopref.close()
-				}
-			} catch (e) {
-				uni.hideLoading()
-				try {
-					if (!this.weapp_openid) {
-						await this.index()
+			// loading 由 http.js 统一管理，两个写接口各自配对，此处不再手动控制
+					try {
+						if (this.avatar) {
+							await modifyheadimg({
+								headimg: this.avatar
+							})
+						}
+						await modifynickname({
+							nickname: this.nickname
+						})
+						uni.showToast({
+							title: "设置成功",
+							icon: 'none'
+						})
+						uni.setStorageSync('userInfo', {
+							avatar: this.avatar,
+							headimg: this.avatar,
+							nickname: this.nickname
+						})
+						this.isLoggedIn = true
+						this.noPrompt = false
+						uni.removeStorageSync('login_no_prompt')
+						this.avatar = ''
+						this.nickname = ''
+						this.$emit('loginsuccess')
+						uni.$emit('loginsuccess')
+						if (this.$refs.infopopref && typeof this.$refs.infopopref.close === 'function') {
+							this.$refs.infopopref.close()
+						}
+					} catch (e) {
+						try {
+							if (!this.weapp_openid) {
+								await this.index()
+							}
+							await loginAuth({
+								weapp_openid: this.weapp_openid,
+								nickName: this.nickname,
+								avatarUrl: this.avatar
+							})
+							uni.setStorageSync('userInfo', {
+								avatar: this.avatar,
+								headimg: this.avatar,
+								nickname: this.nickname
+							})
+						} catch (err) { }
+						this.avatar = ''
+						this.nickname = ''
+						this.$emit('loginsuccess')
+						uni.$emit('loginsuccess')
+						if (this.$refs.infopopref && typeof this.$refs.infopopref.close === 'function') {
+							this.$refs.infopopref.close()
+						}
 					}
-					await loginAuth({
-						weapp_openid: this.weapp_openid,
-						nickName: this.nickname,
-						avatarUrl: this.avatar
-					})
-					uni.setStorageSync('userInfo', {
-						avatar: this.avatar,
-						headimg: this.avatar,
-						nickname: this.nickname
-					})
-				} catch (err) { }
-				this.avatar = ''
-				this.nickname = ''
-				this.$emit('loginsuccess')
-				uni.$emit('loginsuccess')
-				if (this.$refs.infopopref && typeof this.$refs.infopopref.close === 'function') {
-					this.$refs.infopopref.close()
-				}
-			}
-		},
+				},
 		xyopen(type) {
 			let params = {
 				type: type
@@ -664,10 +659,11 @@ export default {
 		font-size: 28rpx;
 	}
 
-	.titlabel2 {
-		color: #8D93A5;
-		font-size: 28rpx;
-		margin-bottom: 56rpx;
+	.agree-tip {
+		margin-top: 16rpx;
+		font-size: 22rpx;
+		color: #F55606;
+		text-align: center;
 	}
 
 	.graybg {
