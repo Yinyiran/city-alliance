@@ -9,7 +9,6 @@ use app\model\member\Login as LoginModel;
 use app\model\message\Message;
 use app\model\member\Register as RegisterModel;
 use Exception;
-use think\facade\Db;
 use think\facade\Cache;
 use think\facade\Db;
 use app\model\member\Config as ConfigModel;
