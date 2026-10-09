@@ -4,10 +4,10 @@
 			<nvabar type='1' title='订单列表' titleStyle='color:#222'></nvabar>
 			<view class="">
 				<uv-tabs :list="listA" lineWidth="16" :current="current" lineColor="#f56c6c" :scrollable="false" @change="onchange" :activeStyle="{
-							fontWeight: 'bold',
+							fontWeight: 'bold',color:'#f56c6c'
 				    	}" :inactiveStyle="{
 							color: '#222222',
-						}" itemStyle="height: 44px;font-size:28rpx;"></uv-tabs>
+						}" itemStyle="height: 44px;font-size:28rpx;padding:0 8rpx"></uv-tabs>
 			</view>
 		</uv-sticky>
 		<view class="container">
@@ -64,6 +64,10 @@
 					<view class="btn4" v-if="item.order_status==10" @click="againBuy(item)">再次购买</view>
 				</view>
 			</view>
+			<view v-if="!loading&&!list.length" class="empty-wrap">
+				<image src="/otherpages/static/empty1.png" mode="" class="empty-img"></image>
+				<view class="empty-txt">暂无相关订单</view>
+			</view>
 		</view>
 	</view>
 </template>
@@ -101,14 +105,17 @@
 				page:1,
 				order_status:'all',
 				list:[],
+				loading:true,
 				last_page:1,
 				current:0
 			};
 		},
 		onLoad(res) {
-			if(res.current){
-				this.current=res.current
-				this.order_status=this.listA[this.current].id
+			// current 为字符串，需转为数字并做越界兜底
+			const current = Number(res.current || 0)
+			if (!isNaN(current) && current >= 0 && current < this.listA.length) {
+				this.current = current
+				this.order_status = this.listA[current].id
 			}
 		},
 		onShow() {
@@ -186,13 +193,17 @@
 				// }
 			},
 			getlist(){
+				this.loading=true
 				let params={
 					page:this.page,
 					order_status:this.order_status
 				}
 				orderlist(params).then(res=>{
-					this.list=this.page>1?this.list.concat(...res.data.list):res.data.list
-					this.last_page=res.data.page_count
+					let rows=res&&res.data&&res.data.list?res.data.list:[]
+					this.list=this.page>1?this.list.concat(rows):rows
+					this.last_page=res&&res.data&&res.data.page_count?res.data.page_count:1
+				}).catch(()=>{}).finally(()=>{
+					this.loading=false
 				})
 			},
 		}
@@ -341,6 +352,25 @@
 			align-items: center;
 			justify-content: center;
 			border-radius: 50%;
+		}
+	}
+
+	.empty-wrap {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 120rpx 0 160rpx 0;
+
+		.empty-img {
+			width: 340rpx;
+			height: 340rpx;
+		}
+
+		.empty-txt {
+			margin-top: 24rpx;
+			font-size: 32rpx;
+			color: #999;
 		}
 	}
 </style>

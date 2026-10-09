@@ -22,6 +22,10 @@
 			<view class="m-r-32 m-l-32">
 				<goods :list="list"></goods>
 			</view>
+			<view v-if="!loading&&!list.length" class="empty-wrap">
+				<image src="/otherpages/static/empty1.png" mode="" class="empty-img"></image>
+				<view class="empty-txt">该分类下暂无商品</view>
+			</view>
 		</view>
 	</view>
 </template>
@@ -38,6 +42,7 @@
 				page:1,
 				last_page:1,
 				list:[],
+				loading:true,
 				select:-1,
 				clicknum:0
 			};
@@ -66,6 +71,7 @@
 				console.log(e);
 			},
 			goodslist(){
+				this.loading=true
 				let params={
 					page:this.page,
 					website_id:uni.getStorageSync('website_id'),
@@ -76,8 +82,11 @@
 					site_id:''
 				}
 				goodslist(params).then(res=>{
-					this.list=this.page>1?this.list.concat(res.data.list):res.data.list
-					this.last_page=res.data.page_count
+					let rows=res&&res.data&&res.data.list?res.data.list:[]
+					this.list=this.page>1?this.list.concat(rows):rows
+					this.last_page=res&&res.data&&res.data.page_count?res.data.page_count:1
+				}).catch(()=>{}).finally(()=>{
+					this.loading=false
 				})
 			},
 			goodscategory(){
@@ -147,5 +156,23 @@
 		top: 0;
 		left: 0;
 		z-index: -1;
+	}
+	.empty-wrap {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 40rpx 0 80rpx 0;
+
+		.empty-img {
+			width: 340rpx;
+			height: 340rpx;
+		}
+
+		.empty-txt {
+			margin-top: 24rpx;
+			font-size: 32rpx;
+			color: #999;
+		}
 	}
 </style>

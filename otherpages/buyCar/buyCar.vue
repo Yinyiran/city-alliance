@@ -33,7 +33,8 @@
 								<text class="font-30 font-weight-6">{{items.point}}</text>
 								积分
 							</view>
-							<uv-number-box v-model="items.num" :name='items.cart_id' @change="onChange">
+							<uv-number-box v-model="items.num" :min="1" :name='items.cart_id' @change="onChange"
+									@overlimit="onOverlimit(index, indexs, $event)">
 							</uv-number-box>
 						</view>
 					</view>
@@ -73,7 +74,8 @@
 <script>
 	import {
 		cartList,
-		cartEdit
+		cartEdit,
+		cartDelete
 	} from '@/common/js/api.js';
 	export default {
 		data() {
@@ -98,8 +100,10 @@
 				totalPrice: '0.00',
 				totalCount: 0,
 				totalPoint: "0.00",
-				type:0
-			};
+				type:0,
+				//是否正在弹出删除确认框，防止长按时重复弹出
+				deleteTipShow:false
+				};
 		},
 		onShow() {
 			this.getlist()
@@ -292,6 +296,54 @@
 							title: res.message
 						});
 					}
+				})
+			},
+			/**
+			 * 数量减到最小值后再点减号：提示是否删除该商品
+			 * @param {Number} siteIndex 店铺下标
+			 * @param {Number} cartIndex 商品下标
+			 * @param {String} type 触发类型 minus / plus
+			 */
+			onOverlimit(siteIndex, cartIndex, type) {
+				if (type !== 'minus' || this.deleteTipShow) return;
+				const siteItem = this.cartData[siteIndex];
+				const item = siteItem && siteItem.cartList[cartIndex];
+				if (!item || Number(item.num) > 1) return;
+				this.deleteTipShow = true;
+				uni.showModal({
+					title: '提示',
+					content: '数量已减至1件，继续减将删除该商品，是否删除？',
+					confirmText: '删除',
+					confirmColor: '#F55606',
+					success: res => {
+						if (res.confirm) {
+							this.deleteCart(item)
+						}
+					},
+					complete: () => {
+						this.deleteTipShow = false
+					}
+				})
+			},
+			/**
+			 * 删除购物车商品
+			 */
+			deleteCart(item) {
+				cartDelete({cart_id: item.cart_id}).then(res => {
+					if (res.code >= 0) {
+						this.$util.showToast({
+							title: res.message || '删除成功'
+						});
+						this.getlist()
+					} else {
+						this.$util.showToast({
+							title: res.message || '删除失败'
+						});
+					}
+				}).catch(() => {
+					this.$util.showToast({
+						title: '删除失败'
+					});
 				})
 			},
 			onclick(e) {

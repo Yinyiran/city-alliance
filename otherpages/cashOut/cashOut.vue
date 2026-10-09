@@ -376,6 +376,7 @@ export default {
 	padding: 0 32rpx;
 	background: #FFF5ED;
 	height: 72rpx;
+	display: flex;
 
 	view {
 		font-weight: 400;
@@ -465,7 +466,7 @@ page {
 			font-size: 26rpx;
 			color: #333333;
 			margin-left: 32rpx;
-			text-align: right;
+			text-align: left;
 		}
 	}
 }

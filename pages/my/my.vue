@@ -437,13 +437,13 @@ export default {
 			}
 			if (e == 'waitstock') {
 				uni.navigateTo({
-					url: '/otherpages/order/order?current=3'
+					url: '/otherpages/order/order?current=4'
 				})
 				return
 			}
 			if (e == 'after') {
 				uni.navigateTo({
-					url: '/otherpages/order/order?current=4'
+					url: '/otherpages/order/order?current=5'
 				})
 				return
 			}

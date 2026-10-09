@@ -57,6 +57,8 @@ export const cartAdd=params=>server('/api/cart/add',params)
 export const cartList=params=>server('/api/cart/goodslists',params)
 //编辑购物车
 export const cartEdit=params=>server('/api/cart/edit',params)
+//删除购物车商品
+export const cartDelete=params=>server('/api/cart/delete',params)
 //设为默认账户
 export const setDefaultdefa=params=>server('/api/memberbankaccount/setDefault',params)
 //提现账号列席
