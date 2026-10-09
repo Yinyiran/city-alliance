@@ -144,9 +144,10 @@ class Login extends BaseApi
             return $this->response($this->error([], '账号已被禁用，请联系管理员'));
         }
 
+        // 连续失败锁定键：必须在 if 之前定义，成功路径也要用它清零计数
+        $fail_key = 'SHOP_PWD_FAIL_' . $member[ 'member_id' ];
         if (!$this->verifyPassword($password, $member[ 'password' ] ?? '')) {
             // 连续失败计数（同一账号 10 分钟内 5 次锁定）
-            $fail_key = 'SHOP_PWD_FAIL_' . $member[ 'member_id' ];
             $fail_count = intval(Cache::get($fail_key)) + 1;
             Cache::set($fail_key, $fail_count, 600);
             if ($fail_count >= 5) {
