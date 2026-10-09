@@ -9,8 +9,10 @@
 						<view class="tit_text">{{ configobj.name }}</view>
 					</view>
 					<view class="tab-switch acea-row row-center">
-						<view class="tab-item" :class="{ on: loginTab == 'phone' }" @click="switchTab('phone')">手机号快捷登录</view>
-						<view class="tab-item" :class="{ on: loginTab == 'account' }" @click="switchTab('account')">账号密码登录</view>
+						<view class="tab-item" :class="{ on: loginTab == 'phone' }" @click="switchTab('phone')">手机号快捷登录
+						</view>
+						<view class="tab-item" :class="{ on: loginTab == 'account' }" @click="switchTab('account')">
+							账号密码登录</view>
 					</view>
 
 					<!-- 手机号快捷登录 -->
@@ -21,7 +23,8 @@
 							<button v-if="!is_show" class="titlePhone public_btn" @click="showAgreementTip">
 								手机号快捷登录
 							</button>
-							<button v-else class="titlePhone public_btn" open-type="getPhoneNumber" @getphonenumber="getPhoneNumber">
+							<button v-else class="titlePhone public_btn" open-type="getPhoneNumber"
+								@getphonenumber="getPhoneNumber">
 								手机号快捷登录
 							</button>
 							<view class="no-prompt-action" @click="handleNoPrompt">
@@ -47,12 +50,12 @@
 					</block>
 
 					<view class="xieyibox">
-										<radio value="" style="transform: scale(0.8);" :checked="is_show" @click="is_show = !is_show" />
-										<view class="font-24 fcolor">登录即表示已阅读并同意</view>
-										<text class="font-24" @click="xyopen(2)">《用户协议》</text>
-										<text class="font-24" @click="xyopen(1)">《隐私政策》</text>
-									</view>
-									<view class="agree-tip" v-if="!is_show">请先阅读并勾选同意《用户协议》《隐私政策》</view>
+						<radio value="" style="transform: scale(0.8);" :checked="is_show" @click="is_show = !is_show" />
+						<view class="font-24 fcolor">登录即表示已阅读并同意</view>
+						<text class="font-24" @click="xyopen(2)">《用户协议》</text>
+						<text class="font-24" @click="xyopen(1)">《隐私政策》</text>
+					</view>
+					<view class="agree-tip" v-if="!is_show">请先阅读并勾选同意《用户协议》《隐私政策》</view>
 				</view>
 			</view>
 		</uv-popup>
@@ -75,7 +78,8 @@
 					</view>
 					<view class="iptbox graybg">
 						<view class="iptwid">昵称<text class="fcolor1 font-28">*</text></view>
-						<input type="nickname" :maxlength="8" v-model="nickname" @input="handleNicknameInput" placeholder="请输入昵称" />
+						<input type="nickname" :maxlength="8" v-model="nickname" @input="handleNicknameInput"
+							placeholder="请输入昵称" />
 					</view>
 					<view class="opt-box">
 						<button class="titlePhone public_btn" @click="submitInfo">
@@ -389,51 +393,51 @@ export default {
 				return
 			}
 			// 确保 openid 已获取
-					if (!this.weapp_openid) {
-						await this.index()
-					}
-					// loading 由 http.js 统一管理（并发计数配对），此处手动调用会多出 hideLoading
-					uni.login({
-						success: async res => {
-							try {
-								if (!this.weapp_openid && res.code) {
-									const resC = await authcodetoopenid({ code: res.code })
-									if (resC && resC.code == 0 && resC.data) {
-										this.weapp_openid = resC.data.openid
-									}
-								}
-								const params = {
-									code: res.code,
-									iv: iv,
-									encryptedData: encryptedData,
-									weapp_openid: this.weapp_openid,
-									nickname: '',
-									headimg: ''
-								}
-								const resM = await mobileAuth(params)
-								if (!resM || resM.code != 0) {
-									this.onLoginFail((resM && (resM.message || resM.msg)) || '登录失败')
-									return
-								}
-								uni.setStorageSync('token', resM.data.token)
-								this.isLoggedIn = true
-								this.noPrompt = false
-								uni.removeStorageSync('login_no_prompt')
-								// 登录成功，检查是否已设置昵称
-								await this.checkNeedInfo()
-								} catch (err) {
-								uni.showToast({
-									title: (err && (err.message || err.msg)) || '登录失败，请重试',
-									icon: 'none'
-						})
+			if (!this.weapp_openid) {
+				await this.index()
+			}
+			// loading 由 http.js 统一管理（并发计数配对），此处手动调用会多出 hideLoading
+			uni.login({
+				success: async res => {
+					try {
+						if (!this.weapp_openid && res.code) {
+							const resC = await authcodetoopenid({ code: res.code })
+							if (resC && resC.code == 0 && resC.data) {
+								this.weapp_openid = resC.data.openid
+							}
 						}
+						const params = {
+							code: res.code,
+							iv: iv,
+							encryptedData: encryptedData,
+							weapp_openid: this.weapp_openid,
+							nickname: '',
+							headimg: ''
+						}
+						const resM = await mobileAuth(params)
+						if (!resM || resM.code != 0) {
+							this.onLoginFail((resM && (resM.message || resM.msg)) || '登录失败')
+							return
+						}
+						uni.setStorageSync('token', resM.data.token)
+						this.isLoggedIn = true
+						this.noPrompt = false
+						uni.removeStorageSync('login_no_prompt')
+						// 登录成功，检查是否已设置昵称
+						await this.checkNeedInfo()
+					} catch (err) {
+						uni.showToast({
+							title: (err && (err.message || err.msg)) || '登录失败，请重试',
+							icon: 'none'
+						})
+					}
 				},
 				fail: () => {
-								uni.showToast({
-									title: '微信授权失败，请重试',
-									icon: 'none'
-								})
-							}
+					uni.showToast({
+						title: '微信授权失败，请重试',
+						icon: 'none'
+					})
+				}
 			})
 		},
 		// 检查用户资料是否完善，未设置昵称则弹出完善资料弹窗
@@ -501,59 +505,59 @@ export default {
 				return
 			}
 			// loading 由 http.js 统一管理，两个写接口各自配对，此处不再手动控制
-					try {
-						if (this.avatar) {
-							await modifyheadimg({
-								headimg: this.avatar
-							})
-						}
-						await modifynickname({
-							nickname: this.nickname
-						})
-						uni.showToast({
-							title: "设置成功",
-							icon: 'none'
-						})
-						uni.setStorageSync('userInfo', {
-							avatar: this.avatar,
-							headimg: this.avatar,
-							nickname: this.nickname
-						})
-						this.isLoggedIn = true
-						this.noPrompt = false
-						uni.removeStorageSync('login_no_prompt')
-						this.avatar = ''
-						this.nickname = ''
-						this.$emit('loginsuccess')
-						uni.$emit('loginsuccess')
-						if (this.$refs.infopopref && typeof this.$refs.infopopref.close === 'function') {
-							this.$refs.infopopref.close()
-						}
-					} catch (e) {
-						try {
-							if (!this.weapp_openid) {
-								await this.index()
-							}
-							await loginAuth({
-								weapp_openid: this.weapp_openid,
-								nickName: this.nickname,
-								avatarUrl: this.avatar
-							})
-							uni.setStorageSync('userInfo', {
-								avatar: this.avatar,
-								headimg: this.avatar,
-								nickname: this.nickname
-							})
-						} catch (err) { }
-						this.avatar = ''
-						this.nickname = ''
-						this.$emit('loginsuccess')
-						uni.$emit('loginsuccess')
-						if (this.$refs.infopopref && typeof this.$refs.infopopref.close === 'function') {
-							this.$refs.infopopref.close()
-						}
+			try {
+				if (this.avatar) {
+					await modifyheadimg({
+						headimg: this.avatar
+					})
+				}
+				await modifynickname({
+					nickname: this.nickname
+				})
+				uni.showToast({
+					title: "设置成功",
+					icon: 'none'
+				})
+				uni.setStorageSync('userInfo', {
+					avatar: this.avatar,
+					headimg: this.avatar,
+					nickname: this.nickname
+				})
+				this.isLoggedIn = true
+				this.noPrompt = false
+				uni.removeStorageSync('login_no_prompt')
+				this.avatar = ''
+				this.nickname = ''
+				this.$emit('loginsuccess')
+				uni.$emit('loginsuccess')
+				if (this.$refs.infopopref && typeof this.$refs.infopopref.close === 'function') {
+					this.$refs.infopopref.close()
+				}
+			} catch (e) {
+				try {
+					if (!this.weapp_openid) {
+						await this.index()
 					}
-				},
+					await loginAuth({
+						weapp_openid: this.weapp_openid,
+						nickName: this.nickname,
+						avatarUrl: this.avatar
+					})
+					uni.setStorageSync('userInfo', {
+						avatar: this.avatar,
+						headimg: this.avatar,
+						nickname: this.nickname
+					})
+				} catch (err) { }
+				this.avatar = ''
+				this.nickname = ''
+				this.$emit('loginsuccess')
+				uni.$emit('loginsuccess')
+				if (this.$refs.infopopref && typeof this.$refs.infopopref.close === 'function') {
+					this.$refs.infopopref.close()
+				}
+			}
+		},
 		xyopen(type) {
 			let params = {
 				type: type
@@ -716,31 +720,31 @@ export default {
 				opacity: 0.7;
 			}
 		}
+	}
 
-		.xieyibox {
-			display: flex;
-			align-items: center;
-			flex-wrap: wrap;
-			justify-content: flex-start;
-			margin-top: 32rpx;
-			margin-bottom: 16rpx;
+	.xieyibox {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		justify-content: flex-start;
+		margin-top: 32rpx;
+		margin-bottom: 16rpx;
 
-			.circle {
-				width: 40rpx;
-				height: 40rpx;
-				border-radius: 50%;
-				border: 1px solid #e0e0e0;
-				box-sizing: border-box;
-			}
+		.circle {
+			width: 40rpx;
+			height: 40rpx;
+			border-radius: 50%;
+			border: 1px solid #e0e0e0;
+			box-sizing: border-box;
+		}
 
-			view {
-				font-size: 24rpx;
-			}
+		view {
+			font-size: 24rpx;
+		}
 
-			text {
-				font-size: 24rpx;
-				color: #F55606;
-			}
+		text {
+			font-size: 24rpx;
+			color: #F55606;
 		}
 	}
 

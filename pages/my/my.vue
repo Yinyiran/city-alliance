@@ -27,8 +27,8 @@
 						{{ (info.myinfo || {}).is_manager == 1 ? '主理人' : '员工' }}
 					</view>
 				</view>
-				<view class="acea-row row-middle row-center cash" @click="caches" v-if="(info.myinfo || {}).is_manager == 1">提现
-					<uv-icon name="arrow-right" color="#fff" size="10"></uv-icon>
+				<view class="acea-row row-middle row-center cash" @click="caches" v-if="(info.myinfo || {}).is_manager == 1">提现 
+					<uv-icon name="arrow-right" color="#fff" size="12"></uv-icon>
 				</view>
 			</view>
 			<view class="checkes acea-row row-middle row-center row-between m-t-24">
@@ -768,6 +768,8 @@ page {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	position: relative;
+	z-index: 100;
 
 	.empty-avatar {
 		width: 120rpx;

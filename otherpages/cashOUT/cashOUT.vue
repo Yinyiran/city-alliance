@@ -401,9 +401,9 @@ export default {
 	}
 
 	input {
-		height: 136rpx;
+		height: 110rpx;
 		background: #FFFFFF;
-		font-size: 72rpx;
+		font-size: 50rpx;
 		color: #222222;
 		flex: 1;
 	}
@@ -415,7 +415,7 @@ export default {
 
 	text:last-child {
 		font-weight: 400;
-		font-size: 26rpx;
+		font-size: 28rpx;
 		color: #F55606;
 		flex-shrink: 0;
 	}
@@ -425,6 +425,7 @@ export default {
 	padding: 0 32rpx;
 	background: #FFF5ED;
 	height: 72rpx;
+	display: flex;
 
 	.cash-tip {
 		font-weight: 400;
@@ -503,7 +504,7 @@ export default {
 	.rule-value {
 		font-size: 26rpx;
 		color: #333333;
-		text-align: right;
+		text-align: left;
 		flex: 1;
 	}
 
