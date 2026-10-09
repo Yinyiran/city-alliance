@@ -216,14 +216,20 @@ class Login extends BaseApi
     private function verifyPassword(string $input, string $stored) : bool
     {
         if ($stored == '') return false;
-        $info = password_get_info($stored);
-        if (!empty($info[ 'algo' ])) {
-            return password_verify($input, $stored);
+
+        // bcrypt：先把已知的跨语言前缀归一化为 PHP 认识的 $2y$
+        // （password_get_info 只识别 $2y$ / $2a$，node bcryptjs 等生成的 $2b$ 会被判为 algo=0）
+        if (preg_match('/^\$2[abxy]\$/', $stored)) {
+            $normalized = '$2y$' . substr($stored, 4);
+            if (password_verify($input, $normalized)) return true;
+            if (password_verify($input, $stored)) return true;
         }
-        // 历史数据：md5 / sha1('sha1(md5)') 等常见格式
+
+        // 历史数据：md5 / sha1(md5) / 大写 md5
         if ($stored === md5($input)) return true;
         if ($stored === sha1(md5($input))) return true;
         if ($stored === strtoupper(md5($input))) return true;
+        if ($stored === sha1($input)) return true;
         return false;
     }
 

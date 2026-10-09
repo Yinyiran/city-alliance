@@ -97,18 +97,32 @@ class Login extends BaseApi
     }
 
     /**
-     * 密码校验：兼容 bcrypt 与历史 md5
+     * 密码校验：兼容 bcrypt（含 $2y$ / $2a$ / $2b$）与历史 md5
+     *
+     * 注意：password_get_info() 只识别 PHP 原生 bcrypt 前缀（$2y$ / $2a$）。
+     * 跨语言库（如 node bcryptjs、Java）生成的 $2b$ / $2x$ 会被判为 algo=0，
+     * 若直接落入 md5 分支将永远校验失败。因此这里改为「先尝试 password_verify，
+     * 失败再回退 md5」，并对 $2b$ 前缀做等价替换后再验证
+     * （$2y$ 与 $2b$ 算法完全一致，仅前缀不同）。
      */
     private function verifyPassword(string $input, string $stored) : bool
     {
         if ($stored == '') return false;
-        $info = password_get_info($stored);
-        if (!empty($info[ 'algo' ])) {
-            return password_verify($input, $stored);
+
+        // bcrypt：先把已知的跨语言前缀归一化为 PHP 认识的 $2y$
+        if (preg_match('/^\$2[abxy]\$/', $stored)) {
+            $normalized = '$2y$' . substr($stored, 4);
+            if (password_verify($input, $normalized)) return true;
+            // 部分环境 crypt() 可直接识别 $2b$，再试一次原值
+            if (password_verify($input, $stored)) return true;
         }
+
+        // 历史数据：md5 / sha1(md5) / 大写 md5
         if ($stored === md5($input)) return true;
         if ($stored === sha1(md5($input))) return true;
         if ($stored === strtoupper(md5($input))) return true;
+        if ($stored === sha1($input)) return true;
+
         return false;
     }
 
