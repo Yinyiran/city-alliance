@@ -9,53 +9,56 @@
 						<view class="tit_text">{{ configobj.name }}</view>
 					</view>
 					<view class="tab-switch acea-row row-center">
-										<view class="tab-item" :class="{ on: loginTab == 'phone' }" @click="switchTab('phone')">手机号快捷登录</view>
-										<view class="tab-item" :class="{ on: loginTab == 'account' }" @click="switchTab('account')">账号密码登录</view>
-									</view>
+						<view class="tab-item" :class="{ on: loginTab == 'phone' }" @click="switchTab('phone')">手机号快捷登录
+						</view>
+						<view class="tab-item" :class="{ on: loginTab == 'account' }" @click="switchTab('account')">
+							账号密码登录</view>
+					</view>
 
-									<!-- 手机号快捷登录 -->
-									<block v-if="loginTab == 'phone'">
-										<view class="titlabel">手机号快捷登录</view>
-										<view class="titlabel2">未注册的手机号验证通过后将自动创建账号</view>
-										<view class="opt-box">
-											<button v-if="!is_show" class="titlePhone public_btn" @click="showAgreementTip">
-												手机号快捷登录
-											</button>
-											<button v-else class="titlePhone public_btn" open-type="getPhoneNumber" @getphonenumber="getPhoneNumber">
-												手机号快捷登录
-											</button>
-											<view class="no-prompt-action" @click="handleNoPrompt">
-												<text>不再提示</text>
-											</view>
-										</view>
-									</block>
-
-									<!-- 账号密码登录 -->
-									<block v-else>
-										<view class="titlabel">账号密码登录</view>
-										<view class="titlabel2">可使用手机号 / 员工编号 + 密码登录</view>
-										<view class="iptbox graybg m-t-32">
-											<view class="iptwid">账号</view>
-											<input v-model="account" placeholder="请输入手机号或员工编号" placeholder-class="ipt-ph" />
-										</view>
-										<view class="iptbox graybg">
-											<view class="iptwid">密码</view>
-											<input v-model="password" password placeholder="请输入密码" placeholder-class="ipt-ph" />
-										</view>
-										<view class="opt-box">
-											<button class="titlePhone public_btn" @click="submitAccountLogin">登录</button>
-										</view>
-									</block>
-
-									<view class="xieyibox">
-										<radio value="" style="transform: scale(0.8);" :checked="is_show" @click="is_show = !is_show" />
-										<view class="font-24 fcolor">登录即表示已阅读并同意</view>
-										<text class="font-24" @click="xyopen(2)">《用户协议》</text>
-										<text class="font-24" @click="xyopen(1)">《隐私政策》</text>
-									</view>
-								</view>
+					<!-- 手机号快捷登录 -->
+					<block v-if="loginTab == 'phone'">
+						<view class="titlabel">手机号快捷登录</view>
+						<view class="titlabel2">未注册的手机号验证通过后将自动创建账号</view>
+						<view class="opt-box">
+							<button v-if="!is_show" class="titlePhone public_btn" @click="showAgreementTip">
+								手机号快捷登录
+							</button>
+							<button v-else class="titlePhone public_btn" open-type="getPhoneNumber"
+								@getphonenumber="getPhoneNumber">
+								手机号快捷登录
+							</button>
+							<view class="no-prompt-action" @click="handleNoPrompt">
+								<text>不再提示</text>
 							</view>
-						</uv-popup>
+						</view>
+					</block>
+
+					<!-- 账号密码登录 -->
+					<block v-else>
+						<view class="titlabel">账号密码登录</view>
+						<view class="iptbox graybg m-t-32">
+							<view class="iptwid">账号</view>
+							<input v-model="account" placeholder="请输入手机号或员工编号" placeholder-class="ipt-ph" />
+						</view>
+						<view class="iptbox graybg">
+							<view class="iptwid">密码</view>
+							<input v-model="password" password placeholder="请输入密码" placeholder-class="ipt-ph" />
+						</view>
+						<view class="opt-box">
+							<button class="titlePhone public_btn" @click="submitAccountLogin">登录</button>
+						</view>
+					</block>
+
+					<view class="xieyibox">
+						<radio value="" style="transform: scale(0.8);" :checked="is_show" @click="is_show = !is_show" />
+						<view class="font-24 fcolor">登录即表示已阅读并同意</view>
+						<text class="font-24" @click="xyopen(2)">《用户协议》</text>
+						<text class="font-24" @click="xyopen(1)">《隐私政策》</text>
+					</view>
+					<view class="agree-tip" v-if="!is_show">请先阅读并勾选同意《用户协议》《隐私政策》</view>
+				</view>
+			</view>
+		</uv-popup>
 		<!-- 第二步：完善头像昵称（手机号登录成功后，未设置昵称时弹出） -->
 		<uv-popup ref="infopopref" :zIndex="10080" round="10" mode="bottom" closeable @close="infoclose">
 			<view class="activity-box ">
@@ -74,7 +77,8 @@
 					</view>
 					<view class="iptbox graybg">
 						<view class="iptwid">昵称<text class="fcolor1 font-28">*</text></view>
-						<input type="nickname" :maxlength="8" v-model="nickname" @input="handleNicknameInput" placeholder="请输入昵称" />
+						<input type="nickname" :maxlength="8" v-model="nickname" @input="handleNicknameInput"
+							placeholder="请输入昵称" />
 					</view>
 					<view class="opt-box">
 						<button class="titlePhone public_btn" @click="submitInfo">
@@ -188,6 +192,12 @@ export default {
 		},
 		// 账号密码登录
 		async submitAccountLogin() {
+			// 未同意《用户协议》《隐私政策》不允许登录
+			// （微信审核要求：不得在未经用户明示同意的前提下收集/使用账号信息）
+			if (!this.is_show) {
+				this.showAgreementTip();
+				return;
+			}
 			const account = (this.account || '').trim();
 			if (!account) {
 				uni.showToast({ title: '请输入账号', icon: 'none' });
@@ -197,10 +207,9 @@ export default {
 				uni.showToast({ title: '请输入密码', icon: 'none' });
 				return;
 			}
-			uni.showLoading({ title: '登录中...', mask: true });
+			// loading 由 http.js 统一管理（并发计数配对），此处手动调用会多出 hideLoading
 			try {
 				const res = await accountLogin({ account, password: this.password });
-				uni.hideLoading();
 				if (!res || res.code != 0 || !res.data || !res.data.token) {
 					uni.showToast({
 						title: (res && (res.message || res.msg)) || '账号或密码错误',
@@ -215,7 +224,6 @@ export default {
 				// 复用手机号登录的后置流程：拉用户信息、同步站点、决定是否补资料
 				await this.checkNeedInfo();
 			} catch (e) {
-				uni.hideLoading();
 				uni.showToast({ title: '登录失败，请重试', icon: 'none' });
 			}
 		},
@@ -367,42 +375,38 @@ export default {
 			if (!this.weapp_openid) {
 				await this.index()
 			}
-			uni.showLoading({
-				title: '登录中...'
-			})
-			uni.login({
-				success: res => {
-					const shareSiteId = uni.getStorageSync('share_site_id') || ''
-					const inviteCode = this.suid || uni.getStorageSync('invite_code') || ''
-					const params = {
-						code: res.code,
-						iv: iv,
-						encryptedData: encryptedData,
-						weapp_openid: this.weapp_openid,
-						suid: inviteCode,
-						site_id: shareSiteId
-					}
-					mobileauth(params).then(res => {
-						uni.hideLoading()
-						// 原实现无条件取 res.data.token，接口返回失败时会抛 TypeError，
-						// 且用户看到的是"无反应"，审核表现为登录页卡死。
-						if (!res || res.code != 0 || !res.data || !res.data.token) {
-							this.onLoginFail((res && (res.message || res.msg)) || '手机号验证未通过')
-							return
+			// loading 由 http.js 统一管理（并发计数配对），此处手动调用会多出 hideLoading
+					uni.login({
+						success: res => {
+							const shareSiteId = uni.getStorageSync('share_site_id') || ''
+							const inviteCode = this.suid || uni.getStorageSync('invite_code') || ''
+							const params = {
+								code: res.code,
+								iv: iv,
+								encryptedData: encryptedData,
+								weapp_openid: this.weapp_openid,
+								suid: inviteCode,
+								site_id: shareSiteId
+							}
+							mobileauth(params).then(res => {
+								// 原实现无条件取 res.data.token，接口返回失败时会抛 TypeError，
+								// 且用户看到的是"无反应"，审核表现为登录页卡死。
+								if (!res || res.code != 0 || !res.data || !res.data.token) {
+									this.onLoginFail((res && (res.message || res.msg)) || '手机号验证未通过')
+									return
+								}
+								this.finishLogin(res.data.token)
+								// 登录成功，检查是否已设置昵称
+								this.checkNeedInfo()
+							}).catch(() => {
+								this.onLoginFail('网络异常，请稍后重试')
+							})
+						},
+						fail: () => {
+							uni.showToast({ title: '微信授权失败，请重试', icon: 'none' })
 						}
-						this.finishLogin(res.data.token)
-						// 登录成功，检查是否已设置昵称
-						this.checkNeedInfo()
-					}).catch(() => {
-						uni.hideLoading()
-						this.onLoginFail('网络异常，请稍后重试')
 					})
 				},
-				fail: () => {
-					uni.hideLoading()
-				}
-			})
-		},
 		// 检查用户资料是否完善，未设置昵称则弹出完善资料弹窗
 		async checkNeedInfo() {
 			this.isLoggedIn = true
@@ -567,10 +571,11 @@ export default {
 		font-size: 28rpx;
 	}
 
-	.titlabel2 {
-		color: #8D93A5;
-		font-size: 28rpx;
-		margin-bottom: 56rpx;
+	.agree-tip {
+		margin-top: 16rpx;
+		font-size: 22rpx;
+		color: #F55606;
+		text-align: center;
 	}
 
 	.graybg {
@@ -626,29 +631,30 @@ export default {
 			}
 		}
 
-		.xieyibox {
-			display: flex;
-			align-items: center;
-			flex-wrap: wrap;
-			justify-content: flex-start;
-			margin-top: 30rpx;
-			margin-bottom: 16rpx;
+	}
 
-			.circle {
-				width: 40rpx;
-				height: 40rpx;
-				border-radius: 50%;
-				border: 1px solid #e0e0e0;
-				box-sizing: border-box;
-			}
+	.xieyibox {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		justify-content: flex-start;
+		margin-top: 30rpx;
+		margin-bottom: 16rpx;
 
-			view {
-				font-size: 24rpx;
-			}
+		.circle {
+			width: 40rpx;
+			height: 40rpx;
+			border-radius: 50%;
+			border: 1px solid #e0e0e0;
+			box-sizing: border-box;
+		}
 
-			text {
-				font-size: 24rpx;
-			}
+		view {
+			font-size: 24rpx;
+		}
+
+		text {
+			font-size: 24rpx;
 		}
 	}
 
