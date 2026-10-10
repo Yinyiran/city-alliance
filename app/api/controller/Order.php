@@ -431,4 +431,72 @@ class Order extends BaseApi
             'appointment_status' => $order_info[ 'appointment_status' ] ?? -1,
         ]));
     }
+
+    /**
+     * 快递物流轨迹查询
+     * 适用于快递邮寄(3) 以及到店自提(0) 选择快递发货的场景。
+     * 数据来源：express_delivery_package（发货时写入），轨迹经 Trace 模型分发
+     * 快递100/快递鸟第三方接口；未启用物流方式或无记录时返回空轨迹而非报错。
+     */
+    public function expressTrace()
+    {
+        $token = $this->checkToken();
+        if ($token[ 'code' ] < 0) return $this->response( $token );
+
+        $order_id = isset( $this->params[ 'order_id' ] ) ? (int)$this->params[ 'order_id' ] : 0;
+        if ( empty( $order_id ) ) {
+            return $this->response( $this->error( '', 'REQUEST_ORDER_ID' ) );
+        }
+
+        //归属校验：只能查询自己的订单
+        $order_info = model( 'order' )->getInfo( [
+            [ 'order_id', '=', $order_id ],
+            [ 'member_id', '=', $this->member_id ]
+        ], 'order_id, order_no, order_status, order_status_name, delivery_type, delivery_status, delivery_type_name, trade_type, mobile' );
+
+        if ( empty( $order_info ) ) {
+            return $this->response( $this->error( '', '未找到该订单' ) );
+        }
+
+        //仅快递配送存在物流轨迹：门店核销(0/1/2)与同城配送(4)无轨迹
+        if ( $order_info[ 'delivery_type' ] != 'express' ) {
+            return $this->response( $this->error( '', '该订单不是快递配送，无物流轨迹' ) );
+        }
+
+        $express_package_model = new ExpressPackage();
+        //快递100/快递鸟的部分接口需要收件人手机号后四位做校验
+        $package_list = $express_package_model->package( [
+            [ 'order_id', '=', $order_id ]
+        ], $order_info[ 'mobile' ] ?? '' );
+
+        //包裹表为空时（历史数据只写了 order_goods.delivery_no），
+        //降级返回订单项单号，保证 C 端至少能展示物流信息而非空白
+        if ( empty( $package_list ) ) {
+            $goods_list = model( 'order_goods' )->getList( [
+                [ 'order_id', '=', $order_id ]
+            ], 'order_goods_id, sku_name, delivery_no, delivery_status, delivery_status_name' );
+
+            $fallback = [];
+            foreach ( $goods_list as $k => $v ) {
+                if ( empty( $v[ 'delivery_no' ] ) ) continue;
+                $fallback[] = [
+                    'package_name' => '包裹' . ( count( $fallback ) + 1 ),
+                    'express_company_id' => 0,
+                    'express_company_name' => '',
+                    'express_company_image' => '',
+                    'delivery_no' => $v[ 'delivery_no' ],
+                    'delivery_type' => 1,
+                    'sku_name' => $v[ 'sku_name' ],
+                    'trace' => [ 'success' => false, 'reason' => '暂无物流轨迹，请在商家发货后稍后再试' ],
+                ];
+            }
+
+            if ( empty( $fallback ) ) {
+                return $this->response( $this->error( '', '商家尚未发货，暂无物流信息' ) );
+            }
+            return $this->response( $this->success( $fallback ) );
+        }
+
+        return $this->response( $this->success( $package_list ) );
+    }
 }
