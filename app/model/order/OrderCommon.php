@@ -529,7 +529,7 @@ class OrderCommon extends BaseModel
     {
         model('order')->startTrans();
         try {
-            $order_info = model("order")->getInfo($condition, "order_id,coupon_id,pay_status,member_id,is_lock,balance_money,order_no,mobile,order_status");
+            $order_info = model("order")->getInfo($condition, "order_id,coupon_id,pay_status,member_id,is_lock,balance_money,order_no,mobile,order_status,trade_type");
             if ($order_info[ "order_status" ] == -1) {
                 model('order')->commit();
                 return $this->success();
@@ -967,6 +967,14 @@ class OrderCommon extends BaseModel
                 $order_model = new VirtualOrder();
                 break;
         }
+        //到店核销类(order_type=2, StoreOrder)与虚拟商品(order_type=4, VirtualOrder)
+        //均继承 OrderCommon 且未实现 orderDelivery()，直接调用会致命错误。
+        //此处做存在性拦截，避免未做链路校验的调用方打崩接口。
+        if ( !method_exists( $order_model, 'orderDelivery' ) ) {
+            return intval( $order_info[ 'order_type' ] ) == 2
+                ? $this->error( [], '到店核销订单无需发货，请直接核销' )
+                : $this->error( [], '该订单类型不支持发货' );
+        }
         $result = $order_model->orderDelivery($order_id);
         if ($result[ "code" ] < 0) {
             return $result;
@@ -1063,10 +1071,15 @@ class OrderCommon extends BaseModel
                 "sign_time" => time()
             );
             //带 order_status 前置条件更新，防止与商家确认送达并发时重复流转，
-            //以及避免把已被 cron 结算为已完成的订单拉回已收货状态
+            //以及避免把已被 cron 结算为已完成的订单拉回已收货状态。
+            //注意：到店核销类(order_type=2)支付后直接进入「待提货(2)」，不经过「已发货(3)」，
+            //若此处统一用 ORDER_DELIVERY 作为前置条件会导致所有到店核销订单核销失败。
+            $expect_status = ( intval( $order_info[ 'order_type' ] ) == 2 )
+                ? StoreOrder::ORDER_PENDING_DELIVERY
+                : $order_model::ORDER_DELIVERY;
             $update_result = model('order')->update($order_data, [
                 [ 'order_id', '=', $order_id ],
-                [ 'order_status', '=', $order_model::ORDER_DELIVERY ]
+                [ 'order_status', '=', $expect_status ]
             ]);
             if (empty($update_result)) {
                 model('order')->rollback();

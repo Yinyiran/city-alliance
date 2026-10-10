@@ -6,7 +6,9 @@ namespace app\admin\controller;
 
 use app\model\order\Order as OrderModel;
 use app\model\order\OrderCommon as OrderCommonModel;
-use app\model\order\OrderCreate as OrderCreateModel;use think\facade\Config;
+use app\model\order\OrderCreate as OrderCreateModel;
+use app\model\order\StoreOrder;
+use think\facade\Config;
 
 class AdminOrder extends BaseAdmin
 {
@@ -211,6 +213,10 @@ class AdminOrder extends BaseAdmin
             $delivery_no = input("delivery_no", '');
             $delivery_type = input("delivery_type", 0);
             $order_model = new OrderModel();
+            //平台代发：site_id 必须取订单真实所属店铺。
+            //原代码硬编码为 1，会把 express_delivery_package 等物流记录写到错误站点，
+            //导致店铺端查不到自己的包裹，且站点维度的物流统计失真。
+            $order_site_info = model( 'order' )->getInfo( [ [ 'order_id', '=', $order_id ] ], 'site_id' );
             $data = array(
                 "type" => input('type', 'manual'),//发货方式（手动发货、电子面单）
                 "order_goods_ids" => $order_goods_ids,
@@ -218,7 +224,7 @@ class AdminOrder extends BaseAdmin
                 "delivery_no" => $delivery_no,
                 "order_id" => $order_id,
                 "delivery_type" => $delivery_type,
-                "site_id" => 1,
+                "site_id" => intval( $order_site_info[ 'site_id' ] ?? 0 ),
                 "template_id" => input('template_id', 0)//电子面单模板id
             );
             //判断site_id
@@ -232,7 +238,9 @@ class AdminOrder extends BaseAdmin
                 ["order_id", "=", $order_id],
 //                [ "site_id", "=", $this->site_id ],
             );
-            if ($delivery_status === '') {
+            //仅在明确指定发货状态时才过滤。原判断写作 `if ($delivery_status === '')`
+            //导致未指定状态时反而追加 delivery_status='' 的恒假条件、查不到任何商品项。
+            if ($delivery_status !== '' && $delivery_status !== null) {
                 $condition[] = ["delivery_status", "=", $delivery_status];
             }
             $field = "order_goods_id, order_id, site_id, site_name, sku_name, sku_image, sku_no, is_virtual, price, cost_price, num, goods_money, cost_money, delivery_status, delivery_no, goods_id, delivery_status_name";
@@ -241,6 +249,19 @@ class AdminOrder extends BaseAdmin
             $this->assign("order_goods_list", $order_goods_list);
             return $this->fetch("order/delivery");
         }
+    }
+
+    /**
+     * 到店核销单：直接提货（核销）
+     * 视图 app/admin/view/admin_order/store_order_take_delivery.html 会 POST 本方法，
+     * 原控制器缺失该方法导致到店单「提货」按钮必然报错，此处补齐并复用
+     * StoreOrder::activeTakeDelivery 的 order_type=2 与订单状态校验。
+     */
+    public function storeOrderTakedelivery()
+    {
+        $order_id = input('order_id', 0);
+        $store_order_model = new StoreOrder();
+        return $store_order_model->activeTakeDelivery($order_id);
     }
 
     /**

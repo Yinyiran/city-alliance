@@ -275,6 +275,13 @@ class Order extends OrderCommon
      */
     public function orderGoodsDelivery($param, $type = 1)
     {
+        //链路校验：Order 类只服务快递订单(order_type=1)。
+        //到店核销类(2)应走核销、同城配送(3)走 LocalOrder、虚拟商品(4)走 VirtualOrder，
+        //在此放行会污染 order_goods 与订单状态机（各端 controller 原均未做此校验）。
+        $delivery_order_info = model('order')->getInfo([ [ 'order_id', '=', $param[ 'order_id' ] ] ], 'order_id,order_type');
+        if (empty($delivery_order_info) || intval($delivery_order_info[ 'order_type' ]) != 1) {
+            return $this->error('', '该订单不是快递发货类型，无法发货！');
+        }
         model('order_goods')->startTrans();
         try {
             $order_goods_ids = $param[ 'order_goods_ids' ];
@@ -381,6 +388,11 @@ class Order extends OrderCommon
      */
     public function orderGoodsDelivery2($param, $type = 1)
     {
+        //链路校验：同 orderGoodsDelivery()，仅快递订单(order_type=1)允许发货
+        $delivery_order_info2 = model('order')->getInfo([ [ 'order_id', '=', $param[ 'order_id' ] ] ], 'order_id,order_type');
+        if (empty($delivery_order_info2) || intval($delivery_order_info2[ 'order_type' ]) != 1) {
+            return $this->error('', '该订单不是快递发货类型，无法发货！');
+        }
         model('order_goods')->startTrans();
         try {
             $order_goods_ids = $param[ 'order_goods_ids' ];

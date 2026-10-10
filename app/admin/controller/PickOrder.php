@@ -242,12 +242,16 @@ class PickOrder extends BaseAdmin
                 "delivery_no" => $delivery_no,
                 "order_id" => $order_id,
                 "delivery_type" => $delivery_type,
-                "site_id" => 1,
+                //平台代发：site_id 取订单真实所属店铺，避免物流记录写到错误站点
+                "site_id" => intval( model( 'order' )->getInfo( [ [ 'order_id', '=', $order_id ] ], 'site_id' )[ 'site_id' ] ?? 0 ),
                 "template_id" => input('template_id', 0),//电子面单模板id
                 'order_goods_info'=>$order_goods_info,
             );
             //判断site_id
-            $result = $order_model->pickOrderGoodsDelivery($data);
+            //注：原代码调用 $order_model->pickOrderGoodsDelivery()，但 app\model\order\Order
+            //并未定义该方法（仅有 orderGoodsDelivery/orderGoodsDelivery2/orderBatchDelivery），
+            //调用会致命错误。此处与 AdminOrder::delivery() 保持一致，使用 orderGoodsDelivery2。
+            $result = $order_model->orderGoodsDelivery2($data);
             return $result;
         } else {
             $order_id = input("order_id", 0);
@@ -257,7 +261,9 @@ class PickOrder extends BaseAdmin
                 ["order_id", "=", $order_id],
 //                [ "site_id", "=", $this->site_id ],
             );
-            if ($delivery_status === '') {
+            //仅在明确指定发货状态时才过滤。原判断写作 `if ($delivery_status === '')`
+            //导致未指定状态时反而追加 delivery_status='' 的恒假条件、查不到任何商品项。
+            if ($delivery_status !== '' && $delivery_status !== null) {
                 $condition[] = ["delivery_status", "=", $delivery_status];
             }
             $field = "order_goods_id, order_id, site_id, site_name, sku_name, sku_image, sku_no, is_virtual, price, cost_price, num, goods_money, cost_money, delivery_status, delivery_no, goods_id, delivery_status_name";

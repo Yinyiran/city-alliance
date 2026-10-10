@@ -316,89 +316,82 @@ class Order extends Common
             ]);
         }
 
-        // 事务执行核销
-        Db::startTrans();
-        try {
-            $now = time();
-            $order_id = $order_info['order_id'];
-
-            // 1. 将 order_goods 商品状态改为已核销
-            Db::name('order_goods')->where('order_id', $order_id)
-                ->where('refund_status', '<>', 3)
-                ->update([
-                    'delivery_status' => 1,
-                    'delivery_status_name' => '已核销'
-                ]);
-
-            // 2. 更新主订单状态为已核销 (order_status = 4: ORDER_TAKE_DELIVERY)
-            $order_update = [
-                'order_status' => 4,
-                'order_status_name' => '已核销',
-                'delivery_status' => 1,
-                'delivery_status_name' => '已核销',
-                'sign_time' => $now,
-                'is_evaluate' => 1,
-                'evaluate_status' => 0,
-                'evaluate_status_name' => '待评价'
-            ];
-            Db::name('order')->where('order_id', $order_id)->update($order_update);
-
-            // 3. 更新 verify 表
-            $employee_name = session('employee_info')['username'] ?? '商家员工';
-            Db::name('verify')->where('relate_id', $order_id)->update([
-                'is_verify' => 1,
-                'verify_time' => $now,
-                'verifier_name' => $employee_name
-            ]);
-            if (!empty($order_info['delivery_code'])) {
-                Db::name('verify')->where('verify_code', $order_info['delivery_code'])->update([
-                    'is_verify' => 1,
-                    'verify_time' => $now,
-                    'verifier_name' => $employee_name
-                ]);
-            }
-
-            // 4. 清理缓存核销动态码
-            Cache::delete('order_verify_token_' . $delivery_code);
-            if (!empty($order_info['delivery_code'])) {
-                Cache::delete('order_verify_token_' . $order_info['delivery_code']);
-            }
-
-            // 5. 写入订单日志
-            $order_log = [
-                'order_id' => $order_id,
-                'action' => '商家扫码核销',
-                'order_status' => 4,
-                'order_status_name' => '已核销',
-                'create_time' => $now,
-                'uid' => $this->member_id ?? 0,
-                'nick_name' => $employee_name
-            ];
-            Db::name('order_log')->insert($order_log);
-
-            // 6. 触发收货事件
-            event('OrderTakeDelivery', ['order_id' => $order_id]);
-
-            Db::commit();
-
-            return $this->response([
-                'code' => 0,
-                'message' => '核销成功',
-                'data' => [
-                    'order_id' => $order_id,
-                    'order_no' => $order_info['order_no'],
-                    'order_status' => 4,
-                    'order_status_name' => '已核销',
-                    'goods_status' => '已核销'
-                ]
-            ]);
-        } catch (\Exception $e) {
-            Db::rollback();
+        // 链路校验：仅到店核销类(order_type=2)可核销。
+        // 快递(1)/同城配送(3)/虚拟商品(4)没有门店核销环节，若放行会直接把订单
+        // 置为 order_status=4「已核销」，污染订单状态机与后续退款/结算。
+        if (intval($order_info['order_type']) != 2) {
+            $type_name = [
+                1 => '快递发货',
+                2 => '到店核销',
+                3 => '同城配送',
+                4 => '虚拟商品',
+            ][intval($order_info['order_type'])] ?? '未知类型';
             return $this->response([
                 'code' => -1,
-                'message' => '核销失败：' . $e->getMessage(),
+                'message' => '该订单为【' . $type_name . '】类型，无需到店核销，请走发货/收货流程！',
                 'data' => []
             ]);
         }
+
+        $order_id = $order_info['order_id'];
+
+        //统一走 StoreOrder 状态机（与 PC 端 Cashier::verify / Verify 控制器同一实现）。
+        //activeTakeDelivery 内部负责：order_type=2 校验、待提货状态校验、并发锁、
+        //order_goods 置已提货、order 置已收货(sign_time/评价)、订单日志、自动完成任务、
+        //OrderTakeDelivery 事件与站内消息。原实现为裸 Db update，绕过上述全部校验，
+        //且与 PC 端形成两套口径（一边「已提货」一边「已核销」），故统一收敛。
+        $store_order_model = new storeOrderModel();
+        $result = $store_order_model->activeTakeDelivery($order_id);
+
+        if (!is_array($result) || (isset($result['code']) && $result['code'] < 0)) {
+            return $this->response([
+                'code' => -1,
+                'message' => (is_array($result) && !empty($result['message'])) ? $result['message'] : '核销失败',
+                'data' => []
+            ]);
+        }
+
+        $now = time();
+
+        //到店类按交易类型修正终态文案（状态码统一为 order_status=4）
+        $trade_type = intval($order_info['trade_type'] ?? 0);
+        $finish_name = [
+            0 => '已提货',
+            1 => '已消费',
+            2 => '已核销',
+        ][$trade_type] ?? '已核销';
+        Db::name('order')->where('order_id', $order_id)->update([
+            'order_status_name' => $finish_name,
+        ]);
+
+        //补充 verify 表核销记录（状态机只覆盖订单维度，核销码维度需单独回写）
+        $employee_name = session('employee_info')['username'] ?? '商家员工';
+        $verify_update = [
+            'is_verify' => 1,
+            'verify_time' => $now,
+            'verifier_name' => $employee_name
+        ];
+        Db::name('verify')->where('relate_id', $order_id)->update($verify_update);
+        if (!empty($order_info['delivery_code'])) {
+            Db::name('verify')->where('verify_code', $order_info['delivery_code'])->update($verify_update);
+        }
+
+        //清理核销动态码缓存，避免同一动态码被重复核销
+        Cache::delete('order_verify_token_' . $delivery_code);
+        if (!empty($order_info['delivery_code'])) {
+            Cache::delete('order_verify_token_' . $order_info['delivery_code']);
+        }
+
+        return $this->response([
+            'code' => 0,
+            'message' => '核销成功',
+            'data' => [
+                'order_id' => $order_id,
+                'order_no' => $order_info['order_no'],
+                'order_status' => 4,
+                'order_status_name' => $finish_name,
+                'goods_status' => '已核销'
+            ]
+        ]);
     }
 }
