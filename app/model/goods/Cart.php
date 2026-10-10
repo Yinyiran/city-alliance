@@ -102,7 +102,7 @@ class Cart extends BaseModel
             ngs.sku_no, ngs.sku_spec_format, ngs.price, ngs.market_price, 
             ngs.discount_price, ngs.promotion_type,ngs.stock, 
             ngs.sku_image, ngs.site_name, ngs.website_id, ngs.is_own, ngs.goods_state, 
-            ngs.verify_state, ngs.goods_name,ngs.unit,s.shop_status,ngs.max_buy, ngs.min_buy,ngc.goods_type,ngs.point';
+            ngs.verify_state, ngs.goods_name,ngs.unit,s.shop_status,ngs.max_buy, ngs.min_buy,ngc.goods_type,ngs.point,ngs.trade_type';
 
         $alias = 'ngc';
         $join = [
