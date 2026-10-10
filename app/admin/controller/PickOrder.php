@@ -5,7 +5,7 @@ namespace app\admin\controller;
 
 use app\model\order\Order as OrderModel;
 use app\model\order\OrderCommon as OrderCommonModel;
-use think\facade\Config;
+use app\model\order\OrderCreate as OrderCreateModel;use think\facade\Config;
 
 /**
  * 平台商品订单列表
@@ -38,6 +38,7 @@ class PickOrder extends BaseAdmin
         $search_text = input("search", '');
         $promotion_type = input("promotion_type", '');
         $order_type = input("order_type", 'all');//营销类型
+        $trade_type = input('trade_type', '');//交易类型
         $is_own = input('is_own', '');
         $settlement_state = input("settlement_state", "");//结算状态
         $order_common_model = new OrderCommonModel();
@@ -98,6 +99,11 @@ class PickOrder extends BaseAdmin
             if ($order_type != 'all') {
                 $condition[] = ["o.order_type", "=", $order_type];
             }
+            //交易类型 0到店自提 1到店消费 2预约到店 3快递邮寄 4外卖配送
+            //注意：0 是合法取值，必须用 !== '' 严格比较，否则会被当成空值跳过
+            if ($trade_type !== '' && $trade_type !== null) {
+                $condition[] = [ "o.trade_type", "=", intval($trade_type) ];
+            }
             //结算状态
             if ($settlement_state == 1) {
                 $condition[] = ["o.is_settlement", "=", '1'];
@@ -147,6 +153,7 @@ class PickOrder extends BaseAdmin
             $this->assign("order_type_list", $order_type_list);
             $this->assign("order_label_list", $order_label_list);
             $this->assign("order_status_list", $order_type_list[1]['status']);//订单状态
+            $this->assign("trade_type_list", OrderCreateModel::tradeTypeList());//交易类型
 
             //订单来源 (支持端口)
             $order_from = Config::get("app_type");

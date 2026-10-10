@@ -61,6 +61,16 @@
                         </select>
                     </div>
                 </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">交易类型：</label>
+                    <div class="layui-input-inline">
+                        <select name="trade_type" lay-filter="trade_type">
+                            {foreach $trade_type_list as $tk => $tv}
+                            <option value="{$tk}">{$tv}</option>
+                            {/foreach}
+                        </select>
+                    </div>
+                </div>
             </div>
             <div class="layui-form-item">
 
@@ -150,6 +160,7 @@
             "search" : "",
             "start_time" : "",
             "order_type" : 'all',
+            "trade_type" : "",
             "page" : ""
         };
         if(hash_arr.length > 0){
@@ -312,6 +323,7 @@
             "search" : "",
             "start_time" : "",
             "order_type" : 'all',
+            "trade_type" : "",
             "page" : ""
         };
         if(hash_arr.length > 0){

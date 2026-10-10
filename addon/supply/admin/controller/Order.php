@@ -8,6 +8,7 @@ namespace addon\supply\admin\controller;
 use addon\supply\model\order\Config as ConfigModel;
 use addon\supply\model\order\Order as OrderModel;
 use addon\supply\model\order\OrderCommon as OrderCommonModel;
+use app\model\order\OrderCreate as OrderCreateModel;
 use think\facade\Config;
 
 /**
@@ -38,6 +39,7 @@ class Order extends BaseSupply
         $order_label = !empty($order_label_list[ input("order_label") ]) ? input("order_label") : "";
         $search_text = input("search", '');
         $order_type = input("order_type", 'all');//订单类型
+        $trade_type = input('trade_type', '');//交易类型
         $order_common_model = new OrderCommonModel();
         if (request()->isAjax()) {
             $page_index = input('page', 1);
@@ -78,6 +80,11 @@ class Order extends BaseSupply
             if ($order_type != 'all') {
                 $condition[] = [ "o.order_type", "=", $order_type ];
             }
+            //交易类型 0到店自提 1到店消费 2预约到店 3快递邮寄 4外卖配送
+            //注意：0 是合法取值，必须用 !== '' 严格比较，否则会被当成空值跳过
+            if ($trade_type !== '' && $trade_type !== null) {
+                $condition[] = [ "o.trade_type", "=", intval($trade_type) ];
+            }
 
             if (!empty($start_time) && empty($end_time)) {
                 $condition[] = [ "o.create_time", ">=", date_to_time($start_time) ];
@@ -108,6 +115,7 @@ class Order extends BaseSupply
 
             $order_type_list = $order_common_model->getOrderTypeStatusList();
             $this->assign("order_type_list", $order_type_list);
+            $this->assign("trade_type_list", OrderCreateModel::tradeTypeList());//交易类型
 
             return $this->fetch('order/lists');
         }

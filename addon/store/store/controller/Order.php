@@ -8,6 +8,7 @@ namespace addon\store\store\controller;
 use app\model\order\Order as OrderModel;
 use app\model\order\OrderCommon;
 use app\model\order\OrderCommon as OrderCommonModel;
+use app\model\order\OrderCreate as OrderCreateModel;
 use app\model\order\OrderExport;
 use app\model\order\StoreOrder;
 use app\model\system\Promotion as PromotionModel;
@@ -51,6 +52,7 @@ class Order extends BaseStore
         $order_label = !empty($order_label_list[ input("order_label") ]) ? input("order_label") : "";
         $search_text = input("search", '');
         $promotion_type = input("promotion_type", '');//营销类型
+        $trade_type = input('trade_type', '');//交易类型
         $order_common_model = new OrderCommonModel();
         if (request()->isAjax()) {
             $page_index = input('page', 1);
@@ -75,6 +77,11 @@ class Order extends BaseStore
             //订单支付
             if ($pay_type != "") {
                 $condition[] = [ "pay_type", "=", $pay_type ];
+            }
+            //交易类型 0到店自提 1到店消费 2预约到店 3快递邮寄 4外卖配送
+            //注意：0 是合法取值，必须用 !== '' 严格比较，否则会被当成空值跳过
+            if ($trade_type !== '' && $trade_type !== null) {
+                $condition[] = [ "trade_type", "=", intval($trade_type) ];
             }
 
             //营销类型
@@ -102,6 +109,7 @@ class Order extends BaseStore
             $order_model = new StoreOrder();
             $order_status_list = $order_model->order_status;
             $this->assign("order_status_list", $order_status_list);//订单状态
+            $this->assign("trade_type_list", OrderCreateModel::tradeTypeList());//交易类型
             //订单来源 (支持端口)
             $order_from = Config::get("app_type");
             $this->assign('order_from_list', $order_from);

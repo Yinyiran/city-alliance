@@ -169,6 +169,16 @@
                     </div>
                 </div>
                 <div class="layui-inline">
+                    <label class="layui-form-label">交易类型：</label>
+                    <div class="layui-input-inline">
+                        <select name="trade_type" lay-filter="trade_type">
+                            {foreach $trade_type_list as $tk => $tv}
+                            <option value="{$tk}">{$tv}</option>
+                            {/foreach}
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
                     <label class="layui-form-label">营销类型：</label>
                     <div class="layui-input-inline">
                         <select name="promotion_type" lay-filter="promotion_type">
@@ -417,7 +427,8 @@
             "pay_type": "",
             "search": "",
             "start_time": "",
-            "order_type": 'all',
+            "order_type" : 'all',
+            "trade_type" : "",
             "page": "",
             "goods_type": '-1',
 
@@ -618,7 +629,8 @@
             "pay_type": "",
             "search": "",
             "start_time": "",
-            "order_type": 'all',
+            "order_type" : 'all',
+            "trade_type" : "",
             "page": "",
             "region_id": "",
             "site_id": "",
