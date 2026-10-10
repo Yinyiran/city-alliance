@@ -100,6 +100,12 @@ class Ordercreate extends BaseApi
             'pay_type' => isset($this->params[ 'pay_type' ]) ? $this->params[ 'pay_type' ] : '1',//支付方式1现金支付，2积分支付
             'video_id' => isset($this->params[ 'video_id' ]) ? $this->params[ 'video_id' ] : 0,//短视频ID
 
+            //交易类型相关参数（与 create() 保持一致，否则积分支付下到店消费自定义金额、
+            //预约到店时段会被静默丢弃，导致 appointmentPrepare 报「请选择预约时间!��）
+            'custom_amount' => isset($this->params[ 'custom_amount' ]) ? $this->params[ 'custom_amount' ] : 0,
+            'appointment' => isset($this->params[ "appointment" ]) && !empty($this->params[ "appointment" ]) ? json_decode($this->params[ "appointment" ], true ) : [],
+            'pay_scene' => isset($this->params[ 'pay_scene' ]) ? $this->params[ 'pay_scene' ] : 0,
+
         ];
         if (empty($data[ 'cart_ids' ]) && empty($data[ 'sku_id' ])) {
             return $this->response($this->error('', '缺少必填参数商品数据'));
