@@ -1,5 +1,38 @@
 {extend name="app/admin/view/base.html"/}
 {block name="resources"}
+<style>
+	/* ==================== 商品列表列宽与换行优化 ==================== */
+	/* layui 表格单元格默认单行 + 固定行高，列宽按百分比分配时文字过长会溢出并与相邻列重合 */
+	.layui-table-view .layui-table th .layui-table-cell,
+	.layui-table-view .layui-table td .layui-table-cell {
+		height: auto;
+		min-height: 40px;
+		padding: 10px 8px;
+		line-height: 20px;
+		white-space: normal;
+		word-break: break-word;
+		overflow-wrap: anywhere;
+	}
+
+	.layui-table-view .layui-table th .layui-table-cell {
+		font-weight: 400;
+		text-align: center;
+	}
+
+	.layui-table-view .layui-table td .layui-table-cell .ns-table-btn a.layui-btn {
+		margin: 2px 4px 2px 0;
+	}
+
+	.ns-trade-type {
+		display: inline-block;
+		max-width: 100%;
+		padding: 0 6px;
+		border-radius: 2px;
+		background: #eef4fb;
+		color: #4a6b8a;
+		line-height: 20px;
+	}
+</style>
 {/block}
 {block name="main"}
 
@@ -109,6 +142,15 @@
 
 {block name="script"}
 <script>
+	/**
+	 * 交易类型名称：0到店自提 1到店消费 2预约到店 3快递邮寄 4外卖配送
+	 */
+	function ns_trade_type_text(trade_type) {
+		var map = ['到店自提', '到店消费', '预约到店', '快递邮寄', '外卖配送'];
+		var index = parseInt(trade_type, 10);
+		return map[index] || map[0];
+	}
+
 	layui.use(['form', 'laydate'], function() {
 		var table,
 			form = layui.form,
@@ -139,7 +181,16 @@
 					field: 'site_name',
 					title: '店铺名称',
 					unresize: 'false',
-					width:'15%'
+					width:'13%'
+				}, {
+					field: 'trade_type',
+					title: '交易类型',
+					unresize: 'false',
+					align: 'center',
+					width:'6%',
+					templet: function(data) {
+						return '<span class="ns-trade-type" title="' + ns_trade_type_text(data.trade_type) + '">' + ns_trade_type_text(data.trade_type) + '</span>';
+					}
 				}, {
 					field: 'price',
 					title: '价格',
@@ -151,21 +202,21 @@
 					}
 				}, {
 					unresize: 'false',
-					width:'5%'
+					width:'4%'
 				}, {
 					field: 'goods_stock',
 					title: '库存',
 					unresize: 'false',
-					width:'10%'
+					width:'9%'
 				},{
 					field: 'sale_num',
 					title: '销量',
 					unresize: 'false',
-					width:'10%'
+					width:'8%'
 				}, {
                     title: '是否参与',
                     unresize: 'false',
-                    width:'10%',
+                    width:'9%',
                     templet: function(data) {
                         if(data.is_fenxiao == 0){
 							return '不参与';
@@ -176,7 +227,7 @@
                 }, {
 					title: '分销规则',
 					unresize: 'false',
-					width:'10%',
+					width:'9%',
 					templet: function(data) {
 						if(data.fenxiao_type == 1){
 							return '默认规则';
@@ -188,7 +239,7 @@
 					title: '操作',
 					toolbar: '#action',
 					unresize: 'false',
-					width:'10%'
+					width:'12%'
 				}]
 			]
 		});

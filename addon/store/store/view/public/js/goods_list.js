@@ -98,6 +98,35 @@ function cancelLayer() {
 }
 
 /**
+ * 交易类型名称：0到店自提 1到店消费 2预约到店 3快递邮寄 4外卖配送
+ * @param trade_type
+ * @returns {string}
+ */
+function tradeTypeText(trade_type) {
+	var map = ['到店自提', '到店消费', '预约到店', '快递邮寄', '外卖配送'];
+	var index = parseInt(trade_type, 10);
+	return map[index] || map[0];
+}
+
+/**
+ * 交易类型列（商品列表通用）
+ * @param width 列宽百分比
+ */
+function tradeTypeColumn(width) {
+	return {
+		field: 'trade_type',
+		title: '交易类型',
+		unresize: 'false',
+		width: width || '6%',
+		align: 'center',
+		templet: function (data) {
+			var text = tradeTypeText(data.trade_type);
+			return '<span class="ns-trade-type" title="' + text + '">' + text + '</span>';
+		}
+	};
+}
+
+/**
  * 刷新表格列表
  * @param status 状态：0 在售
  */
@@ -111,7 +140,10 @@ function refreshTable() {
 				unresize: 'false',
 				width: '25%',
 				templet: '#goods_info'
-			}, {
+			},
+			// 交易类型
+			tradeTypeColumn('6%'),
+			{
 				field: 'price',
 				title: '<span style="padding-right: 15px;">价格(元)</span>',
 				unresize: 'false',
@@ -160,7 +192,7 @@ function refreshTable() {
 				title: '操作',
 				toolbar: '#action',
 				unresize: 'false',
-				width: '15%'
+				width: '12%'
 			}]
 		],
 		where: {

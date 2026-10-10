@@ -128,3 +128,36 @@
 .js-goods-shop-category .item{position:relative}
 .js-goods-shop-category .item .layui-icon-close{font-size:12px;position:absolute;top:-8px;right:-8px;width:16px;height:16px;line-height:16px;text-align:center;color:#fff;-webkit-border-radius:10px;-moz-border-radius:10px;border-radius:10px;background:rgba(0,0,0,.3);cursor:pointer}
 .js-supplier .layui-unselect.layui-form-select{display:none}
+
+/* ==================== 商品列表列宽与换行优化 ==================== */
+/* 说明：layui 表格单元格默认为单行（white-space:nowrap）+ 固定行高，列宽按百分比分配时
+/*       文字过长会溢出单元格，与相邻列文字重合；此处统一改为按内容自动换行、行高自适应。*/
+.layui-table-view .layui-table th .layui-table-cell,
+.layui-table-view .layui-table td .layui-table-cell {
+	height: auto;
+	min-height: 40px;
+	padding: 10px 8px;
+	line-height: 20px;
+	white-space: normal;
+	word-break: break-word;
+	overflow-wrap: anywhere;
+}
+/* 表头保持单行居中，避免列名换行后过高 */
+.layui-table-view .layui-table th .layui-table-cell {
+	font-weight: 400;
+	text-align: center;
+}
+/* 操作列按钮换行排列，避免按钮相互压盖 */
+.layui-table-view .layui-table td .layui-table-cell .ns-table-btn a.layui-btn {
+	margin: 2px 4px 2px 0;
+}
+/* 交易类型标签 */
+.ns-trade-type {
+	display: inline-block;
+	max-width: 100%;
+	padding: 0 6px;
+	border-radius: 2px;
+	background: #eef4fb;
+	color: #4a6b8a;
+	line-height: 20px;
+}

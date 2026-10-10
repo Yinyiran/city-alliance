@@ -180,6 +180,35 @@ $(function () {
 });
 
 /**
+ * 交易类型名称：0到店自提 1到店消费 2预约到店 3快递邮寄 4外卖配送
+ * @param trade_type
+ * @returns {string}
+ */
+function tradeTypeText(trade_type) {
+    var map = ['到店自提', '到店消费', '预约到店', '快递邮寄', '外卖配送'];
+    var index = parseInt(trade_type, 10);
+    return map[index] || map[0];
+}
+
+/**
+ * 交易类型列（商品列表通用）
+ * @param width 列宽百分比
+ */
+function tradeTypeColumn(width) {
+    return {
+        field: 'trade_type',
+        title: '交易类型',
+        unresize: 'false',
+        width: width || '6%',
+        align: 'center',
+        templet: function (data) {
+            var text = tradeTypeText(data.trade_type);
+            return '<span class="ns-trade-type" title="' + text + '">' + text + '</span>';
+        }
+    };
+}
+
+/**
  * 刷新表格列表
  * @param status 状态：0 全部，1 销售中、仓库中，2 待审核，3 审核失败、违规下架
  */
@@ -194,7 +223,7 @@ function refreshTable(status) {
         }, {
             title: '商品信息',
             unresize: 'false',
-            width: '25%',
+            width: '22%',
             templet: '#goods_info'
         }, {
             field: 'site_name',
@@ -204,9 +233,12 @@ function refreshTable(status) {
             templet: function (data) {
                 return '<span title="' + data.site_name + '">' + data.site_name + '</span>';
             }
-        }, {
+        },
+        // 交易类型
+        tradeTypeColumn('6%'),
+        {
             field: 'price',
-            title: '<span style="padding-right: 15px;padding-top:10px;" class="ns-line-hiding" title="价格">价格</span>',
+            title: '价格',
             align: 'center',
             unresize: 'false',
             width: '9%',
@@ -263,7 +295,7 @@ function refreshTable(status) {
         }, {
             title: '创建时间',
             unresize: 'false',
-            width: '12%',
+            width: '9%',
             templet: function (data) {
                 return '<span title="' + ns.time_to_date(data.create_time) + '">' + ns.time_to_date(data.create_time) + '</span>';
             }
@@ -284,18 +316,21 @@ function refreshTable(status) {
             }, {
                 title: '商品信息',
                 unresize: 'false',
-                width: '25%',
+                width: '22%',
                 templet: '#goods_info'
             }, {
                 field: 'site_name',
                 title: '供应商名称',
                 unresize: 'false',
-                width: '10%',
-            }, {
+                width: '9%',
+            },
+            // 交易类型
+            tradeTypeColumn('6%'),
+            {
                 field: 'price',
                 title: '价格(元)',
                 unresize: 'false',
-                width: '12%',
+                width: '11%',
                 templet: function (data) {
 
                     if (data.min_price == data.max_price) {
@@ -309,12 +344,12 @@ function refreshTable(status) {
                 field: 'goods_stock',
                 title: '库存',
                 unresize: 'false',
-                width: '10%'
+                width: '9%'
             }, {
                 field: 'sale_num',
                 title: '销量',
                 unresize: 'false',
-                width: '8%'
+                width: '7%'
             }, {
                 title: '商品状态',
                 unresize: 'false',
@@ -331,12 +366,11 @@ function refreshTable(status) {
             }, {
                 title: '创建时间',
                 unresize: 'false',
-                width: '12%',
+                width: '13%',
                 templet: function (data) {
                     return ns.time_to_date(data.create_time);
                 }
             }, {
-                title: '操作',
                 title: '操作',
                 toolbar: '#operation',
                 unresize: 'false',
@@ -355,14 +389,17 @@ function refreshTable(status) {
             }, {
                 title: '商品信息',
                 unresize: 'false',
-                width: '37%',
+                width: '32%',
                 templet: '#goods_info'
             }, {
                 field: 'site_name',
                 title: '供应商名称',
                 unresize: 'false',
-                width: '25%',
-            }, {
+                width: '20%',
+            },
+            // 交易类型
+            tradeTypeColumn('6%'),
+            {
                 title: '审核状态',
                 unresize: 'false',
                 width: '10%',
@@ -391,7 +428,7 @@ function refreshTable(status) {
             }, {
                 title: '原因',
                 unresize: 'false',
-                width: '10%',
+                width: '14%',
                 templet: function (data) {
                     var str = '';
                     if (data.verify_state == 10) {

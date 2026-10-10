@@ -662,8 +662,25 @@ class Goods extends BaseModel
      */
     public function getGoodsPageList($condition = [], $page = 1, $page_size = PAGE_LIST_ROWS, $order = 'create_time desc', $field = 'goods_id,goods_name,site_name,site_id,goods_image,is_own,goods_state,verify_state,goods_stock,create_time,sale_num,is_virtual,goods_class,is_fenxiao,fenxiao_type,sku_id, min_price,max_price,min_num')
     {
+        //交易类型字段需执行 db/update_supply_goods_trade_type_*.sql 后存在，兼容字段缺失场景
+        if ($this->hasTradeTypeField()) {
+            $field .= ',trade_type';
+        }
         $list = model('supply_goods')->pageList($condition, $field, $order, $page, $page_size);
         return $this->success($list);
+    }
+
+    /**
+     * supply_goods 表是否存在 trade_type 字段（结果静态缓存）
+     * @return bool
+     */
+    private function hasTradeTypeField()
+    {
+        static $exists = null;
+        if ($exists === null) {
+            $exists = in_array('trade_type', model('supply_goods')->getFields(), true);
+        }
+        return $exists;
     }
 
 

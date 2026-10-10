@@ -427,6 +427,35 @@ $(function () {
 });
 
 /**
+ * 交易类型名称：0到店自提 1到店消费 2预约到店 3快递邮寄 4外卖配送
+ * @param trade_type
+ * @returns {string}
+ */
+function tradeTypeText(trade_type) {
+	var map = ['到店自提', '到店消费', '预约到店', '快递邮寄', '外卖配送'];
+	var index = parseInt(trade_type, 10);
+	return map[index] || map[0];
+}
+
+/**
+ * 交易类型列（商品列表通用）
+ * @param width 列宽百分比
+ */
+function tradeTypeColumn(width) {
+	return {
+		field: 'trade_type',
+		title: '交易类型',
+		unresize: 'false',
+		width: width || '6%',
+		align: 'center',
+		templet: function (data) {
+			var text = tradeTypeText(data.trade_type);
+			return '<span class="ns-trade-type" title="' + text + '">' + text + '</span>';
+		}
+	};
+}
+
+/**
  * 刷新表格列表
  * @param status 状态：0 在售，1 审核违规
  */
@@ -442,11 +471,14 @@ function refreshTable(status) {
 			unresize: 'false',
 			width: '22%',
 			templet: '#goods_info'
-		}, {
+		},
+		// 交易类型
+		tradeTypeColumn('6%'),
+		{
 			field: 'price',
 			title: '<span style="padding-right: 15px;">价格(元)</span>',
 			unresize: 'false',
-			width: '8%',
+			width: '9%',
 			align: 'right',
 			templet: function (data) {
 				return '<span style="padding-right: 15px;">￥' + data.price + '</span>';
@@ -455,18 +487,18 @@ function refreshTable(status) {
 			field: 'goods_stock',
 			title: '库存',
 			unresize: 'false',
-			width: '10%',
+			width: '9%',
 			sort:true
 		}, {
 			field: 'sale_num',
 			title: '销量',
 			unresize: 'false',
-			width: '10%',
+			width: '9%',
 			sort:true
 		}, {
 			title: '商品状态',
 			unresize: 'false',
-			width: '15%',
+			width: '14%',
 			templet: function (data) {
 				var str = '';
 				if (data.goods_state == 1 && data.verify_state == 1) {
@@ -486,7 +518,7 @@ function refreshTable(status) {
 		}, {
 			title: '创建时间',
 			unresize: 'false',
-			width: '17%',
+			width: '16%',
 			templet: function (data) {
 				return ns.time_to_date(data.create_time);
 			}
@@ -494,7 +526,7 @@ function refreshTable(status) {
 			title: '操作',
 			toolbar: '#action',
 			unresize: 'false',
-			width: '15%'
+			width: '12%'
 		}]
 	];
 	if (status === 1) {
@@ -506,12 +538,15 @@ function refreshTable(status) {
 			}, {
 				title: '商品信息',
 				unresize: 'false',
-				width: '22%',
+				width: '26%',
 				templet: '#goods_info'
-			}, {
+			},
+			// 交易类型
+			tradeTypeColumn('6%'),
+			{
 				title: '审核状态',
 				unresize: 'false',
-				width: '15%',
+				width: '20%',
 				templet: function (data) {
 					var str = '';
 					if (data.verify_state == 1) {
@@ -531,7 +566,7 @@ function refreshTable(status) {
 			}, {
 				title: '创建时间',
 				unresize: 'false',
-				width: '25%',
+				width: '30%',
 				templet: function (data) {
 					return ns.time_to_date(data.create_time);
 				}
