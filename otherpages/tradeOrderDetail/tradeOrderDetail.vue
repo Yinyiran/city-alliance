@@ -4,6 +4,7 @@
 		<view class="status-card" :class="statusClass">
 			<view class="acea-row row-middle">
 				<text class="biz-tag" :class="'biz-' + info.biz_type">{{ bizName(info.biz_type) }}</text>
+				<text class="biz-tag biz-trade" v-if="info.trade_type_name">{{ info.trade_type_name }}</text>
 				<text class="status-text">{{ info.trade_status_name }}</text>
 			</view>
 			<view class="status-desc">{{ statusDesc }}</view>
@@ -535,6 +536,12 @@
 			&.biz-store {
 				background: #FFF7EE;
 				color: #FE780F;
+			}
+
+			/* 交易类型标签：与配送链路标签区分，避免「到店核销」掩盖具体交易类型 */
+			&.biz-trade {
+				background: #F0F9F0;
+				color: #2E8B57;
 			}
 
 			&.biz-local {

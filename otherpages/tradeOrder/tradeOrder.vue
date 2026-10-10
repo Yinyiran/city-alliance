@@ -33,9 +33,10 @@
 				<view class="order-head acea-row row-middle row-between" @click="goDetail(item.order_id)">
 					<view class="acea-row row-middle">
 						<text class="biz-tag" :class="'biz-' + item.biz_type">{{ bizName(item.biz_type) }}</text>
+						<text class="biz-tag biz-trade" v-if="item.trade_type_name">{{ item.trade_type_name }}</text>
 						<text class="order-no">No.{{ item.order_no }}</text>
 					</view>
-					<text class="status" :class="{ 'status-done': item.order_status == 4 || item.order_status == 10 }">
+					<text class="status" :class="{ 'status-done': isFinished(item) }">
 						{{ item.trade_status_name }}
 					</text>
 				</view>
@@ -280,6 +281,17 @@
 			}
 		},
 		methods: {
+			//订单是否已结束（用于列表置灰）。
+			//order_status=10 恒为已完成；=4 时外卖配送(order_type=3)表示「已送达」仍在进行中，
+			//只有快递(1)与到店核销(2)的 4 才表示已收货完成。
+			//原判断写作 order_status == 4 || == 10，会把外卖已送达单误显示为已完成。
+			isFinished(item) {
+				const ot = Number(item.order_type || 1);
+				const os = Number(item.order_status);
+				if (os === 10) return true;
+				if (os === 4 && ot !== 3) return true;
+				return false;
+			},
 			bizName(biz) {
 				const map = {
 					express: '快递邮寄',
@@ -613,6 +625,13 @@
 						background: #FFF7EE;
 						color: #FE780F;
 					}
+
+					/* 交易类型标签：与配送链路标签区分，避免「到店核销」掩盖具体交易类型 */
+					&.biz-trade {
+						background: #F0F9F0;
+						color: #2E8B57;
+					}
+
 
 					&.biz-local {
 						background: #FFF0E5;
