@@ -60,6 +60,7 @@
 					<view class="btn1" v-if="item.trade_type==2 && item.appointment_status==1" @click="cancelAppointment(item)">取消预约</view>
 					<view class="btn3" v-if="item.order_status==1" @click="goRefund(item)">申请退款</view>
 					<view class="btn5" v-if="isVerifyOrder(item)" @click="goDetail(item)">去核销</view>
+					<view class="btn3" v-if="canConfirmReceipt(item)" @click="confirmReceipt(item)">确认收货</view>
 					<view class="btn1" v-if="item.order_status==2" @click="goRefund(item)">申请售后</view>
 					<view class="btn4" v-if="item.order_status==10" @click="againBuy(item)">再次购买</view>
 				</view>
@@ -73,7 +74,7 @@
 </template>
 
 <script>
-	import {orderlist,orderClose,cancelAppointment,huifupay} from "@/common/js/api.js"
+	import {orderlist,orderClose,cancelAppointment,huifupay,orderTakeDelivery} from "@/common/js/api.js"
 	export default {
 		data() {
 			return {
@@ -125,17 +126,48 @@
 			//按交易类型显示状态文案
 			statusText(item){
 				const t = Number(item.trade_type||0);
-				if(item.order_status === 2) return '待核销';
-				if(t === 2 && item.appointment_status === 1 && item.order_status !== 2) return '待到店';
+				//order_status=2「待核销」仅为到店扫码核销类的中间态
+				if(item.order_status === 2) return [0,1,2].includes(t) ? '待核销' : (item.order_status_name || '待收货');
+				if(t === 2 && item.appointment_status === 1) return '待到店';
 				if(t === 1 && item.order_status === 1) return '待到店消费';
-				if(t === 3 && item.order_status === 1) return '待自提';
-				if(t === 4 && item.order_status === 1) return '待发货';
+				if(t === 0 && item.order_status === 1) return '待自提';
+				if(t === 0 && item.order_status === 3) return '待收货';
+				if(t === 3 && item.order_status === 1) return '待发货';
+				if(t === 3 && item.order_status === 3) return '待收货';
+				if(t === 4 && item.order_status === 1) return '配送中';
+				if(t === 4 && item.order_status === 3) return '待收货';
 				return item.order_status_name;
 			},
-			//是否可核销（到店类且未核销）
+			//是否可核销（到店自提/到店消费/预约到店且未核销）
 			isVerifyOrder(item){
 				const t = Number(item.trade_type||0);
-				return [1,2,3].includes(t) && item.delivery_status != 1 && item.order_status != 0 && item.order_status != -1;
+				return [0,1,2].includes(t) && item.delivery_status != 1 && item.order_status != 0 && item.order_status != -1;
+			},
+			//是否可确认收货（快递邮寄/外卖配送已发货后；到店自提走快递发货时同样适用）
+			canConfirmReceipt(item){
+				const t = Number(item.trade_type||0);
+				if(item.order_status !== 3) return false;
+				//到店消费/预约到店由核销码完成，无需确认收货
+				if(t === 1 || t === 2) return false;
+				return true;
+			},
+			//确认收货
+			confirmReceipt(item){
+				uni.showModal({
+					title: '确认收货',
+					content: '确认已收到商品？',
+					success: (r) => {
+						if(!r.confirm) return;
+						orderTakeDelivery({ order_id: item.order_id }).then(res => {
+							if(res.code == 0){
+								uni.showToast({ title: '已确认收货' });
+								this.getlist();
+							}else{
+								uni.showToast({ title: res.message || '操作失败', icon: 'none' });
+							}
+						});
+					}
+				});
 			},
 			goDetail(item){
 				this.$util.redirectTo('/otherpages/orderDetail/orderDetail',{id:item.order_id});

@@ -195,6 +195,10 @@ export const getVerifyCode=params=>server('/api/order/verifyCode',params)
 export const slotList=params=>server('/api/ordercreate/slotList',params)
 //取消预约
 export const cancelAppointment=params=>server('/api/order/cancelAppointment',params)
+//确认收货（快递邮寄/外卖配送）
+export const orderTakeDelivery=params=>server('/api/order/takeDelivery',params)
+//延长收货时间
+export const orderExtendTakeDelivery=params=>server('/api/order/extendtakedelivery',params)
 //门店收银台收款码
 export const cashierCode=params=>server('/api/pay/cashierCode',params)
 //商家商品分类列表

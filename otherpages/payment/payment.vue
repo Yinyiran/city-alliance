@@ -1,6 +1,6 @@
 ﻿<template>
 	<view>
-		<view class="address p-32 bor-24" v-if="info1.goodstype==3">
+		<view class="address p-32 bor-24" v-if="needAddress">
 			<view class="acea-row row-middle row-between">
 				<view class="">我的收获地址</view>
 				<view class="acea-row row-middle" @click="$util.redirectTo('/otherpages/address/address')">
@@ -78,6 +78,22 @@
 					<view class="font-26 font-weight-6" v-if="check==1">{{orderinfo.pay_point}}积分</view>
 					<view class="font-26 font-weight-6" v-else>¥{{orderinfo.pay_money}}</view>
 				</view>
+				<view class="acea-row row-middle row-between" v-if="check==0 && Number(orderinfo.delivery_money)>0">
+					<view class="font-26">运费</view>
+					<view class="font-26 font-weight-6">¥{{orderinfo.delivery_money}}</view>
+				</view>
+				<view class="acea-row row-middle row-between" v-if="check==0 && Number(orderinfo.promotion_money)>0">
+					<view class="font-26">优惠金额</view>
+					<view class="font-26 font-weight-6" style="color:#ff4d4f;">-¥{{orderinfo.promotion_money}}</view>
+				</view>
+				<view class="acea-row row-middle row-between" v-if="check==0 && Number(orderinfo.coupon_money)>0">
+					<view class="font-26">优惠券</view>
+					<view class="font-26 font-weight-6" style="color:#ff4d4f;">-¥{{orderinfo.coupon_money}}</view>
+				</view>
+				<view class="acea-row row-middle row-between" v-if="deliveryTypeName">
+					<view class="font-26">配送方式</view>
+					<view class="font-26 font-weight-6">{{deliveryTypeName}}</view>
+				</view>
 				<view class="acea-row row-middle row-between" v-if="check==1">
 					<view class="font-26">可用积分</view>
 					<view class="font-26 font-weight-6">{{orderinfo.member_account.point}}积分</view>
@@ -112,6 +128,21 @@
 			</view>
 		</view>
 
+		<!-- 到店核销类（到店自提/到店消费/预约到店）：核销门店 -->
+		<view class="infos1" v-if="isStoreTrade">
+			<view class="acea-row row-middle row-between m-b-16">
+				<view class="font-32 font-weight-4">{{storeTitle}}</view>
+				<view class="font-24" style="color:#999;">到店出示核销码核销</view>
+			</view>
+			<view class="store-item" v-for="(s,idx) in storeList" :key="s.store_id" :class="{active: idx==storeIndex}" @click="selectStore(idx)">
+				<view class="store-name">{{s.store_name}}</view>
+				<view class="store-addr">{{s.address||s.full_address||''}}</view>
+				<view class="store-check" v-if="idx==storeIndex">✓</view>
+			</view>
+			<view class="font-24" style="color:#999;" v-if="!storeList.length">该商品暂无可用门店</view>
+			<view class="font-24" style="color:#999;" v-else-if="tradeType==0">选择门店后按门店自提配送，未选择则默认快递配送</view>
+		</view>
+
 		<!-- 到店消费：自定义金额 -->
 		<view class="infos1" v-if="tradeType==1">
 			<view class="acea-row row-middle row-between m-b-16">
@@ -139,13 +170,6 @@
 				</view>
 			</scroll-view>
 			<view class="font-24" style="color:#999;" v-else>该商品暂无可预约日期</view>
-
-			<view class="font-28 m-t-20 m-b-12" v-if="dateList.length">到店门店</view>
-			<view class="store-item" v-for="(s,idx) in storeList" :key="s.store_id" :class="{active: idx==storeIndex}" @click="selectStore(idx)">
-				<view class="store-name">{{s.store_name}}</view>
-				<view class="store-addr">{{s.address||''}}</view>
-				<view class="store-check" v-if="idx==storeIndex">✓</view>
-			</view>
 
 			<view class="font-28 m-t-20 m-b-12" v-if="slotList.length">选择时段</view>
 			<view class="slot-wrap" v-if="slotList.length">
@@ -223,24 +247,64 @@
 				this.check = 1
 			}
 			this.tradeType = Number(this.info1.trade_type || 0);
-			this.initTradeInfo();
 		},
 		async onShow() {
 			await this.payment()
+			//结算数据就绪后再按交易类型拉取门店/预约/自定义金额配置
+			await this.initTradeInfo()
 			await this.ordercalculate()
+		},
+		computed: {
+			//是否到店扫码核销类（到店自提/到店消费/预约到店）
+			isStoreTrade() {
+				return [0, 1, 2].includes(this.tradeType);
+			},
+			//是否需要收货地址：快递邮寄必须填收货地址；到店类选择了核销门店则不需要
+			needAddress() {
+				if (this.tradeType === 3) return true;
+				if (this.isStoreTrade && this.storeList.length && this.storeIndex >= 0) return false;
+				return this.info1.goodstype == 3;
+			},
+			//核销门店区块标题
+			storeTitle() {
+				if (this.tradeType === 2) return '到店门店';
+				if (this.tradeType === 1) return '消费门店';
+				return '自提门店';
+			},
+			//配送方式展示文案
+			deliveryTypeName() {
+				if (this.tradeType === 3) return '快递邮寄';
+				if (this.tradeType === 4) return '同城配送';
+				if (this.tradeType === 1 || this.tradeType === 2) return '到店核销';
+				if (this.tradeType === 0) {
+					if (this.storeList.length) return '门店自提';
+					return '快递邮寄';
+				}
+				return '';
+			}
 		},
 		methods: {
 			//初始化交易类型相关信息
 			async initTradeInfo() {
-				if (!this.tradeType) return;
-				const goods_id = this.info1.goods_id || 0;
-				const sku_id = this.info1.sku_id || 0;
+				//0-到店自提也是有效交易类型，不能按 falsy 提前返回
+				if (![0, 1, 2, 3, 4].includes(this.tradeType)) return;
+				//购物车结算链路 info1 无 sku_id，回退取结算商品列表首个规格
+				let goods_id = this.info1.goods_id || 0;
+				let sku_id = this.info1.sku_id || 0;
+				if (!sku_id) {
+					const firstShop = (this.orderinfo.shop_goods_list || [])[0];
+					const firstGoods = firstShop && firstShop.goods_list && firstShop.goods_list[0];
+					if (firstGoods) {
+						sku_id = firstGoods.sku_id || 0;
+						goods_id = firstGoods.goods_id || goods_id;
+					}
+				}
 				//自定义金额配置
 				if (this.tradeType === 1) {
 					await this.loadGoodsTrade(goods_id, sku_id);
 				}
-				//到店门店
-				if (this.tradeType === 1 || this.tradeType === 2 || this.tradeType === 3) {
+				//到店门店（到店自提/到店消费/预约到店均需到店扫码核销）
+				if ([0, 1, 2].includes(this.tradeType)) {
 					await this.loadStoreList(goods_id, sku_id);
 				}
 				//预约日期与时段
@@ -373,6 +437,8 @@
 					cart_ids: this.info1.cart_ids,
 					video_id:this.info1.video_id||''
 				}
+				//交易类型参数（到店类门店核销 / 快递邮寄 / 自定义金额 / 预约）
+				this.fillTradeParams(params);
 				pointcreate(params).then(res => {
 					if (res.code == 0) {
 						uni.showToast({
@@ -452,18 +518,37 @@
 			},
 			//填充交易类型相关参数
 			fillTradeParams(params) {
-				if (!this.tradeType) return;
+				if (![0, 1, 2, 3, 4].includes(this.tradeType)) return;
 				const store = this.storeList[this.storeIndex];
-				if (store) {
-					//强制到店/外卖配送方式
-					const delivery_type = this.tradeType === 4 ? 'local' : 'store';
-					const site_id = this.orderinfo.site_id || (this.info1.site_id || 0);
-					const key = site_id;
-					const deliveryObj = this.orderinfo.delivery || {};
-					const cur = deliveryObj[key] || {};
-					cur.delivery_type = delivery_type;
+				const site_id = this.orderinfo.site_id || (this.info1.site_id || 0);
+				const deliveryObj = this.orderinfo.delivery || {};
+				const cur = deliveryObj[site_id] || {};
+
+				//到店消费(1)/预约到店(2)强制门店核销配送；快递邮寄(3)强制物流；外卖配送(4)强制同城
+				//到店自提(0)不强制：选了核销门店走门店自提，未选则沿用默认快递配送
+				if (this.tradeType === 1 || this.tradeType === 2) {
+					cur.delivery_type = 'store';
+					if (store) cur.store_id = store.store_id;
+					deliveryObj[site_id] = cur;
+					this.orderinfo.delivery = deliveryObj;
+					params.delivery = JSON.stringify(deliveryObj);
+				} else if (this.tradeType === 3) {
+					cur.delivery_type = 'express';
+					delete cur.store_id;
+					deliveryObj[site_id] = cur;
+					this.orderinfo.delivery = deliveryObj;
+					params.delivery = JSON.stringify(deliveryObj);
+				} else if (this.tradeType === 4) {
+					cur.delivery_type = 'local';
+					if (store) cur.store_id = store.store_id;
+					deliveryObj[site_id] = cur;
+					this.orderinfo.delivery = deliveryObj;
+					params.delivery = JSON.stringify(deliveryObj);
+				} else if (this.tradeType === 0 && store) {
+					//到店自提：仅在用户主动选择核销门店时改为门店自提配送
+					cur.delivery_type = 'store';
 					cur.store_id = store.store_id;
-					deliveryObj[key] = cur;
+					deliveryObj[site_id] = cur;
 					this.orderinfo.delivery = deliveryObj;
 					params.delivery = JSON.stringify(deliveryObj);
 				}

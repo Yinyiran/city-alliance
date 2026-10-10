@@ -117,10 +117,18 @@
 			settlement() {
 				if (this.totalCount > 0) {
 					let cart_ids = [];
+					//记录已选商品中最大的交易类型与对应门店，供确认订单页沿用交易类型上下文
+					let maxTradeType = 0;
+					let storeId = 0;
 					this.cartData.forEach(siteItem => {
 						siteItem.cartList.forEach(item => {
 							if (item.checked) {
 								cart_ids.push(item.cart_id);
+								const t = Number(item.trade_type || 0);
+								if (t > maxTradeType) {
+									maxTradeType = t;
+									storeId = Number(item.store_id || 0);
+								}
 							}
 						});
 					});
@@ -132,7 +140,9 @@
 						key: 'orderCreateData',
 						data: {
 							cart_ids: cart_ids.toString(),
-							goodstype:this.type+1
+							goodstype:this.type+1,
+							trade_type: maxTradeType,
+							store_id: storeId
 						},
 						success: () => {
 							this.$util.redirectTo('/otherpages/payment/payment');

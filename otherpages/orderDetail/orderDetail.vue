@@ -17,12 +17,26 @@
 			</view>
 			<view class="m-t-12" style="color: #999;">{{statusDesc}}</view>
 		</view>
-		<view class="acea-row row-middle row-center row-column status status-pending" v-else-if="info.order_status==2">
+		<view class="acea-row row-middle row-center row-column status status-pending" v-else-if="info.order_status==2 && isStoreTrade">
 			<view class="acea-row row-middle" style="color: #FE780F;">
 				<uv-icon name="scan" size="20" color="#FE780F"></uv-icon>
 				<text class="m-l-8">待核销</text>
 			</view>
 			<view class="m-t-12" style="color: #999;">请向商家出示下方核销码进行提货核销</view>
+		</view>
+		<view class="acea-row row-middle row-center row-column status status1" v-else-if="info.order_status==2">
+			<view class="acea-row row-middle">
+				<image src="/otherpages/static/pay1.png" class="w-36 h-36 m-r-12" mode=""></image>
+				{{statusTitle}}
+			</view>
+			<view class="m-t-12" style="color: #999;">{{statusDesc}}</view>
+		</view>
+		<view class="acea-row row-middle row-center row-column status status1" v-else-if="info.order_status==3">
+			<view class="acea-row row-middle">
+				<image src="/otherpages/static/pay1.png" class="w-36 h-36 m-r-12" mode=""></image>
+				{{statusTitle}}
+			</view>
+			<view class="m-t-12" style="color: #999;">{{statusDesc}}</view>
 		</view>
 		<view class="acea-row row-middle row-center row-column status status-verified" v-else-if="isOrderVerified">
 			<view class="acea-row row-middle" style="color: #25B85B;">
@@ -54,6 +68,28 @@
 				<view class="appt-row" v-if="info.appointment_user"><text class="k">联系人</text><text class="v">{{info.appointment_user}} {{info.appointment_mobile}}</text></view>
 				<view class="appt-row" v-if="info.appointment_remark"><text class="k">备注</text><text class="v">{{info.appointment_remark}}</text></view>
 				<view class="appt-tip">迟到可正常履约；超时未支付名额将自动释放</view>
+			</view>
+		</view>
+
+		<!-- 快递物流卡片：快递邮寄(3) 及走快递发货的到店自提(0) -->
+		<view class="verify-card appt-card" v-if="expressList.length">
+			<view class="verify-header acea-row row-middle row-between">
+				<view class="acea-row row-middle">
+					<uv-icon name="car" size="16" color="#4a6b8a"></uv-icon>
+					<text class="verify-title m-l-8">快递物流</text>
+				</view>
+				<view class="verify-badge">{{ info.delivery_type_name || '快递邮寄' }}</view>
+			</view>
+			<view class="appt-body">
+				<view class="appt-row" v-for="(g,idx) in expressList" :key="idx">
+					<text class="k">{{ g.sku_name }}</text>
+					<text class="v" v-if="g.delivery_no">单号 {{ g.delivery_no }}</text>
+					<text class="v" v-else style="color:#999;">待商家发货</text>
+				</view>
+				<view class="appt-row" v-if="!hasExpressNo">
+					<text class="k">物流状态</text>
+					<text class="v" style="color:#999;">商家发货后可查看快递单号</text>
+				</view>
 			</view>
 		</view>
 
@@ -228,6 +264,12 @@
 				<view class="btn2" v-if="info.trade_type!=2" @click="goRefund">申请退款</view>
 			</view>
 		</view>
+		<view class="btms iphone-x" v-else-if="canConfirmReceipt">
+			<view class="acea-row row-middle row-right">
+				<view class="btn2" @click="goRefund">申请退款</view>
+				<view class="btn1" @click="doConfirmReceipt">确认收货</view>
+			</view>
+		</view>
 	</view>
 </template>
 
@@ -237,7 +279,8 @@
 		huifupay,
 		getVerifyCode,
 		cancelAppointment,
-		orderClose as closeOrderApi
+		orderClose as closeOrderApi,
+		orderTakeDelivery
 	} from '@/common/js/api.js';
 	export default {
 		data() {
@@ -259,35 +302,58 @@
 			}
 		},
 		computed: {
+			//是否到店扫码核销类（到店自提/到店消费/预约到店）
+			isStoreTrade() {
+				return [0, 1, 2].includes(Number(this.info.trade_type || 0));
+			},
+			//走快递物流的商品项（快递邮寄(3)，或到店自提(0)但配送方式为快递）
+			expressList() {
+				const t = Number(this.info.trade_type || 0);
+				if (!this.info.order_goods || !this.info.order_goods.length) return [];
+				const isExpressOrder = t === 3 || (t === 0 && this.info.delivery_type === 'express');
+				if (!isExpressOrder) return [];
+				return this.info.order_goods;
+			},
+			hasExpressNo() {
+				return this.expressList.some(g => !!g.delivery_no);
+			},
+			//是否可确认收货（快递/外卖已发货；到店消费与预约到店由核销码完成）
+			canConfirmReceipt() {
+				if (this.info.order_status != 3) return false;
+				const t = Number(this.info.trade_type || 0);
+				return !(t === 1 || t === 2);
+			},
 			//已支付状态标题（按交易类型）
 			statusTitle() {
 				const t = Number(this.info.trade_type || 0);
-				const map = { 0: '已支付', 1: '待到店消费', 2: '已预约', 3: '待自提', 4: '待发货' };
+				const s = Number(this.info.order_status || 0);
+				if (s === 3) return '已发货';
+				const map = { 0: '待自提', 1: '待到店消费', 2: '已预约', 3: '待发货', 4: '配送中' };
 				return map[t] || '已支付';
 			},
 			//已支付状态说明
 			statusDesc() {
 				const t = Number(this.info.trade_type || 0);
+				const s = Number(this.info.order_status || 0);
+				if (s === 3) return '商品已寄出，请留意查收';
 				if (t === 1) return '订单已支付，可到店消费并出示核销码';
 				if (t === 2) return '请按预约时间到店，商家扫码核销';
-				if (t === 3) return '请到店出示核销码，扫码核销提货';
+				if (t === 3) return '订单已支付，商家将快递邮寄给您';
 				if (t === 4) return '商家正在为您配送，请保持电话畅通';
 				return '订单已支付，请前往门店出示核销码提货';
 			},
-			//核销码标题
+			//核销码标题（到店自提/到店消费/预约到店均为到店扫码核销）
 			verifyTitle() {
 				const t = Number(this.info.trade_type || 0);
 				if (t === 1) return '到店消费码';
 				if (t === 2) return '到店服务核销码';
-				if (t === 3) return '自提核销码';
-				return '提货核销码';
+				return '自提核销码';
 			},
 			verifyBadge() {
 				const t = Number(this.info.trade_type || 0);
 				if (t === 1) return '到店出示';
 				if (t === 2) return '到店核销';
-				if (t === 3) return '提货核销';
-				return '到店出示';
+				return '提货核销';
 			},
 			//预约状态文案
 			apptStatusText() {
@@ -298,6 +364,8 @@
 				return this.info.order_status == 4 || this.info.order_status == 10 || (this.info.delivery_status == 1 && this.info.order_status != 0);
 			},
 			canShowVerifyCode() {
+				//仅到店扫码核销类需要核销码；快递邮寄/外卖配送走物流或同城配送
+				if (!this.isStoreTrade) return false;
 				if (this.isOrderVerified) return false;
 				if (this.info.order_status == -1) return false;
 				if (this.info.order_status == 0 && this.info.pay_status == 0) return false;
@@ -351,6 +419,24 @@
 			//申请退款
 			goRefund() {
 				this.$util.redirectTo('/otherpages/refund/refund', { id: this.id });
+			},
+			//确认收货（快递邮寄/外卖配送）
+			doConfirmReceipt() {
+				uni.showModal({
+					title: '确认收货',
+					content: '确认已收到商品？',
+					success: r => {
+						if (!r.confirm) return;
+						orderTakeDelivery({ order_id: this.id }).then(res => {
+							if (res.code == 0) {
+								uni.showToast({ title: '已确认收货' });
+								this.getinfo();
+							} else {
+								uni.showToast({ title: res.message || '操作失败', icon: 'none' });
+							}
+						});
+					}
+				});
 			},
 			formatCode(code) {
 				if (!code) return '';
