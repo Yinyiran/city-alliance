@@ -39,6 +39,12 @@ class Order extends BaseAdmin
             if (!empty($search_text)) {
                 $condition[] = [ 'fo.' . $search_text_type, 'like', '%' . $search_text . '%' ];
             }
+            //交易类型：fenxiao_order 自身无该字段，查询已 inner join order 表，故用 o.trade_type
+            $trade_type = input('trade_type', '');//交易类型
+            //注意：0 是合法取值，必须用 !== '' 严格比较，否则会被当成空值跳过
+            if ($trade_type !== '' && $trade_type !== null) {
+                $condition[] = [ 'o.trade_type', '=', intval($trade_type) ];
+            }
             //下单时间
             $start_time = input('start_time', '');
             $end_time = input('end_time', '');
@@ -54,6 +60,9 @@ class Order extends BaseAdmin
             return $list;
 
         } else {
+            //交易类型筛选下拉（数据源统一由 OrderCreate::tradeTypeList 提供）
+            $order_create_model = new \app\model\order\OrderCreate();
+            $this->assign('trade_type_list', $order_create_model::tradeTypeList());
             //订单状态
             return $this->fetch('order/lists');
         }

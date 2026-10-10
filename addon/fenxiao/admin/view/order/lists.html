@@ -43,6 +43,16 @@
 						</select>
 					</div>
 				</div>
+				<div class="layui-inline">
+					<label class="layui-form-label">交易类型：</label>
+					<div class="layui-input-inline">
+						<select name="trade_type" lay-filter="trade_type">
+							{foreach $trade_type_list as $tk => $tv}
+							<option value="{$tk}">{$tv}</option>
+							{/foreach}
+						</select>
+					</div>
+				</div>
 			</div>
 			<div class="layui-form-item">
 				<div class="layui-inline">
@@ -131,17 +141,27 @@
 					title: '商品信息',
 					unresize: 'false',
                     templet: '#goods_info',
-					width: '15%'
+					width: '14%'
+				{
+					field: 'trade_type_name',
+					title: '交易类型',
+					unresize: 'false',
+					align: 'center',
+					width: '8%',
+					templet: function (data) {
+						return '<span class="ns-trade-type" title="' + data.trade_type_name + '">' + data.trade_type_name + '</span>';
+					}
+				}, {
 				}, {
 			        field: 'order_no',
                     title: '订单编号',
                     unresize: 'false',
-					width: '10%'
+					width: '9%'
                 }, {
 					field: 'site_name',
 					title: '店铺名称',
 					unresize: 'false',
-					width: '10%'
+					width: '9%'
 				}, {
 					field: 'price',
 					title: '单价/数量',
@@ -149,13 +169,13 @@
                     templet: function(data) {
                         return '￥'+ data.price+' / '+data.num
                     },
-					width: '10%',
+					width: '9%',
 					align: 'right'
 				}, {
 					field: 'real_goods_money',
 					title: '商品总金额',
 					unresize: 'false',
-					width: '10%',
+					width: '9%',
 					align: 'right',
 					templet: function(data) {
 						return '￥'+ data.real_goods_money;
@@ -164,7 +184,7 @@
 			        field: 'commission',
                     title: '分佣总金额',
                     unresize: 'false',
-					width: '10%',
+					width: '9%',
 					align: 'right',
 					templet: function(data) {
 						return '￥'+ data.commission;
@@ -184,14 +204,14 @@
                             }
                         }
                     },
-					width: '10%'
+					width: '9%'
                 },{
                     title: '下单时间',
                     unresize: 'false',
                     templet: function(data) {
                         return ns.time_to_date(data.create_time);
                     },
-					width: '15%'
+					width: '14%'
                 },{
 			        title: '详情',
                     unresize: 'false',

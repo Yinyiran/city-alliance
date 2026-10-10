@@ -488,7 +488,7 @@ class FenxiaoOrder extends BaseModel
         $field = '
         fo.fenxiao_order_id,fo.order_no,fo.site_id,fo.site_name,fo.sku_id,fo.sku_name,fo.sku_image,fo.price,fo.num,fo.real_goods_money,fo.member_name,
         fo.member_mobile,fo.one_fenxiao_name,fo.is_settlement,fo.commission,fo.is_refund,
-        o.order_status_name,o.create_time,fo.one_fenxiao_id,fo.two_fenxiao_id,fo.three_fenxiao_id,fo.one_commission,fo.two_commission,fo.three_commission
+        o.order_status_name,o.create_time,o.trade_type,o.order_type,fo.one_fenxiao_id,fo.two_fenxiao_id,fo.three_fenxiao_id,fo.one_commission,fo.two_commission,fo.three_commission
         ';
 
         $alias = 'fo';
@@ -500,7 +500,14 @@ class FenxiaoOrder extends BaseModel
             ]
         ];
         $list = model('fenxiao_order')->pageList($condition, $field, $order, $page, $page_size, $alias, $join);
-        return $this->success($list);
+        //补交易类型名称，便于分销端按链路区分订单（fenxiao_order 自身无该字段，取自 order 表）
+        $list = $this->success($list);
+        if (!empty($list['data'])) {
+            foreach ($list['data'] as $k => $v) {
+                $list['data'][$k]['trade_type_name'] = \app\model\order\OrderCreate::tradeTypeName($v['trade_type'] ?? 0);
+            }
+        }
+        return $list;
     }
 
     //返佣金
