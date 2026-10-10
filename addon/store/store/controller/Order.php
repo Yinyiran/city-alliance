@@ -53,6 +53,8 @@ class Order extends BaseStore
         $search_text = input("search", '');
         $promotion_type = input("promotion_type", '');//营销类型
         $trade_type = input('trade_type', '');//交易类型
+        //快捷页签：空=全部 wait_delivery=待发货 wait_verify=待核销
+        $tab = input('tab', '');//快捷页签
         $order_common_model = new OrderCommonModel();
         if (request()->isAjax()) {
             $page_index = input('page', 1);
@@ -83,6 +85,14 @@ class Order extends BaseStore
             if ($trade_type !== '' && $trade_type !== null) {
                 $condition[] = [ "trade_type", "=", intval($trade_type) ];
             }
+            //该端仅有到店核销类订单(order_type=2)，不提供「待发货」页签
+            if ($tab === 'wait_verify') {
+                //待核销：到店核销类(到店自提/到店消费/预约到店)且尚未核销
+                $condition[] = [ 'trade_type', 'in', [ 0, 1, 2 ] ];
+                $condition[] = [ 'order_status', 'in', [ 1, 2 ] ];
+                $condition[] = [ 'delivery_status', '=', 0 ];
+            }
+
 
             //营销类型
             if ($promotion_type != "") {
@@ -110,6 +120,7 @@ class Order extends BaseStore
             $order_status_list = $order_model->order_status;
             $this->assign("order_status_list", $order_status_list);//订单状态
             $this->assign("trade_type_list", OrderCreateModel::tradeTypeList());//交易类型
+            $this->assign('tab', $tab);//快捷页签
             //订单来源 (支持端口)
             $order_from = Config::get("app_type");
             $this->assign('order_from_list', $order_from);

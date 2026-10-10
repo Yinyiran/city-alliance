@@ -60,6 +60,8 @@ class Order extends BaseShop
         $promotion_type = input("promotion_type", '');//订单类型
         $order_type = input("order_type", 'all');//营销类型
         $trade_type = input('trade_type', '');//交易类型
+        //快捷页签：空=全部 wait_delivery=待发货 wait_verify=待核销
+        $tab = input('tab', '');//快捷页签
         $settlement_state = input("settlement_state", "");//结算状态
         $order_common_model = new OrderCommonModel();
         if (request()->isAjax()) {
@@ -106,6 +108,17 @@ class Order extends BaseShop
             if ($trade_type !== '' && $trade_type !== null) {
                 $condition[] = [ "o.trade_type", "=", intval($trade_type) ];
             }
+            //待发货：快递发货类(order_type=1)且尚未发货
+            if ($tab === 'wait_delivery') {
+                $condition[] = [ 'o.order_type', '=', 1 ];
+                $condition[] = [ 'o.order_status', '=', 1 ];
+            } elseif ($tab === 'wait_verify') {
+                //待核销：到店核销类(到店自提/到店消费/预约到店)且尚未核销
+                $condition[] = [ 'o.trade_type', 'in', [ 0, 1, 2 ] ];
+                $condition[] = [ 'o.order_status', 'in', [ 1, 2 ] ];
+                $condition[] = [ 'o.delivery_status', '=', 0 ];
+            }
+
             //结算状态
             if ($settlement_state == 1) {
                 $condition[] = [ "o.is_settlement", "=", '1' ];
@@ -141,6 +154,7 @@ class Order extends BaseShop
             $order_status_list = $order_model->order_status;
             $this->assign("order_status_list", $order_type_list[ 1 ][ 'status' ]);//订单状态
             $this->assign("trade_type_list", OrderCreateModel::tradeTypeList());//交易类型
+            $this->assign('tab', $tab);//快捷页签
 
             //订单来源 (支持端口)
             $order_from = Config::get("app_type");

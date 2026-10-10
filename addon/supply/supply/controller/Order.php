@@ -55,6 +55,8 @@ class Order extends BaseSupply
         $search_text = input("search", '');
         $order_type = input("order_type", 'all');//营销类型
         $trade_type = input('trade_type', '');//交易类型
+        //快捷页签：空=全部 wait_delivery=待发货 wait_verify=待核销
+        $tab = input('tab', '');//快捷页签
         $order_common_model = new OrderCommonModel();
         if (request()->isAjax()) {
             $page_index = input('page', 1);
@@ -101,6 +103,12 @@ class Order extends BaseSupply
             if ($trade_type !== '' && $trade_type !== null) {
                 $condition[] = ["o.trade_type", "=", intval($trade_type)];
             }
+            //待发货：快递发货类(order_type=1)且尚未发货
+            if ($tab === 'wait_delivery') {
+                $condition[] = [ 'o.order_type', '=', 1 ];
+                $condition[] = [ 'o.order_status', '=', 1 ];
+            }
+
 
             if (!empty($start_time) && empty($end_time)) {
                 $condition[] = ["o.create_time", ">=", date_to_time($start_time)];
@@ -119,6 +127,7 @@ class Order extends BaseSupply
             $order_type_list = $order_common_model->getOrderTypeStatusList();
             $this->assign("order_type_list", $order_type_list);
             $this->assign("trade_type_list", OrderCreateModel::tradeTypeList());//交易类型
+            $this->assign('tab', $tab);//快捷页签
             $this->assign("order_label_list", $order_label_list);
             $order_model = new OrderModel();
             $order_status_list = $order_model->order_status;
