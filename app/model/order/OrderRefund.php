@@ -674,6 +674,24 @@ class OrderRefund extends BaseModel
             $order_model->refund($order_goods_info);
             //同时修改用户的order_money
             model('member')->setDec([ [ 'member_id', '=', $order_goods_info[ 'member_id' ] ] ], 'order_money', $order_goods_info[ 'refund_real_money' ]);
+
+            //回写订单维度的退款金额。
+            //order.refund_money 此前从未被写入，而订单完成时的累计消费金额
+            //(order_complete_money = order_money - refund_money)与会员消费回馈积分
+            //(real_pay_money = order_money - refund_money)都依赖该字段，
+            //不写入会把已退款金额重复计入，导致会员累计消费与积分回馈偏大。
+            //此处按订单项实际退款完成金额汇总，保证与 order_goods 口径一致。
+            $completed_goods_list = model('order_goods')->getList([
+                [ 'order_id', '=', $order_goods_info[ 'order_id' ] ],
+                [ 'refund_status', '=', self::REFUND_COMPLETE ]
+            ], 'refund_real_money');
+            $completed_refund_money = 0;
+            foreach ($completed_goods_list as $completed_item) {
+                $completed_refund_money += floatval($completed_item[ 'refund_real_money' ] );
+            }
+            model('order')->update([
+                'refund_money' => round( $completed_refund_money, 2 ),
+            ], [ [ 'order_id', '=', $order_goods_info[ 'order_id' ] ] ]);
 //            event('OrderRefundFinish', $order_goods_info);//传入订单类型以及订单项id
             model('order_goods')->commit();
             return $this->success();
@@ -955,12 +973,27 @@ class OrderRefund extends BaseModel
     {
         if ($order_goods_info[ "is_virtual" ] == 1) {
             return [ self::ONLY_REFUNDS ];
-        } else {
-            if ($order_goods_info[ "delivery_status" ] == 0) {
+        }
+
+        //到店核销类（到店自提/到店消费/预约到店，履约 order_type=2 或配送方式为门店）
+        //不存在寄件/收货物流环节。此类订单若开放「退货退款」，
+        //会要求买家填写退货物流公司与运单号，流程无法走通。
+        //因此只开放「仅退款」，由商家线下核销后处理。
+        $refund_order_id = intval( $order_goods_info[ 'order_id' ] ?? 0 );
+        if ( $refund_order_id > 0 ) {
+            $refund_order_info = model( 'order' )->getInfo( [
+                [ 'order_id', '=', $refund_order_id ]
+            ], 'order_type,delivery_type' );
+            if ( !empty( $refund_order_info )
+                && ( intval( $refund_order_info[ 'order_type' ] ) == 2 || $refund_order_info[ 'delivery_type' ] == 'store' ) ) {
                 return [ self::ONLY_REFUNDS ];
-            } else {
-                return [ self::ONLY_REFUNDS, self::A_REFUND_RETURN ];
             }
+        }
+
+        if ($order_goods_info[ "delivery_status" ] == 0) {
+            return [ self::ONLY_REFUNDS ];
+        } else {
+            return [ self::ONLY_REFUNDS, self::A_REFUND_RETURN ];
         }
 
     }
