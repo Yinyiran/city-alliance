@@ -20,6 +20,51 @@ use think\facade\Config;
  */
 class Order extends BaseCity
 {
+    /**
+     * 催办：城市分站对未完结订单写入催办记录
+     *
+     * 定位说明：城盟端只做监管与督办，不复制履约能力。
+     * 发货会写 express_delivery_package、核销会写 verify，两者都以 site_id 归属，
+     * 若由城盟端执行会把记录写到错误的站点，导致店铺端查不到自己的包裹/核销记录。
+     * 且城盟账号无法访问店铺端页面（app/shop 会校验店铺登录态），故不提供跳转。
+     */
+    public function urge()
+    {
+        $order_id = intval( input( 'order_id', 0 ) );
+        if ( empty( $order_id ) ) {
+            return $this->error( [], 'REQUEST_ORDER_ID' );
+        }
+
+        $order_info = model( 'order' )->getInfo( [ [ 'order_id', '=', $order_id ] ], 'order_id,order_no,order_status,order_status_name,website_id' );
+        if ( empty( $order_info ) ) {
+            return $this->error( [], '订单不存在' );
+        }
+
+        //越权校验：只能催办本分站（website_id）辖下的订单
+        if ( intval( $order_info[ 'website_id' ] ) !== intval( $this->site_id ) ) {
+            return $this->error( [], '无权操作该订单' );
+        }
+
+        //已完结/已关闭/已收货的订单无需催办
+        if ( in_array( intval( $order_info[ 'order_status' ] ), [ 10, -1, 4 ] ) ) {
+            return $this->error( [], '订单已完结，无需催办' );
+        }
+
+        model( 'order_log' )->add( [
+            'order_id' => $order_id,
+            'action' => '城盟催办',
+            'order_status' => $order_info[ 'order_status' ],
+            'order_status_name' => '城盟催办：' . ( $order_info[ 'order_status_name' ] ?: '待处理' ),
+            'action_way' => 'cityUrge',
+            'uid' => 0,
+            'nick_name' => '城市分站',
+            'module' => 'city',
+            'create_time' => time(),
+        ] );
+
+        return $this->success( [], '催办已记录' );
+    }
+
 
     /**
      * 订单列表
@@ -46,6 +91,8 @@ class Order extends BaseCity
         $promotion_type = input("promotion_type", '');
         $order_type = input("order_type", 'all');//营销类型
         $trade_type = input('trade_type', '');//交易类型
+        //快捷页签：空=全部 wait_delivery=待发货 wait_verify=待核销
+        $tab = input('tab', '');//快捷页签
         $settlement_state = input("settlement_state", "");//结算状态
         $order_common_model = new OrderCommonModel();
         if (request()->isAjax()) {
@@ -85,6 +132,24 @@ class Order extends BaseCity
             if ($trade_type !== '' && $trade_type !== null) {
                 $condition[] = [ "trade_type", "=", intval($trade_type) ];
             }
+            //待发货：快递发货类(order_type=1)且尚未发货
+            if ($tab === 'wait_delivery') {
+                $condition[] = [ 'order_type', '=', 1 ];
+                $condition[] = [ 'order_status', '=', 1 ];
+            } elseif ($tab === 'wait_verify') {
+                //待核销：到店核销类(到店自提/到店消费/预约到店)且尚未核销
+                $condition[] = [ 'trade_type', 'in', [ 0, 1, 2 ] ];
+                $condition[] = [ 'order_status', 'in', [ 1, 2 ] ];
+                $condition[] = [ 'delivery_status', '=', 0 ];
+            }
+            //超时未处理预警：支付后超过 24 小时仍停留在「待发货(1)/待提货(2)」，
+            //即快递未发货、到店未核销。用于城市分站监管下属店铺的履约时效，
+            //本端只做预警与跳转，实际发货/核销仍由店铺端执行。
+            if ($tab === 'overdue') {
+                $condition[] = [ 'o.order_status', 'in', [ 1, 2 ] ];
+                $condition[] = [ 'o.pay_time', '<', time() - 86400 ];
+            }
+
             //营销类型
             if ($promotion_type != "") {
                 if ($promotion_type == 'empty') {
@@ -115,6 +180,7 @@ class Order extends BaseCity
             $order_status_list = $order_model->order_status;
             $this->assign("order_status_list", $order_status_list);//订单状态
             $this->assign("trade_type_list", OrderCreateModel::tradeTypeList());//交易类型
+            $this->assign('tab', $tab);//快捷页签
             //订单来源 (支持端口)
             $order_from = Config::get("app_type");
             $this->assign('order_from_list', $order_from);

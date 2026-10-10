@@ -3,6 +3,14 @@
 <link rel="stylesheet" href="CITY_CSS/order_list.css"/>
 {/block}
 {block name="main"}
+	<!--快捷页签：全部 / 待处理-->
+	<div class="ns-order-quick-tab" style="margin-bottom:15px;">
+		<a href="javascript:;" class="layui-btn {if $tab == ''}ns-bg-color{else/}layui-btn-primary{/if}" data-tab="">全部</a>
+		<a href="javascript:;" class="layui-btn {if $tab == 'wait_delivery'}ns-bg-color{else/}layui-btn-primary{/if}" data-tab="wait_delivery">待发货</a>
+		<a href="javascript:;" class="layui-btn {if $tab == 'wait_verify'}ns-bg-color{else/}layui-btn-primary{/if}" data-tab="wait_verify">待核销</a>
+		<a href="javascript:;" class="layui-btn {if $tab == 'overdue'}ns-bg-color{else/}layui-btn-primary{/if}" data-tab="overdue">超时预警</a>
+	</div>
+
 <div class="ns-screen layui-collapse" lay-filter="selection_panel">
     <div class="layui-colla-item">
         <h2 class="layui-colla-title">筛选</h2>
@@ -343,6 +351,8 @@
     }
     //哈希值 订单数据
     function setHashOrderList(data){
+		//保留快捷页签：hash 参数白名单会丢弃 tab
+		data.tab = data.tab || orderQuickTab;
         var hash = "";
         $.each(data,function(index, itemobj){
             if(itemobj != "" && itemobj != "all"){
@@ -394,6 +404,26 @@
 
         return form_json;
     }
+	//快捷页签：与地址栏一致，筛选/翻页时保留
+	var orderQuickTab = "{$tab}";
+	function setOrderQuickTab(tab) {
+		var params = [], seen = {};
+		var hash = (location.hash || "").replace(/^#!/, ""), search = (location.search || "").replace(/^\?/, "");
+		$.each((hash + "&" + search).split("&"), function (i, item) {
+			if (!item) return;
+			var key = item.split("=")[0];
+			if (key === "tab" || key === "page" || seen[key] === 1) return;
+			seen[key] = 1; params.push(item);
+		});
+		if (tab) params.push("tab=" + tab);
+		params.push("page=1");
+		//筛选参数走 hash(#!)，query 与 hash 同时写入，保证列表请求带上 tab
+		var q = params.join("&");
+		location.href = location.pathname + "?" + q + "#!" + q;
+	}
+	$(".ns-order-quick-tab a").on("click", function () { setOrderQuickTab($(this).attr("data-tab")); });
+
+
 
     var order = new Order();
     function getOrderList(){

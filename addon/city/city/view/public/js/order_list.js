@@ -42,7 +42,7 @@ Order.prototype.setData = function(data){
 Order.prototype.cols = [
     {
         title : '<span style="margin-left:10px;" class="ns-line-hiding" title="商品信息">商品信息</span>',
-        width : "25%",
+        width : "22%",
         className : "product-info",
         template : function(orderitem,order){
 
@@ -62,7 +62,7 @@ Order.prototype.cols = [
     },
     {
         title : '<span class="ns-line-hiding" title="单价/数量">单价/数量</span>',
-        width : "10%",
+        width : "9%",
         align : "right",
         className : "order-price",
         template : function(orderitem,order){
@@ -74,7 +74,7 @@ Order.prototype.cols = [
     },
     {
         title : '<p class="ns-line-hiding" title="实付金额">实付金额</p>',
-        width : "10%",
+        width : "9%",
         align : "right",
         className : "order-money",
         merge : true,
@@ -87,7 +87,7 @@ Order.prototype.cols = [
     },
     {
         title : '<span class="ns-line-hiding" title="收货信息">收货信息</span>',
-        width : "14%",
+        width : "12%",
         align : "left",
         className : "buyers",
         merge : true,
@@ -106,7 +106,7 @@ Order.prototype.cols = [
     },
     {
         title : '<span class="ns-line-hiding" title="商家名称">商家名称</span>',
-        width : "10%",
+        width : "9%",
         align : "center",
         className : "shop-info",
         merge : true,
@@ -119,7 +119,7 @@ Order.prototype.cols = [
     },
     {
         title : '<span class="ns-line-hiding" title="交易状态">交易状态</span>',
-        width : "11%",
+        width : "9%",
         align : "center",
         className : "transaction-status",
         merge : true,
@@ -133,7 +133,7 @@ Order.prototype.cols = [
     },
     // {
     //     title : '<span class="ns-line-hiding" title="下单时间">下单时间</span>',
-    //     width : "11%",
+    //     width : "9%",
     //     align : "center",
     //     className : "create-time",
     //     merge : true,
@@ -143,7 +143,7 @@ Order.prototype.cols = [
     // },
     // {
     //     title : "结算状态",
-    //     width : "10%",
+    //     width : "8%",
     //     align : "center",
     //     className : "settlement",
     //     merge : true,
@@ -154,7 +154,7 @@ Order.prototype.cols = [
     // },
     {
         title : "操作",
-        width : "9%",
+        width : "13%",
         align : "left",
         className : "operation",
         merge : true,
@@ -162,6 +162,13 @@ Order.prototype.cols = [
             var url = "city://city/order/detail";
             var html = '<div class="ns-table-btn">';
             html += '<a href="'+ns.url(url,{order_id:order.order_id})+'" class="layui-btn ns-line-hiding" target="_blank">查看详情</a>';//默认存在
+            //未完结订单提供「催办」：城市分站只做监管与督办。
+            //注：城盟端账号无法直接访问店铺端页面（app/shop 会校验店铺登录态），
+            //因此不做跳转，改为写入订单日志催办记录，店铺端查看订单详情时可见。
+            var orderStatus = Number(order.order_status);
+            if (orderStatus !== 10 && orderStatus !== -1 && orderStatus !== 4) {
+                html += '<a href="javascript:;" class="layui-btn ns-line-hiding" onclick="urgeOrder('+order.order_id+')">催办</a>';
+            }
 			html += '</div>';
             return html;
 
@@ -265,3 +272,26 @@ Order.prototype.fetch = function(){
         return '<table class="layui-table order-list-table layui-form">' + this.header() + '</table>'+'<div class="order-no-data-block"><ul><li><i class="layui-icon layui-icon-tabs"></i> </li><li>暂无订单</li></ul></div>';
     }
 };
+
+/**
+ * 催办：写入城盟催办记录
+ * 城市分站只做督办，实际发货/核销由所属店铺在店铺端执行；
+ * 催办记录写入订单日志，店铺端查看订单详情时可见。
+ */
+function urgeOrder(order_id) {
+    layer.confirm('确认对该订单发起催办？将写入一条催办记录，店铺端可查看。', function (index) {
+        layer.close(index);
+        $.ajax({
+            url: ns.url("city://city/order/urge", { order_id: order_id }),
+            type: 'POST',
+            dataType: 'json',
+            success: function (res) {
+                layer.msg(res.message || (res.code == 0 ? '催办已记录' : '催办失败'));
+                if (res.code == 0 && table) { table.reload(); }
+            },
+            error: function () {
+                layer.msg('催办失败，请稍后重试');
+            }
+        });
+    });
+}
