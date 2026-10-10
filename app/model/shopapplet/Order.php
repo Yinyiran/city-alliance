@@ -31,7 +31,11 @@ class Order extends OrderCommon
      * 待核销订单
      */
     public function hxorder($site_id, $page, $page_size = PAGE_LIST_ROWS){
-        $where="site_id=".$site_id." and delivery_type='store' and order_type=2 and order_status=2";
+        $site_id = intval($site_id);
+        //待核销订单包含两种状态：order_status=1(已支付待核销) 与 order_status=2(待提货)。
+        //原条件只查 order_status=2，会漏掉已支付但未进入待提货的订单，
+        //与 TradeOrder::applyStage 按 1/2/3 分阶段的口径不一致。
+        $where = "site_id=" . $site_id . " and delivery_type='store' and order_type=2 and order_status in (1,2)";
         $res=Db::name("order")->where($where)->order("create_time desc")->paginate($page_size);
         $items=$res->items();
         foreach($items as $key => $val){
