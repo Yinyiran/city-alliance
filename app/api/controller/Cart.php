@@ -39,6 +39,9 @@ class Cart extends BaseApi
             'sku_id' => $sku_id,
             'num' => $num,
             'goods_type' => $goods['goods_type'],
+            //核销门店：到店自提/到店消费/预约到店由商品详情页选择后透传，
+            //购物车结算时据此还原核销门店（字段不存在时由 model 层降级处理）
+            'store_id' => intval( $this->params[ 'store_id' ] ?? 0 ),
         ];
         $res = $cart->addCart($data);
         if ($res[ 'code' ] == 0) {

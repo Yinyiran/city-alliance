@@ -32,9 +32,30 @@ class Cart extends BaseModel
 
             $site_id = $sku_info[ 'site_id' ] ?? 0;
             $data[ 'site_id' ] = $site_id;
+            //核销门店：到店类商品加购时由详情页传入。
+            //goods_cart.store_id 为可选字段（见 db/update_goods_cart_store_id_20261010.sql），
+            //DDL 未执行时降级为 0，下单时由后端自动取第一家可用门店，行为与修复前一致。
+            if ( $this->hasStoreIdField() ) {
+                $data[ 'store_id' ] = intval( $data[ 'store_id' ] ?? 0 );
+            } else {
+                unset( $data[ 'store_id' ] );
+            }
             $res = model("goods_cart")->add($data);
         }
         return $this->success($res);
+    }
+
+    /**
+     * goods_cart 表是否存在 store_id 字段（结果静态缓存，兼容 DDL 未执行场景）
+     * @return bool
+     */
+    private function hasStoreIdField()
+    {
+        static $exists = null;
+        if ( $exists === null ) {
+            $exists = in_array( 'store_id', model( 'goods_cart' )->getFields(), true );
+        }
+        return $exists;
     }
 
     /**
@@ -103,6 +124,10 @@ class Cart extends BaseModel
             ngs.discount_price, ngs.promotion_type,ngs.stock, 
             ngs.sku_image, ngs.site_name, ngs.website_id, ngs.is_own, ngs.goods_state, 
             ngs.verify_state, ngs.goods_name,ngs.unit,s.shop_status,ngs.max_buy, ngs.min_buy,ngc.goods_type,ngs.point,ngs.trade_type';
+        //核销门店：字段未部署时不查询，避免 SQL 报错（DDL 见 db/update_goods_cart_store_id_20261010.sql）
+        if ( $this->hasStoreIdField() ) {
+            $field .= ',ngc.store_id';
+        }
 
         $alias = 'ngc';
         $join = [
