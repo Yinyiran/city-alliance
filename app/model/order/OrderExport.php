@@ -20,6 +20,7 @@ class OrderExport extends BaseModel
         'order_name' => '订单内容',
         'order_from_name' => '订单来源',
         'order_type_name' => '订单类型',
+        'trade_type_name' => '交易类型',
         'order_promotion_name' => '营销活动类型',
         'out_trade_no' => '支付流水号',
         'out_trade_no_2' => '支付流水号（多次支付）',
@@ -304,7 +305,7 @@ class OrderExport extends BaseModel
                     'left'
                 ]
             ];
-            $order_field = 'o.order_no,o.site_name,o.order_name,o.order_from_name,o.order_type_name,o.order_promotion_name,o.out_trade_no,o.out_trade_no_2,o.delivery_code,o.order_status_name,o.pay_status,o.delivery_status,o.refund_status,o.pay_type_name,o.delivery_type_name,o.name,o.mobile,o.telephone,o.province_id,o.city_id,o.district_id,o.full_address,o.buyer_ip,o.buyer_ask_delivery_time,o.buyer_message,o.goods_money,o.delivery_money,o.promotion_money,o.coupon_money,o.order_money,o.adjust_money,o.balance_money,o.pay_money,o.refund_money,o.pay_time,o.delivery_time,o.sign_time,o.finish_time,o.remark,o.goods_num,o.delivery_status_name,o.shop_money,o.platform_money,o.is_settlement,o.delivery_store_name,o.promotion_type_name,o.address,o.province_id,o.city_id,o.district_id,m.nickname';
+            $order_field = 'o.order_no,o.site_name,o.order_name,o.order_from_name,o.order_type_name,o.trade_type,o.order_promotion_name,o.out_trade_no,o.out_trade_no_2,o.delivery_code,o.order_status_name,o.pay_status,o.delivery_status,o.refund_status,o.pay_type_name,o.delivery_type_name,o.name,o.mobile,o.telephone,o.province_id,o.city_id,o.district_id,o.full_address,o.buyer_ip,o.buyer_ask_delivery_time,o.buyer_message,o.goods_money,o.delivery_money,o.promotion_money,o.coupon_money,o.order_money,o.adjust_money,o.balance_money,o.pay_money,o.refund_money,o.pay_time,o.delivery_time,o.sign_time,o.finish_time,o.remark,o.goods_num,o.delivery_status_name,o.shop_money,o.platform_money,o.is_settlement,o.delivery_store_name,o.promotion_type_name,o.address,o.province_id,o.city_id,o.district_id,m.nickname';
 
             $order_goods_field = 'og.order_goods_id,og.sku_name,og.sku_no,og.is_virtual,og.goods_class_name,og.price,og.cost_price,og.num,og.goods_money,og.cost_money,og.delivery_no,og.refund_no,og.refund_type,og.refund_apply_money,og.refund_reason,og.refund_real_money,og.refund_delivery_name,og.refund_delivery_no,og.refund_time,og.refund_refuse_reason,og.refund_action_time,og.commission_rate,og.real_goods_money,og.shop_money,og.platform_money,og.refund_remark,og.refund_delivery_remark,og.refund_address,og.is_refund_stock';
 
@@ -403,7 +404,7 @@ class OrderExport extends BaseModel
                     'left'
                 ],
             ];
-            $order_field = 'o.order_no,o.site_name,o.order_name,o.order_from_name,o.order_type_name,o.order_promotion_name,o.out_trade_no,o.out_trade_no_2,o.delivery_code,o.order_status_name,o.pay_status,o.delivery_status,o.refund_status,o.pay_type_name,o.delivery_type_name,o.name,o.mobile,o.telephone,o.full_address,o.buyer_ip,o.buyer_ask_delivery_time,o.buyer_message,o.goods_money,o.delivery_money,o.promotion_money,o.coupon_money,o.order_money,o.adjust_money,o.balance_money,o.pay_money,o.refund_money,o.pay_time,o.delivery_time,o.sign_time,o.finish_time,o.remark,o.goods_num,o.delivery_status_name,o.shop_money,o.platform_money,o.is_settlement,o.delivery_store_name,o.promotion_type_name,o.address,o.province_id,o.city_id,o.district_id,m.nickname';
+            $order_field = 'o.order_no,o.site_name,o.order_name,o.order_from_name,o.order_type_name,o.trade_type,o.order_promotion_name,o.out_trade_no,o.out_trade_no_2,o.delivery_code,o.order_status_name,o.pay_status,o.delivery_status,o.refund_status,o.pay_type_name,o.delivery_type_name,o.name,o.mobile,o.telephone,o.full_address,o.buyer_ip,o.buyer_ask_delivery_time,o.buyer_message,o.goods_money,o.delivery_money,o.promotion_money,o.coupon_money,o.order_money,o.adjust_money,o.balance_money,o.pay_money,o.refund_money,o.pay_time,o.delivery_time,o.sign_time,o.finish_time,o.remark,o.goods_num,o.delivery_status_name,o.shop_money,o.platform_money,o.is_settlement,o.delivery_store_name,o.promotion_type_name,o.address,o.province_id,o.city_id,o.district_id,m.nickname';
 
             $order_goods_field = 'og.order_goods_id,og.sku_name,og.sku_no,og.is_virtual,og.goods_class_name,og.price,og.cost_price,og.num,og.goods_money,og.cost_money,og.delivery_no,og.refund_no,og.refund_type,og.refund_apply_money,og.refund_reason,og.refund_real_money,og.refund_delivery_name,og.refund_delivery_no,og.refund_time,og.refund_refuse_reason,og.refund_action_time,og.commission_rate,og.real_goods_money,og.shop_money,og.platform_money,og.refund_remark,og.refund_delivery_remark,og.refund_address,og.is_refund_stock';
 
@@ -514,6 +515,8 @@ class OrderExport extends BaseModel
             $item_v['province_name'] = model('area')->getInfo(['id' => $item_v['province_id']])['name'];
             $item_v['city_name'] = model('area')->getInfo(['id' => $item_v['city_id']])['name'];
             $item_v['district_name'] = model('area')->getInfo(['id' => $item_v['district_id']])['name'];
+            //交易类型：导出为中文文案，便于按链路对账（0到店自提/1到店消费/2预约到店/3快递邮寄/4外卖配送）
+            $item_v['trade_type_name'] = \app\model\order\OrderCreate::tradeTypeName( $item_v['trade_type'] ?? 0 );
             $new_line_value = $temp_line;
             foreach ($item_v as $key => $value) {
                 if ($key == 'full_address') {
