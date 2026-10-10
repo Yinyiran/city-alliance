@@ -6,44 +6,38 @@
 		<view class="acea-row row-middle row-center row-column status" v-if="info.order_status==0">
 			<view class="acea-row row-middle">
 				<image src="/otherpages/static/pay.png" class="w-36 h-36 m-r-12" mode=""></image>
-				待支付
+				{{tradeStatusName}}
 			</view>
 			<view class="m-t-12" style="color: #999;">请在23小时59分钟内完成支付，逾期将会自动取消订单</view>
 		</view>
-		<view class="acea-row row-middle row-center row-column status status2" v-else-if="info.order_status==1">
-			<view class="acea-row row-middle">
-				<image src="/otherpages/static/pay1.png" class="w-36 h-36 m-r-12" mode=""></image>
-				{{statusTitle}}
-			</view>
-			<view class="m-t-12" style="color: #999;">{{statusDesc}}</view>
-		</view>
-		<view class="acea-row row-middle row-center row-column status status-pending" v-else-if="info.order_status==2 && isStoreTrade">
+		<view class="acea-row row-middle row-center row-column status status-pending" v-else-if="isStoreTrade && isOrderPendingVerify">
 			<view class="acea-row row-middle" style="color: #FE780F;">
 				<uv-icon name="scan" size="20" color="#FE780F"></uv-icon>
 				<text class="m-l-8">待核销</text>
 			</view>
-			<view class="m-t-12" style="color: #999;">请向商家出示下方核销码进行提货核销</view>
+			<view class="m-t-12" style="color: #999;">请向商家出示下方核销码进行核销</view>
 		</view>
-		<view class="acea-row row-middle row-center row-column status status1" v-else-if="info.order_status==2">
+		<view class="acea-row row-middle row-center row-column status status1" v-else-if="[1,2,3].includes(Number(info.order_status))">
 			<view class="acea-row row-middle">
 				<image src="/otherpages/static/pay1.png" class="w-36 h-36 m-r-12" mode=""></image>
 				{{statusTitle}}
 			</view>
 			<view class="m-t-12" style="color: #999;">{{statusDesc}}</view>
-		</view>
-		<view class="acea-row row-middle row-center row-column status status1" v-else-if="info.order_status==3">
-			<view class="acea-row row-middle">
-				<image src="/otherpages/static/pay1.png" class="w-36 h-36 m-r-12" mode=""></image>
-				{{statusTitle}}
+			<!-- 外卖自配送进度：待接单 → 备餐中 → 配送中 → 已送达 -->
+			<view class="local-progress" v-if="isLocalOrder">
+				<view class="lp-item" v-for="(s,idx) in localSteps" :key="s.key"
+					:class="{active: s.step <= localStep, done: s.step < localStep}">
+					<view class="lp-dot"></view>
+					<view class="lp-name">{{s.name}}</view>
+				</view>
 			</view>
-			<view class="m-t-12" style="color: #999;">{{statusDesc}}</view>
 		</view>
 		<view class="acea-row row-middle row-center row-column status status-verified" v-else-if="isOrderVerified">
 			<view class="acea-row row-middle" style="color: #25B85B;">
 				<uv-icon name="checkmark-circle" size="20" color="#25B85B"></uv-icon>
-				<text class="m-l-8">已核销</text>
+				<text class="m-l-8">{{tradeStatusName}}</text>
 			</view>
-			<view class="m-t-12" style="color: #999;">订单商品已完成核销，感谢您的光临</view>
+			<view class="m-t-12" style="color: #999;">{{isStoreTrade ? '订单商品已完成核销，感谢您的光临' : '交易已完成，感谢您的支持'}}</view>
 		</view>
 		<view class="acea-row row-middle row-center row-column status status1" v-else-if="info.order_status==-1">
 			<view class="acea-row row-middle" style="color: #222222;">
@@ -167,11 +161,17 @@
 								</template>
 								<view class="nums m-l-20">x{{item.num}}</view>
 							</view>
-							<view class="" v-if="item.delivery_status == 1 || isOrderVerified">
+							<view class="" v-if="isStoreTrade && (isOrderVerified || item.delivery_status == 1)">
 								<view class="order-goods-tag-verified">已核销</view>
 							</view>
-							<view class="" v-else-if="info.order_status == 2">
+							<view class="" v-else-if="isStoreTrade && info.order_status == 2">
 								<view class="order-goods-tag-pending">待核销</view>
+							</view>
+							<view class="" v-else-if="!isStoreTrade && isOrderVerified">
+								<view class="order-goods-tag-verified">已完成</view>
+							</view>
+							<view class="" v-else-if="!isStoreTrade && Number(info.order_status) == 3">
+								<view class="order-goods-tag-pending">{{isLocalOrder ? '配送中' : '已发货'}}</view>
 							</view>
 							<view class="" v-else-if="item.refund_status == 0 || item.refund_status == -1"
 								@click="goRefund(item.order_goods_id)">退款</view>
@@ -306,6 +306,14 @@
 			isStoreTrade() {
 				return [0, 1, 2].includes(Number(this.info.trade_type || 0));
 			},
+			//是否外卖自配送订单（order_type=3，由实际配送链路决定）
+			isLocalOrder() {
+				return Number(this.info.order_type || 1) === 3;
+			},
+			//是否处于待核销中间态（到店类已支付未核销）
+			isOrderPendingVerify() {
+				return [1, 2].includes(Number(this.info.order_status || 0));
+			},
 			//走快递物流的商品项（快递邮寄(3)，或到店自提(0)但配送方式为快递）
 			expressList() {
 				const t = Number(this.info.trade_type || 0);
@@ -317,30 +325,71 @@
 			hasExpressNo() {
 				return this.expressList.some(g => !!g.delivery_no);
 			},
-			//是否可确认收货（快递/外卖已发货；到店消费与预约到店由核销码完成）
+			//外卖自配送进度步骤
+			localSteps() {
+				return [
+					{ key: 'take', name: '商家接单', step: 1 },
+					{ key: 'prep', name: '备餐中', step: 2 },
+					{ key: 'send', name: '配送中', step: 3 },
+					{ key: 'arrive', name: '已送达', step: 4 }
+				];
+			},
+			//外卖当前所处步骤（1待接单 2备餐中 3配送中 4已送达）
+			localStep() {
+				const s = Number(this.info.order_status || 0);
+				if (s === 1) return 1;
+				if (s === 2) return 2;
+				if (s === 3) return 3;
+				if (s >= 4) return 4;
+				return 0;
+			},
+			//是否可确认收货：快递订单已发货、外卖订单配送中（到店类由核销码完成）
 			canConfirmReceipt() {
-				if (this.info.order_status != 3) return false;
-				const t = Number(this.info.trade_type || 0);
-				return !(t === 1 || t === 2);
+				const ot = Number(this.info.order_type || 1);
+				const st = Number(this.info.order_status || 0);
+				if (ot === 1) return st === 3;
+				if (ot === 3) return st === 3;
+				return false;
 			},
-			//已支付状态标题（按交易类型）
+			//交易状态名称（按订单类型映射，兜底历史数据快照）
+			tradeStatusName() {
+				if (this.info.trade_status_name) return this.info.trade_status_name;
+				const ot = Number(this.info.order_type || 1);
+				const st = Number(this.info.order_status || 0);
+				let map;
+				if (ot === 3) {
+					map = { 0: '待支付', 1: '待接单', 2: '备餐中', 3: '配送中', 4: '已送达', 10: '已完成', '-1': '已关闭' };
+					return map[st] || '已送达';
+				}
+				if (ot === 2) {
+					map = { 0: '待支付', 1: '待核销', 2: '待核销', 3: '待核销', 4: '已核销', 10: '已完成', '-1': '已关闭' };
+					return map[st] || '已核销';
+				}
+				map = { 0: '待支付', 1: '待发货', 2: '待发货', 3: '已发货', 4: '已收货', 10: '已完成', '-1': '已关闭' };
+				return map[st] || '已收货';
+			},
+			//已支付后各状态标题（按订单类型 × 订单状态）
 			statusTitle() {
-				const t = Number(this.info.trade_type || 0);
-				const s = Number(this.info.order_status || 0);
-				if (s === 3) return '已发货';
-				const map = { 0: '待自提', 1: '待到店消费', 2: '已预约', 3: '待发货', 4: '配送中' };
-				return map[t] || '已支付';
+				return this.tradeStatusName;
 			},
-			//已支付状态说明
+			//已支付后各状态说明（按订单类型 × 订单状态）
 			statusDesc() {
-				const t = Number(this.info.trade_type || 0);
+				const ot = Number(this.info.order_type || 1);
 				const s = Number(this.info.order_status || 0);
-				if (s === 3) return '商品已寄出，请留意查收';
-				if (t === 1) return '订单已支付，可到店消费并出示核销码';
-				if (t === 2) return '请按预约时间到店，商家扫码核销';
-				if (t === 3) return '订单已支付，商家将快递邮寄给您';
-				if (t === 4) return '商家正在为您配送，请保持电话畅通';
-				return '订单已支付，请前往门店出示核销码提货';
+				const t = Number(this.info.trade_type || 0);
+				if (ot === 3) {
+					if (s === 1) return '商家接单后即开始备餐';
+					if (s === 2) return '商家正在为您备餐，请耐心等待';
+					if (s === 3) return '商家已安排配送，请保持电话畅通';
+					return '外卖已送达，感谢您的惠顾';
+				}
+				if (ot === 2) {
+					if (s === 1 || s === 2) return '订单已支付，请到店出示核销码完成核销';
+					return '订单已核销，感谢您的光临';
+				}
+				//快递邮寄
+				if (s === 1 || s === 2) return t === 0 ? '订单已支付，商家将为您安排配送' : '订单已支付，商家将快递邮寄给您';
+				return '商品已寄出，请留意查收';
 			},
 			//核销码标题（到店自提/到店消费/预约到店均为到店扫码核销）
 			verifyTitle() {
@@ -360,8 +409,11 @@
 				const map = { 0: '待付款', 1: '已预约', 2: '已取消', 3: '已过期', 4: '已完成' };
 				return map[Number(this.info.appointment_status)] || '已预约';
 			},
+			//订单是否已完成交易（核销/收货/送达）
+			//统一以 order_status 判定：4=已核销/已收货/已送达，10=已完成
+			//不可用 delivery_status 判断：外卖配送中 delivery_status=1，会误判为已完成
 			isOrderVerified() {
-				return this.info.order_status == 4 || this.info.order_status == 10 || (this.info.delivery_status == 1 && this.info.order_status != 0);
+				return this.info.order_status == 4 || this.info.order_status == 10;
 			},
 			canShowVerifyCode() {
 				//仅到店扫码核销类需要核销码；快递邮寄/外卖配送走物流或同城配送
@@ -771,6 +823,68 @@
 		background: linear-gradient(180deg, #FFF7EE 0%, #F5F5F5 100%);
 		>view:first-child {
 			color: #FE780F;
+		}
+	}
+
+	/* 外卖自配送进度 */
+	.local-progress {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		width: 100%;
+		margin-top: 28rpx;
+		padding: 0 20rpx;
+
+		.lp-item {
+			position: relative;
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+
+			&:not(:last-child)::after {
+				content: '';
+				position: absolute;
+				top: 12rpx;
+				left: calc(50% + 14rpx);
+				right: calc(-50% + 14rpx);
+				height: 3rpx;
+				background: #E5E5E5;
+			}
+
+			.lp-dot {
+				width: 24rpx;
+				height: 24rpx;
+				border-radius: 50%;
+				background: #E5E5E5;
+				border: 4rpx solid #FFFFFF;
+				box-sizing: border-box;
+			}
+
+			.lp-name {
+				margin-top: 10rpx;
+				font-size: 22rpx;
+				color: #999999;
+			}
+
+			&.active {
+				.lp-dot {
+					background: #FE780F;
+				}
+				.lp-name {
+					color: #FE780F;
+					font-weight: 600;
+				}
+				&:not(:last-child)::after {
+					background: #FFD9B3;
+				}
+			}
+
+			&.done {
+				&:not(:last-child)::after {
+					background: #FE780F;
+				}
+			}
 		}
 	}
 

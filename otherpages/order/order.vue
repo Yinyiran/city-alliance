@@ -123,33 +123,51 @@
 			this.getlist()
 		},
 		methods:{
-			//按交易类型显示状态文案
+			//按订单类型（实际配送链路）输出交易状态文案
+			//与后端 OrderCommon::orderTypeStatusName() 保持一致，兜底历史数据的 order_status_name 快照
+			//快递邮寄(1)：待支付→待发货→已发货→已收货→已完成
+			//到店核销(2)：待支付→待核销→已核销→已完成
+			//外卖自配送(3)：待支付→待接单→备餐中→配送中→已送达→已完成
+			orderTradeStatusName(order_type, order_status){
+				order_type = parseInt(order_type, 10);
+				order_status = parseInt(order_status, 10);
+				let map;
+				if(order_type === 3){
+					map = {0:'待支付',1:'待接单',2:'备餐中',3:'配送中',4:'已送达',10:'已完成','-1':'已关闭'};
+					return map[order_status] || '已送达';
+				}
+				if(order_type === 2){
+					map = {0:'待支付',1:'待核销',2:'待核销',3:'待核销',4:'已核销',10:'已完成','-1':'已关闭'};
+					return map[order_status] || '已核销';
+				}
+				map = {0:'待支付',1:'待发货',2:'待发货',3:'已发货',4:'已收货',10:'已完成','-1':'已关闭'};
+				return map[order_status] || '已收货';
+			},
+			//订单列表状态文案
 			statusText(item){
+				//优先取后端按订单类型计算的交易状态，其次前端按矩阵兜底
+				let text = item.trade_status_name || this.orderTradeStatusName(item.order_type, item.order_status);
+				//预约到店：已预约但未核销时提示待到店，比「待核销」更贴合用户视角
 				const t = Number(item.trade_type||0);
-				//order_status=2「待核销」仅为到店扫码核销类的中间态
-				if(item.order_status === 2) return [0,1,2].includes(t) ? '待核销' : (item.order_status_name || '待收货');
-				if(t === 2 && item.appointment_status === 1) return '待到店';
-				if(t === 1 && item.order_status === 1) return '待到店消费';
-				if(t === 0 && item.order_status === 1) return '待自提';
-				if(t === 0 && item.order_status === 3) return '待收货';
-				if(t === 3 && item.order_status === 1) return '待发货';
-				if(t === 3 && item.order_status === 3) return '待收货';
-				if(t === 4 && item.order_status === 1) return '配送中';
-				if(t === 4 && item.order_status === 3) return '待收货';
-				return item.order_status_name;
+				if(t === 2 && item.appointment_status === 1 && Number(item.order_status) !== 2){
+					text = '待到店';
+				}
+				return text;
 			},
-			//是否可核销（到店自提/到店消费/预约到店且未核销）
+			//是否可核销（到店类且未核销：待支付与已关闭不可核销）
 			isVerifyOrder(item){
-				const t = Number(item.trade_type||0);
-				return [0,1,2].includes(t) && item.delivery_status != 1 && item.order_status != 0 && item.order_status != -1;
+				const ot = Number(item.order_type||1);
+				const st = Number(item.order_status);
+				if(ot !== 2) return false;
+				return (st === 1 || st === 2) && Number(item.delivery_status||0) != 1;
 			},
-			//是否可确认收货（快递邮寄/外卖配送已发货后；到店自提走快递发货时同样适用）
+			//是否可确认收货：快递订单已发货、外卖订单配送中（外卖由商家确认送达，顾客亦可确认）
 			canConfirmReceipt(item){
-				const t = Number(item.trade_type||0);
-				if(item.order_status !== 3) return false;
-				//到店消费/预约到店由核销码完成，无需确认收货
-				if(t === 1 || t === 2) return false;
-				return true;
+				const ot = Number(item.order_type||1);
+				const st = Number(item.order_status);
+				if(ot === 1) return st === 3;
+				if(ot === 3) return st === 3;
+				return false;
 			},
 			//确认收货
 			confirmReceipt(item){

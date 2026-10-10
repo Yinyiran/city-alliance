@@ -49,10 +49,20 @@
 				<view class="trade-tag">{{tradeName}}</view>
 				<view class="trade-tag" v-if="info.service_duration>0">服务{{info.service_duration}}分钟</view>
 				<view class="trade-tag" v-if="info.trade_type==1&&Number(info.allow_custom_amount)===1">金额自定</view>
-				<view class="trade-tag" v-if="info.trade_type==0||info.trade_type==1||info.trade_type==2">到店扫码核销</view>
-				<view class="trade-tag" v-if="info.trade_type==4">同城配送</view>
+				<view class="trade-tag" v-if="isStoreTrade">到店扫码核销</view>
+				<view class="trade-tag" v-if="info.trade_type==4">外卖配送</view>
 			</view>
-			<view class="trade-desc" v-if="isStoreTrade">{{tradeDesc}}</view>
+			<view class="trade-desc" v-if="tradeDesc">{{tradeDesc}}</view>
+			<!-- 交易流程说明：按交易类型展示订单将经历的交易状态 -->
+			<view class="trade-flow m-t-16">
+				<view class="tf-title">交易流程</view>
+				<view class="tf-steps">
+					<view class="tf-step" v-for="(s,idx) in tradeFlowSteps" :key="s">
+						<text class="tf-name">{{s}}</text>
+						<text class="tf-arrow" v-if="idx < tradeFlowSteps.length-1">→</text>
+					</view>
+				</view>
+			</view>
 
 			<!-- 到店类（到店自提/到店消费/预约到店）：门店选择 + 到店扫码核销 -->
 			<view class="part2 m-t-20" v-if="isStoreTrade">
@@ -206,9 +216,17 @@
 					case 1: return '到店消费：到店扫码付款并核销' + (Number(this.info.allow_custom_amount)===1 ? '，支持自定义金额' : '');
 					case 2: return '预约到店：选择到店时段，商家按同时接待人数为你安排服务';
 					case 3: return '商家快递邮寄到家，可在订单中查看快递单号';
-					case 4: return '商家配送到家，同城即时送达';
+					case 4: return '商家自配送到家，商家接单备餐后即安排配送';
 					default: return '';
 				}
+			},
+			//该商品的交易流程（按交易类型展示订单将经历的状态）
+			tradeFlowSteps() {
+				const t = Number(this.info.trade_type||0);
+				if (this.isStoreTrade) return ['待支付', '待核销', '已核销'];
+				if (t === 3) return ['待支付', '待发货', '已发货', '已收货'];
+				if (t === 4) return ['待支付', '待接单', '备餐中', '配送中', '已送达'];
+				return [];
 			},
 			//到店门店列表
 			storeList() {
@@ -477,6 +495,42 @@
 		font-size: 24rpx;
 		color: #999;
 		margin-top: 12rpx;
+	}
+
+	/* 交易流程说明 */
+	.trade-flow {
+		background: #F7F8FA;
+		border-radius: 12rpx;
+		padding: 20rpx 24rpx;
+
+		.tf-title {
+			font-size: 24rpx;
+			color: #666;
+			font-weight: 600;
+			margin-bottom: 14rpx;
+		}
+
+		.tf-steps {
+			display: flex;
+			align-items: center;
+			flex-wrap: wrap;
+
+			.tf-step {
+				display: flex;
+				align-items: center;
+
+				.tf-name {
+					font-size: 24rpx;
+					color: #333;
+				}
+
+				.tf-arrow {
+					margin: 0 12rpx;
+					color: #CCCCCC;
+					font-size: 22rpx;
+				}
+			}
+		}
 	}
 	/* 到店门店选择 */
 	.store-item {
