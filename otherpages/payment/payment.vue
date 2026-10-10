@@ -230,11 +230,16 @@
 				maxAmount: 0,
 				customAmount: '',
 				storeList: [],
-				storeIndex: 0,
+				//-1 表示「未选择门店」。到店自提(0)允许不选门店改走快递配送，
+				//若默认写 0 会导致永远命中第一家门店、无法表达未选。
+				storeIndex: -1,
 				dateList: [],
 				dateIndex: 0,
 				slotList: [],
 				startTime: '',
+				//交易类型上下文解析出的商品/规格，购物车链路 info1 中不存在这两个字段
+				tradeGoodsId: 0,
+				tradeSkuId: 0,
 				appointment: { user_name: '', mobile: '', remark: '' }
 			};
 		},
@@ -259,9 +264,12 @@
 			isStoreTrade() {
 				return [0, 1, 2].includes(this.tradeType);
 			},
-			//是否需要收货地址：快递邮寄必须填收货地址；到店类选择了核销门店则不需要
+			//是否需要收货地址
+			//快递邮寄(3)与外卖配送(4)必须有收货地址：后端 Express / Local 试算都依赖 member_address，
+			//缺失时会返回「未配置默认收货地址」导致无法下单；
+			//到店类(0/1/2)选定了核销门店则不需要地址。
 			needAddress() {
-				if (this.tradeType === 3) return true;
+				if (this.tradeType === 3 || this.tradeType === 4) return true;
 				if (this.isStoreTrade && this.storeList.length && this.storeIndex >= 0) return false;
 				return this.info1.goodstype == 3;
 			},
@@ -277,7 +285,8 @@
 				if (this.tradeType === 4) return '同城配送';
 				if (this.tradeType === 1 || this.tradeType === 2) return '到店核销';
 				if (this.tradeType === 0) {
-					if (this.storeList.length) return '门店自提';
+					//以实际选中门店为准判断配送方式，未选门店时走快递配送
+					if (this.storeList.length && this.storeIndex >= 0 && this.storeList[this.storeIndex]) return '门店自提';
 					return '快递邮寄';
 				}
 				return '';
@@ -299,6 +308,10 @@
 						goods_id = firstGoods.goods_id || goods_id;
 					}
 				}
+				//缓存解析结果：购物车链路 info1 中没有 goods_id/sku_id，
+				//loadSlotList 若继续读 info1 会拿到 0，预约时段接口将报「商品参数错误」
+				this.tradeGoodsId = goods_id;
+				this.tradeSkuId = sku_id;
 				//自定义金额配置
 				if (this.tradeType === 1) {
 					await this.loadGoodsTrade(goods_id, sku_id);
@@ -334,10 +347,14 @@
 						const ti = d.trade_info || {};
 						this.storeList = ti.store_list || [];
 						//优先使用详情页选中的门店
+						let idx = -1;
 						if (this.info1.store_id) {
-							const idx = this.storeList.findIndex(s => Number(s.store_id) === Number(this.info1.store_id));
-							if (idx > -1) this.storeIndex = idx;
+							idx = this.storeList.findIndex(s => Number(s.store_id) === Number(this.info1.store_id));
 						}
+						//未指定时默认选中第一家，保证到店消费/预约到店可直接提交；
+						//到店自提(0)可手动清空选择以改走快递配送
+						if (idx < 0 && this.storeList.length) idx = 0;
+						this.storeIndex = idx;
 						resolve();
 					}).catch(() => resolve());
 				});
@@ -379,13 +396,17 @@
 			loadSlotList() {
 				const date = this.dateList[this.dateIndex];
 				const store = this.storeList[this.storeIndex];
-				if (!date || !store) {
+				//购物车链路 info1 中没有 goods_id/sku_id（只有 cart_ids），
+				//必须使用 initTradeInfo 解析出的交易类型上下文，否则后端报「商品参数错误」
+				const goods_id = this.tradeGoodsId || this.info1.goods_id || 0;
+				const sku_id = this.tradeSkuId || this.info1.sku_id || 0;
+				if (!date || !store || !sku_id) {
 					this.slotList = [];
 					return;
 				}
 				slotList({
-					goods_id: this.info1.goods_id || 0,
-					sku_id: this.info1.sku_id || 0,
+					goods_id: goods_id,
+					sku_id: sku_id,
 					store_id: store.store_id,
 					date: date.date,
 					num: this.info1.num || 1
@@ -396,6 +417,19 @@
 			},
 			//提交前校验
 			validateTrade() {
+				//到店消费(1)/预约到店(2)必须选择核销门店。
+				//此前购物车链路无任何拦截，后端会静默改用第一家门店，
+				//导致顾客到店门店与实际核销门店不符。到店自提(0)可不选，不选则走快递配送。
+				if (this.tradeType === 1 || this.tradeType === 2) {
+					if (!this.storeList.length) {
+						uni.showToast({ title: '该商品暂无可用门店', icon: 'none' });
+						return false;
+					}
+					if (this.storeIndex < 0 || !this.storeList[this.storeIndex]) {
+						uni.showToast({ title: '请选择到店门店', icon: 'none' });
+						return false;
+					}
+				}
 				if (this.tradeType === 2) {
 					if (!this.dateList.length) {
 						uni.showToast({ title: '该商品暂无可预约日期', icon: 'none' });
