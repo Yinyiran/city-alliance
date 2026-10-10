@@ -250,6 +250,14 @@ class Order extends Common
             'level_name' => $member['level_name'] ?? '普通会员',
             'consume_discount' => $member['consume_discount'] ?? 0,
             'consume_money' => $order_info['pay_money'],
+            //交易类型：收银台据此判断是否支持自定义金额(1)、是否可改约(2)
+            'trade_type' => intval( $order_info[ 'trade_type' ] ?? 0 ),
+            'trade_type_name' => \app\model\order\OrderCreate::tradeTypeName( $order_info[ 'trade_type' ] ?? 0 ),
+            //预约到店(2)日程信息，供收银台展示与改约
+            'appointment_date' => $order_info[ 'appointment_date' ] ?? '',
+            'appointment_slot' => $order_info[ 'appointment_slot' ] ?? '',
+            'appointment_status' => $order_info[ 'appointment_status' ] ?? -1,
+            'delivery_store_name' => $order_info[ 'delivery_store_name' ] ?? '',
             'is_verify' => $is_verify,
             'goods_list' => $goods_list
         ];

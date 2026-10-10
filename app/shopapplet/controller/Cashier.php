@@ -95,6 +95,31 @@ class Cashier extends BaseApi
     }
 
     /**
+     * 查询某日「可预约时段」（商家改约用）
+     * schedule 返回的是已预约记录，无法判断哪些时段还能约，
+     * 因此改约需要基于 Appointment::getSlotList 的时段配置与占用情况判断。
+     */
+    public function slots()
+    {
+        $goods_id = intval($this->params[ 'goods_id' ] ?? 0);
+        $store_id = intval($this->params[ 'store_id' ] ?? 0);
+        $date = $this->params[ 'date' ] ?? date( 'Y-m-d' );
+        $num = intval( $this->params[ 'num' ] ?? 1 );
+        $site_id = $this->params[ 'site_id' ] ?? ( $this->site_id ?? 0 );
+
+        if ( empty( $goods_id ) || empty( $store_id ) ) {
+            return $this->response( $this->error( [], '商品或门店参数缺失' ) );
+        }
+
+        $appointment_model = new Appointment();
+        $res = $appointment_model->getSlotList( $goods_id, $store_id, $date, max( 1, $num ) );
+        if ( $res[ 'code' ] != 0 ) {
+            return $this->response( $this->error( [], $res[ 'message' ] ?? '查询时段失败' ) );
+        }
+        return $this->response( $this->success( $res[ 'data' ] ?? [] ) );
+    }
+
+    /**
      * 商家改约
      */
     public function reschedule()
