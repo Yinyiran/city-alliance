@@ -72,7 +72,10 @@
 					<uv-icon name="car" size="16" color="#4a6b8a"></uv-icon>
 					<text class="verify-title m-l-8">快递物流</text>
 				</view>
-				<view class="verify-badge">{{ info.delivery_type_name || '快递邮寄' }}</view>
+				<view class="acea-row row-middle">
+					<view class="verify-badge">{{ info.delivery_type_name || '快递邮寄' }}</view>
+					<text class="ns-trace-entry" v-if="hasExpressNo" @click="showTrace">查看轨迹</text>
+				</view>
 			</view>
 			<view class="appt-body">
 				<view class="appt-row" v-for="(g,idx) in expressList" :key="idx">
@@ -85,6 +88,20 @@
 					<text class="v" style="color:#999;">商家发货后可查看快递单号</text>
 				</view>
 			</view>
+		</view>
+
+		<!-- 物流轨迹弹层 -->
+		<view class="ns-trace-mask" v-if="traceVisible" @click="traceVisible = false"></view>
+		<view class="ns-trace-panel" v-if="traceVisible">
+			<view class="ns-trace-head">物流轨迹</view>
+			<scroll-view scroll-y class="ns-trace-body">
+				<view class="ns-trace-empty" v-if="!traceList.length">暂无物流轨迹</view>
+				<view class="ns-trace-item" v-for="(t,i) in traceList" :key="i">
+					<view class="ns-trace-time">{{ t.datetime }}</view>
+					<view class="ns-trace-remark">{{ t.remark }}</view>
+				</view>
+			</scroll-view>
+			<view class="ns-trace-close" @click="traceVisible = false">关闭</view>
 		</view>
 
 		<!-- 核销二维码模块 -->
@@ -280,7 +297,8 @@
 		getVerifyCode,
 		cancelAppointment,
 		orderClose as closeOrderApi,
-		orderTakeDelivery
+		orderTakeDelivery,
+		orderExpressTrace
 	} from '@/common/js/api.js';
 	export default {
 		data() {
@@ -288,6 +306,10 @@
 				check: 0,
 				id: '',
 				info: {},
+				//物流轨迹弹层
+				traceVisible: false,
+				traceList: [],
+				tracing: false,
 				verifyCode: '',
 				qrLoading: false
 			};
@@ -488,6 +510,37 @@
 							}
 						});
 					}
+				});
+			},
+			//查看快递物流轨迹
+			showTrace() {
+				if (this.tracing) return;
+				this.tracing = true;
+				orderExpressTrace({ order_id: this.id }).then(res => {
+					this.tracing = false;
+					if (!res || res.code != 0) {
+						uni.showToast({ title: (res && res.message) || '查询物流失败', icon: 'none' });
+						return;
+					}
+					const pkgs = res.data || [];
+					let list = [];
+					pkgs.forEach(p => {
+						const tr = p.trace || {};
+						//快递100/快递鸟统一结构：{ success:true, list:[{datetime,remark}] }
+						if (tr.success && tr.list && tr.list.length) {
+							list = list.concat(tr.list);
+						}
+					});
+					//按时间倒序，最新轨迹在前
+					list.sort((a, b) => String(b.datetime || '').localeCompare(String(a.datetime || '')));
+					this.traceList = list;
+					this.traceVisible = true;
+					if (!list.length) {
+						uni.showToast({ title: '暂无物流轨迹', icon: 'none' });
+					}
+				}).catch(() => {
+					this.tracing = false;
+					uni.showToast({ title: '查询物流失败', icon: 'none' });
 				});
 			},
 			formatCode(code) {
@@ -922,6 +975,86 @@
 			font-size: 22rpx;
 			color: #999;
 			margin-top: 10rpx;
+		}
+
+		/* 快递物流轨迹 */
+		.ns-trace-entry {
+			font-size: 24rpx;
+			color: #4a6b8a;
+			margin-left: 16rpx;
+		}
+
+		.ns-trace-mask {
+			position: fixed;
+			left: 0;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			background: rgba(0, 0, 0, 0.5);
+			z-index: 999;
+		}
+
+		.ns-trace-panel {
+			position: fixed;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			z-index: 1000;
+			background: #fff;
+			border-radius: 24rpx 24rpx 0 0;
+			padding: 32rpx;
+			max-height: 70vh;
+			display: flex;
+			flex-direction: column;
+		}
+
+		.ns-trace-head {
+			font-size: 32rpx;
+			font-weight: 600;
+			color: #222;
+			text-align: center;
+			padding-bottom: 24rpx;
+			border-bottom: 1rpx solid #eee;
+		}
+
+		.ns-trace-body {
+			flex: 1;
+			max-height: 52vh;
+			padding-top: 16rpx;
+		}
+
+		.ns-trace-item {
+			padding: 16rpx 0;
+			border-bottom: 1rpx solid #f5f5f5;
+		}
+
+		.ns-trace-time {
+			font-size: 24rpx;
+			color: #999;
+		}
+
+		.ns-trace-remark {
+			font-size: 26rpx;
+			color: #333;
+			margin-top: 6rpx;
+		}
+
+		.ns-trace-empty {
+			text-align: center;
+			color: #999;
+			font-size: 26rpx;
+			padding: 60rpx 0;
+		}
+
+		.ns-trace-close {
+			margin-top: 24rpx;
+			height: 80rpx;
+			line-height: 80rpx;
+			text-align: center;
+			background: #f5f5f5;
+			border-radius: 40rpx;
+			font-size: 28rpx;
+			color: #333;
 		}
 	}
 

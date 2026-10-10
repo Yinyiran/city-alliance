@@ -199,6 +199,8 @@ export const cancelAppointment=params=>server('/api/order/cancelAppointment',par
 export const orderTakeDelivery=params=>server('/api/order/takeDelivery',params)
 //延长收货时间
 export const orderExtendTakeDelivery=params=>server('/api/order/extendtakedelivery',params)
+//快递物流轨迹（快递邮寄/到店自提走快递发货）
+export const orderExpressTrace=params=>server('/api/order/expressTrace',params)
 //门店收银台收款码
 export const cashierCode=params=>server('/api/pay/cashierCode',params)
 //商家商品分类列表
