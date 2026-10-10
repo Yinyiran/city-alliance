@@ -7,6 +7,7 @@ namespace app\model\shopapplet;
 
 use app\model\BaseModel;
 use app\model\order\OrderCommon as OrderCommonModel;
+use app\model\order\OrderCreate;
 use think\facade\Db;
 
 /**
@@ -283,6 +284,10 @@ class TradeOrder extends BaseModel
             //虚拟订单(order_type=4)不在商家配送链路内，归入 all 分组避免出现 biz_type=false
             $biz = array_search($order_type, self::bizTypeMap());
             $row['biz_type'] = $biz !== false ? $biz : self::BIZ_ALL;
+            //交易类型名称：到店自提/到店消费/预约到店同属「到店核销」链路(order_type=2)，
+            //但业务含义不同（自提带走 / 店内消费 / 预约时段），需单独展示避免店员混淆。
+            //名称统一由 OrderCreate::tradeTypeName 提供，避免各端各自维护映射。
+            $row['trade_type_name'] = OrderCreate::tradeTypeName( $row[ 'trade_type' ] ?? 0 );
             $row['goods_list'] = $goods_map[$row['order_id']] ?? [];
             $row['member_info'] = $member_map[$row['member_id']] ?? [];
             $row['nickname'] = $member_map[$row['member_id']]['nickname'] ?? ($row['name'] ?: '匿名用户');
