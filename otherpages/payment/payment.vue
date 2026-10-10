@@ -520,38 +520,47 @@
 			fillTradeParams(params) {
 				if (![0, 1, 2, 3, 4].includes(this.tradeType)) return;
 				const store = this.storeList[this.storeIndex];
-				const site_id = this.orderinfo.site_id || (this.info1.site_id || 0);
 				const deliveryObj = this.orderinfo.delivery || {};
-				const cur = deliveryObj[site_id] || {};
 
-				//到店消费(1)/预约到店(2)强制门店核销配送；快递邮寄(3)强制物流；外卖配送(4)强制同城
-				//到店自提(0)不强制：选了核销门店走门店自提，未选则沿用默认快递配送
-				if (this.tradeType === 1 || this.tradeType === 2) {
-					cur.delivery_type = 'store';
-					if (store) cur.store_id = store.store_id;
-					deliveryObj[site_id] = cur;
-					this.orderinfo.delivery = deliveryObj;
-					params.delivery = JSON.stringify(deliveryObj);
-				} else if (this.tradeType === 3) {
-					cur.delivery_type = 'express';
-					delete cur.store_id;
-					deliveryObj[site_id] = cur;
-					this.orderinfo.delivery = deliveryObj;
-					params.delivery = JSON.stringify(deliveryObj);
-				} else if (this.tradeType === 4) {
-					cur.delivery_type = 'local';
-					if (store) cur.store_id = store.store_id;
-					deliveryObj[site_id] = cur;
-					this.orderinfo.delivery = deliveryObj;
-					params.delivery = JSON.stringify(deliveryObj);
-				} else if (this.tradeType === 0 && store) {
-					//到店自提：仅在用户主动选择核销门店时改为门店自提配送
-					cur.delivery_type = 'store';
-					cur.store_id = store.store_id;
-					deliveryObj[site_id] = cur;
-					this.orderinfo.delivery = deliveryObj;
-					params.delivery = JSON.stringify(deliveryObj);
+				//后端 OrderCreate::delivery() 按 $data['delivery'][$site_id] 逐店取配送参数，
+				//而 delivery 的键来自后端 shop_goods_list（即店铺 site_id）。
+				//购物车/多店铺链路 orderinfo 没有单一 site_id，若直接取 info1.site_id 会得到 0，
+				//导致 delivery_type / store_id 被后端静默丢弃、到店类下单不带门店。
+				//这里改为对已有店铺键逐个下发交易类型约束。
+				let siteKeys = Object.keys(deliveryObj);
+				if (!siteKeys.length) {
+					const fallbackKey = this.orderinfo.site_id || this.info1.site_id;
+					if (fallbackKey) {
+						deliveryObj[fallbackKey] = {};
+						siteKeys = [fallbackKey];
+					}
 				}
+				if (!siteKeys.length) return;
+
+				siteKeys.forEach(siteKey => {
+					const cur = deliveryObj[siteKey] || {};
+					//到店消费(1)/预约到店(2)强制门店核销配送；快递邮寄(3)强制物流；外卖配送(4)强制同城
+					//到店自提(0)不强制：选了核销门店走门店自提，未选则沿用默认快递配送
+					if (this.tradeType === 1 || this.tradeType === 2) {
+						cur.delivery_type = 'store';
+						if (store) cur.store_id = store.store_id;
+					} else if (this.tradeType === 3) {
+						cur.delivery_type = 'express';
+						delete cur.store_id;
+					} else if (this.tradeType === 4) {
+						cur.delivery_type = 'local';
+						if (store) cur.store_id = store.store_id;
+					} else if (this.tradeType === 0 && store) {
+						//到店自提：仅在用户主动选择核销门店时改为门店自提配送
+						cur.delivery_type = 'store';
+						cur.store_id = store.store_id;
+					}
+					deliveryObj[siteKey] = cur;
+				});
+
+				this.orderinfo.delivery = deliveryObj;
+				params.delivery = JSON.stringify(deliveryObj);
+
 				if (this.tradeType === 1 && this.allowCustom && this.customAmount) {
 					params.custom_amount = this.customAmount;
 				}
