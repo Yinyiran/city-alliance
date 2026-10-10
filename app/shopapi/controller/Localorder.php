@@ -46,4 +46,28 @@ class Localorder extends BaseApi
         return $this->response($result);
     }
 
+    /**
+     * 接单（待接单 → 备餐中）
+     * @return false|string
+     */
+    public function take()
+    {
+        $order_id = isset($this->params[ 'order_id' ]) ? $this->params[ 'order_id' ] : 0;
+        $local_order_model = new LocalOrderModel();
+        $result = $local_order_model->orderLocalTake($order_id, $this->site_id);
+        return $this->response($result);
+    }
+
+    /**
+     * 确认送达（配送中 → 已送达）
+     * @return false|string
+     */
+    public function finish()
+    {
+        $order_id = isset($this->params[ 'order_id' ]) ? $this->params[ 'order_id' ] : 0;
+        $local_order_model = new LocalOrderModel();
+        $result = $local_order_model->orderLocalFinishDelivery($order_id, $this->site_id);
+        return $this->response($result);
+    }
+
 }

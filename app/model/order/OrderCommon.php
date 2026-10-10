@@ -211,6 +211,67 @@ class OrderCommon extends BaseModel
     }
 
     /**
+     * 按订单类型（实际配送链路）输出交易状态文案（各端统一数据源）
+     *
+     * 为什么用 order_type 而不是 trade_type 判定：
+     * 到店自提(trade_type=0)不强制配送方式——顾客选门店自提则为自提订单(order_type=2)走核销流程，
+     * 选快递则为普通订单(order_type=1)走物流流程。按 order_type 判定可同时覆盖两种情况。
+     *
+     * 快递邮寄(order_type=1)：待支付 → 待发货 → 已发货 → 已收货 → 已完成
+     * 到店核销 (order_type=2)：待支付 → 待核销 → 已核销 → 已完成
+     * 外卖自配送(order_type=3)：待支付 → 待接单 → 备餐中 → 配送中 → 已送达 → 已完成
+     *
+     * @param int $order_type 订单类型 1普通 2自提 3外卖 4虚拟
+     * @param int $order_status 订单状态
+     * @return string
+     */
+    public static function orderTypeStatusName($order_type, $order_status)
+    {
+        $order_type = intval($order_type);
+        $order_status = intval($order_status);
+
+        if ($order_type == 3) {
+            //外卖自配送（商家自配，不接第三方）
+            $map = [
+                0 => '待支付',
+                1 => '待接单',
+                2 => '备餐中',
+                3 => '配送中',
+                4 => '已送达',
+                10 => '已完成',
+                -1 => '已关闭',
+            ];
+            return $map[ $order_status ] ?? '已送达';
+        }
+
+        if ($order_type == 2) {
+            //到店核销（到店自提/到店消费/预约到店）
+            $map = [
+                0 => '待支付',
+                1 => '待核销',
+                2 => '待核销',
+                3 => '待核销',
+                4 => '已核销',
+                10 => '已完成',
+                -1 => '已关闭',
+            ];
+            return $map[ $order_status ] ?? '已核销';
+        }
+
+        //快递邮寄（含到店自提商品走快递发货的情况）
+        $map = [
+            0 => '待支付',
+            1 => '待发货',
+            2 => '待发货',
+            3 => '已发货',
+            4 => '已收货',
+            10 => '已完成',
+            -1 => '已关闭',
+        ];
+        return $map[ $order_status ] ?? '已收货';
+    }
+
+    /**
      * 订单类型(根据物流配送来区分)
      */
     public function getOrderTypeStatusList()
@@ -928,7 +989,7 @@ class OrderCommon extends BaseModel
             'nick_name' => '系统操作',
             'action' => '订单发货',
             'order_status' => 3,
-            'order_status_name' => '已发货',
+            'order_status_name' => self::orderTypeStatusName($order_info[ 'order_type' ], 3),
             'module' => 'shop',
             'action_way' => 'orderDelivery',
             'order_id' => $order_id
@@ -937,7 +998,11 @@ class OrderCommon extends BaseModel
 
         //默认自动时间
         $cron_model = new Cron();
-        $cron_model->addCron(1, 1, "订单自动收货", "CronOrderTakeDelivery", $execute_time, $order_id);
+        //外卖自配送订单由商家确认送达（或顾客确认收货），不挂自动收货定时任务，
+        //否则系统会在发货一天后自动把配送中的外卖单改为已送达，与商家实际配送状态脱节
+        if ($order_info[ 'order_type' ] != 3) {
+            $cron_model->addCron(1, 1, "订单自动收货", "CronOrderTakeDelivery", $execute_time, $order_id);
+        }
 
         event('OrderDelivery', [ 'order_id' => $order_id ]);
 
@@ -983,6 +1048,8 @@ class OrderCommon extends BaseModel
 
             $result = $order_model->orderTakeDelivery($order_id);
             if($result['code'] < 0){
+                //事务内失败必须回滚，否则事务悬挂（此前直接 return 导致连接占用与半成品数据）
+                model('order')->rollback();
                 return $result;
             }
             //改变订单状态
@@ -995,7 +1062,16 @@ class OrderCommon extends BaseModel
                 "evaluate_status_name" => "待评价",
                 "sign_time" => time()
             );
-            model('order')->update($order_data, [ [ 'order_id', '=', $order_id ] ]);
+            //带 order_status 前置条件更新，防止与商家确认送达并发时重复流转，
+            //以及避免把已被 cron 结算为已完成的订单拉回已收货状态
+            $update_result = model('order')->update($order_data, [
+                [ 'order_id', '=', $order_id ],
+                [ 'order_status', '=', $order_model::ORDER_DELIVERY ]
+            ]);
+            if (empty($update_result)) {
+                model('order')->rollback();
+                return $this->error([], '当前订单状态不可确认收货');
+            }
             $this->addCronOrderComplete($order_id);
             event('OrderTakeDelivery', [ 'order_id' => $order_id ]);
 
@@ -1482,9 +1558,11 @@ class OrderCommon extends BaseModel
         if (empty($order_info))
             return $this->error([], "当前订单不是本账号的订单!");
 
-        $action = empty($order_info[ "order_status_action" ]) ? [] : json_decode($order_info[ "order_status_action" ], true);
+$action = empty($order_info[ "order_status_action" ]) ? [] : json_decode($order_info[ "order_status_action" ], true);
         $member_action = $action[ "member_action" ] ?? [];
         $order_info[ 'action' ] = $member_action;
+        //按订单类型（实际配送链路）计算的交易状态文案
+        $order_info[ 'trade_status_name' ] = self::orderTypeStatusName($order_info[ 'order_type' ] ?? 1, $order_info[ 'order_status' ] ?? 0);
         $order_goods_list = model('order_goods')->getList([ [ 'order_id', "=", $order_id ], [ "member_id", "=", $member_id ] ]);
 
 //        $complain_model = new Complain();
@@ -1576,6 +1654,9 @@ class OrderCommon extends BaseModel
                 $action = empty($v[ "order_status_action" ]) ? [] : json_decode($v[ "order_status_action" ], true);
                 $member_action = $action[ "member_action" ] ?? [];
                 $order_list[ 'list' ][ $k ][ 'action' ] = $member_action;
+                //按订单类型（实际配送链路）计算的交易状态文案，供各端展示使用
+                //order_status_name 为下单/流转时的落库快照，历史数据文案与新状态机不一致
+                $order_list[ 'list' ][ $k ][ 'trade_status_name' ] = self::orderTypeStatusName($v[ 'order_type' ] ?? 1, $v[ 'order_status' ] ?? 0);
             }
         }
         return $this->success($order_list);

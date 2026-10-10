@@ -50,8 +50,9 @@ class Order extends BaseApi
             case "waitsend"://待发货
                 $condition[] = [ "order_status", "=", 1 ];
                 break;
-            case "waitconfirm"://待收货
-                $condition[] = [ "order_status", "=", 3 ];
+            case "waitconfirm"://待收货（快递已发货；外卖备餐中/配送中）
+                $condition[] = [ "order_status", "in", [ 2, 3 ] ];
+                $condition[] = [ "order_type", "in", [ 1, 3 ] ];
                 break;
             case "waitrate"://待评价
                 $condition[] = [ "order_status", "in", [ 4, 10 ] ];
@@ -243,8 +244,9 @@ class Order extends BaseApi
                 case "waitsend"://待发货
                     $condition[] = [ "order_status", "=", 1 ];
                     break;
-                case "waitconfirm"://待收货
-                    $condition[] = [ "order_status", "=", 3 ];
+                case "waitconfirm"://待收货（快递已发货；外卖备餐中/配送中），与 lists 保持一致
+                    $condition[] = [ "order_status", "in", [ 2, 3 ] ];
+                    $condition[] = [ "order_type", "in", [ 1, 3 ] ];
                     break;
                 case "waitrate"://待评价
                     $condition[] = [ "order_status", "in", [ 4, 10 ] ];

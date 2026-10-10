@@ -148,4 +148,26 @@ class Localorder extends BaseShop
         return $result;
     }
 
+    /**
+     * 接单（待接单 → 备餐中）
+     */
+    public function take()
+    {
+        $order_id = input("order_id", 0);
+        $local_order_model = new LocalOrderModel();
+        $result = $local_order_model->orderLocalTake($order_id, $this->site_id);
+        return $result;
+    }
+
+    /**
+     * 确认送达（配送中 → 已送达）
+     */
+    public function finish()
+    {
+        $order_id = input("order_id", 0);
+        $local_order_model = new LocalOrderModel();
+        $result = $local_order_model->orderLocalFinishDelivery($order_id, $this->site_id);
+        return $result;
+    }
+
 }

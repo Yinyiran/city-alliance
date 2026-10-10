@@ -5,6 +5,33 @@ Order = function () {
 };
 
 /**
+ * 按订单类型（实际配送链路）输出交易状态文案
+ * 与后端 OrderCommon::orderTypeStatusName() 保持一致，用于兜底历史数据的 order_status_name 快照
+ *
+ * 快递邮寄(order_type=1)：待支付→待发货→已发货→已收货→已完成
+ * 到店核销(order_type=2)：待支付→待核销→已核销→已完成
+ * 外卖自配送(order_type=3)：待支付→待接单→备餐中→配送中→已送达→已完成
+ * @param order_type
+ * @param order_status
+ * @returns {string}
+ */
+function orderTradeStatusName(order_type, order_status) {
+    order_type = parseInt(order_type, 10);
+    order_status = parseInt(order_status, 10);
+    var map;
+    if (order_type == 3) {
+        map = {0:'待支付',1:'待接单',2:'备餐中',3:'配送中',4:'已送达',10:'已完成','-1':'已关闭'};
+        return map[order_status] || '已送达';
+    }
+    if (order_type == 2) {
+        map = {0:'待支付',1:'待核销',2:'待核销',3:'待核销',4:'已核销',10:'已完成','-1':'已关闭'};
+        return map[order_status] || '已核销';
+    }
+    map = {0:'待支付',1:'待发货',2:'待发货',3:'已发货',4:'已收货',10:'已完成','-1':'已关闭'};
+    return map[order_status] || '已收货';
+}
+
+/**
  * 设置数据集
  */
 Order.prototype.setData = function (data) {
@@ -121,7 +148,8 @@ Order.prototype.cols = [
 			//
 			// }
 			
-			var html = '<div>' + order.order_status_name + '</div>';
+			var html = '<div>' + (order.trade_status_name || orderTradeStatusName(order.order_type, order.order_status)) + '</div>';
+			html += '<div>' + (order.order_type_name || '') + '</div>';
 			html += '<div>' + order.promotion_type_name;
 
 			if(order.promotion_type_name != '商品预售' && order.promotion_status_name!='已完成'){
@@ -166,10 +194,16 @@ Order.prototype.cols = [
 			var action_arr = JSON.parse(action_json);
 			var action = action_arr.action;
 			html += '<div class="ns-table-btn">';
+			//外卖自配送订单的按钮由下方按订单状态单独生成（历史订单快照仍是旧按钮「发货」），主循环需跳过
+			var isLocalOrder = (order.order_type == 3);
 			for (var k = 0; k < action.length; k++) {
 				if (action[k].action == "orderAddressUpdate") {
 
 				} else if (action[k].action == "orderAdjustMoney") {
+
+				} else if (isLocalOrder && (action[k].action == "orderLocalDelivery" || action[k].action == "orderLocalTake" || action[k].action == "orderLocalFinish" || action[k].action == "orderDelivery" || action[k].action == "orderTakeDelivery")) {
+					//外卖订单的配送动作由下方按当前状态生成；
+					//历史快照中的 orderDelivery/orderTakeDelivery 是快递流程动作，误点会走错发货弹窗
 
 				} else {
 					html += '<a class="layui-btn" href="javascript:orderAction(\'' + action[k].action + '\', ' + order.order_id + ')">' + action[k].title + '</a>';
@@ -189,6 +223,19 @@ Order.prototype.cols = [
 			// html += '<a class="layui-btn" href="javascript:;" class="default" onclick="orderRemark('+order.order_id+')">备注</a>  ';//默认存在
 			if(order.order_type == 2 && order.order_status == 2){
 				html += '<a class="layui-btn" href="javascript:storeOrderTakedelivery(' + order.order_id + ')">提货</a>';
+			}
+
+			//外卖自配送：商家按 待接单→备餐中→配送中→已送达 逐级操作
+			//（外卖旧按钮已在主循环中过滤，此处按订单状态生成正确的操作按钮）
+			if(order.order_type == 3){
+				if(order.order_status == 1){
+					html += '<a class="layui-btn" href="javascript:orderLocalTake(' + order.order_id + ')">接单</a>';
+					html += '<a class="layui-btn" href="javascript:orderLocalDelivery(' + order.order_id + ')">开始配送</a>';
+				} else if(order.order_status == 2){
+					html += '<a class="layui-btn" href="javascript:orderLocalDelivery(' + order.order_id + ')">开始配送</a>';
+				} else if(order.order_status == 3){
+					html += '<a class="layui-btn" href="javascript:orderLocalFinish(' + order.order_id + ')">确认送达</a>';
+				}
 			}
 
 			html += '</div>';

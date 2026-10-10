@@ -1,4 +1,30 @@
 /**
+ * 按订单类型（实际配送链路）输出交易状态文案
+ * 与后端 OrderCommon::orderTypeStatusName() 保持一致，用于兜底历史数据的 order_status_name 快照
+ *
+ * 快递邮寄(order_type=1)：待支付→待发货→已发货→已收货→已完成
+ * 到店核销(order_type=2)：待支付→待核销→已核销→已完成
+ * 外卖自配送(order_type=3)：待支付→待接单→备餐中→配送中→已送达→已完成
+ * @param order_type
+ * @param order_status
+ * @returns {string}
+ */
+function orderTradeStatusName(order_type, order_status) {
+    order_type = parseInt(order_type, 10);
+    order_status = parseInt(order_status, 10);
+    var map;
+    if (order_type == 3) {
+        map = {0:'待支付',1:'待接单',2:'备餐中',3:'配送中',4:'已送达',10:'已完成','-1':'已关闭'};
+        return map[order_status] || '已送达';
+    }
+    if (order_type == 2) {
+        map = {0:'待支付',1:'待核销',2:'待核销',3:'待核销',4:'已核销',10:'已完成','-1':'已关闭'};
+        return map[order_status] || '已核销';
+    }
+    map = {0:'待支付',1:'待发货',2:'待发货',3:'已发货',4:'已收货',10:'已完成','-1':'已关闭'};
+    return map[order_status] || '已收货';
+}
+/**
  * 渲染订单列表
  */
 Order = function(){};
@@ -108,7 +134,7 @@ Order.prototype.cols = [
         className : "transaction-status",
         merge : true,
         template : function(orderitem,order){
-            var html = '<div>' + order.order_status_name + '</div>';
+            var html = '<div>' + (order.trade_status_name || orderTradeStatusName(order.order_type, order.order_status)) + '</div>';
             return html;
         }
     },

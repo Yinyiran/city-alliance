@@ -131,6 +131,58 @@ function extendTakeDelivery(order_id){
 }
 
 /**
+ * 外卖订单-商家接单（待接单 → 备餐中）
+ * @param order_id
+ */
+function orderLocalTake(order_id){
+	layer.confirm('确认接下该外卖订单吗?', {title:'商家接单'}, function() {
+		$.ajax({
+			url: ns.url("shop/localorder/take"),
+			data: {order_id : order_id},
+			dataType: 'JSON',
+			type: 'POST',
+			success: function(res) {
+				layer.msg(res.message, {}, function(){
+					if (res.code == 0) {
+						location.reload();
+					} else {
+						layer.closeAll();
+					}
+				});
+			}
+		});
+	}, function () {
+		layer.close();
+	});
+}
+
+/**
+ * 外卖订单-商家确认送达（配送中 → 已送达）
+ * @param order_id
+ */
+function orderLocalFinish(order_id){
+	layer.confirm('确认该订单已送达顾客吗?<br/><span style="color:red;size:12px;">提示:确认后订单进入已送达状态</span>', {title:'确认送达'}, function() {
+		$.ajax({
+			url: ns.url("shop/localorder/finish"),
+			data: {order_id : order_id},
+			dataType: 'JSON',
+			type: 'POST',
+			success: function(res) {
+				layer.msg(res.message, {}, function(){
+					if (res.code == 0) {
+						location.reload();
+					} else {
+						layer.closeAll();
+					}
+				});
+			}
+		});
+	}, function () {
+		layer.close();
+	});
+}
+
+/**
  * 线下支付
  * @param order_id
  */
