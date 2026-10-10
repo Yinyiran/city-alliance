@@ -63,6 +63,8 @@ export const dodelivery=params=>server('/shopapplet/order/dodelivery',params)
 export const cashierCode=params=>server('/shopapplet/cashier/cashierCode',params)
 //预约日程
 export const cashierSchedule=params=>server('/shopapplet/cashier/schedule',params)
+//收银台：查询某日可预约时段（改约用）
+export const cashierSlots=params=>server('/shopapplet/cashier/slots',params)
 //商家改约
 export const cashierReschedule=params=>server('/shopapplet/cashier/reschedule',params)
 //我的积分

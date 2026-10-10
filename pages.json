@@ -37,9 +37,17 @@
 		},
 		{
 			"path" : "writeOff/writeOff",
-			"style" : 
+			"style" :
 			{
 				"navigationBarTitleText" : "扫码核销",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path" : "cashier/cashier",
+			"style" :
+			{
+				"navigationBarTitleText" : "收银台",
 				"navigationStyle": "custom"
 			}
 		},
