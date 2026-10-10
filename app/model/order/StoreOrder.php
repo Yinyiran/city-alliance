@@ -179,7 +179,7 @@ class StoreOrder extends OrderCommon
         $verify_content_json = $verify->getVerifyJson($item_array, $remark_array);
 
         $code = $verify->addVerify("pickup", $order_info[ 'site_id' ], $order_info[ 'site_name' ], $verify_content_json, $order_info[ "order_id" ]);
-        //标记核销对应的交易类型（到店消费/预约到店/到店自提）
+        //标记核销对应的交易类型（到店自提/到店消费/预约到店）
         model('verify')->update([
             'trade_type' => intval($order_info[ 'trade_type' ] ?? 0),
         ], [ [ 'verify_code', '=', $code[ 'data' ][ 'verify_code' ] ] ]);

@@ -229,7 +229,7 @@ class Goods extends BaseShop
                 'brand_name' => input("brand_name", ''),//品牌名称
                 'goods_shop_category_ids' => input("goods_shop_category_ids", ""),// 店内分类id,逗号隔开,//供应商id
                 'supplier_id' => input("supplier_id", 0),//供应商id
-                //交易类型 0普通 1到店消费 2预约到店 3到店自提 4外卖
+                //交易类型 0到店自提 1到店消费 2预约到店 3快递邮寄 4外卖配送
                 'trade_type' => input("trade_type", 0),
                 'service_duration' => input("service_duration", 0),//服务时长(分钟)
                 'min_order_amount' => input("min_order_amount", 0),//到店消费起付金额
@@ -365,7 +365,7 @@ class Goods extends BaseShop
                 'brand_name' => input("brand_name", ''),//品牌名称
                 'goods_shop_category_ids' => input("goods_shop_category_ids", ""),// 店内分类id,逗号隔开,//供应商id
                 'supplier_id' => input("supplier_id", 0),//供应商id
-                //交易类型 0普通 1到店消费 2预约到店 3到店自提 4外卖
+                //交易类型 0到店自提 1到店消费 2预约到店 3快递邮寄 4外卖配送
                 'trade_type' => input("trade_type", 0),
                 'service_duration' => input("service_duration", 0),//服务时长(分钟)
                 'min_order_amount' => input("min_order_amount", 0),//到店消费起付金额

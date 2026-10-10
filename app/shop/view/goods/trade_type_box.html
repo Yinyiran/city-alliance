@@ -5,13 +5,13 @@
 		<div class="layui-form-item">
 			<label class="layui-form-label">交易类型：</label>
 			<div class="layui-input-block">
-				<input type="radio" name="trade_type" value="0" title="普通商品" lay-filter="trade_type" {if $goods_info.trade_type == 0}checked{/if}>
+				<input type="radio" name="trade_type" value="0" title="到店自提" lay-filter="trade_type" {if $goods_info.trade_type == 0}checked{/if}>
 				<input type="radio" name="trade_type" value="1" title="到店消费" lay-filter="trade_type" {if $goods_info.trade_type == 1}checked{/if}>
 				<input type="radio" name="trade_type" value="2" title="预约到店" lay-filter="trade_type" {if $goods_info.trade_type == 2}checked{/if}>
-				<input type="radio" name="trade_type" value="3" title="到店自提" lay-filter="trade_type" {if $goods_info.trade_type == 3}checked{/if}>
+				<input type="radio" name="trade_type" value="3" title="快递邮寄" lay-filter="trade_type" {if $goods_info.trade_type == 3}checked{/if}>
 				<input type="radio" name="trade_type" value="4" title="外卖配送" lay-filter="trade_type" {if $goods_info.trade_type == 4}checked{/if}>
 			</div>
-			<div class="ns-word-aux">到店消费/预约到店/到店自提：顾客到店下单，支持门店扫码收款与到店核销；外卖配送：走同城配送；普通商品：维持原有物流/自提流程。</div>
+			<div class="ns-word-aux">到店自提、到店消费、预约到店均需到店扫码核销，区别在于：到店自提是自提后不在店内消费，到店消费是在店内完成消费；快递邮寄走原有物流/运费模板流程；外卖配送走同城配送。</div>
 		</div>
 		<div class="layui-form-item js-trade-box" data-trade="1,2" style="display:none">
 			<label class="layui-form-label">服务时长：</label>

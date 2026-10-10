@@ -131,7 +131,7 @@ class Goodssku extends BaseApi
 
         $res[ 'shop_info' ]['address'] = $address;
 
-        //交易类型相关信息（到店消费/预约到店/到店自提/外卖）
+        //交易类型相关信息（到店自提/到店消费/预约到店/快递邮寄/外卖配送）
         $trade_type = intval($res[ 'goods_sku_detail' ][ 'trade_type' ] ?? 0);
         $trade_info = [
             'trade_type' => $trade_type,
@@ -143,8 +143,8 @@ class Goodssku extends BaseApi
             'store_list' => [],
             'date_list' => [],
         ];
-        //到店类商品返回可预约/可核销门店
-        if (in_array($trade_type, [ 1, 2, 3 ])) {
+        //到店自提/到店消费/预约到店均需到店扫码核销，返回可核销门店
+        if (\app\model\order\OrderCreate::isStoreTradeType($trade_type)) {
             $store_list = model('store')->getList([
                 [ 'site_id', '=', $goods_sku_detail[ 'site_id' ] ],
                 [ 'is_pickup', '=', 1 ],

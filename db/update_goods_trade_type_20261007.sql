@@ -1,12 +1,12 @@
 -- ============================================================
--- 商品交易类型改造（到店消费 / 预约到店 / 到店自提 / 外卖）
+-- 商品交易类型改造（到店自提 / 到店消费 / 预约到店 / 快递邮寄 / 外卖配送）
 -- 幂等脚本：可重复执行；执行前请先备份数据库
--- 日期：2026-10-07
+-- 日期：2026-10-07（2026-10-10 更新语义：0=到店自提，3=快递邮寄）
 -- ============================================================
 
 -- ① 商品主表：交易类型与服务配置 -------------------------------------------
 SET @exist := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'goods' AND COLUMN_NAME = 'trade_type');
-SET @sql := IF(@exist = 0, 'ALTER TABLE `goods` ADD COLUMN `trade_type` tinyint NOT NULL DEFAULT 0 COMMENT ''交易类型 0=普通商品 1=到店消费 2=预约到店 3=到店自提 4=外卖配送''', 'DO 0');
+SET @sql := IF(@exist = 0, 'ALTER TABLE `goods` ADD COLUMN `trade_type` tinyint NOT NULL DEFAULT 0 COMMENT ''交易类型 0=到店自提 1=到店消费 2=预约到店 3=快递邮寄 4=外卖配送''', 'DO 0');
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
 SET @exist := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'goods' AND COLUMN_NAME = 'service_duration');
@@ -41,7 +41,7 @@ PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
 -- ④ 订单表：交易类型 / 自定义金额 / 预约信息 / 支付场景 ----------------------
 SET @exist := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'order' AND COLUMN_NAME = 'trade_type');
-SET @sql := IF(@exist = 0, 'ALTER TABLE `order` ADD COLUMN `trade_type` tinyint NOT NULL DEFAULT 0 COMMENT ''交易类型 0普通 1到店消费 2预约到店 3到店自提 4外卖配送''', 'DO 0');
+SET @sql := IF(@exist = 0, 'ALTER TABLE `order` ADD COLUMN `trade_type` tinyint NOT NULL DEFAULT 0 COMMENT ''交易类型 0到店自提 1到店消费 2预约到店 3快递邮寄 4外卖配送''', 'DO 0');
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
 SET @exist := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'order' AND COLUMN_NAME = 'custom_amount');

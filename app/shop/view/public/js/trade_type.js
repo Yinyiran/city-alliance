@@ -12,7 +12,9 @@ layui.use(['form'], function () {
             var types = String($(this).data('trade')).split(',');
             $(this).css('display', types.indexOf(tradeType) > -1 ? '' : 'none');
         });
-        $('.js-shipping-card').css('display', tradeType == '0' ? '' : 'none');
+        //仅到店自提(0)与快递邮寄(3)需要物流配送信息，其余为到店/同城场景
+        var needShipping = tradeType === '0' || tradeType === '3';
+        $('.js-shipping-card').css('display', needShipping ? '' : 'none');
     }
 
     form.on('radio(trade_type)', function (data) { toggleTradeBox(data.value); });

@@ -156,7 +156,7 @@ class Goods extends BaseModel
 
                 'goods_shop_category_ids' => $data[ 'goods_shop_category_ids' ] ?? '',
                 'supplier_id' => $data[ 'supplier_id' ] ?? 0,
-                //交易类型 0普通 1到店消费 2预约到店 3到店自提 4外卖（goods 与 goods_sku 表均存在）
+                //交易类型 0到店自提 1到店消费 2预约到店 3快递邮寄 4外卖配送（goods 与 goods_sku 表均存在）
                 'trade_type' => $data[ 'trade_type' ] ?? 0,
                 'service_duration' => $data[ 'service_duration' ] ?? 0,
 
@@ -406,7 +406,7 @@ public function addSignrewardGoods($data)
 
                 'goods_shop_category_ids' => $data[ 'goods_shop_category_ids' ] ?? '',
                 'supplier_id' => $data[ 'supplier_id' ] ?? 0,
-                //交易类型 0普通 1到店消费 2预约到店 3到店自提 4外卖（goods 与 goods_sku 表均存在）
+                //交易类型 0到店自提 1到店消费 2预约到店 3快递邮寄 4外卖配送（goods 与 goods_sku 表均存在）
                 'trade_type' => $data[ 'trade_type' ] ?? 0,
                 'service_duration' => $data[ 'service_duration' ] ?? 0,
 
@@ -588,7 +588,7 @@ public function addSignrewardGoods($data)
 
                 'goods_shop_category_ids' => $data[ 'goods_shop_category_ids' ] ?? '',
                 'supplier_id' => $data[ 'supplier_id' ] ?? 0,
-                //交易类型 0普通 1到店消费 2预约到店 3到店自提 4外卖（goods 与 goods_sku 表均存在）
+                //交易类型 0到店自提 1到店消费 2预约到店 3快递邮寄 4外卖配送（goods 与 goods_sku 表均存在）
                 'trade_type' => $data[ 'trade_type' ] ?? 0,
                 'service_duration' => $data[ 'service_duration' ] ?? 0,
 
@@ -770,7 +770,7 @@ public function addSignrewardGoods($data)
                 'verify_state' => $verify_state,
                 'goods_shop_category_ids' => $data[ 'goods_shop_category_ids' ] ?? '',
                 'supplier_id' => $data[ 'supplier_id' ] ?? 0,
-                //交易类型 0普通 1到店消费 2预约到店 3到店自提 4外卖（goods 与 goods_sku 表均存在）
+                //交易类型 0到店自提 1到店消费 2预约到店 3快递邮寄 4外卖配送（goods 与 goods_sku 表均存在）
                 'trade_type' => $data[ 'trade_type' ] ?? 0,
                 'service_duration' => $data[ 'service_duration' ] ?? 0,
                 'site_name' => $shop_info[ 'site_name' ],
@@ -1057,7 +1057,7 @@ public function addSignrewardGoods($data)
                 'verify_state' => $verify_state,
                 'goods_shop_category_ids' => $data[ 'goods_shop_category_ids' ] ?? '',
                 'supplier_id' => $data[ 'supplier_id' ] ?? 0,
-                //交易类型 0普通 1到店消费 2预约到店 3到店自提 4外卖（goods 与 goods_sku 表均存在）
+                //交易类型 0到店自提 1到店消费 2预约到店 3快递邮寄 4外卖配送（goods 与 goods_sku 表均存在）
                 'trade_type' => $data[ 'trade_type' ] ?? 0,
                 'service_duration' => $data[ 'service_duration' ] ?? 0,
                 'site_name' => $shop_info[ 'site_name' ],
@@ -1341,7 +1341,7 @@ public function editSignrewardGoods($data)
                 'verify_state' => $verify_state,
                 'goods_shop_category_ids' => $data[ 'goods_shop_category_ids' ] ?? '',
                 'supplier_id' => $data[ 'supplier_id' ] ?? 0,
-                //交易类型 0普通 1到店消费 2预约到店 3到店自提 4外卖（goods 与 goods_sku 表均存在）
+                //交易类型 0到店自提 1到店消费 2预约到店 3快递邮寄 4外卖配送（goods 与 goods_sku 表均存在）
                 'trade_type' => $data[ 'trade_type' ] ?? 0,
                 'service_duration' => $data[ 'service_duration' ] ?? 0,
                 'site_name' => $shop_info[ 'site_name' ],
@@ -1809,7 +1809,7 @@ public function editSignrewardGoods($data)
      * @param string $order
      * @param string $field
      */
-    public function getGoodsPageList($condition = [], $page = 1, $page_size = PAGE_LIST_ROWS, $order = 'create_time desc', $field = 'goods_id,goods_name,site_id,site_name,goods_image,is_own,goods_state,verify_state,price,goods_stock,goods_stock_alarm,create_time,sale_num,is_virtual,goods_class,is_fenxiao,fenxiao_type,sku_id,is_consume_discount,discount_config,discount_method,max_buy,min_buy,promotion_addon,sort,point', $alias = '', $join = '', $group = null)
+    public function getGoodsPageList($condition = [], $page = 1, $page_size = PAGE_LIST_ROWS, $order = 'create_time desc', $field = 'goods_id,goods_name,site_id,site_name,goods_image,is_own,goods_state,verify_state,price,goods_stock,goods_stock_alarm,create_time,sale_num,is_virtual,goods_class,is_fenxiao,fenxiao_type,sku_id,is_consume_discount,discount_config,discount_method,max_buy,min_buy,promotion_addon,sort,point,trade_type', $alias = '', $join = '', $group = null)
     {
         $list = model('goods')->pageList($condition, $field, $order, $page, $page_size, $alias, $join, $group);
         return $this->success($list);

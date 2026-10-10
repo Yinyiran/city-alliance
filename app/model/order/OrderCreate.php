@@ -70,11 +70,11 @@ class OrderCreate extends BaseModel
     public $appointment_log_id = 0; //预约占用记录ID
 
     //交易类型常量
-    const TRADE_NORMAL = 0;   //普通商品
-    const TRADE_CONSUME = 1;  //到店消费
-    const TRADE_APPOINTMENT = 2; //预约到店
-    const TRADE_PICKUP = 3;   //到店自提
-    const TRADE_LOCAL = 4;    //外卖配送
+    const TRADE_PICKUP = 0;      //到店自提（到店核销：自提带走，不在店消费）
+    const TRADE_CONSUME = 1;     //到店消费（到店核销：在店内完成消费）
+    const TRADE_APPOINTMENT = 2; //预约到店（到店核销：按预约时段到店）
+    const TRADE_EXPRESS = 3;     //快递邮寄
+    const TRADE_LOCAL = 4;       //外卖配送
 
     /**
      * 交易类型名称
@@ -82,27 +82,66 @@ class OrderCreate extends BaseModel
     public static function tradeTypeName($trade_type)
     {
         $name = [
-            self::TRADE_NORMAL => '普通商品',
+            self::TRADE_PICKUP => '到店自提',
             self::TRADE_CONSUME => '到店消费',
             self::TRADE_APPOINTMENT => '预约到店',
-            self::TRADE_PICKUP => '到店自提',
+            self::TRADE_EXPRESS => '快递邮寄',
             self::TRADE_LOCAL => '外卖配送',
         ];
-        return $name[ intval($trade_type) ] ?? '普通商品';
+        return $name[ intval($trade_type) ] ?? '到店自提';
+    }
+
+    /**
+     * 是否到店扫码核销类交易类型
+     * 到店自提/到店消费/预约到店均需选择门店并出示核销码扫码核销；
+     * 快递邮寄与外卖配送不涉及门店核销。
+     * @param int $trade_type
+     * @return bool
+     */
+    public static function isStoreTradeType($trade_type)
+    {
+        return in_array( intval($trade_type), [ self::TRADE_PICKUP, self::TRADE_CONSUME, self::TRADE_APPOINTMENT ], true );
     }
 
     /**
      * 交易类型 -> 配送方式
+     * 到店消费/预约到店强制门店核销；快递邮寄强制物流；外卖配送强制同城；
+     * 到店自提(0) 返回空字符串，表示不强制——由下单页按门店自提/快递自选
+     * （历史订单中到店自提商品既有走门店自提也有走快递发货）
      */
     public static function tradeTypeDelivery($trade_type)
     {
         $map = [
             self::TRADE_CONSUME => 'store',
             self::TRADE_APPOINTMENT => 'store',
-            self::TRADE_PICKUP => 'store',
+            self::TRADE_EXPRESS => 'express',
             self::TRADE_LOCAL => 'local',
         ];
         return $map[ intval($trade_type) ] ?? '';
+    }
+
+    /**
+     * 交易类型 -> 配送方式是否强制
+     * @param int $trade_type
+     * @return bool
+     */
+    public static function isFixedDeliveryTradeType($trade_type)
+    {
+        return in_array( intval($trade_type), [ self::TRADE_CONSUME, self::TRADE_APPOINTMENT, self::TRADE_EXPRESS, self::TRADE_LOCAL ], true );
+    }
+
+    /**
+     * 交易类型下拉选项（含「全部」）
+     * 供各端订单列表筛选项统一使用，避免硬编码
+     * @return array
+     */
+    public static function tradeTypeList()
+    {
+        $list = [ '' => '全部' ];
+        foreach ( [ self::TRADE_PICKUP, self::TRADE_CONSUME, self::TRADE_APPOINTMENT, self::TRADE_EXPRESS, self::TRADE_LOCAL ] as $type ) {
+            $list[ $type ] = self::tradeTypeName( $type );
+        }
+        return $list;
     }
 
 
@@ -1471,14 +1510,17 @@ class OrderCreate extends BaseModel
             $delivery_array = $data['delivery'][$site_id] ?? [];
             $delivery_type = $delivery_array["delivery_type"] ?? 'express';
 
-            //交易类型（到店消费/预约到店/到店自提/外卖）强制配送方式
+            //交易类型强制配送方式：到店消费/预约到店 -> 门店核销；快递邮寄 -> 物流；外卖配送 -> 同城
+            //注：到店自提(0)不强制，保留顾客自选门店自提或快递（与历史订单行为一致）
             $trade_type = $this->resolveTradeType($shop_goods);
-            if ($trade_type > 0) {
-                $delivery_type = self::tradeTypeDelivery($trade_type);
-                $delivery_array[ 'delivery_type' ] = $delivery_type;
-                $data['delivery'][ $site_id ] = $delivery_array;
-                $shop_goods['delivery']['delivery_type'] = $delivery_type;
-                $shop_goods['delivery']['delivery_type_name'] = $delivery_type == 'local' ? '外卖配送' : '到店消费';
+            if ($trade_type >= 0) {
+                if (self::isFixedDeliveryTradeType($trade_type)) {
+                    $delivery_type = self::tradeTypeDelivery($trade_type);
+                    $delivery_array[ 'delivery_type' ] = $delivery_type;
+                    $data['delivery'][ $site_id ] = $delivery_array;
+                    $shop_goods['delivery']['delivery_type'] = $delivery_type;
+                    $shop_goods['delivery']['delivery_type_name'] = self::tradeTypeName($trade_type);
+                }
                 $shop_goods['trade_type'] = $trade_type;
                 $this->trade_type = $trade_type;
             }
@@ -1596,8 +1638,9 @@ class OrderCreate extends BaseModel
      */
     public function resolveTradeType($shop_goods)
     {
+        //无有效商品时返回 -1，便于调用方区分「无交易类型」与「到店自提(0)」这种有效类型
         $trade_type = 0;
-        if (empty($shop_goods['goods_list']) || !is_array($shop_goods['goods_list'])) return 0;
+        if (empty($shop_goods['goods_list']) || !is_array($shop_goods['goods_list'])) return -1;
 
         foreach ($shop_goods['goods_list'] as $goods) {
             //优先取SKU冗余字段

@@ -60,9 +60,9 @@ class Order extends BaseApi
             case "waitstock"://待提货
                 $condition[] = ["order_status", "in", [2]];
                 break;
-            case "waitappointment"://待到店（预约/到店消费未核销）
+            case "waitappointment"://待到店（到店自提/到店消费/预约到店未核销）
                 $condition[] = [ "order_status", "in", [ 1, 2 ] ];
-                $condition[] = [ "trade_type", "in", [ 1, 2, 3 ] ];
+                $condition[] = [ "trade_type", "in", [ 0, 1, 2 ] ];
                 $condition[] = [ "delivery_status", "=", 0 ];
                 break;
             case "waitexpress"://外卖配送中
