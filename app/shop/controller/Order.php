@@ -295,7 +295,10 @@ class Order extends BaseShop
                 [ "order_id", "=", $order_id ],
                 [ "site_id", "=", $this->site_id ],
             );
-            if ($delivery_status === '') {
+            //仅在明确指定发货状态时才过滤。原判断写作 `if ($delivery_status === '')`
+            //导致未指定状态时反而追加 delivery_status='' 的恒假条件、查不到任何商品项，
+            //而指定了状态时又不生效。
+            if ($delivery_status !== '' && $delivery_status !== null) {
                 $condition[] = [ "delivery_status", "=", $delivery_status ];
             }
             $field = "order_goods_id, order_id, site_id, site_name, sku_name, sku_image, sku_no, is_virtual, price, cost_price, num, goods_money, cost_money, delivery_status, delivery_no, goods_id, delivery_status_name";
