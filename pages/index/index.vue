@@ -16,10 +16,11 @@
 
 			<view class="part1">
 				<view class="acea-row row-middle row-between">
-					<view class="acea-row row-middle row-center" @click="gonext('deliveryOrder')">
+					<view class="acea-row row-middle row-center" @click="goTradeOrder('all', 'pending')">
 						<image src="/static/img1.png" class="w-88 h-88 m-r-20" mode=""></image>
 						<view class="acea-row row-middle font-32 fcolor1">
-							待核销订单
+							待处理订单
+							<text class="pending-badge" v-if="pendingOrder.total_pending > 0">{{ pendingOrder.total_pending }}</text>
 							<image src="/static/go.png" class="w-16 h-16 m-l-4" mode=""></image>
 						</view>
 					</view>
@@ -29,6 +30,21 @@
 							扫码核销
 							<image src="/static/go.png" class="w-16 h-16 m-l-4" mode=""></image>
 						</view>
+					</view>
+				</view>
+				<!-- 按交易类型处理订单的快捷入口 -->
+				<view class="order-quick acea-row row-middle row-between m-t-24">
+					<view class="quick-item acea-row row-middle row-center" @click="goTradeOrder('express', 'pending')">
+						<text class="q-name">快递发货</text>
+						<text class="q-badge" v-if="pendingOrder.express_pending > 0">{{ pendingOrder.express_pending }}</text>
+					</view>
+					<view class="quick-item acea-row row-middle row-center" @click="goTradeOrder('store', 'pending')">
+						<text class="q-name">到店核销</text>
+						<text class="q-badge" v-if="pendingOrder.store_pending > 0">{{ pendingOrder.store_pending }}</text>
+					</view>
+					<view class="quick-item acea-row row-middle row-center" @click="goTradeOrder('local', 'pending')">
+						<text class="q-name">外卖配送</text>
+						<text class="q-badge" v-if="pendingOrder.local_pending > 0">{{ pendingOrder.local_pending }}</text>
 					</view>
 				</view>
 				<view class="line1 m-t-32"></view>
@@ -286,7 +302,8 @@
 		getInfo,
 		getOrderInfo,
 		dodelivery,
-		getIncomeSummary
+		getIncomeSummary,
+		tradePendingCount
 	} from "@/common/js/api.js"
 	import ShopSelectPopup from "@/components/shop-select-popup/shop-select-popup.vue"
 
@@ -302,6 +319,13 @@
 				current: 0,
 				points: 0,
 				total_count: 0,
+				//待处理订单数量（快递待发货 / 到店待核销 / 外卖待处理）
+				pendingOrder: {
+					express_pending: 0,
+					store_pending: 0,
+					local_pending: 0,
+					total_pending: 0
+				},
 				leveltotal: [],
 				list: [],
 				list2: [],
@@ -667,6 +691,21 @@
 					url: url
 				});
 			},
+			// 进入订单管理页并定位到指定分组与处理阶段
+			goTradeOrder(biz, stage) {
+				if (!uni.getStorageSync('token')) {
+					if (this.$refs.login) this.$refs.login.open()
+					return
+				}
+				let url = '/otherpages/tradeOrder/tradeOrder';
+				const qs = [];
+				if (biz) qs.push('biz=' + biz);
+				if (stage) qs.push('stage=' + stage);
+				if (qs.length) url += '?' + qs.join('&');
+				uni.navigateTo({
+					url: url
+				});
+			},
 			getnum() {
 				getnum().then(res => {
 					const d = (res && res.code == 0 && res.data) || {}
@@ -674,6 +713,20 @@
 					this.total_count = (d.team_total && d.team_total.total_count) || 0
 					this.leveltotal = (d.team_total && d.team_total.leveltotal) || []
 				})
+				this.fetchPendingCount()
+			},
+			// 待处理订单数量（首页角标）
+			fetchPendingCount() {
+				tradePendingCount({}).then(res => {
+					if (res && res.code == 0 && res.data) {
+						this.pendingOrder = {
+							express_pending: res.data.express_pending || 0,
+							store_pending: res.data.store_pending || 0,
+							local_pending: res.data.local_pending || 0,
+							total_pending: res.data.total_pending || 0
+						}
+					}
+				}).catch(() => {})
 			},
 			fetchIncomeSummary() {
 				let site_id = uni.getStorageSync('site_id') || 0
@@ -886,6 +939,49 @@
 
 	.line1 {
 		border: 1rpx dashed #555555;
+	}
+
+	/* 待处理订单角标 */
+	.pending-badge {
+		margin-left: 8rpx;
+		min-width: 32rpx;
+		height: 32rpx;
+		line-height: 32rpx;
+		text-align: center;
+		padding: 0 8rpx;
+		background: #F51D1D;
+		color: #fff;
+		font-size: 20rpx;
+		border-radius: 16rpx;
+	}
+
+	/* 按交易类型处理订单的快捷入口 */
+	.order-quick {
+		.quick-item {
+			position: relative;
+			width: calc((100% - 32rpx)/3);
+			height: 68rpx;
+			background: rgba(255, 255, 255, 0.08);
+			border-radius: 34rpx;
+
+			.q-name {
+				font-size: 26rpx;
+				color: #F5B67F;
+			}
+
+			.q-badge {
+				margin-left: 8rpx;
+				min-width: 28rpx;
+				height: 28rpx;
+				line-height: 28rpx;
+				text-align: center;
+				padding: 0 6rpx;
+				background: #F51D1D;
+				color: #fff;
+				font-size: 18rpx;
+				border-radius: 14rpx;
+			}
+		}
 	}
 
 	.wbg {

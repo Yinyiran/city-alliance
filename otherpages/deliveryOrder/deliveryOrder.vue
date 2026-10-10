@@ -1,5 +1,13 @@
 <template>
 	<view>
+		<!-- 页面已由「订单管理-到店核销」分组取代，保留入口引导，避免两套核销列表口径不一致 -->
+		<view class="tips-bar acea-row row-middle row-between" @click="goTradeOrder">
+			<text class="tips-text">订单管理已升级，可在新页面按交易类型查看与核销订单</text>
+			<view class="tips-go acea-row row-middle row-center">
+				<text>前往</text>
+				<uv-icon name="arrow-right" color="#F55606" size="12"></uv-icon>
+			</view>
+		</view>
 		<view class="container">
 			<view v-for="(item,index) in list" class="p-28 items" :key="index" @click="$util.redirectTo('/otherpages/orderDetail/orderDetail',{id:item.order_id})">
 				<view class="acea-row row-middle row-between">
@@ -83,6 +91,12 @@
 					url:'/otherpages/writeOff/writeOff?code='+e
 				})
 			},
+			// 旧「待核销」页已由订单管理页的「到店核销」分组取代，引导至新入口
+			goTradeOrder(){
+				uni.redirectTo({
+					url:'/otherpages/tradeOrder/tradeOrder?biz=store&stage=pending'
+				})
+			},
 			onchange(e){
 				// console.log(e);
 				this.current=e.index
@@ -107,6 +121,26 @@
 </script>
 
 <style lang="scss">
+	.tips-bar {
+		margin: 20rpx 24rpx 0;
+		padding: 20rpx 24rpx;
+		background: #FFF7EE;
+		border-radius: 16rpx;
+
+		.tips-text {
+			flex: 1;
+			font-size: 24rpx;
+			color: #FE780F;
+		}
+
+		.tips-go {
+			flex-shrink: 0;
+			font-size: 24rpx;
+			color: #F55606;
+			font-weight: 600;
+		}
+	}
+
 	.container {
 		margin: 20rpx 24rpx;
 

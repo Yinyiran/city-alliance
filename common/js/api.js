@@ -31,6 +31,22 @@ export const dosignin=params=>server('/shopapplet/sign/dosignin',params)
 export const orderlist=params=>server('/shopapplet/order/orderlist',params)
 //待核销订单列表
 export const deliveryOrder=params=>server('/shopapplet/order/deliveryOrder',params)
+//商家订单管理：待处理订单数量（首页角标/页签计数）
+export const tradePendingCount=params=>server('/shopapplet/tradeorder/pendingCount',params)
+//商家订单管理：订单列表（biz_type=all/express/store/local，stage=pending/doing/finished/all）
+export const tradeOrderList=params=>server('/shopapplet/tradeorder/lists',params)
+//商家订单管理：订单详情
+export const tradeOrderDetail=params=>server('/shopapplet/tradeorder/detail',params)
+//商家订单管理：可发货的物流公司列表
+export const expressCompany=params=>server('/shopapplet/tradeorder/expressCompany',params)
+//商家订单管理：快递发货
+export const expressDelivery=params=>server('/shopapplet/tradeorder/expressDelivery',params)
+//商家订单管理：外卖接单
+export const localTake=params=>server('/shopapplet/tradeorder/localTake',params)
+//商家订单管理：外卖开始配送（需填配送员）
+export const localDelivery=params=>server('/shopapplet/tradeorder/localDelivery',params)
+//商家订单管理：外卖确认送达
+export const localFinish=params=>server('/shopapplet/tradeorder/localFinish',params)
 //我的页面头部数据
 export const myIndex=params=>server('/shopapplet/my/index',params)
 //员工会员邀约排行
