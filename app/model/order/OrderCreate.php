@@ -1593,11 +1593,14 @@ class OrderCreate extends BaseModel
                     $delivery_money = 0;
                     $shop_goods['delivery']['delivery_type'] = 'store';
                     //到店类交易不校验门店自提开关（由商家自行配置门店）
-                    if ($shop_goods["store_config"]["is_use"] == 0 && empty($trade_type)) {
+                    //注：trade_type=0(到店自提)是合法交易类型，不能用 empty() 判断，
+                    //否则到店自提会被当成「无交易类型」而误校验门店自提开关
+                    if ($shop_goods["store_config"]["is_use"] == 0 && intval($trade_type) < 0) {
                         $self->error = 1;
                         $self->error_msg = "门店自提方式未开启!";
                     }
-                    if (empty($delivery_array["store_id"]) && !empty($trade_type)) {
+                    //到店类交易(0/1/2)未指定门店时自动取第一个可用门店
+                    if (empty($delivery_array["store_id"]) && intval($trade_type) >= 0) {
                         //到店类交易未指定门店时自动取第一个可用门店
                         $auto_store = $this->getFirstStore($site_id);
                         if (empty($auto_store)) {
@@ -1642,6 +1645,7 @@ class OrderCreate extends BaseModel
         $trade_type = 0;
         if (empty($shop_goods['goods_list']) || !is_array($shop_goods['goods_list'])) return -1;
 
+        $type_set = [];
         foreach ($shop_goods['goods_list'] as $goods) {
             //优先取SKU冗余字段
             $item_type = intval($goods[ 'trade_type' ] ?? 0);
@@ -1652,9 +1656,36 @@ class OrderCreate extends BaseModel
                 $goods[ 'min_order_amount' ] = $goods_info[ 'min_order_amount' ] ?? 0;
                 $goods[ 'max_order_amount' ] = $goods_info[ 'max_order_amount' ] ?? 0;
             }
+            $type_set[ $item_type ] = true;
             if ($item_type > $trade_type) $trade_type = $item_type;
         }
+
+        //同一店铺订单内不允许混用不同交易类型。
+        //履约按 order_type 分流，若沿用「取最大值」会把整单改写成另一种链路
+        //（例如到店商品 + 快递商品同单时 trade_type 被抬成 3，整单走快递），
+        //导致到店核销、门店选择、预约时段、自定义金额等分支全部失效。
+        //这里不做静默归一，直接拦截并提示分开下单。
+        if (count($type_set) > 1) {
+            $this->error = 1;
+            $this->error_msg = '同一订单不能包含不同交易类型的商品，请分开下单！当前包含：'
+                . self::tradeTypeNames( array_keys( $type_set ) );
+            return -1;
+        }
         return $trade_type;
+    }
+
+    /**
+     * 交易类型值数组 -> 文案拼接（用于混单提示）
+     * @param array $types
+     * @return string
+     */
+    public static function tradeTypeNames($types)
+    {
+        $names = [];
+        foreach ((array)$types as $type) {
+            $names[] = self::tradeTypeName($type);
+        }
+        return implode('、', $names);
     }
 
     /**
