@@ -49,13 +49,13 @@
 				<view class="trade-tag">{{tradeName}}</view>
 				<view class="trade-tag" v-if="info.service_duration>0">服务{{info.service_duration}}分钟</view>
 				<view class="trade-tag" v-if="info.trade_type==1&&Number(info.allow_custom_amount)===1">金额自定</view>
-				<view class="trade-tag" v-if="info.trade_type==3">到店扫码核销</view>
+				<view class="trade-tag" v-if="info.trade_type==0||info.trade_type==1||info.trade_type==2">到店扫码核销</view>
 				<view class="trade-tag" v-if="info.trade_type==4">同城配送</view>
 			</view>
-			<view class="trade-desc" v-if="info.trade_type>0">{{tradeDesc}}</view>
+			<view class="trade-desc" v-if="isStoreTrade">{{tradeDesc}}</view>
 
-			<!-- 到店类：门店选择 -->
-			<view class="part2 m-t-20" v-if="info.trade_type==1||info.trade_type==2||info.trade_type==3">
+			<!-- 到店类（到店自提/到店消费/预约到店）：门店选择 + 到店扫码核销 -->
+			<view class="part2 m-t-20" v-if="isStoreTrade">
 				<view class="font-36 font-weight-6 m-b-24">到店服务</view>
 				<view class="store-item" v-for="(s,idx) in storeList" :key="s.store_id" :class="{active: idx==storeIndex}" @click="selectStore(idx)">
 					<view class="store-name">{{s.store_name}}</view>
@@ -190,17 +190,22 @@
 				}
 				return 1
 			},
+			//是否到店扫码核销类（到店自提/到店消费/预约到店）
+			isStoreTrade() {
+				return [0, 1, 2].includes(Number(this.info.trade_type || 0));
+			},
 			//交易类型名称
 			tradeName() {
-				const map = {0:'普通商品',1:'到店消费',2:'预约到店',3:'到店自提',4:'外卖配送'};
+				const map = {0:'到店自提',1:'到店消费',2:'预约到店',3:'快递邮寄',4:'外卖配送'};
 				return map[Number(this.info.trade_type||0)] || '';
 			},
 			//交易类型说明
 			tradeDesc() {
 				switch(Number(this.info.trade_type||0)){
-					case 1: return '到店消费，可扫码付款' + (Number(this.info.allow_custom_amount)===1 ? '，支持自定义金额' : '');
-					case 2: return '选择到店时段，商家按同时接待人数为你安排服务';
-					case 3: return '下单后到店出示核销码，扫码核销提货';
+					case 0: return '到店自提：下单后到店出示核销码，扫码核销提货，不在店内消费';
+					case 1: return '到店消费：到店扫码付款并核销' + (Number(this.info.allow_custom_amount)===1 ? '，支持自定义金额' : '');
+					case 2: return '预约到店：选择到店时段，商家按同时接待人数为你安排服务';
+					case 3: return '商家快递邮寄到家，可在订单中查看快递单号';
 					case 4: return '商家配送到家，同城即时送达';
 					default: return '';
 				}
@@ -361,11 +366,11 @@
 				// }
 			},
 			buyit() {
-				//预约到店需先选择门店
-				if (Number(this.info.trade_type) === 2 && !this.currentStore()) {
-					uni.showToast({ title: '请选择到店门店', icon: 'none' });
-					return;
-				}
+			//到店消费/预约到店必须先选择核销门店；到店自提可不选（不选则走快递配送）
+							if (this.mustSelectStore() && !this.currentStore()) {
+								uni.showToast({ title: '请选择到店门店', icon: 'none' });
+								return;
+							}
 				this.$refs.goodsSku.show("buy_now", () => {
 					// this.getCartCount();
 				});
@@ -377,6 +382,11 @@
 			//当前选中门店
 			currentStore() {
 				return this.storeList[this.storeIndex] || null;
+			},
+			//到店类是否必须选择核销门店
+			//到店消费/预约到店必须选；到店自提可不选（不选则走快递配送）
+			mustSelectStore() {
+				return [1, 2].includes(Number(this.info.trade_type || 0));
 			},
 			daohang() {
 				uni.openLocation({
@@ -393,6 +403,11 @@
 			cartAdd() {
 				if (!this.token) {
 					this.$refs.login.open()
+					return
+				}
+				//到店消费/预约到店需先选择核销门店（到店自提可不选）
+				if (this.mustSelectStore() && !this.currentStore()) {
+					uni.showToast({ title: '请选择到店门店', icon: 'none' });
 					return
 				}
 				this.$refs.goodsSku.show("join_cart", () => {});

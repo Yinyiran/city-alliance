@@ -62,14 +62,15 @@
 			},
 			//交易类型主标签
 			tradeText(item){
-				const map = {0:'限时特价',1:'到店消费',2:'预约到店',3:'到店自提',4:'外卖配送'};
-				return map[Number(item.trade_type||0)] || '限时特价';
+				const map = {0:'到店自提',1:'到店消费',2:'预约到店',3:'快递邮寄',4:'外卖配送'};
+				return map[Number(item.trade_type||0)] || '到店自提';
 			},
 			//交易类型副标签
 			secondText(item){
 				const t = Number(item.trade_type||0);
 				if(t === 2) return item.service_duration ? `服务${item.service_duration}分钟` : '需预约';
 				if(t === 1) return Number(item.allow_custom_amount)===1 ? '金额自定' : '门店核销';
+				if(t === 3) return '快递配送';
 				if(t === 4) return '同城配送';
 				return '门店核销';
 			}

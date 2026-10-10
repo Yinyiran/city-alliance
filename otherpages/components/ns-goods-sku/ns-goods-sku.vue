@@ -1026,11 +1026,13 @@ import { useAppStore } from '@/store';
 					if (this.btnSwitch) return;
 					this.btnSwitch = true;
 					if (this.type == 'join_cart') {
-						let params={
-							site_id: this.goodsDetail.site_id,
-							sku_id: this.skuId,
-							num: this.number
-						}
+											let params={
+												site_id: this.goodsDetail.site_id,
+												sku_id: this.skuId,
+												num: this.number,
+												trade_type: Number(this.goodsDetail.trade_type||0),
+												store_id: this.storeId || 0
+											}
 						cartAdd(params).then(res=>{
 								if (res.code == 0) {
 									uni.showToast({
