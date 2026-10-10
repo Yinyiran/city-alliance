@@ -35,5 +35,5 @@
     "node": ">=14.18.0",
     "pnpm": ">=8"
   },
-  "packageManager": "pnpm@11.8.0"
+  "packageManager": "pnpm@12.10.1"
 }
