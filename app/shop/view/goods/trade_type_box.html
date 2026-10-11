@@ -15,9 +15,9 @@
 		</div>
 		<div class="layui-form-item js-trade-box" data-trade="1,2" style="display:none">
 			<label class="layui-form-label">服务时长：</label>
-			<div class="layui-input-inline"><input type="number" name="service_duration" value="{$goods_info.service_duration}" placeholder="如 60" min="0" class="layui-input ns-len-short"></div>
+			<div class="layui-input-inline"><input type="number" name="service_duration" id="goods_service_duration" value="{$goods_info.service_duration}" placeholder="如 60" min="0" class="layui-input ns-len-short"></div>
 			<div class="layui-form-mid">分钟</div>
-			<div class="ns-word-aux">用于生成预约时段长度与预计到店时间，0 表示按预约时段默认时长。</div>
+			<div class="ns-word-aux">单次服务占用的时长，用于计算预约时段的结束时间与「预计到店时间」；预约到店的每条规则可单独覆盖该值。</div>
 		</div>
 		<div class="js-trade-box" data-trade="1" style="display:none">
 			<div class="layui-form-item">
@@ -46,11 +46,14 @@
 			<div class="layui-input-block">
 				<table class="layui-table ns-appointment-rule-table">
 					<thead><tr>
-						<th style="width:22%">门店</th>
-						<th style="width:32%">可预约星期</th>
-						<th style="width:22%">时间段</th>
-						<th style="width:8%">间隔(分)</th>
-						<th style="width:9%">同时接待</th>
+						<th style="width:15%">门店</th>
+						<th style="width:24%">可预约星期</th>
+						<th style="width:17%">时间段</th>
+						<th style="width:7%">间隔(分)</th>
+						<th style="width:7%">服务时长(分)</th>
+						<th style="width:8%">提前截止(分)</th>
+						<th style="width:7%">同时接待</th>
+						<th style="width:8%">启用</th>
 						<th style="width:7%">操作</th>
 					</tr></thead>
 					<tbody></tbody>

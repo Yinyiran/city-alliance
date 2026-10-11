@@ -672,6 +672,18 @@ $(function () {
 
 		form.on('submit(save)', function (data) {
 
+			//预约到店(2)：保存前校验预约规则。
+			//未校验时商户可能保存出「无门店 / 未选星期 / 时段非法 / 服务时长小于间隔」的规则，
+			//顾客端将显示「暂无可约时段」，属于配置成功但功能不可用。
+			var tradeType = String($("input[name=trade_type]:checked").val() || '0');
+			if (tradeType === '2' && typeof window.nsCheckAppointmentRules === 'function') {
+				var ruleErr = window.nsCheckAppointmentRules();
+				if (ruleErr) {
+					layer.msg(ruleErr);
+					return false;
+				}
+			}
+
 			if (goodsShopCategoryIds.length > 0 && goodsShopCategoryIds.toString()) {
 				for (var i = 0; i < goodsShopCategoryIds.length; i++) {
 					if (goodsShopCategoryIds[i] == "") {

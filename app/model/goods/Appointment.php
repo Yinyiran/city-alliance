@@ -31,49 +31,70 @@ class Appointment extends BaseModel
     {
         if (empty($goods_id)) return $this->error([], '商品ID不能为空');
 
-        model('goods_appointment_rule')->delete([ [ 'goods_id', '=', $goods_id ] ]);
-
-        if (empty($rules) || !is_array($rules)) return $this->success();
-
+        //先完整校验、再落库。
+        //原实现是「先 delete 旧规则 → 逐条校验 → 中途 return error」，
+        //一旦某条规则校验失败，旧规则已被清空而新规则未写入，
+        //商户配置的预约时段会静默丢失，且前端无任何提示。
         $time = time();
         $data = [];
-        foreach ($rules as $rule) {
-            if (empty($rule[ 'store_id' ])) continue;
-            $start_time = $this->toTimeStr($rule[ 'start_time' ] ?? '09:00');
-            $end_time = $this->toTimeStr($rule[ 'end_time' ] ?? '18:00');
-            if ($start_time >= $end_time) return $this->error([], '预约时段的开始时间必须小于结束时间');
+        if (!empty($rules) && is_array($rules)) {
+            foreach ($rules as $idx => $rule) {
+                $no = intval($idx) + 1;
+                if (empty($rule[ 'store_id' ])) return $this->error([], '第 ' . $no . ' 条预约规则未选择门店');
+                $week_days = trim((string)($rule[ 'week_days' ] ?? ''));
+                if ($week_days === '') return $this->error([], '第 ' . $no . ' 条预约规则未选择可预约星期');
+                $start_time = $this->toTimeStr($rule[ 'start_time' ] ?? '09:00');
+                $end_time = $this->toTimeStr($rule[ 'end_time' ] ?? '18:00');
+                if ($start_time >= $end_time) {
+                    return $this->error([], '第 ' . $no . ' 条预约规则的开始时间必须早于结束时间（暂不支持跨天时段）');
+                }
+                $interval = intval($rule[ 'interval_minutes' ] ?? 30);
+                if ($interval < 5) $interval = 30;
+                $max_num = intval($rule[ 'max_num' ] ?? 1);
+                if ($max_num < 1) $max_num = 1;
+                $duration = intval($rule[ 'service_duration' ] ?? 0);
+                if ($duration <= 0) $duration = $interval;
+                //服务时长小于间隔会造成时段重叠，前端展示的结束时间与实际占用不符
+                if ($duration < $interval) {
+                    return $this->error([], '第 ' . $no . ' 条规则的服务时长(' . $duration . '分)不能小于预约间隔(' . $interval . '分)');
+                }
+                $stop_before = intval($rule[ 'stop_before_minutes' ] ?? 0);
+                if ($stop_before < 0) $stop_before = 0;
 
-            $interval = intval($rule[ 'interval_minutes' ] ?? 30);
-            if ($interval < 5) $interval = 30;
-            $max_num = intval($rule[ 'max_num' ] ?? 1);
-            if ($max_num < 1) $max_num = 1;
-            $duration = intval($rule[ 'service_duration' ] ?? 0);
-            if ($duration <= 0) $duration = $interval;
-
-            $data[] = [
-                'site_id' => intval($base[ 'site_id' ] ?? 0),
-                'site_name' => $base[ 'site_name' ] ?? '',
-                'website_id' => intval($base[ 'website_id' ] ?? 0),
-                'store_id' => intval($rule[ 'store_id' ]),
-                'store_name' => $rule[ 'store_name' ] ?? '',
-                'goods_id' => $goods_id,
-                'sku_id' => intval($rule[ 'sku_id' ] ?? 0),
-                'week_days' => $rule[ 'week_days' ] ?? '1,2,3,4,5,6,7',
-                'start_time' => $start_time,
-                'end_time' => $end_time,
-                'interval_minutes' => $interval,
-                'max_num' => $max_num,
-                'stop_before_minutes' => intval($rule[ 'stop_before_minutes' ] ?? 60),
-                'service_duration' => $duration,
-                'sort' => intval($rule[ 'sort' ] ?? 0),
-                'status' => intval($rule[ 'status' ] ?? 1),
-                'create_time' => $time,
-                'update_time' => $time,
-            ];
+                $data[] = [
+                    'site_id' => intval($base[ 'site_id' ] ?? 0),
+                    'site_name' => $base[ 'site_name' ] ?? '',
+                    'website_id' => intval($base[ 'website_id' ] ?? 0),
+                    'store_id' => intval($rule[ 'store_id' ]),
+                    'store_name' => $rule[ 'store_name' ] ?? '',
+                    'goods_id' => $goods_id,
+                    'sku_id' => intval($rule[ 'sku_id' ] ?? 0),
+                    'week_days' => $week_days,
+                    'start_time' => $start_time,
+                    'end_time' => $end_time,
+                    'interval_minutes' => $interval,
+                    'max_num' => $max_num,
+                    'stop_before_minutes' => $stop_before,
+                    'service_duration' => $duration,
+                    'sort' => $idx,
+                    'status' => intval($rule[ 'status' ] ?? 1) ? 1 : 0,
+                    'create_time' => $time,
+                    'update_time' => $time,
+                ];
+            }
         }
-        if (!empty($data)) model('goods_appointment_rule')->addList($data);
 
-        return $this->success();
+        //校验全部通过后才删除旧规则并批量写入
+        model('goods_appointment_rule')->startTrans();
+        try {
+            model('goods_appointment_rule')->delete([ [ 'goods_id', '=', $goods_id ] ]);
+            if (!empty($data)) model('goods_appointment_rule')->addList($data);
+            model('goods_appointment_rule')->commit();
+            return $this->success();
+        } catch (\Exception $e) {
+            model('goods_appointment_rule')->rollback();
+            return $this->error([], $e->getMessage());
+        }
     }
 
     /**
@@ -195,9 +216,10 @@ class Appointment extends BaseModel
         $goods_id = intval($data[ 'goods_id' ] ?? 0);
         $store_id = intval($data[ 'store_id' ] ?? 0);
         $date = $data[ 'appointment_date' ] ?? '';
-        $start_time = $data[ 'start_time' ] ?? '';
+        //规范化为 H:i，与 getSlotList / slotUsedMap 的时段 key 口径保持一致
+        $start_time = $this->toSlotKey( $data[ 'start_time' ] ?? '' );
         $num = intval($data[ 'num' ] ?? 1);
-        if (!$goods_id || !$store_id || !$date || !$start_time) return $this->error([], '预约信息不完整');
+        if (!$goods_id || !$store_id || !$date || $start_time === '') return $this->error([], '预约信息不完整');
         if ($num < 1) $num = 1;
 
         $this->expire();//先释放历史超时占用
@@ -210,23 +232,46 @@ class Appointment extends BaseModel
                 [ 'status', '=', 1 ],
             ], '*', 'id asc');
             $week = date('N', strtotime($date));
-            $max_num = 0;
+
+            //按 start_time 命中的那条规则取 max_num，与 getSlotList 展示口径完全一致。
+            //原实现取全天所有规则的最大值，会造成「前端展示 1 位、实际可占 N 位」的超卖。
+            $hit_rule = null;
+            $start_min = $this->timeToMin( $start_time );
             foreach ($rules as $rule) {
                 if (!in_array($week, explode(',', $rule[ 'week_days' ]))) continue;
-                $max_num = max($max_num, intval($rule[ 'max_num' ]));
+                $r_start = $this->timeToMin( $this->toSlotKey( $rule[ 'start_time' ] ) );
+                $r_end = $this->timeToMin( $this->toSlotKey( $rule[ 'end_time' ] ) );
+                if ($r_start === null || $r_end === null) continue;
+                if ($start_min >= $r_start && $start_min < $r_end) {
+                    $hit_rule = $rule;
+                    break;
+                }
             }
+            if (empty($hit_rule)) {
+                model('goods_appointment_log')->rollback();
+                return $this->error([], '该时段不在可预约范围内，请重新选择');
+            }
+            $max_num = intval( $hit_rule[ 'max_num' ] );
             if ($max_num <= 0) {
                 model('goods_appointment_log')->rollback();
-                return $this->error([], '该商品未配置预约时段');
+                return $this->error([], '该时段未开放名额');
             }
 
-            $used_list = model('goods_appointment_log')->getList([
-                [ 'goods_id', '=', $goods_id ],
-                [ 'store_id', '=', $store_id ],
-                [ 'appointment_date', '=', $date ],
-                [ 'start_time', '=', $start_time ],
-                [ 'status', 'in', [ self::STATUS_WAIT_PAY, self::STATUS_BOOKED ] ],
-            ], 'id,num,status,expire_time', 'id asc');
+            //占用统计口径与 slotUsedMap 完全一致（含已完成），
+            //否则会出现「列表显示已约满、下单却提示有位」的错位。
+            //同时加行锁，防止并发下单同时通过校验造成超卖。
+            $used_list = \think\facade\Db::name('goods_appointment_log')
+                ->where([
+                    [ 'goods_id', '=', $goods_id ],
+                    [ 'store_id', '=', $store_id ],
+                    [ 'appointment_date', '=', $date ],
+                    [ 'start_time', '=', $start_time ],
+                    [ 'status', 'in', [ self::STATUS_WAIT_PAY, self::STATUS_BOOKED, self::STATUS_FINISH ] ],
+                ])
+                ->field('id,num,status,expire_time')
+                ->lock(true)
+                ->select()
+                ->toArray();
             $used_num = 0;
             foreach ($used_list as $item) $used_num += intval($item[ 'num' ]);
             if ($used_num + $num > $max_num) {
@@ -291,7 +336,9 @@ class Appointment extends BaseModel
             'status' => $is_pay ? self::STATUS_BOOKED : self::STATUS_CANCEL,
             'expire_time' => 0,
             'update_time' => time(),
-        ], [ [ 'order_id', '=', $order_id ] ]);
+            //只允许「待付款」流转：否则已过期(3)/已取消(2)/已完成(4) 的记录会被付款动作复活为已预约，
+            //出现「名额早已释放却仍被占用」的隐性超卖
+        ], [ [ 'order_id', '=', $order_id ], [ 'status', '=', self::STATUS_WAIT_PAY ] ]);
     }
 
     /**
@@ -412,6 +459,9 @@ class Appointment extends BaseModel
      */
     public function slotUsedMap($goods_id, $store_id, $date)
     {
+        //先释放已超时的占用，避免过期名额继续占用导致「明明有位却约满」
+        $this->expire();
+
         $list = model('goods_appointment_log')->getList([
             [ 'goods_id', '=', $goods_id ],
             [ 'store_id', '=', $store_id ],
@@ -421,10 +471,46 @@ class Appointment extends BaseModel
 
         $map = [];
         foreach ($list as $item) {
-            $key = $item[ 'start_time' ];
-            $map[ $key ] = ($map[ $key ] ?? 0) + intval($item[ 'num' ] );
+            //必须规范化为 H:i：DB 中 start_time 是 TIME 类型，驱动返回 H:i:s（如 14:00:00），
+            //而 getSlotList 生成的时段 key 用 date('H:i')（如 14:00）。
+            //两者不一致会让占用统计恒为 0，前端显示「有位」但下单报「名额已约满」。
+            $key = $this->toSlotKey($item[ 'start_time' ]);
+            if ($key === '') continue;
+            $map[ $key ] = ($map[ $key ] ?? 0 ) + intval( $item[ 'num' ] );
         }
         return $map;
+    }
+
+    /**
+     * 时段 key 规范化：统一输出 H:i
+     * 兼容 H:i、H:i:s、单数字小时等写法；无法解析返回空字符串。
+     * @param string $time
+     * @return string
+     */
+    public function toSlotKey($time)
+    {
+        $time = trim( (string) $time );
+        if ($time === '') return '';
+        if (preg_match( '/^(\d{1,2}):(\d{2})/', $time, $m )) {
+            $hour = intval( $m[ 1 ] );
+            $minute = intval( $m[ 2 ] );
+            if ($hour > 23 || $minute > 59) return '';
+            return sprintf( '%02d:%02d', $hour, $minute );
+        }
+        return '';
+    }
+
+    /**
+     * HH:MM 转当天分钟数，用于区间比较；无法解析返回 null
+     * @param string $time
+     * @return int|null
+     */
+    public function timeToMin($time)
+    {
+        $key = $this->toSlotKey( $time );
+        if ($key === '') return null;
+        $parts = explode( ':', $key );
+        return intval( $parts[ 0 ] ) * 60 + intval( $parts[ 1 ] );
     }
 
     /**
