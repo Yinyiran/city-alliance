@@ -49,7 +49,9 @@
 				titleStyle: "color:#222",
 				code:'',
 				info:{},
-				submitting: false
+				submitting: false,
+				//核销时段不符时，商家确认后强制核销（仅本次有效）
+				force: false
 			};
 		},
 		computed: {
@@ -72,11 +74,13 @@
 						if(res.confirm){
 							this.submitting = true
 							let params={
-								delivery_code:this.code
+								delivery_code:this.code,
+								force: this.force ? 1 : 0
 							}
 							dodelivery(params).then(resA=>{
 								this.submitting = false
 								if(resA.code==0){
+									this.force = false;
 									this.info.is_verify = 1
 									this.info.order_status = 4
 									this.info.order_status_name = '已核销'
@@ -92,6 +96,20 @@
 											setTimeout(()=>{
 												uni.navigateBack()
 											},1500)
+										}
+									})
+								}else if(resA.code == -2){
+									//核销时段不符：商家确认后可强制核销，建议先引导顾客改约
+									uni.showModal({
+										title: '超出预约时段',
+										content: (resA.message || '顾客当前不在预约时段内。') + '\n\n仍要为该顾客核销吗？建议先引导改约。',
+										confirmText: '仍要核销',
+										cancelText: '暂不核销',
+										success: r => {
+											if (r.confirm) {
+												this.force = true;
+												this.submit();
+											}
 										}
 									})
 								}else{

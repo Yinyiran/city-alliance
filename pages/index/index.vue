@@ -343,6 +343,8 @@
 				verifyOrder: null,
 				scanCodeVal: '',
 				verifying: false,
+				//核销时段不符时，商家确认后带 force=1 强制核销（仅本次有效）
+				verifyForce: false,
 				currentSiteId: '',
 				currentSiteName: '',
 				currentShopLogo: '',
@@ -586,12 +588,15 @@
 				this.verifying = true
 				uni.showLoading({ title: '核销中...' })
 				let params = {
-					delivery_code: this.verifyOrder.delivery_code || this.scanCodeVal
+					delivery_code: this.verifyOrder.delivery_code || this.scanCodeVal,
+					force: this.verifyForce ? 1 : 0
 				}
 				dodelivery(params).then(res => {
 					uni.hideLoading()
 					this.verifying = false
 					if (res.code == 0) {
+						//重置强制标记，避免影响后续核销
+						this.verifyForce = false;
 						uni.showToast({
 							title: '核销成功',
 							icon: 'success'
@@ -613,6 +618,21 @@
 						setTimeout(() => {
 							this.closeVerifyPopup()
 						}, 1200)
+					} else if (res.code == -2) {
+						//核销时段不符（迟到超出商家设置的核销宽限 / 非预约当日 / 未进入预约时段）
+						//提示商家确认后可强制核销；建议先引导顾客改约
+						uni.showModal({
+							title: '超出预约时段',
+							content: (res.message || '顾客当前不在预约时段内。') + '\n\n仍要为该顾客核销吗？建议先引导改约。',
+							confirmText: '仍要核销',
+							cancelText: '暂不核销',
+							success: r => {
+								if (r.confirm) {
+									this.verifyForce = true;
+									this.confirmVerify();
+								}
+							}
+						})
 					} else {
 						uni.showModal({
 							title: '核销失败',
