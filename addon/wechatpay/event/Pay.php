@@ -17,7 +17,9 @@ class Pay
      */
     public function handle($params)
     {
-        if($params["pay_type"] == "wechatpay"){
+        //pay_type 大小写兼容：收银台等调用方可能传 WECHAT_PAY，
+        //而历史上本监听器只匹配小写 wechatpay，会导致事件不命中、收款码生成失败
+        if(strtolower((string)($params["pay_type"] ?? '')) == "wechatpay"){
 
             $app_type = $params['app_type'];
             $is_weapp = 0;

@@ -24,7 +24,7 @@ class Cashier extends BaseApi
         $condition = [ [ 'order_no', '=', $order_no ] ];
         if (!empty($site_id)) $condition[] = [ 'site_id', '=', $site_id ];
 
-        $order_info = model('order')->getInfo($condition, 'order_id,order_no,order_status,pay_status,pay_money,member_id,trade_type,site_id')[ 'data' ] ?? [];
+        $order_info = model('order')->getInfo($condition, 'order_id,order_no,order_status,pay_status,pay_money,member_id,trade_type,site_id,out_trade_no')[ 'data' ] ?? [];
         if (empty($order_info)) return $this->response($this->error([], '订单不存在'));
         if ($order_info[ 'pay_status' ] > 0) return $this->response($this->error([], '该订单已支付'));
 
@@ -44,7 +44,13 @@ class Cashier extends BaseApi
         if ($pay_money <= 0) return $this->response($this->error([], '订单金额为0，无需支付'));
 
         $pay = new PayModel();
-        $info = $pay->pay($pay_type, $order_info[ 'order_no' ], 'pc', $order_info[ 'member_id' ], '', 0, false);
+        //微信/支付宝 Native 支付需用支付流水号 out_trade_no（回调按它匹配 pay 表），
+        //沿用 order_no 会导致支付成功但回调找不到支付流水记录
+        $out_trade_no = $order_info[ 'out_trade_no' ] ?? '';
+        if ( empty( $out_trade_no ) ) {
+            return $this->response( $this->error( [], '该订单缺少支付流水号，请重新下单' ) );
+        }
+        $info = $pay->pay($pay_type, $out_trade_no, 'pc', $order_info[ 'member_id' ], '', 0, false);
         if ((int)($info[ 'code' ] ?? -1) !== 0) {
             return $this->response($this->error([], $info[ 'message' ] ?? '收款码生成失败'));
         }

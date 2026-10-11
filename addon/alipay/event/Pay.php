@@ -18,7 +18,8 @@ class Pay
 	public function handle($param)
 	{
 
-        if($param["pay_type"] == "alipay"){
+        //pay_type 大小写兼容：调用方可能传 ALIPAY，历史只匹配小写会不命中
+        if(strtolower((string)($param["pay_type"] ?? '')) == "alipay"){
             if (in_array($param["app_type"], [ "h5", "app", "pc", "aliapp" ])) {
                 $pay_model = new PayModel();
                 $res = $pay_model->pay($param);
