@@ -196,8 +196,11 @@
 						return;
 					}
 					const pi = res.data.pay_info || {};
-					this.payInfo = pi.code_url || pi.qr_code || pi.qrCode || '';
-					if (!this.payInfo) {
+					//微信 Native(app_type=pc)返回的是 { type:'qrcode', qrcode:<二维码图片路径> }，
+					//不是 code_url，详见 addon/wechatpay/model/Pay.php 的 NATIVE 分支
+					if (pi.type === 'qrcode' && pi.qrcode) {
+						this.payInfo = this.$util.img(pi.qrcode);
+					} else {
 						uni.showToast({ title: '未获取到收款二维码', icon: 'none' });
 					}
 				}).catch(() => {
