@@ -192,8 +192,11 @@ class Ordercreate extends BaseApi
      * 预约时段查询
      * 参数：sku_id/goods_id、store_id(可选)、date(可选)、num(可选)
      */
-    public function slotList()
+    public     function slotList()
     {
+        $token = $this->checkToken();
+        if ($token[ 'code' ] < 0) return $this->response( $token );
+
         $goods_id = intval($this->params[ 'goods_id' ] ?? 0);
         $sku_id = intval($this->params[ 'sku_id' ] ?? 0);
         $store_id = intval($this->params[ 'store_id' ] ?? 0);
@@ -211,8 +214,20 @@ class Ordercreate extends BaseApi
         $appointment_model = new Appointment();
         //未指定门店时返回可预约日期与门店
         if (empty($store_id)) {
-            $date_list = $appointment_model->getDateList($goods_id, 0, intval($this->params[ 'days' ] ?? 7));
+            //限制可查询天数，避免被传入超大天数造成批量数据扫描
+            $days = intval($this->params[ 'days' ] ?? 7);
+            if ($days < 1) $days = 7;
+            if ($days > 60) $days = 60;
+            $date_list = $appointment_model->getDateList($goods_id, 0, $days);
             return $this->response($date_list);
+        }
+
+        //日期必须合法且不早于今天，避免构造任意历史日期绕过截止时间判定
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $date)) {
+            return $this->response($this->error('', '日期格式不正确'));
+        }
+        if (strtotime($date) < strtotime(date('Y-m-d'))) {
+            return $this->response($this->error('', '不能选择过去的日期'));
         }
 
         $slot_list = $appointment_model->getSlotList($goods_id, $store_id, $date, $num);

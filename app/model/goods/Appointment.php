@@ -190,17 +190,41 @@ class Appointment extends BaseModel
                 $used_num = $used[ $slot_key ] ?? 0;
                 $remain = $max_num - $used_num;
                 $deadline = $ts - $stop_before * 60;
-                //超过截止时间或名额不足不可选；迟到仍可履约，故不限制早到/晚到
-                $unavailable = ($is_today && $now > $deadline) || $remain < $num;
+
+                //不可约有两个原因，需分别告知顾客：
+                // 1) 已过预约截止时间（商家需留出准备时间）
+                // 2) 名额已约满
+                //迟到仍可履约，因此不限制早到/晚到
+                $past_deadline = ( $is_today && $now > $deadline );
+                $is_full = ( $remain < $num );
+                $unavailable = $past_deadline || $is_full;
+                $unavailable_reason = '';
+                if ($past_deadline) {
+                    $unavailable_reason = '已过预约截止时间';
+                } elseif ($is_full) {
+                    $unavailable_reason = '已约满';
+                }
+
+                //时段分组，便于前端按「上午/下午/晚上」折叠展示
+                $hour = intval( substr( $slot_key, 0, 2 ) );
+                if ($hour < 12) {
+                    $period = 'morning';
+                } elseif ($hour < 18) {
+                    $period = 'afternoon';
+                } else {
+                    $period = 'evening';
+                }
 
                 $slot_list[] = [
                     'start_time' => $slot_key,
                     'end_time' => date('H:i', $ts + $duration * 60),
                     'slot_text' => $slot_key . '-' . date('H:i', $ts + $duration * 60),
+                    'period' => $period,
                     'max_num' => $max_num,
                     'used_num' => $used_num,
                     'remain_num' => $remain > 0 ? $remain : 0,
                     'can_select' => !$unavailable,
+                    'unavailable_reason' => $unavailable_reason,
                     'expire_time' => $deadline,
                 ];
             }
