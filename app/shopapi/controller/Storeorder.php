@@ -34,7 +34,8 @@ class Storeorder extends BaseApi
     {
         $order_id = isset($this->params[ 'order_id' ]) ? $this->params[ 'order_id' ] : 0;
         $store_order_model = new StoreOrderModel();
-        $result = $store_order_model->activeTakeDelivery($order_id);
+        $force = intval( $this->params[ 'force' ] ?? 0 ) > 0;
+        $result = $store_order_model->activeTakeDelivery( $order_id, $force );
         return $this->response($result);
 
     }

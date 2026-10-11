@@ -348,15 +348,19 @@ class Order extends Common
         //order_goods 置已提货、order 置已收货(sign_time/评价)、订单日志、自动完成任务、
         //OrderTakeDelivery 事件与站内消息。原实现为裸 Db update，绕过上述全部校验，
         //且与 PC 端形成两套口径（一边「已提货」一边「已核销」），故统一收敛。
+        //核销时段不符（迟到超出宽限/非预约日期/未进入时段）时，后端返回 code=-2，
+        //需商家确认后带 force=1 重新提交才真正核销，避免直接阻断商家履约。
+        $force = intval( $this->params[ 'force' ] ?? 0 ) > 0;
         $store_order_model = new storeOrderModel();
-        $result = $store_order_model->activeTakeDelivery($order_id);
+        $result = $store_order_model->activeTakeDelivery( $order_id, $force );
 
         if (!is_array($result) || (isset($result['code']) && $result['code'] < 0)) {
-            return $this->response([
-                'code' => -1,
-                'message' => (is_array($result) && !empty($result['message'])) ? $result['message'] : '核销失败',
-                'data' => []
-            ]);
+            $need_force = isset( $result[ 'code' ] ) && intval( $result[ 'code' ] ) == -2;
+            return $this->response( [
+                'code' => $need_force ? -2 : -1,
+                'message' => (is_array($result) && !empty($result[ 'message' ])) ? $result[ 'message' ] : '核销失败',
+                'data' => $need_force ? ( $result[ 'data' ] ?? [] ) : []
+            ] );
         }
 
         $now = time();

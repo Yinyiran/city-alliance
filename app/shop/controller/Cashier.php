@@ -177,7 +177,9 @@ class Cashier extends BaseShop
         if (empty($order_info)) return $this->error([], '未找到对应订单');
 
         $order_model = new StoreOrder();
-        $res = $order_model->verify($code);
+        //核销时段不符时返回 code=-2，PC 端提示后由商家确认并带 force=1 重新提交
+        $verify_force = intval( input( 'force', 0 ) ) > 0;
+        $res = $order_model->verify($code, $verify_force);
         $res = is_array($res) ? $res : [];
         if (($res[ 'code' ] ?? -1) != 0) {
             return $this->error([], $res[ 'message' ] ?? '核销失败');

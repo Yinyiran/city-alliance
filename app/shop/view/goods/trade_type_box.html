@@ -37,6 +37,18 @@
 		</div>
 		<div class="js-trade-box" data-trade="2" style="display:none">
 			<div class="layui-form-item">
+				<label class="layui-form-label">可提前预约：</label>
+				<div class="layui-input-inline"><input type="number" name="appointment_days" id="goods_appointment_days" value="{$goods_info.appointment_days|default=7}" placeholder="7" min="1" max="90" class="layui-input ns-len-short"></div>
+				<div class="layui-form-mid">天内可约</div>
+				<div class="ns-word-aux">顾客最多可提前多少天预约（1~90 天）。超出该范围的日期不会出现在顾客端。</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">核销宽限：</label>
+				<div class="layui-input-inline"><input type="number" name="appointment_grace_minutes" value="{$goods_info.appointment_grace_minutes|default=60}" placeholder="60" min="0" max="1440" class="layui-input ns-len-short"></div>
+				<div class="layui-form-mid">分钟</div>
+				<div class="ns-word-aux">顾客可迟到多久仍可正常核销。超出后商家扫码核销会提示已超出预约时段，可选择引导改约或强制核销；填 0 表示不限制。</div>
+			</div>
+			<div class="layui-form-item">
 				<label class="layui-form-label">预约规则：</label>
 				<div class="layui-input-block">
 					<a href="javascript:;" class="layui-btn layui-btn-primary ns-app-add-rule">添加预约规则</a>

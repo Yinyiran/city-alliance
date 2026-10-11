@@ -157,7 +157,9 @@ class Storeorder extends BaseShop
         $order_id = input('order_id', 0);
 
         $store_order_model = new StoreOrderModel();
-        $result = $store_order_model->activeTakeDelivery($order_id);
+        //核销时段不符时需商家确认后带 force=1 重试（见 StoreOrder::activeTakeDelivery）
+        $force = intval( input( 'force', 0 ) ) > 0;
+        $result = $store_order_model->activeTakeDelivery( $order_id, $force );
         return $result;
 
     }

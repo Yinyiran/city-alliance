@@ -683,7 +683,8 @@ class Order extends BaseStore
     {
         $order_id = input('order_id', 0);
         $store_order_model = new StoreOrder();
-        $result = $store_order_model->activeTakeDelivery($order_id);
+        $force = intval( input( 'force', 0 ) ) > 0;
+        $result = $store_order_model->activeTakeDelivery( $order_id, $force );
         return $result;
 
     }

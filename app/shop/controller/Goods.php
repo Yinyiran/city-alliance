@@ -235,6 +235,9 @@ class Goods extends BaseShop
                 'min_order_amount' => input("min_order_amount", 0),//到店消费起付金额
                 'max_order_amount' => input("max_order_amount", 0),//自定义金额上限
                 'allow_custom_amount' => input("allow_custom_amount", 0),//是否允许自定义金额
+                //预约到店专用配置
+                'appointment_days' => max(1, min(90, intval(input("appointment_days", 7)))),//可提前预约天数
+                'appointment_grace_minutes' => max(0, min(1440, intval(input("appointment_grace_minutes", 60)))),//核销迟到宽限(分钟)
 
             ];
 
@@ -293,7 +296,7 @@ class Goods extends BaseShop
             // 必须传JSON 字符串，直接传数组会报
             // "htmlentities() expects parameter 1 to be string, array given"
             $this->assign("store_list", json_encode($this->getTradeStoreList(), JSON_UNESCAPED_UNICODE));
-            $this->assign("goods_info", [ 'trade_type' => 0, 'service_duration' => 0, 'min_order_amount' => 0, 'max_order_amount' => 0, 'allow_custom_amount' => 0 ]);
+            $this->assign("goods_info", [ 'trade_type' => 0, 'service_duration' => 0, 'min_order_amount' => 0, 'max_order_amount' => 0, 'allow_custom_amount' => 0, 'appointment_days' => 7, 'appointment_grace_minutes' => 60 ]);
             $this->assign("appointment_rules", '[]');
 
             $is_install_supply = addon_is_exit("supply");
@@ -371,6 +374,9 @@ class Goods extends BaseShop
                 'min_order_amount' => input("min_order_amount", 0),//到店消费起付金额
                 'max_order_amount' => input("max_order_amount", 0),//自定义金额上限
                 'allow_custom_amount' => input("allow_custom_amount", 0),//是否允许自定义金额
+                //预约到店专用配置
+                'appointment_days' => max(1, min(90, intval(input("appointment_days", 7)))),//可提前预约天数
+                'appointment_grace_minutes' => max(0, min(1440, intval(input("appointment_grace_minutes", 60)))),//核销迟到宽限(分钟)
             ];
 
             $res = $goods_model->editGoods($data);

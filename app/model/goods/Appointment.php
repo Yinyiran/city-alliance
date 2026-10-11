@@ -106,10 +106,56 @@ class Appointment extends BaseModel
     }
 
     /**
-     * 可预约日期列表
+     * 读取商品预约配置
+     * 返回：days 可提前预约天数、grace_minutes 核销迟到宽限(分钟)
+     * 字段为增量部署（见 db/update_goods_appointment_config_20261011.sql），
+     * 未执行 DDL 时自动降级为默认值，保证旧库可直接运行。
+     * @param int $goods_id
+     * @return array
      */
-    public function getDateList($goods_id, $store_id = 0, $days = 7)
+    public function getGoodsAppointmentConfig($goods_id)
     {
+        $config = [
+            'days' => 7,
+            'grace_minutes' => 60,
+        ];
+        if (empty($goods_id)) return $config;
+
+        static $fields = null;
+        if ($fields === null) {
+            $fields = model('goods')->getFields();
+        }
+        $want = [];
+        if (in_array('appointment_days', $fields, true)) $want[] = 'appointment_days';
+        if (in_array('appointment_grace_minutes', $fields, true)) $want[] = 'appointment_grace_minutes';
+        if (empty($want)) return $config;
+
+        $info = model('goods')->getInfo([ [ 'goods_id', '=', intval($goods_id) ] ], implode(',', $want))[ 'data' ] ?? [];
+        if (isset($info[ 'appointment_days' ])) {
+            $days = intval($info[ 'appointment_days' ] );
+            if ($days >= 1 && $days <= 90) $config[ 'days' ] = $days;
+        }
+        if (isset($info[ 'appointment_grace_minutes' ])) {
+            $grace = intval($info[ 'appointment_grace_minutes' ] );
+            if ($grace >= 0 && $grace <= 1440) $config[ 'grace_minutes' ] = $grace;
+        }
+        return $config;
+    }
+
+    /**
+     * 可预约日期列表
+     * @param int    $goods_id
+     * @param int    $store_id
+     * @param int    $days 传 0 或不传时，取商品配置的「可提前预约天数」
+     */
+    public function getDateList($goods_id, $store_id = 0, $days = 0)
+    {
+        //未显式指定天数时按商品配置，保证「可提前预约天数」由商家在后台控制
+        if (intval($days) <= 0) {
+            $days = intval( $this->getGoodsAppointmentConfig($goods_id)[ 'days' ] );
+        }
+        $days = max(1, min(90, intval($days)));
+
         $condition = [ [ 'goods_id', '=', $goods_id ], [ 'status', '=', 1 ] ];
         if (!empty($store_id)) $condition[] = [ 'store_id', '=', $store_id ];
 

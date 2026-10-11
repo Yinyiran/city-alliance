@@ -260,8 +260,10 @@ class AdminOrder extends BaseAdmin
     public function storeOrderTakedelivery()
     {
         $order_id = input('order_id', 0);
+        //核销时段不符时需商家确认后带 force=1 重试（见 StoreOrder::activeTakeDelivery）
+        $force = intval( input( 'force', 0 ) ) > 0;
         $store_order_model = new StoreOrder();
-        return $store_order_model->activeTakeDelivery($order_id);
+        return $store_order_model->activeTakeDelivery( $order_id, $force );
     }
 
     /**

@@ -207,12 +207,12 @@ class StoreOrder extends OrderCommon
      * @param $delivery_code
      * @return \multitype
      */
-    public function verify($delivery_code)
+    public function verify($delivery_code, $force = false)
     {
         $order_info = model("order")->getInfo([ [ 'delivery_code', '=', $delivery_code ] ], 'order_id, order_type, sign_time, order_status, delivery_code,site_id');
         if (empty($order_info))
             return $this->error([], "ORDER_EMPTY");
-        $result = $this->activeTakeDelivery($order_info[ "order_id" ]);
+        $result = $this->activeTakeDelivery( $order_info[ "order_id" ], $force );
 
 
         if ($result[ "code" ] < 0) {
@@ -277,17 +277,66 @@ class StoreOrder extends OrderCommon
      * 主动提货
      * @param $order_id
      */
-    public function activeTakeDelivery($order_id)
+    public function activeTakeDelivery($order_id, $force = false)
     {
         $order_condition = array (
             [ 'order_id', '=', $order_id ],
             [ 'order_type', '=', 2 ]
         );
-        $order_info = model('order')->getInfo($order_condition, 'delivery_code, order_status, site_id');
+        $order_info = model('order')->getInfo($order_condition, 'delivery_code, order_status, site_id, trade_type');
         if (empty($order_info))
             return $this->error();
         if ($order_info[ 'order_status' ] != self::ORDER_PENDING_DELIVERY)
             return $this->error([], '只有待提货状态的订单才可以提货');
+
+        //预约到店(2)的核销时段校验：超出商家配置的「核销宽限」时给出改约提示，
+        //由商家确认后可强制核销（$force=true），不直接阻断商家履约。
+        if (intval($order_info[ 'trade_type' ]) == 2 && !$force) {
+            $appointment_model = new \app\model\goods\Appointment();
+            $appointment_log = model('goods_appointment_log')->getInfo([
+                [ 'order_id', '=', $order_id ],
+                [ 'status', '=', $appointment_model::STATUS_BOOKED ],
+            ], 'goods_id,appointment_date,start_time,end_time,slot_text')[ 'data' ] ?? [];
+
+            if (!empty($appointment_log)) {
+                $cfg = $appointment_model->getGoodsAppointmentConfig( $appointment_log[ 'goods_id' ] );
+                $grace = intval( $cfg[ 'grace_minutes' ] ) * 60;
+                $slot_text = $appointment_log[ 'slot_text' ] ?: ( $appointment_log[ 'start_time' ] . '-' . $appointment_log[ 'end_time' ] );
+                $now = time();
+                $date = $appointment_log[ 'appointment_date' ];
+                $slot_start = strtotime( $date . ' ' . $appointment_log[ 'start_time' ] );
+                $slot_end = strtotime( $date . ' ' . $appointment_log[ 'end_time' ] );
+
+                $tip = '';
+                $over_minutes = 0;
+                if ($date !== date('Y-m-d')) {
+                    //预约的不是今天：可能是隔天/约错日期
+                    $diff_days = ( strtotime( $date ) - strtotime( date('Y-m-d') ) ) / 86400;
+                    $tip = '该订单的预约时段为 ' . $date . ' ' . $slot_text
+                        . ( $diff_days > 0 ? '（还有 ' . intval($diff_days) . ' 天）' : '（已过期）' )
+                        . '，与当前日期不符，建议先与顾客确认或引导改约。';
+                } elseif ($grace > 0 && $now > $slot_end + $grace) {
+                    $over_minutes = intval( round( ($now - $slot_end) / 60 ) );
+                    $tip = '顾客已迟到约 ' . $over_minutes . ' 分钟，超出预约时段（' . $slot_text . '）与商家设置的核销宽限，建议引导改约。';
+                } elseif ($grace > 0 && $now < $slot_start - $grace) {
+                    $over_minutes = intval( round( ($slot_start - $now) / 60 ) );
+                    $tip = '距离预约时段（' . $slot_text . '）开始还有 ' . $over_minutes . ' 分钟，尚未进入可核销时段，建议与顾客确认后再核销。';
+                }
+
+                if ($tip !== '') {
+                    $result = $this->error( [], $tip );
+                    $result[ 'code' ] = -2;//-2 表示需商家确认，非业务失败
+                    $result[ 'data' ] = [
+                        'need_force' => true,
+                        'slot_text' => $slot_text,
+                        'appointment_date' => $date,
+                        'over_minutes' => $over_minutes,
+                    ];
+                    return $result;
+                }
+            }
+        }
+
         $result = $this->orderCommonTakeDelivery([['order_id', '=', $order_id]]);
 
         if ($result[ "code" ] < 0) {

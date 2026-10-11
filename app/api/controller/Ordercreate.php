@@ -214,10 +214,12 @@ class Ordercreate extends BaseApi
         $appointment_model = new Appointment();
         //未指定门店时返回可预约日期与门店
         if (empty($store_id)) {
-            //限制可查询天数，避免被传入超大天数造成批量数据扫描
-            $days = intval($this->params[ 'days' ] ?? 7);
-            if ($days < 1) $days = 7;
-            if ($days > 60) $days = 60;
+            //days 传 0/不传时，由后端按商品配置的「可提前预约天数」决定，
+            //不再由前端写死，避免商户无法控制可预约范围。
+            //上限 90 天，防止传入超大天数造成批量数据扫描。
+            $days = intval($this->params[ 'days' ] ?? 0);
+            if ($days < 0) $days = 0;
+            if ($days > 90) $days = 90;
             $date_list = $appointment_model->getDateList($goods_id, 0, $days);
             return $this->response($date_list);
         }
