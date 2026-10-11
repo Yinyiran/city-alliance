@@ -692,6 +692,24 @@ class OrderRefund extends BaseModel
             model('order')->update([
                 'refund_money' => round( $completed_refund_money, 2 ),
             ], [ [ 'order_id', '=', $order_goods_info[ 'order_id' ] ] ]);
+
+            //整单全部商品项退款完成时释放预约名额。
+            //此前退款链路完全不处理预约，会出现「顾客已退款、时段却仍被占用」，
+            //导致商户少一个可约名额、顾客也无法再预约该时段。
+            $refund_order_id = $order_goods_info[ 'order_id' ];
+            $appointment_model = new \app\model\goods\Appointment();
+            $order_goods_total = model( 'order_goods' )->getCount( [ [ 'order_id', '=', $refund_order_id ] ] );
+            $order_goods_refunded = model( 'order_goods' )->getCount( [
+                [ 'order_id', '=', $refund_order_id ],
+                [ 'refund_status', '=', self::REFUND_COMPLETE ],
+            ] );
+            if ( $order_goods_total > 0 && $order_goods_refunded >= $order_goods_total ) {
+                $appointment_model->release( $refund_order_id, $appointment_model::STATUS_CANCEL );
+                model( 'order' )->update( [
+                    'appointment_status' => $appointment_model::STATUS_CANCEL,
+                    'modify_time' => time(),
+                ], [ [ 'order_id', '=', $refund_order_id ] ] );
+            }
 //            event('OrderRefundFinish', $order_goods_info);//传入订单类型以及订单项id
             model('order_goods')->commit();
             return $this->success();

@@ -67,7 +67,8 @@ class OrderCreate extends BaseModel
     public $is_create = 0;     //是否创建订单（0=试算，1=下单）
     public $trade_type = 0;    //本次下单的交易类型（取订单商品的最大类型）
     public $trade_info = [];   //交易类型附加信息（预约、自定义金额等）
-    public $appointment_log_id = 0; //预约占用记录ID
+    public $appointment_log_id = 0; //预约占用记录ID（单店铺场景）
+    public $appointment_log_ids = []; //预约占用记录映射 [site_id => log_id]，多店铺场景各店铺独立绑定
 
     //交易类型常量
     const TRADE_PICKUP = 0;      //到店自提（到店核销：自提带走，不在店消费）
@@ -483,10 +484,24 @@ class OrderCreate extends BaseModel
 
             $this->addOrderCronClose($order_id);//增加关闭订单自动事件
 
-            //绑定预约占用记录到订单（多店铺时取第一笔）
-            if ($this->appointment_log_id > 0) {
+            //绑定预约占用记录到订单。
+            //多店铺下单时按 site_id 取本店铺自己的预约记录，
+            //避免所有店铺都绑定到最后一个 appointment_log_id（会造成订单与预约记录错配）。
+            $current_site_id = $v[ 'site_id' ] ?? 0;
+            $bind_log_id = 0;
+            if (!empty($this->appointment_log_ids)) {
+                if (isset($this->appointment_log_ids[ $current_site_id ])) {
+                    $bind_log_id = $this->appointment_log_ids[ $current_site_id ];
+                } elseif (count($this->appointment_log_ids) === 1) {
+                    //单店铺预约时 site_id 可能未对齐，回退到唯一记录
+                    $bind_log_id = reset($this->appointment_log_ids);
+                }
+            } elseif ($this->appointment_log_id > 0) {
+                $bind_log_id = $this->appointment_log_id;
+            }
+            if ($bind_log_id > 0) {
                 $appointment_model = new Appointment();
-                $appointment_model->bindOrder($this->appointment_log_id, $order_id, $order_no);
+                $appointment_model->bindOrder($bind_log_id, $order_id, $order_no);
             }
 
             $cart_ids = isset($data['cart_ids']) ? $data['cart_ids'] : '';
@@ -1772,6 +1787,9 @@ class OrderCreate extends BaseModel
                 return $shop_goods;
             }
             $this->appointment_log_id = $occupy_res[ 'data' ][ 'id' ];
+            //多店铺下单时按店铺归档预约记录：否则后一个店铺会覆盖前一个店铺的 log_id，
+            //导致前面的店铺拿不到自己的记录去绑定（order_id 永远为 0 的幽灵占位）
+            $this->appointment_log_ids[ $shop_goods[ 'site_id' ] ?? 0 ] = $occupy_res[ 'data' ][ 'id' ];
             $this->trade_info[ 'appointment_id' ] = $this->appointment_log_id;
             $this->trade_info[ 'appointment_date' ] = $date;
             $this->trade_info[ 'appointment_slot' ] = $target_slot[ 'slot_text' ];

@@ -759,6 +759,17 @@ class OrderCommon extends BaseModel
                 return $result;
             }
             model('order')->commit();
+
+            //线下/收银台支付同样需要把预约占位由「待付款」转为「已预约」。
+            //否则预约记录会一直停在「待付款」，随后被 expire() 置为「已过期」，
+            //而订单侧仍显示已预约，造成预约状态与订单状态长期不一致（且名额无法正确统计）。
+            $paid_order_ids = empty( $order_id ) ? [] : explode( ",", $order_id );
+            if ( !empty( $paid_order_ids ) ) {
+                $appointment_model = new Appointment();
+                foreach ( $paid_order_ids as $paid_order_id ) {
+                    $appointment_model->confirm( intval( $paid_order_id ), true );
+                }
+            }
             return $result;
         } catch (Exception $e) {
             model('order')->rollback();
