@@ -401,8 +401,9 @@
 			//预约日期
 			loadDateList(goods_id, sku_id) {
 				return new Promise(resolve => {
-					//可预约天数与后端约定保持一致（行业常规为 7~30 天）
-					slotList({ goods_id, sku_id, days: 30 }).then(res => {
+					//不传 days：由后端按商品配置的「可提前预约天数」返回，
+					//保证可预约范围由商家在商品后台控制（goods.appointment_days）
+					slotList({ goods_id, sku_id }).then(res => {
 						const now = new Date();
 						const todayTs = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
 						this.dateList = (res.data || [])
