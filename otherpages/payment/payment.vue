@@ -165,21 +165,38 @@
 			<view class="font-32 font-weight-4 m-b-16">预约到店</view>
 			<scroll-view scroll-x class="date-scroll" v-if="dateList.length">
 				<view class="acea-row date-item" v-for="(d,idx) in dateList" :key="d.date" :class="{active: idx==dateIndex}" @click="selectDate(idx)">
-					<view class="date-day">{{d.date.slice(5)}}</view>
+					<view class="date-day">{{d.day_label}}</view>
 					<view class="date-week">{{d.week_name}}</view>
 				</view>
 			</scroll-view>
 			<view class="font-24" style="color:#999;" v-else>该商品暂无可预约日期</view>
 
-			<view class="font-28 m-t-20 m-b-12" v-if="slotList.length">选择时段</view>
-			<view class="slot-wrap" v-if="slotList.length">
-				<view class="slot-item" v-for="s in slotList" :key="s.start_time" :class="{active: s.start_time==startTime, disabled: !s.can_select}" @click="selectSlot(s)">
-					{{s.slot_text}}
-					<text class="font-20" v-if="!s.can_select"> (已约满)</text>
-					<text class="font-20" v-else> (余{{s.remain_num}})</text>
+			<!-- 时段选择：支持按上午/下午/晚上分组，并可只看可约 -->
+			<view class="acea-row row-middle row-between slot-head" v-if="rawSlotList.length">
+				<text class="font-28">选择时段</text>
+				<view class="acea-row row-middle only-available" @click="toggleOnlyAvailable">
+					<view class="cb-box" :class="{checked: onlyAvailable}">
+						<text class="cb-ok" v-if="onlyAvailable">✓</text>
+					</view>
+					<text class="font-24">只看可约</text>
 				</view>
 			</view>
-			<view class="font-24" style="color:#999;" v-if="!slotList.length">该门店当日暂无可预约时段</view>
+			<view class="font-24" style="color:#999;" v-if="rawSlotList.length && !slotGroups.length">
+				当日已无可预约时段，可切换日期或关闭「只看可约」查看已满时段
+			</view>
+			<view class="slot-period" v-for="g in slotGroups" :key="g.period">
+				<view class="period-title">{{ g.period_name }}</view>
+				<view class="slot-wrap">
+					<view class="slot-item" v-for="s in g.slots" :key="s.start_time"
+						:class="{active: s.start_time==startTime, disabled: !s.can_select}"
+						@click="selectSlot(s)">
+						<text class="slot-time">{{ s.slot_text }}</text>
+						<text class="slot-tip" v-if="!s.can_select">{{ s.unavailable_reason || '不可预约' }}</text>
+						<text class="slot-tip ok" v-else>余 {{ s.remain_num }}</text>
+					</view>
+				</view>
+			</view>
+			<view class="font-24" style="color:#999;" v-if="!rawSlotList.length">该门店当日暂无可预约时段</view>
 
 			<view class="font-28 m-t-20" v-if="dateList.length">预约人信息</view>
 			<view class="info-row" v-if="dateList.length">
@@ -235,7 +252,10 @@
 				storeIndex: -1,
 				dateList: [],
 				dateIndex: 0,
-				slotList: [],
+				//时段原始列表（含不可约项及其原因），分组展示由 slotGroups 计算
+				rawSlotList: [],
+				//默认只展示可约时段，避免顾客在满员时段上反复试
+				onlyAvailable: true,
 				startTime: '',
 				//交易类型上下文解析出的商品/规格，购物车链路 info1 中不存在这两个字段
 				tradeGoodsId: 0,
@@ -260,6 +280,25 @@
 			await this.ordercalculate()
 		},
 		computed: {
+			//时段按「上午/下午/晚上」分组；开启「只看可约」时过滤掉不可约时段
+			slotGroups() {
+				const list = this.onlyAvailable
+					? this.rawSlotList.filter(s => s.can_select)
+					: this.rawSlotList.slice();
+				const order = { morning: 0, afternoon: 1, evening: 2 };
+				const names = { morning: '上午', afternoon: '下午', evening: '晚上' };
+				const map = {};
+				list.forEach(s => {
+					const p = s.period || 'morning';
+					if (!map[p]) map[p] = [];
+					map[p].push(s);
+				});
+				return Object.keys(map).sort((a, b) => order[a] - order[b]).map(p => ({
+					period: p,
+					period_name: names[p] || '可预约',
+					slots: map[p]
+				}));
+			},
 			//是否到店扫码核销类（到店自提/到店消费/预约到店）
 			isStoreTrade() {
 				return [0, 1, 2].includes(this.tradeType);
@@ -362,8 +401,23 @@
 			//预约日期
 			loadDateList(goods_id, sku_id) {
 				return new Promise(resolve => {
-					slotList({ goods_id, sku_id, days: 7 }).then(res => {
-						this.dateList = (res.data || []).filter(d => (d.store_list || []).length);
+					//可预约天数与后端约定保持一致（行业常规为 7~30 天）
+					slotList({ goods_id, sku_id, days: 30 }).then(res => {
+						const now = new Date();
+						const todayTs = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+						this.dateList = (res.data || [])
+							.filter(d => (d.store_list || []).length)
+							.map(d => {
+								const p = String(d.date).split('-');
+								const dayLabel = (Number(p[1]) - 1) + '-' + Number(p[2]);
+								const cur = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+								const diff = Math.round((cur.getTime() - todayTs) / 86400000);
+								let label = String(p[1]).padStart(2, '0') + '-' + String(p[2]).padStart(2, '0');
+								if (diff === 0) label = '今天';
+								else if (diff === 1) label = '明天';
+								else if (diff === 2) label = '后天';
+								return Object.assign({}, d, { day_label: label });
+							});
 						if (this.dateList.length) {
 							this.dateIndex = 0;
 							this.loadSlotList();
@@ -387,10 +441,15 @@
 			//选中时段
 			selectSlot(s) {
 				if (!s.can_select) {
-					uni.showToast({ title: '该时段不可预约', icon: 'none' });
+					//按后端返回的真实原因提示，避免顾客反复尝试
+					uni.showToast({ title: s.unavailable_reason || '该时段不可预约', icon: 'none' });
 					return;
 				}
 				this.startTime = s.start_time;
+			},
+			//切换「只看可约」
+			toggleOnlyAvailable() {
+				this.onlyAvailable = !this.onlyAvailable;
 			},
 			//加载时段
 			loadSlotList() {
@@ -401,7 +460,7 @@
 				const goods_id = this.tradeGoodsId || this.info1.goods_id || 0;
 				const sku_id = this.tradeSkuId || this.info1.sku_id || 0;
 				if (!date || !store || !sku_id) {
-					this.slotList = [];
+					this.rawSlotList = [];
 					return;
 				}
 				slotList({
@@ -411,8 +470,10 @@
 					date: date.date,
 					num: this.info1.num || 1
 				}).then(res => {
-					this.slotList = res.data || [];
+					this.rawSlotList = res.data || [];
 					this.startTime = '';
+				}).catch(() => {
+					this.rawSlotList = [];
 				});
 			},
 			//提交前校验
@@ -1057,6 +1118,60 @@
 		margin: 0 16rpx 16rpx 0;
 		font-size: 26rpx;
 	}
+	.slot-head {
+		margin-top: 20rpx;
+		margin-bottom: 12rpx;
+	}
+
+	.only-available {
+		color: #666;
+
+		.cb-box {
+			width: 30rpx;
+			height: 30rpx;
+			border: 1rpx solid #ccc;
+			border-radius: 6rpx;
+			margin-right: 8rpx;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 20rpx;
+			color: #fff;
+		}
+
+		.cb-box.checked {
+			background: #FF6600;
+			border-color: #FF6600;
+		}
+	}
+
+	.slot-period {
+		margin-bottom: 16rpx;
+
+		.period-title {
+			font-size: 24rpx;
+			color: #999;
+			margin: 12rpx 0 8rpx;
+		}
+	}
+
+	.slot-item {
+		.slot-time {
+			font-size: 28rpx;
+			color: #333;
+		}
+
+		.slot-tip {
+			font-size: 20rpx;
+			color: #bbb;
+			margin-left: 8rpx;
+		}
+
+		.slot-tip.ok {
+			color: #25B85B;
+		}
+	}
+
 	.slot-item.active {
 		border-color: #C24E00;
 		color: #C24E00;
