@@ -1,0 +1,156 @@
+// 精简全局尺寸与原子类（按需生成，避免打包体积超限）
+$font-sizes: 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 40, 44, 46, 50, 54, 56, 60, 70;
+@each $val in $font-sizes {
+  .font-#{$val} { font-size: 1rpx * $val !important; }
+}
+
+$bor-sizes: 8, 10, 12, 16, 20, 24, 28, 30, 32, 40, 42, 50, 60, 74, 100;
+@each $val in $bor-sizes {
+  .bor-#{$val} { border-radius: 1rpx * $val !important; }
+}
+
+$w-sizes: 4, 8, 16, 20, 22, 24, 26, 28, 30, 32, 36, 40, 44, 48, 50, 52, 56, 60, 64, 68, 70, 72, 74, 76, 80, 82, 84, 90, 96, 100, 106, 110, 120, 128, 132, 140, 144, 150, 160, 180, 192, 200, 220, 240, 260, 280, 300, 320, 340, 360, 378, 400;
+@each $val in $w-sizes {
+  .w-#{$val} { width: 1rpx * $val; }
+}
+
+$h-sizes: 4, 8, 16, 20, 22, 24, 26, 28, 30, 32, 36, 40, 44, 48, 50, 52, 56, 58, 60, 64, 68, 70, 72, 74, 76, 80, 82, 84, 86, 90, 96, 100, 110, 120, 136, 140, 144, 150, 160, 174, 180, 200, 220, 224, 240, 260, 280, 300, 320, 340, 360, 400;
+@each $val in $h-sizes {
+  .h-#{$val} { height: 1rpx * $val; }
+}
+
+$m-sizes: 10, 16, 20, 24, 30, 32, 40, 80;
+@each $val in $m-sizes {
+  .m-#{$val} { margin: 1rpx * $val; }
+}
+
+$mb-sizes: 4, 8, 10, 12, 16, 20, 24, 30, 32, 40, 48;
+@each $val in $mb-sizes {
+  .m-b-#{$val} { margin-bottom: 1rpx * $val; }
+}
+
+$ml-sizes: 4, 6, 8, 10, 12, 16, 20, 24, 28, 30, 32, 40, 52;
+@each $val in $ml-sizes {
+  .m-l-#{$val} { margin-left: 1rpx * $val; }
+}
+
+$mr-sizes: 4, 6, 8, 10, 12, 16, 20, 24, 28, 30, 32, 40, 48, 52;
+@each $val in $mr-sizes {
+  .m-r-#{$val} { margin-right: 1rpx * $val; }
+}
+
+$mt-sizes: 8, 10, 12, 16, 20, 22, 24, 28, 30, 32, 38, 40, 48, 60, 80, 220;
+@each $val in $mt-sizes {
+  .m-t-#{$val} { margin-top: 1rpx * $val; }
+}
+
+$p-sizes: 10, 16, 20, 24, 28, 30, 32, 40;
+@each $val in $p-sizes {
+  .p-#{$val} { padding: 1rpx * $val; }
+}
+
+$pb-sizes: 10, 16, 20, 24, 30, 32, 40, 68, 70;
+@each $val in $pb-sizes {
+  .p-b-#{$val} { padding-bottom: 1rpx * $val; }
+}
+
+$pl-sizes: 10, 16, 20, 24, 30, 32, 34, 40;
+@each $val in $pl-sizes {
+  .p-l-#{$val} { padding-left: 1rpx * $val; }
+}
+
+$pr-sizes: 10, 16, 20, 24, 30, 32, 34, 40;
+@each $val in $pr-sizes {
+  .p-r-#{$val} { padding-right: 1rpx * $val; }
+}
+
+$pt-sizes: 10, 16, 20, 24, 28, 30, 32, 40, 48, 80, 126;
+@each $val in $pt-sizes {
+  .p-t-#{$val} { padding-top: 1rpx * $val; }
+}
+
+// font-weight:400-800
+@for $i from 4 through 8 {
+  .font-weight-#{$i} {font-weight: 100 * $i;}
+}
+
+.left-auto {
+  margin-left: auto;
+}
+
+.right-auto {
+  margin-right: auto;
+}
+
+.top-auto {
+  margin-top: auto;
+}
+
+// 右对齐
+.text-right {
+  text-align: right;
+}
+
+.mainbox {
+  background-color: #fff;
+  border-radius: 20rpx;
+  margin-left: 30rpx;
+  margin-right: 30rpx;
+}
+
+.orderbox {
+  background-color: #fff;
+  border-radius: 10rpx;
+  margin-left: 20rpx;
+  margin-right: 20rpx;
+}
+
+// 页面底部按钮
+.save-con {
+   width: 100%;
+ 
+   .save-btn {
+    width: 690rpx;
+    height: 86rpx;
+    background: $color-title;
+    border-radius: 48rpx;
+    line-height: 86rpx;
+    text-align: center;
+    font-size: 32rpx;
+    color: #fff;
+    margin: 80rpx auto 0;
+   }
+   .btn-border {
+     margin: 60rpx auto 0;
+     width: 200rpx;
+     height: 54rpx;
+     line-height: 54rpx;
+     text-align: center;
+     color: #666666;
+     font-size: $font-size-tag;
+     border: 1rpx solid #000000;
+     border-radius: 24rpx;
+   }
+   .save-btn-border {
+     color: $color-title!important;
+     border: 2rpx solid rgba(255,65,32,0.5);
+     background-color: #fff!important;
+     margin-top: 32rpx!important;
+   }
+   .tow-col {
+     width: 330rpx;
+     height: 86rpx;
+     line-height: 86rpx;
+     border-radius: 50rpx;
+     text-align: center;
+     font-size: 32rpx;
+   }
+   .two-col-border {
+     background-color: #fff;
+     color: #333;
+   }
+   .two-border-bg {
+     background-color: $color-title;
+     color: #fff;
+   }
+}

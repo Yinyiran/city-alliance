@@ -1,0 +1,320 @@
+{
+	"easycom": {
+		"autoscan": true
+	},
+	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "商家",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/local/index",
+			"style": {
+				"navigationBarTitleText": "同城",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/classify/classify",
+			"style": {
+				"navigationBarTitleText": "逛一逛"
+			}
+		},
+		{
+			"path": "pages/car/car",
+			"style": {
+				"navigationBarTitleText": "福利区",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/my/my",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationStyle": "custom"
+			}
+		}
+	],
+	"subPackages": [
+		{
+			"root": "otherpages",
+			"pages": [
+				{
+					"path": "goods_detail/goods_detail",
+					"style": {
+						"navigationBarTitleText": "商品详情",
+						"navigationStyle": "custom"
+					}
+				},
+				{
+					"path": "wallet/wallet",
+					"style": {
+						"navigationBarTitleText": "我的钱包",
+						"navigationStyle": "custom"
+					}
+				},
+				{
+					"path": "order/order",
+					"style": {
+						"navigationBarTitleText": "订单列表",
+						"navigationStyle": "custom"
+					}
+				},
+				{
+					"path": "orderDetail/orderDetail",
+					"style": {
+						"navigationBarTitleText": "订单详情",
+						"navigationStyle": "custom"
+					}
+				},
+				{
+					"path": "buyCar/buyCar",
+					"style": {
+						"navigationBarTitleText": "购物车",
+						"navigationStyle": "custom"
+					}
+				},
+				{
+					"path": "cashOut/cashOut",
+					"style": {
+						"navigationBarTitleText": "申请提现",
+						"navigationStyle": "custom"
+					}
+				},
+				{
+					"path": "income/income",
+					"style": {
+						"navigationBarTitleText": "我的收益中心",
+						"navigationStyle": "custom"
+					}
+				},
+				{
+					"path": "cashManage/cashManage",
+					"style": {
+						"navigationBarTitleText": "提现账户管理",
+						"navigationStyle": "custom"
+					}
+				},
+				{
+					"path": "account/account",
+					"style": {
+						"navigationBarTitleText": "提现账号",
+						"navigationStyle": "custom"
+					}
+				},
+				{
+					"path": "address/address",
+					"style": {
+						"navigationBarTitleText": "收货地址",
+						"navigationStyle": "custom"
+					}
+				},
+				{
+					"path": "addAddress/addAddress",
+					"style": {
+						"navigationBarTitleText": "新建收货地址"
+					}
+				},
+				{
+					"path": "follow/follow",
+					"style": {
+						"navigationBarTitleText": "关注列表",
+						"navigationStyle": "custom"
+					}
+				},
+				{
+					"path": "setTing/setTing",
+					"style": {
+						"navigationBarTitleText": "设置",
+						"navigationBarBackgroundColor": "#F5F5F5"
+					}
+				},
+				{
+					"path": "phones/phones",
+					"style": {
+						"navigationBarTitleText": "修改手机号",
+						"navigationBarBackgroundColor": "#F5F5F5"
+					}
+				},
+				{
+					"path": "profile/profile",
+					"style": {
+						"navigationBarTitleText": "个人信息"
+					}
+				},
+				// {
+				// 	"path": "settle/settle",
+				// 	"style": {
+				// 		"navigationBarTitleText": "入驻城盟",
+				// 		"navigationStyle": "custom"
+				// 	}
+				// },
+				{
+					"path": "cateGoods/cateGoods",
+					"style": {
+						"navigationBarTitleText": "",
+						"navigationStyle": "custom"
+					}
+				},
+				{
+					"path": "brandAll/brandAll",
+					"style": {
+						"navigationBarTitleText": "全部品牌",
+						"navigationStyle": "custom"
+					}
+				},
+				{
+					"path": "douyins/douyins",
+					"style": {
+						"navigationBarTitleText": "城盟联创",
+						"navigationBarBackgroundColor": "#222222",
+						"navigationBarTextStyle": "white"
+					}
+				},
+				{
+					"path": "payment/payment",
+					"style": {
+						"navigationBarTitleText": "确认订单"
+					}
+				},
+				{
+					"path": "memberlevel/memberlevel",
+					"style": {
+						"navigationBarTitleText": "会员升级",
+						"navigationBarBackgroundColor": "#101014",
+						"navigationBarTextStyle": "white"
+					}
+				},
+				{
+					"path": "teams/teams",
+					"style": {
+						"navigationBarTitleText": "我的团队",
+						"navigationStyle": "custom"
+					}
+				},
+				{
+					"path": "Synopsis/Synopsis",
+					"style": {
+						"navigationBarTitleText": "简介",
+						"navigationStyle": "custom"
+					}
+				},
+				{
+					"path": "poster/poster",
+					"style": {
+						"navigationBarTitleText": "推广海报",
+						"navigationBarBackgroundColor": "#FF481F",
+						"navigationBarTextStyle": "white"
+					}
+				},
+				{
+					"path": "storeSign/storeSign",
+					"style": {
+						"navigationBarTitleText": "门店签到",
+						"navigationStyle": "custom"
+					}
+				},
+				{
+					"path": "signCode/signCode",
+					"style": {
+						"navigationBarTitleText": "签到码",
+						"navigationStyle": "custom"
+					}
+				},
+				{
+					"path": "myPoint/myPoint",
+					"style": {
+						"navigationBarTitleText": "我的积分",
+						"navigationStyle": "custom"
+					}
+				},
+				{
+					"path": "refund/refund",
+					"style": {
+						"navigationBarTitleText": "申请售后"
+					}
+				},
+				{
+					"path": "bankinfo/bankinfo",
+					"style": {
+						"navigationBarTitleText": "银行卡提现"
+					}
+				},
+				{
+					"path": "inviteDatas/inviteDatas",
+					"style": {
+						"navigationBarTitleText": "邀请好友送福利",
+						"navigationBarBackgroundColor": "#4791FF",
+						"navigationBarTextStyle": "white"
+					}
+				},
+				{
+					"path": "refund_detail/refund_detail",
+					"style": {
+						"navigationBarTitleText": "退款详情"
+					}
+				},
+				{
+					"path": "storeDetail/storeDetail",
+					"style": {
+						"navigationBarTitleText": "门店详情",
+						"navigationStyle": "custom"
+					}
+				}
+			]
+		}
+	],
+	"tabBar": {
+		"color": "#696E80",
+		"selectedColor": "#1C274C",
+		"borderStyle": "white",
+		"backgroundColor": "#fff",
+		"list": [
+			{
+				"pagePath": "pages/index/index",
+				"iconPath": "./static/tabbar/shop.png",
+				"selectedIconPath": "./static/tabbar/shop1.png",
+				"text": "商家"
+			},
+			{
+				"pagePath": "pages/local/index",
+				"iconPath": "./static/tabbar/local.png",
+				"selectedIconPath": "./static/tabbar/local1.png",
+				"text": "同城"
+			},
+			{
+				"pagePath": "pages/classify/classify",
+				"iconPath": "./static/tabbar/classify.png",
+				"selectedIconPath": "./static/tabbar/classify1.png",
+				"text": "逛一逛"
+			},
+			{
+				"pagePath": "pages/car/car",
+				"iconPath": "./static/tabbar/car.png",
+				"selectedIconPath": "./static/tabbar/car1.png",
+				"text": "福利区"
+			},
+			{
+				"pagePath": "pages/my/my",
+				"iconPath": "./static/tabbar/my.png",
+				"selectedIconPath": "./static/tabbar/my1.png",
+				"text": "我的"
+			}
+		]
+	},
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "城盟优选",
+		"navigationBarBackgroundColor": "#fff",
+		"backgroundColor": "#fff",
+		"mp-weixin": {
+			"usingComponents": {
+				"cell": "plugin://materialPlugin/cell"
+			}
+		}
+	},
+	"uniIdRouter": {}
+}

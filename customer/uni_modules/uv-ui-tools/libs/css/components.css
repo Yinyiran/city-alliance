@@ -1,0 +1,12 @@
+/* #ifndef APP-NVUE */
+view, scroll-view, swiper-item {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  flex-grow: 0;
+  flex-basis: auto;
+  align-items: stretch;
+  align-content: flex-start;
+}
+
+/* #endif *//*# sourceMappingURL=components.css.map */

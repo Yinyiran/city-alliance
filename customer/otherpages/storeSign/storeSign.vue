@@ -1,0 +1,457 @@
+<template>
+	<view>
+		<!-- <uv-sticky> -->
+		<nvabar title='门店签到'></nvabar>
+		<!-- </uv-sticky> -->
+		<image src="/static/bg1.png" class="bgs" mode=""></image>
+		<!-- <view class="part1">
+			<image src="/otherpages/static/bg6.png" mode=""></image>
+			<image src="/static/t.png" mode=""></image>
+			<image src="/otherpages/static/btn1.png" @click="$util.redirectTo('/otherpages/settle/settle')" mode=""></image>
+			<view class="">{{shop_num}}家</view>
+		</view> -->
+		<view class="parts">
+			<image src="/otherpages/static/sbg.png" mode=""></image>
+			<image src="/static/t1.png" class="w-132 h-58 relative" mode=""></image>
+			<view class="acea-row row-middle row-between relative">
+				<view class="font-44 font-weight">{{ signcount }}家</view>
+				<image src="/otherpages/static/btn4.png" @click="$util.redirectTo('/otherpages/signCode/signCode')"
+					class="w-180 h-60" mode=""></image>
+			</view>
+			<view class="relative acea-row row-middle">
+				<view class="" v-for="(item, index) in listA" :key="index">
+					<view class="item2" v-if="item.is_signed">
+						<image :src="item.store_logo || '/static/shop.png'" mode="aspectFit" @error="onImgError(item)"></image>
+						<image src="/otherpages/static/checked.png" mode=""></image>
+					</view>
+					<view class="item1" v-else>
+						+{{ item.reward_value }}{{ item.reward_typename }}
+					</view>
+				</view>
+			</view>
+		</view>
+		<view class="container">
+			<view class="acea-row row-middle row-center titles">
+				<image src="/otherpages/static/lline.png" mode=""></image>
+				<view class="">商家距离推荐</view>
+				<image src="/otherpages/static/rline.png" mode=""></image>
+			</view>
+			<view v-for="(item, index) in list" @click="godetail(item.store_id)" class="m-b-20" :key="index">
+				<view class="p-24">
+					<view class="acea-row row-middle row-between">
+						<view class="logos">
+							<image :src="$util.img(item.store_image)" mode=""></image>
+							<view class="">
+								<image src="/static/rank1.png" v-if="index == 0" mode=""></image>
+								<image src="/static/rank2.png" v-else-if="index == 1" mode=""></image>
+								<image src="/static/rank3.png" v-else-if="index == 2" mode=""></image>
+								<image src="/static/rank.png" v-else mode=""></image>
+								<text v-if="index > 2">{{ index + 1 }}</text>
+							</view>
+						</view>
+						<view class="rights">
+							<view class="acea-row row-middle row-between">
+								<view class="font-28 font-weight-6 acea-row row-middle">
+									<image src="/static/shop.png" class="w-28 h-28 m-r-8" mode=""></image>
+									<view class="text-more font-28" style="width: 200rpx;">{{ item.store_name }}</view>
+									<image src="/otherpages/static/go3.png" class="w-26 h-26 m-l-8" mode=""></image>
+								</view>
+								<view class="font-22" style="color: #555;">{{ item.distance_value }}km</view>
+							</view>
+							<view class="font-22 m-t-8 m-b-16 h-36"></view>
+							<view class="acea-row row-middle row-between">
+								<view class="w1">
+									<view class="acea-row row-middle m-b-12 text-more">
+										<image src="/otherpages/static/clock.png" class="w-22 h-22 m-r-4" mode="">
+										</image>
+										营业时间 {{ item.open_date }}
+									</view>
+									<view class="acea-row row-middle ">
+										<image src="/otherpages/static/map4.png" class="w-22 h-22 m-r-4" mode="">
+										</image>
+										<view class="w-200 text-more">{{ item.address }}</view>
+									</view>
+								</view>
+								<view class="w2 acea-row row-middle">
+									<view class="m-r-16" @click.stop="daohang(item)">
+										<image src="/otherpages/static/map2.png" mode=""></image>
+									</view>
+									<view class="" @click.stop="calls(item)">
+										<image src="/otherpages/static/phone.png" mode=""></image>
+									</view>
+								</view>
+							</view>
+						</view>
+					</view>
+
+				</view>
+			</view>
+
+		</view>
+	</view>
+</template>
+
+<script>
+import {
+	websiteInfo,
+	storeList,
+	getsignininfo
+} from "@/common/js/api.js"
+export default {
+	data() {
+		return {
+			shop_num: 0,
+			page: 1,
+			last_page: 1,
+			list: [],
+			listA: [],
+			signcount: ""
+		};
+	},
+	onShow() {
+		this.getlist()
+		this.getsignininfo()
+	},
+	onReachBottom() {
+		if (this.last_page > this.page) {
+			this.page++
+			this.getlist()
+		}
+	},
+	methods: {
+		godetail(e) {
+			uni.navigateTo({
+				url: '/otherpages/storeDetail/storeDetail?id=' + e
+			})
+		},
+		getsignininfo() {
+			getsignininfo().then(res => {
+				this.signcount = res.signcount
+				let list = res.data || []
+				this.listA = list.map(item => {
+					let is_signed = false
+					let store_logo = ''
+					if (item.signdata) {
+						if (Array.isArray(item.signdata)) {
+							if (item.signdata.length > 0) {
+								is_signed = true
+								store_logo = item.signdata[0].logo || item.signdata[0].avatar || item.signdata[0].shop_logo || ''
+							}
+						} else if (typeof item.signdata === 'object') {
+							if (item.signdata.signin_id || item.signdata.logo || Object.keys(item.signdata).length > 0) {
+								is_signed = true
+								store_logo = item.signdata.logo || item.signdata.avatar || item.signdata.shop_logo || ''
+							}
+						}
+					}
+					return {
+						...item,
+						is_signed,
+						store_logo: store_logo ? this.$util.img(store_logo) : '/static/shop.png'
+					}
+				})
+			})
+		},
+		onImgError(item) {
+			if (item) {
+				item.store_logo = '/static/shop.png'
+			}
+		},
+		daohang(e) {
+			uni.openLocation({
+				latitude: Number(e.latitude),
+				longitude: Number(e.longitude),
+				name: e.address
+			})
+		},
+		calls(e) {
+			uni.makePhoneCall({
+				phoneNumber: e.telphone
+			})
+		},
+		getlist() {
+			let params = {
+				page: this.page,
+				page_size: 30
+			}
+			storeList(params).then(res => {
+				this.list = this.page > 1 ? this.list.concat(...res.data.list) : res.data.list
+				this.last_page = res.data.page_count
+			})
+		},
+		getinfo() {
+			let params = {
+				website_id: uni.getStorageSync('website_id')
+			}
+			websiteInfo(params).then(res => {
+				this.shop_num = res.data.shop_num
+			})
+		}
+	}
+}
+</script>
+
+<style lang="scss">
+.relative {
+	position: relative;
+	z-index: 9;
+}
+
+.parts {
+	margin: 0 32rpx;
+	height: 618rpx;
+	box-sizing: border-box;
+	padding: 120rpx 40rpx 40rpx 40rpx;
+	position: relative;
+
+	>image:first-child {
+		width: 100%;
+		height: 100%;
+		position: absolute;
+		left: 0;
+		top: 0;
+	}
+
+	>view:last-child {
+		margin-top: 20rpx;
+
+		>view {
+			width: calc((100% - 36rpx)/4);
+			margin-right: 16rpx;
+			height: 52rpx;
+			margin-bottom: 12rpx;
+			text-align: center;
+		}
+
+		.item2 {
+			width: 100%;
+			height: 100%;
+			box-sizing: border-box;
+			border: 2rpx solid #FFAE85;
+			border-radius: 6rpx;
+			position: relative;
+			background: #fff;
+			overflow: hidden;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+
+			>image:first-child {
+				width: 100%;
+				height: 100%;
+			}
+
+			>image:last-child {
+				width: 26rpx;
+				height: 26rpx;
+				position: absolute;
+				right: 0;
+				bottom: 0;
+				z-index: 2;
+			}
+		}
+
+		.item1 {
+			background: #FFFDF9;
+			border: 2rpx dashed #F0F0F0;
+			border-radius: 6rpx;
+			font-weight: 400;
+			font-size: 22rpx;
+			line-height: 52rpx;
+			color: #555555;
+			box-sizing: border-box;
+		}
+
+		>view:nth-child(4n) {
+			margin-right: 0;
+		}
+	}
+}
+
+page {
+	background: #F5F5F5;
+}
+
+.container {
+	position: relative;
+	z-index: 999;
+	margin-top: 32rpx;
+	background: #fff;
+	border-radius: 24rpx 24rpx 0rpx 0rpx;
+	padding: 32rpx;
+	box-sizing: border-box;
+
+	.titles {
+		view {
+			font-weight: 600;
+			font-size: 32rpx;
+			color: #222222;
+			margin: 0 24rpx;
+		}
+
+		image {
+			width: 129rpx;
+			height: 4rpx;
+		}
+	}
+
+	.info1 {
+		font-weight: 400;
+		font-size: 22rpx;
+		color: #555555;
+		background: #F5F5F5;
+		border-radius: 12rpx;
+		margin-top: 16rpx;
+		height: 54rpx;
+		padding: 0 20rpx;
+
+		.line {
+			width: 1rpx;
+			height: 22rpx;
+			background: #DCDFEB;
+			margin: 0 20rpx;
+		}
+	}
+
+	.w1 {
+		width: calc(100% - 152rpx - 16rpx);
+
+		view {
+			font-weight: 400;
+			font-size: 22rpx;
+			color: #999999;
+			flex-wrap: nowrap;
+		}
+	}
+
+	.w2 {
+		view {
+			width: 56rpx;
+			height: 56rpx;
+			background: #FFEBE0;
+			border-radius: 12rpx;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		>view:last-child {
+			background: #E6FFEF;
+		}
+
+		image {
+			width: 28rpx;
+			height: 28rpx;
+		}
+	}
+
+	.aaa {
+		margin: 20rpx 32rpx;
+	}
+
+	.rights {
+		width: calc(100% - 225rpx - 20rpx);
+	}
+
+	.logos {
+		width: 225rpx;
+		height: 180rpx;
+		position: relative;
+
+		>view {
+			position: absolute;
+			left: 0;
+			top: 0;
+			width: 58rpx;
+			height: 64rpx;
+
+			>image {
+				width: 100%;
+				height: 100%;
+			}
+
+			text {
+				position: absolute;
+				font-weight: 400;
+				font-size: 32rpx;
+				color: #222222;
+				left: 50%;
+				top: 50%;
+				transform: translate(-50%, -50%);
+				z-index: 5;
+			}
+		}
+
+		>image:first-child {
+			width: 100%;
+			height: 100%;
+			border-radius: 12rpx;
+		}
+	}
+
+	::v-deep .uv-swipe-action-item {
+		border-radius: 24rpx;
+	}
+
+	.whits {
+		margin-top: 52rpx;
+
+		>view {
+			color: #FFFFFF;
+		}
+	}
+}
+
+.part1 {
+	margin: 0 32rpx;
+	margin-top: 20rpx;
+	position: relative;
+	height: 210rpx;
+
+	>image:first-child {
+		width: 100%;
+		height: 100%;
+		position: absolute;
+		right: 0;
+		top: 0;
+		z-index: 1;
+	}
+
+	>image:nth-child(2) {
+		position: absolute;
+		top: 40rpx;
+		left: 40rpx;
+		width: 220rpx;
+		height: 58rpx;
+		z-index: 2;
+	}
+
+	>image:nth-child(3) {
+		width: 276rpx;
+		height: 136rpx;
+		position: absolute;
+		right: 40rpx;
+		bottom: 18rpx;
+		z-index: 2;
+	}
+
+	>view {
+		position: absolute;
+		bottom: 40rpx;
+		left: 40rpx;
+		font-weight: bold;
+		font-size: 56rpx;
+		color: #222222;
+		z-index: 2;
+	}
+}
+
+.bgs {
+	position: absolute;
+	width: 100vw;
+	height: 440rpx;
+	top: 0;
+	left: 0;
+	z-index: -1;
+}
+</style>
