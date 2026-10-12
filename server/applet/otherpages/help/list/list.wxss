@@ -1,0 +1,36 @@
+@charset "UTF-8";
+/**
+ * 你可以通过修改这些变量来定制自己的插件主题，实现自定义主题功能
+ * 建议使用scss预处理，并在插件代码中直接使用这些变量（无需 import 这个文件），方便用户通过搭积木的方式开发整体风格一致的App
+ */
+.help {
+  height: 100%;
+  box-sizing: border-box;
+  padding-top: 20rpx;
+}
+.help .help-item {
+  width: calc(100% - 60rpx);
+  margin: 0 auto;
+  padding: 32rpx 35rpx;
+  box-sizing: border-box;
+  background-color: #fff;
+  margin-bottom: 18rpx;
+  border-radius: 10rpx;
+}
+.help .help-item .item-title {
+  padding-bottom: 15rpx;
+  font-size: 30rpx;
+  color: #000;
+  border-bottom: 1px solid #f1f1f1;
+}
+.help .help-item .item-content {
+  padding: 24rpx 0;
+  border-bottom: 1px solid #f1f1f1;
+  font-size: 28rpx;
+  color: #606266;
+}
+.help .help-item .item-content:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+

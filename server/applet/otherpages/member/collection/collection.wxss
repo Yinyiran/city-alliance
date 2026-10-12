@@ -1,0 +1,345 @@
+@charset "UTF-8";
+/**
+ * 你可以通过修改这些变量来定制自己的插件主题，实现自定义主题功能
+ * 建议使用scss预处理，并在插件代码中直接使用这些变量（无需 import 这个文件），方便用户通过搭积木的方式开发整体风格一致的App
+ */
+.page {
+  width: 100%;
+  background: #cccccc;
+}
+.list_cate {
+  width: 100%;
+  height: 90rpx;
+  background: #ffffff;
+  padding: 0 20rpx;
+  box-sizing: border-box;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+}
+.list_cate .cate {
+  width: 60%;
+  height: 100%;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+}
+.list_cate .cate .cate_list {
+  height: 50rpx;
+  border-radius: 40rpx;
+  display: inline-block;
+  padding: 0 25rpx;
+  box-sizing: border-box;
+  margin-right: 20rpx;
+  font-size: 28rpx;
+  line-height: 50rpx;
+}
+.list_cate .cate .cate_list.active {
+  color: #ffffff;
+}
+.list_cate .cate .cate_list:last-child {
+  margin-right: 0;
+}
+.list_cate .opec {
+  height: 100%;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+}
+.list_cate .opec .edit {
+  width: 100rpx;
+  height: 50rpx;
+  line-height: 50rpx;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+          justify-content: center;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+  font-size: 28rpx;
+}
+.list_cate .opec .edit .edit_con {
+  padding: 0 20rpx;
+  border-radius: 30rpx;
+  background: #f5f5f5;
+  border: 1rpx solid #eeeeee;
+  color: #ffffff;
+}
+.goods_list {
+  width: 100%;
+  padding: 20rpx 0;
+  padding-top: 1px;
+  box-sizing: border-box;
+}
+.goods_list .goods_li {
+  height: 200rpx;
+  background: #ffffff;
+  overflow: hidden;
+  border-radius: 10rpx;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+  margin: 20rpx 30rpx;
+  padding: 30rpx;
+}
+.goods_list .goods_li .pic {
+  width: 200rpx;
+  height: 200rpx;
+  box-sizing: border-box;
+  border-radius: 10rpx;
+  overflow: hidden;
+}
+.goods_list .goods_li .pic image {
+  width: 100%;
+  height: 100%;
+}
+.goods_list .goods_li .goods_info {
+  -webkit-box-flex: 1;
+  -webkit-flex: 1;
+          flex: 1;
+  height: 100%;
+  padding-left: 20rpx;
+  box-sizing: border-box;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+          flex-direction: column;
+}
+.goods_list .goods_li .goods_name {
+  width: 100%;
+  height: 80rpx;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+.goods_list .goods_li .goods_opection {
+  width: 100%;
+  height: 80rpx;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+  -webkit-box-align: end;
+  -webkit-align-items: flex-end;
+          align-items: flex-end;
+}
+.goods_list .goods_li .goods_opection .right {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: end;
+  -webkit-align-items: flex-end;
+          align-items: flex-end;
+}
+.goods_list .goods_li .goods_opection .symbol {
+  font-size: 24rpx;
+}
+.goods_list .goods_li .goods_opection .price {
+  font-size: 32rpx;
+}
+.goods_list .goods_li .goods_opection .cars {
+  padding: 0rpx 15rpx;
+  border: 1rpx solid #eeeeee;
+  border-radius: 32rpx;
+}
+.goods_list .goods_li .goods_opection icon {
+  font-size: 24rpx;
+}
+.goods_list .goods_li .goods_opection .alike {
+  padding: 0rpx 15rpx;
+  border: 1rpx solid #eeeeee;
+  border-radius: 24rpx;
+  margin-left: 20rpx;
+}
+.goods_list .goods_opection {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+  -webkit-box-align: end;
+  -webkit-align-items: flex-end;
+          align-items: flex-end;
+}
+.goods_list .goods_opection view {
+  line-height: 1;
+}
+.goods_list .goods_opection .right {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: end;
+  -webkit-align-items: flex-end;
+          align-items: flex-end;
+}
+.goods_list .shop_li {
+  background: #ffffff;
+  border-radius: 10rpx;
+  margin: 20rpx 30rpx;
+  padding: 30rpx;
+}
+.goods_list .shop_li .shop-info {
+  width: 100%;
+  padding-bottom: 20rpx;
+  box-sizing: border-box;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: end;
+  -webkit-align-items: flex-end;
+          align-items: flex-end;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+  position: relative;
+  border-bottom: 2rpx solid #eeeeee;
+}
+.goods_list .shop_li .shop-image {
+  width: 90rpx;
+  height: 90rpx;
+  border-radius: 50%;
+  overflow: hidden;
+}
+.goods_list .shop_li .shop-image image {
+  width: 100%;
+  height: 100%;
+}
+.goods_list .shop_li .shop-con {
+  width: calc(100% - 90rpx - 20rpx);
+  color: #ffffff;
+}
+.goods_list .shop_li .info-top {
+  width: 100%;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+  margin-bottom: 4rpx;
+}
+.goods_list .shop_li .info-top .info-name {
+  width: 60%;
+  font-size: 28rpx;
+  font-weight: bold;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.goods_list .shop_li .info-top .info-name .icongengduo {
+  font-size: 26rpx;
+  margin-top: 2rpx;
+  font-weight: normal;
+  font-weight: bold;
+  margin-left: 10rpx;
+}
+.goods_list .shop_li .info-follow {
+  display: inline-block;
+  padding: 4rpx 20rpx;
+  font-size: 28rpx;
+  border: 1rpx solid #eeeeee;
+  border-radius: 50rpx;
+  position: absolute;
+  right: 20rpx;
+  top: 20rpx;
+  color: #ffffff;
+}
+.goods_list .shop_li .info-follow .iconfont {
+  margin-right: 10rpx;
+  font-size: 28rpx;
+  color: #ffffff;
+}
+.goods_list .shop_li .info-follow.active {
+  background: #ffffff;
+}
+.goods_list .shop_li .info-follow.active .iconfont {
+  margin-right: 0;
+  color: #333333;
+}
+.goods_list .shop_li .info-desc {
+  width: 100%;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+}
+.goods_list .shop_li .info-desc .desc-star {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+  font-size: 20rpx;
+}
+.goods_list .shop_li .info-desc .fans {
+  margin-left: 20rpx;
+  font-size: 20rpx;
+}
+.goods_list .shop_li .shop-desc {
+  width: 100%;
+  padding: 20rpx 20rpx 0;
+  box-sizing: border-box;
+  line-height: 1.2;
+  font-size: 28rpx;
+  color: #909399;
+  text-indent: 50rpx;
+}
+.goods_list .shop_li .shop-desc.empty {
+  line-height: 50rpx;
+  text-align: center;
+  margin-top: 0;
+}
+.empty {
+  width: 100%;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+  padding: 20rpx;
+  box-sizing: border-box;
+  margin-top: 50rpx;
+}
+.empty .iconfont {
+  font-size: 190rpx;
+  color: #909399;
+  line-height: 1.2;
+}
+

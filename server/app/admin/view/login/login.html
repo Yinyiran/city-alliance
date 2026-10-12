@@ -1,0 +1,124 @@
+{extend name="base"/}
+{block name="resources"}
+<link rel="stylesheet" type="text/css" href="ADMIN_CSS/login.css" />
+{/block}
+{block name="body"}
+<div class="login-page">
+
+	<!-- 左侧标语 -->
+	<div class="login-slogan">
+		<h2 class="login-slogan-title">城盟科技<br />科技改变生活</h2>
+		<span class="login-slogan-line"></span>
+		<p class="login-slogan-sub">广州城盟科技有限公司出品</p>
+	</div>
+
+	<!-- 右侧登录卡片 -->
+	<div class="layui-form login-form">
+		<div class="login-form-title">账号登录</div>
+
+		<div class="layui-form-item">
+			<i class="layui-icon layui-icon-username login-input-icon"></i>
+			<input type="text" name="username" lay-verify="userName" placeholder="用户名" autocomplete="off" class="layui-input">
+		</div>
+		<div class="layui-form-item">
+			<i class="layui-icon layui-icon-password login-input-icon"></i>
+			<input type="password" name="password" lay-verify="password" placeholder="密码" autocomplete="off" class="layui-input">
+		</div>
+
+		{if $admin_login == 1}
+		<div class="layui-form-item login-verify-box">
+			<i class="layui-icon layui-icon-vercode login-input-icon"></i>
+			<input type="text" name="captcha" lay-verify="verificationCode" placeholder="验证码" class="layui-input" value="">
+			<div class="login-verify-img">
+				<img id='verify_img' src="{$captcha['img']}" alt='captcha' onclick="verificationCode()"/>
+			</div>
+		</div>
+		<input type="hidden" name="captcha_id" value="{$captcha['id']}">
+		{/if}
+
+		<div class="layui-form-item login-btn-box">
+			<button class="layui-btn layui-btn-fluid login-submit-btn" lay-submit lay-filter="login">登 录</button>
+		</div>
+	</div>
+</div>
+{/block}
+{block name="script"}
+<script>
+	layui.use('form', function() {
+		var form = layui.form,
+				repeat_flag = false; //防重复标识
+
+		/**
+		 * 登录
+		 */
+		form.on('submit(login)', function(data) {
+
+			if (repeat_flag) return false;
+			repeat_flag = true;
+
+			$.ajax({
+				type: "POST",
+				url: "{:url('admin/login/login')}",
+				data: data.field,
+				dataType: "JSON",
+				success: function(res) {
+					if (res.code == 0) {
+						layer.msg('登录成功',{anim: 5,time: 500},function () {
+							window.location = "{:url('admin/index/index')}";
+						})
+					} else {
+						layer.msg(res.message);
+						repeat_flag = false;
+						verificationCode();
+					}
+				}
+			});
+		});
+
+		$(document).keydown(function(event) {
+			if (event.keyCode == 13) {
+				$(".login-submit-btn").trigger("click");
+			}
+		});
+
+		/**
+		 * 表单验证
+		 */
+		form.verify({
+			userName: function(value) {
+				if (!value) {
+					return "用户名不能为空";
+				}
+			},
+			password: function(value) {
+				if (!value) {
+					return "密码不能为空";
+				}
+			},
+			verificationCode: function(value) {
+				if (!value) {
+					return "验证码不能为空";
+				}
+			}
+
+		});
+	});
+
+	/**
+	 * 验证码
+	 */
+	function verificationCode(){
+		$.ajax({
+			type: "get",
+			url: "{:url('admin/login/captcha')}",
+			dataType: "JSON",
+			async: false,
+			success: function (res) {
+				var data = res.data;
+				$("#verify_img").attr("src",data.img);
+				$("input[name='captcha_id']").val(data.id);
+			}
+		});
+	}
+</script>
+{/block}

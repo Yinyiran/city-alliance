@@ -1,0 +1,154 @@
+{extend name="base"/}
+{block name="resources"}
+<style>
+    .ns-card-brief:first-of-type { margin-top: 0; }
+    .layui-card-body { display: flex; justify-content: space-around; }
+    .layui-card-body .money { font-size: 24px; color: #FF6A00; font-weight: bold; margin-top: 10px; text-align: center; }
+    .ns-single-filter-box { background-color: transparent; }
+    .ns-card-body { display: block; }
+    .status-badge-0 { background-color: #FAAD14; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+    .status-badge-1 { background-color: #52C41A; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+    .status-badge-2 { background-color: #F5222D; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+</style>
+{/block}
+{block name="main"}
+<!-- 顶部统计概况 -->
+<div class="layui-card ns-card-common ns-card-brief">
+    <div class="layui-card-header">
+        <div>
+            <span class="ns-card-title">门店会员开通分润总览</span>
+        </div>
+    </div>
+    <div class="layui-card-body">
+        <div class="content" style="text-align: center;">
+            <p class="title" style="color: #666;">门店主理人累计分成收益 (元)</p>
+            <p class="money">￥{$shop_total_money}</p>
+        </div>
+        <div class="content" style="text-align: center;">
+            <p class="title" style="color: #666;">本店开通会员总数 (人/笔)</p>
+            <p class="money" style="color: #52C41A;">{$member_count}</p>
+        </div>
+    </div>
+</div>
+
+<div class="layui-card ns-card-common ns-card-brief">
+    <div class="layui-card-header">
+        <span class="ns-card-title">会员开通与购买分润结算明细 (本店)</span>
+    </div>
+    <div class="layui-card-body ns-card-body">
+        <!-- 筛选搜索 -->
+        <div class="ns-single-filter-box">
+            <div class="layui-form">
+                <div class="layui-input-inline">
+                    <input type="text" name="order_no" id="order_no" placeholder="请输入订单号" class="layui-input" autocomplete="off">
+                </div>
+                <div class="layui-input-inline">
+                    <select name="status" id="status">
+                        <option value="">全部结算状态</option>
+                        <option value="1">已解冻入账</option>
+                        <option value="0">冻结中</option>
+                        <option value="2">已作废/退款</option>
+                    </select>
+                </div>
+                <button type="button" class="layui-btn layui-btn-primary" lay-filter="search" lay-submit>
+                    <i class="layui-icon">&#xe615;</i> 搜索
+                </button>
+            </div>
+        </div>
+
+        <!-- 数据表格 -->
+        <table id="shop_settlement_table" lay-filter="shop_settlement_table"></table>
+    </div>
+</div>
+
+<!-- 状态模板 -->
+<script type="text/html" id="statusTpl">
+    {{# if(d.status == 0){ }}
+        <span class="status-badge-0">冻结中</span>
+    {{# } else if(d.status == 1){ }}
+        <span class="status-badge-1">已解冻入账</span>
+    {{# } else if(d.status == 2){ }}
+        <span class="status-badge-2">已作废退款</span>
+    {{# } }}
+</script>
+{/block}
+
+{block name="script"}
+<script>
+    layui.use(['form', 'table'], function() {
+        var form = layui.form,
+            table = layui.table;
+
+        form.render();
+
+        var settleTable = new Table({
+            elem: '#shop_settlement_table',
+            url: ns.url("shop/account/membersettlement"),
+            cols: [[
+                { field: 'order_no', title: '订单编号', width: '16%', unresize: true },
+                { 
+                    field: 'buy_nickname', 
+                    title: '购买会员', 
+                    width: '13%',
+                    templet: function(d) {
+                        return '<div>' + (d.buy_nickname || '-') + '</div><div style="font-size:11px;color:#888;">' + (d.buy_mobile || '') + '</div>';
+                    }
+                },
+                { 
+                    field: 'level_name', 
+                    title: '开通等级', 
+                    width: '11%',
+                    templet: function(d) {
+                        var openTag = d.open_type == 2 ? '<span style="color:#FF7A00;font-size:10px;">(老板开通)</span>' : '';
+                        return (d.level_name || '合伙人') + ' ' + openTag;
+                    }
+                },
+                { 
+                    field: 'order_money', 
+                    title: '订单金额', 
+                    width: '10%',
+                    templet: function(d) {
+                        return '￥' + parseFloat(d.order_money || 0).toFixed(2);
+                    }
+                },
+                { 
+                    field: 'shop_money', 
+                    title: '主理人分成', 
+                    width: '16%',
+                    templet: function(d) {
+                        return '<strong style="color:#FF6A00;">+￥' + parseFloat(d.shop_money || 0).toFixed(2) + '</strong> (' + parseFloat(d.shop_rate || 25).toFixed(1) + '%)';
+                    }
+                },
+                { 
+                    field: 'invite_money', 
+                    title: '邀约员工/合伙人提成', 
+                    width: '16%',
+                    templet: function(d) {
+                        if (d.invite_money > 0) {
+                            return '<div>+￥' + parseFloat(d.invite_money || 0).toFixed(2) + ' (' + parseFloat(d.invite_rate || 0).toFixed(1) + '%)</div><div style="font-size:11px;color:#888;">邀请人: ' + (d.invite_nickname || '') + '</div>';
+                        }
+                        return '<span style="color:#999;">无邀约提成</span>';
+                    }
+                },
+                { field: 'status', title: '结算状态', width: '10%', templet: '#statusTpl' },
+                { 
+                    field: 'create_time', 
+                    title: '开通时间', 
+                    width: '14%',
+                    templet: function(d) {
+                        return ns.time_to_date(d.create_time);
+                    }
+                }
+            ]]
+        });
+
+        // 监听搜索
+        form.on('submit(search)', function(data) {
+            settleTable.reload({
+                page: { curr: 1 },
+                where: data.field
+            });
+        });
+    });
+</script>
+{/block}

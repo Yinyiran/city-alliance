@@ -1,0 +1,31 @@
+@charset "UTF-8";
+/**
+ * 你可以通过修改这些变量来定制自己的插件主题，实现自定义主题功能
+ * 建议使用scss预处理，并在插件代码中直接使用这些变量（无需 import 这个文件），方便用户通过搭积木的方式开发整体风格一致的App
+ */
+.video {
+  background-color: #000000;
+  height: 100vh;
+}
+.video .close {
+  padding-top: 60rpx;
+  color: #fff;
+}
+.video .close .iconclose {
+  margin-left: 30rpx;
+  font-size: 50rpx;
+}
+.video_view {
+  height: 100vw;
+  width: 100vw;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+}
+.video_view video {
+  width: 100%;
+  height: 100%;
+}
+

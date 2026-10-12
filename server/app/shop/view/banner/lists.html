@@ -1,0 +1,196 @@
+{extend name="base"/}
+{block name="resources"}
+<style>
+    .banner-img-wrap {
+        width: 120px;
+        height: 60px;
+        border-radius: 4px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8f8f8;
+    }
+    .banner-img-wrap img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: cover;
+    }
+    .ns-single-filter-box {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+</style>
+{/block}
+
+{block name="main"}
+<!-- 按钮与搜索容器 -->
+<div class="ns-single-filter-box">
+    <button class="layui-btn ns-bg-color add_banner">添加Banner</button>
+    <div class="ns-search-box layui-form">
+        <div class="layui-input-inline">
+            <input type="text" name="search_text" id="search_text" placeholder="请输入Banner名称" autocomplete="off" class="layui-input">
+            <button type="button" class="layui-btn layui-btn-primary" lay-filter="search" lay-submit>
+                <i class="layui-icon">&#xe615;</i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Banner列表 -->
+<table id="banner_list" lay-filter="banner_list"></table>
+
+<!-- 图片展示 -->
+<script type="text/html" id="banner_img">
+    <div class="banner-img-wrap">
+        {{# if(d.image){ }}
+        <img src="{{ns.img(d.image)}}" class="img_prev" layer-src="{{ns.img(d.image)}}" alt="">
+        {{# } else { }}
+        <span>无图片</span>
+        {{# } }}
+    </div>
+</script>
+
+<!-- 状态开关 -->
+<script type="text/html" id="status">
+    <input type="checkbox" name="status" value="{{d.id}}" lay-skin="switch" lay-filter="status" lay-text="开启|关闭" {{ d.status == 1 ? 'checked' : '' }}>
+</script>
+
+<!-- 操作 -->
+<script type="text/html" id="action">
+    <div class="ns-table-btn">
+        <a class="layui-btn" lay-event="edit">编辑</a>
+        <a class="layui-btn" lay-event="delete">删除</a>
+    </div>
+</script>
+{/block}
+
+{block name="script"}
+<script>
+    var table, form;
+    layui.use(['form'], function () {
+        form = layui.form;
+        form.render();
+
+        table = new Table({
+            elem: '#banner_list',
+            url: ns.url("shop/banner/lists"),
+            cols: [
+                [
+                    {
+                        field: 'id',
+                        title: 'ID',
+                        width: '80',
+                        unresize: 'false'
+                    },
+                    {
+                        title: 'Banner图片',
+                        width: '180',
+                        unresize: 'false',
+                        templet: '#banner_img'
+                    },
+                    {
+                        field: 'name',
+                        title: 'Banner名称',
+                        minWidth: 150,
+                        unresize: 'false'
+                    },
+                    {
+                        field: 'url',
+                        title: '跳转路径',
+                        minWidth: 160,
+                        unresize: 'false'
+                    },
+                    {
+                        field: 'sort',
+                        title: '排序',
+                        width: '100',
+                        unresize: 'false'
+                    },
+                    {
+                        title: '状态',
+                        width: '120',
+                        unresize: 'false',
+                        templet: '#status'
+                    },
+                    {
+                        title: '创建时间',
+                        width: '180',
+                        unresize: 'false',
+                        templet: function(d) {
+                            return ns.time_to_date(d.create_time);
+                        }
+                    },
+                    {
+                        title: '操作',
+                        width: '140',
+                        unresize: 'false',
+                        toolbar: '#action'
+                    }
+                ]
+            ]
+        });
+
+        // 监听搜索
+        form.on('submit(search)', function () {
+            table.reload({
+                page: { curr: 1 },
+                where: { 'search_text': $('#search_text').val() }
+            });
+        });
+
+        // 监听状态切换
+        form.on('switch(status)', function (data) {
+            var status = data.elem.checked ? 1 : 0;
+            var id = data.value;
+            $.ajax({
+                url: ns.url("shop/banner/modifyStatus"),
+                data: { id: id, status: status },
+                dataType: 'JSON',
+                type: 'POST',
+                success: function (res) {
+                    layer.msg(res.message);
+                }
+            });
+        });
+
+        // 监听工具条
+        table.tool(function (obj) {
+            var data = obj.data;
+            switch (obj.event) {
+                case 'edit':
+                    location.href = ns.url("shop/banner/edit", { id: data.id });
+                    break;
+                case 'delete':
+                    deleteBanner(data.id);
+                    break;
+            }
+        });
+
+        // 添加Banner跳转
+        $('.add_banner').click(function () {
+            location.href = ns.url("shop/banner/add");
+        });
+
+        // 删除
+        function deleteBanner(id) {
+            layer.confirm('确定要删除该Banner吗？', function () {
+                $.ajax({
+                    url: ns.url("shop/banner/delete"),
+                    data: { id: id },
+                    dataType: 'JSON',
+                    type: 'POST',
+                    success: function (res) {
+                        layer.msg(res.message);
+                        if (res.code >= 0) {
+                            table.reload();
+                        }
+                    }
+                });
+            });
+        }
+    });
+</script>
+{/block}

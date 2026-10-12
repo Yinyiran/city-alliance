@@ -1,0 +1,363 @@
+@charset "UTF-8";
+/**
+ * 你可以通过修改这些变量来定制自己的插件主题，实现自定义主题功能
+ * 建议使用scss预处理，并在插件代码中直接使用这些变量（无需 import 这个文件），方便用户通过搭积木的方式开发整体风格一致的App
+ */
+.head-wrap {
+  background: #fff;
+  position: fixed;
+  width: 100%;
+  left: 0;
+  z-index: 1;
+}
+.head-wrap .search-wrap {
+  -webkit-box-flex: 0.5;
+  -webkit-flex: 0.5;
+          flex: 0.5;
+  padding: 20rpx 20rpx 0;
+  font-size: 24rpx;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+}
+.head-wrap .search-wrap .input-wrap {
+  -webkit-box-flex: 1;
+  -webkit-flex: 1;
+          flex: 1;
+  margin: 0 20rpx;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+  background: #f8f8f8;
+  height: 80rpx;
+  padding-left: 10rpx;
+  border-radius: 40rpx;
+}
+.head-wrap .search-wrap .input-wrap input {
+  background: #f8f8f8;
+  font-size: 28rpx;
+  height: 50rpx;
+  padding: 15rpx 25rpx 15rpx 40rpx;
+  line-height: 50rpx;
+  border-radius: 40rpx;
+  width: 100%;
+}
+.head-wrap .search-wrap .input-wrap text {
+  font-size: 40rpx;
+  color: #909399;
+  width: 80rpx;
+  text-align: center;
+  margin-right: 20rpx;
+}
+.head-wrap .sort-wrap {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  border-bottom: 1px solid #eeeeee;
+  padding: 10rpx 0;
+}
+.head-wrap .sort-wrap > view {
+  -webkit-box-flex: 1;
+  -webkit-flex: 1;
+          flex: 1;
+  text-align: center;
+  font-size: 28rpx;
+  height: 60rpx;
+  line-height: 60rpx;
+}
+.head-wrap .sort-wrap .comprehensive-wrap {
+  position: relative;
+}
+.head-wrap .sort-wrap .comprehensive-wrap .iconfont-wrap {
+  display: inline-block;
+  margin-left: 10rpx;
+  width: 40rpx;
+}
+.head-wrap .sort-wrap .comprehensive-wrap .iconfont-wrap .iconfont {
+  font-size: 32rpx;
+  height: 20rpx;
+  line-height: 1;
+}
+.shop_li {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 10rpx;
+  margin-top: 15rpx;
+}
+.shop_li .shop-info {
+  width: 100%;
+  padding: 20rpx;
+  box-sizing: border-box;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: end;
+  -webkit-align-items: flex-end;
+          align-items: flex-end;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+  position: relative;
+  border-bottom: 2rpx solid #eeeeee;
+}
+.shop_li .shop-image {
+  width: 90rpx;
+  height: 90rpx;
+  border-radius: 50%;
+  overflow: hidden;
+}
+.shop_li .shop-image image {
+  width: 100%;
+  height: 100%;
+}
+.shop_li .shop-con {
+  width: calc(100% - 90rpx - 20rpx);
+  color: #ffffff;
+}
+.shop_li .info-top {
+  width: 100%;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+  margin-bottom: 4rpx;
+}
+.shop_li .info-top .info-name {
+  width: 60%;
+  font-size: 28rpx;
+  font-weight: bold;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.shop_li .info-top .info-name .icongengduo {
+  font-size: 26rpx;
+  margin-top: 2rpx;
+  font-weight: normal;
+  font-weight: bold;
+  margin-left: 10rpx;
+}
+.shop_li .info-follow {
+  display: inline-block;
+  padding: 4rpx 20rpx;
+  font-size: 24rpx;
+  border: 1rpx solid #eeeeee;
+  border-radius: 50rpx;
+  position: absolute;
+  right: 30rpx;
+  top: 20rpx;
+  color: #ffffff;
+}
+.shop_li .info-follow .iconfont {
+  margin-right: 10rpx;
+  font-size: 24rpx;
+  color: #ffffff;
+}
+.shop_li .info-follow.active {
+  background: #ffffff;
+}
+.shop_li .info-follow.active .iconfont {
+  margin-right: 0;
+  color: #333333;
+}
+.shop_li .info-desc {
+  width: 100%;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+}
+.shop_li .info-desc .desc-sign {
+  padding: 0 20rpx;
+  margin-right: 30rpx;
+  border-radius: 40rpx;
+  color: #ffffff;
+  font-size: 20rpx;
+}
+.shop_li .info-desc .desc-star {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+  font-size: 20rpx;
+}
+.shop_li .info-desc .fans {
+  margin-left: 30rpx;
+  font-size: 20rpx;
+}
+.shop_li .shop-desc {
+  width: 100%;
+  padding: 20rpx;
+  box-sizing: border-box;
+  line-height: 1.2;
+  font-size: 24rpx;
+  color: #909399;
+  text-indent: 50rpx;
+}
+.empty {
+  margin-top: 100rpx;
+}
+.line {
+  width: 100%;
+  height: 20rpx;
+  background: #f7f7f7;
+}
+.shop-box {
+  height: 100%;
+  padding: 20rpx;
+  margin: 0 30rpx 20rpx;
+  box-sizing: border-box;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: start;
+  -webkit-align-items: flex-start;
+          align-items: flex-start;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+  border-radius: 15rpx;
+  background: #ffffff;
+}
+.shop-box .avatar {
+  background: #ffffff;
+  width: 138rpx;
+  height: 138rpx;
+}
+.shop-box .avatar image {
+  width: 138rpx;
+  height: 138rpx;
+  border-radius: 10rpx;
+  border: 1rpx solid #eeeeee;
+}
+.shop-box .shop-desc {
+  width: calc(100% - 150rpx - 20rpx);
+}
+.shop-box .shop-desc .name-box {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+  -webkit-box-align: start;
+  -webkit-align-items: flex-start;
+          align-items: flex-start;
+}
+.shop-box .shop-desc .name-box .iconfont {
+  font-size: 32rpx;
+  line-height: 1;
+}
+.shop-box .shop-desc .rate-box {
+  height: 40rpx;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+}
+.shop-box .shop-desc .rate-box .icon-star {
+  width: 21rpx;
+  height: 20rpx;
+}
+.shop-box .shop-desc .rate-box .score {
+  display: inline-block;
+  margin-left: 2rpx;
+  color: #383838;
+  line-height: 1;
+  font-size: 20rpx;
+}
+.shop-box .shop-desc .rate-box .num {
+  color: #838383;
+  font-size: 20rpx;
+  margin-left: 20rpx;
+}
+.shop-box .shop-desc .shop-content {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+}
+.shop-box .shop-desc .shop-content .shop-content-left {
+  font-size: 20rpx;
+  color: #606266;
+}
+.shop-box .shop-desc .shop-content .info-follow {
+  padding: 5rpx 20rpx;
+  border-radius: 40rpx;
+  font-size: 20rpx;
+  text-align: center;
+  line-height: 30rpx;
+  border: 1rpx solid;
+}
+.shop-box .shop-desc .shop-name {
+  width: 70%;
+  line-height: 1.3;
+  margin-bottom: 12rpx;
+  font-size: 28rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.shop-box .shop-desc .shop-address {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+  margin-top: 5rpx;
+}
+.shop-box .shop-desc .shop-address .shop-address-desc {
+  width: 70%;
+  line-height: 1.3;
+}
+.shop-box .shop-desc .shop-address .iconfont {
+  font-size: 40rpx;
+  line-height: 1;
+  margin-top: -30rpx;
+}
+
+@charset "UTF-8";
+/**
+ * 你可以通过修改这些变量来定制自己的插件主题，实现自定义主题功能
+ * 建议使用scss预处理，并在插件代码中直接使用这些变量（无需 import 这个文件），方便用户通过搭积木的方式开发整体风格一致的App
+ */
+ .uni-scroll-view-content {
+  background: #ffffff;
+}
+.content .mescroll-upwarp {
+  padding-bottom: 150rpx;
+}
+.content.active .mescroll-upwarp {
+  padding-bottom: 220rpx;
+}
+

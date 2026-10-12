@@ -1,0 +1,136 @@
+{extend name="base"/}
+{block name="resources"}
+<style>
+    .ns-card-brief { margin-bottom: 15px; }
+    .stat-box { display: flex; gap: 15px; margin-bottom: 20px; }
+    .stat-item { flex: 1; background: #f8f9fa; border-radius: 8px; padding: 15px 20px; border-left: 4px solid #1890ff; }
+    .stat-title { color: #666; font-size: 13px; margin-bottom: 6px; }
+    .stat-num { font-size: 24px; font-weight: bold; color: #333; }
+</style>
+{/block}
+{block name="main"}
+<div class="ns-card-brief">
+    <div class="ns-form-content">
+        <h2 class="ns-form-title">各门店带单收益与会员收益报表</h2>
+    </div>
+</div>
+
+<!-- 筛选搜索 -->
+<div class="ns-single-filter-box">
+    <div class="layui-form">
+        <div class="layui-input-inline">
+            <input type="text" name="search_text" id="search_text" placeholder="请输入门店名称" class="layui-input">
+            <button type="button" class="layui-btn layui-btn-primary" lay-filter="search" lay-submit>
+                <i class="layui-icon">&#xe615;</i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 门店业绩报表数据表格 -->
+<table id="revenue_table" lay-filter="revenue_table"></table>
+
+<!-- 资质与对公卡信息弹窗模版 -->
+<script type="text/html" id="certTpl">
+    {{# if(d.bank_account_number){ }}
+        <span class="layui-badge layui-bg-green" title="对公账号: {{d.bank_account_number}}">已绑定对公账户</span>
+    {{# } else { }}
+        <span class="layui-badge layui-bg-gray">未完善对公账户</span>
+    {{# } }}
+</script>
+
+<script type="text/html" id="actionTpl">
+    <div class="ns-table-btn">
+        <a class="layui-btn layui-btn-xs" lay-event="detail">查看对公资质</a>
+    </div>
+</script>
+{/block}
+{block name="script"}
+<script>
+    var table;
+    layui.use(['form', 'laydate'], function() {
+        var form = layui.form;
+        form.render();
+
+        table = new Table({
+            elem: '#revenue_table',
+            url: ns.url("city://city/shop/revenuereport"),
+            cols: [[
+                {field: 'site_id', title: '门店ID', width: 90, align: 'center'},
+                {field: 'site_name', title: '门店名称', minWidth: 160},
+                {
+                    title: '主理人/店长',
+                    minWidth: 140,
+                    templet: function(d) {
+                        if (d.zlr_name) {
+                            return '<div>' + d.zlr_name + '<br><small style="color:#999">' + (d.zlr_mobile || '') + '</small></div>';
+                        }
+                        return '<span style="color:#999">未指定主理人</span>';
+                    }
+                },
+                {
+                    title: '门店带单收益 (2%)',
+                    minWidth: 150,
+                    templet: function(d) {
+                        return '<span style="color:#fa8c16;font-weight:bold;">￥' + Number(d.bring_income || 0).toFixed(2) + '</span><br><small style="color:#999">单数: ' + (d.bring_order_count || 0) + '</small>';
+                    }
+                },
+                {
+                    title: '分公司带单提成 (1.5%)',
+                    minWidth: 150,
+                    templet: function(d) {
+                        return '<span style="color:#52c41a;font-weight:bold;">￥' + Number(d.city_bring_commission || 0).toFixed(2) + '</span>';
+                    }
+                },
+                {
+                    title: '门店会员总收益 (25%)',
+                    minWidth: 150,
+                    templet: function(d) {
+                        return '<span style="color:#1890ff;font-weight:bold;">￥' + Number(d.member_income || 0).toFixed(2) + '</span><br><small style="color:#999">办理单数: ' + (d.member_order_count || 0) + '</small>';
+                    }
+                },
+                {
+                    title: '分公司会员提成 (25%)',
+                    minWidth: 150,
+                    templet: function(d) {
+                        return '<span style="color:#722ed1;font-weight:bold;">￥' + Number(d.city_member_commission || 0).toFixed(2) + '</span>';
+                    }
+                },
+                {field: 'account', title: '门店可提现金额', minWidth: 130, templet: function(d) { return '￥' + Number(d.account || 0).toFixed(2); }},
+                {title: '对公账户状态', toolbar: '#certTpl', width: 130, align: 'center'},
+                {title: '操作', toolbar: '#actionTpl', width: 120, align: 'center'}
+            ]]
+        });
+
+        // 搜索
+        form.on('submit(search)', function(data) {
+            table.reload({
+                page: { curr: 1 },
+                where: { search_text: data.field.search_text }
+            });
+            return false;
+        });
+
+        // 操作监听
+        table.tool(function(obj) {
+            var data = obj.data;
+            if (obj.event === 'detail') {
+                var contentHtml = '<div style="padding: 20px; line-height: 1.8;">' +
+                    '<p><strong>门店名称：</strong>' + data.site_name + '</p>' +
+                    '<p><strong>开户名称：</strong>' + (data.bank_account_name || '未填写') + '</p>' +
+                    '<p><strong>对公账号：</strong>' + (data.bank_account_number || '未填写') + '</p>' +
+                    '<p><strong>开户银行：</strong>' + (data.bank_name || '未填写') + '</p>' +
+                    '<p><strong>联行行号：</strong>' + (data.bank_code || '未填写') + '</p>' +
+                    '<p><strong>营业执照：</strong>' + (data.business_licence_number_electronic ? '<a href="' + ns.img(data.business_licence_number_electronic) + '" target="_blank" style="color:#1890ff;">点击查看执照大图</a>' : '未上传') + '</p>' +
+                    '</div>';
+                layer.open({
+                    type: 1,
+                    title: '【' + data.site_name + '】对公账户与资质详情',
+                    area: ['460px', '320px'],
+                    content: contentHtml
+                });
+            }
+        });
+    });
+</script>
+{/block}

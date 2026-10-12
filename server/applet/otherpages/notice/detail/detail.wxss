@@ -1,0 +1,30 @@
+@charset "UTF-8";
+/**
+ * 你可以通过修改这些变量来定制自己的插件主题，实现自定义主题功能
+ * 建议使用scss预处理，并在插件代码中直接使用这些变量（无需 import 这个文件），方便用户通过搭积木的方式开发整体风格一致的App
+ */
+.page {
+  width: 100%;
+  height: 100%;
+  padding: 20rpx;
+  box-sizing: border-box;
+  background-color: #fff;
+}
+.notice-title {
+  font-size: 32rpx;
+  text-align: center;
+}
+.notice-content {
+  margin-top: 20rpx;
+  word-break: break-all;
+  font-size: 28rpx;
+}
+.notice-meta {
+  text-align: right;
+  margin-top: 20rpx;
+  color: #909399;
+}
+.notice-meta .notice-time {
+  font-size: 24rpx;
+}
+

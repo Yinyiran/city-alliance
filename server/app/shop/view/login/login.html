@@ -1,0 +1,132 @@
+{extend name="base"/}
+{block name="resources"}
+<link rel="stylesheet" href="SHOP_CSS/login.css">
+{/block}
+{block name="body"}
+<div class="login-page">
+
+	<!-- 顶部标语 -->
+	<h2 class="login-slogan">城盟科技，科技改变生活</h2>
+
+	<!-- 中间登录面板 -->
+	<div class="login-panel">
+		<div class="login-panel-img">
+			<img src="SHOP_IMG/login/login_city.jpg" alt="城盟科技">
+		</div>
+
+		<div class="layui-form login-form">
+			<div class="login-form-title">账号登录<span class="login-form-line"></span></div>
+
+			<div class="layui-form-item">
+				<i class="layui-icon layui-icon-username login-input-icon"></i>
+				<input type="text" name="username" lay-verify="userName" placeholder="用户名" autocomplete="off" class="layui-input">
+			</div>
+			<div class="layui-form-item">
+				<i class="layui-icon layui-icon-password login-input-icon"></i>
+				<input type="password" name="password" lay-verify="password" placeholder="密码" autocomplete="off" class="layui-input">
+			</div>
+			{if $shop_login == 1}
+			<div class="layui-form-item login-verify-box">
+				<i class="layui-icon layui-icon-vercode login-input-icon"></i>
+				<input type="text" name="captcha" lay-verify="verificationCode" placeholder="验证码" autocomplete="off" class="layui-input" value="">
+				<div class="login-verify-img">
+					<img id='verify_img' src="{$captcha['img']}" alt='captcha' onclick="verificationCode()"/>
+				</div>
+			</div>
+			<input type="hidden" name="captcha_id" value="{$captcha['id']}">
+			{/if}
+			<div class="layui-form-item ns-login-btn">
+				<button id="login_btn" type="button" class="layui-btn layui-btn-fluid login-submit-btn" lay-submit lay-filter="login">登 录</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- 底部出品信息 -->
+	<div class="login-footer">广州城盟科技有限公司出品</div>
+</div>
+{/block}
+{block name="script"}
+<script type="text/javascript">
+	var form, login_repeat_flag = false;
+	/**
+	 * 验证码
+	 */
+	function verificationCode(){
+		$.ajax({
+			type: "get",
+			url: "{:url('shop/login/captcha')}",
+			dataType: "JSON",
+			async: false,
+			success: function (res) {
+				var data = res.data;
+				$("#verify_img").attr("src",data.img);
+				$("input[name='captcha_id']").val(data.id);
+			}
+		});
+	}
+
+	layui.use('form', function(){
+		form = layui.form;
+		form.render();
+
+		/* 登录 */
+		form.on('submit(login)', function(data) {
+
+			if (login_repeat_flag) return;
+			login_repeat_flag = true;
+
+			$.ajax({
+				type: "POST",
+				dataType: "JSON",
+				url: '{:url("shop/login/login")}',
+				data: data.field,
+				success: function(res) {
+
+					if (res.code == 0) {
+						layer.msg('登录成功',{anim: 5,time: 500},function () {
+							window.location = ns.url('shop/index/index');
+						});
+					} else {
+						layer.msg(res.message);
+						login_repeat_flag = false;
+						verificationCode();
+					}
+
+				}
+			})
+		});
+
+		/**
+		 * 表单验证
+		 */
+		form.verify({
+			userName: function(value) {
+				if (!value.trim()) {
+					return "账号不能为空";
+				}
+			},
+			password: function(value) {
+				if (!value.trim()) {
+					return "密码不能为空";
+				}
+			},
+			verificationCode: function(value) {
+				if (!value.trim()) {
+					return "验证码不能为空";
+				}
+			}
+
+		});
+	});
+
+	function register(){
+		location.href = ns.url("shop/login/register");
+	}
+
+	$(document).keydown(function (event) {
+		if (event.keyCode == 13) {
+			$(".ns-login-btn").trigger("click");
+		}
+	});
+</script>
+{/block}

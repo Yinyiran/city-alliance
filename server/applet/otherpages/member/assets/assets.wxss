@@ -1,0 +1,110 @@
+@charset "UTF-8";
+/**
+ * 你可以通过修改这些变量来定制自己的插件主题，实现自定义主题功能
+ * 建议使用scss预处理，并在插件代码中直接使用这些变量（无需 import 这个文件），方便用户通过搭积木的方式开发整体风格一致的App
+ */
+.assets-wrap .assets-block.data-v-755661b7 {
+  padding: 0 24rpx;
+  padding-top: 30rpx;
+}
+.assets-wrap .assets-tips.data-v-755661b7 {
+  width: 100%;
+  height: 56rpx;
+  background-color: rgba(250, 106, 0, 0.2);
+  border-radius: 6rpx;
+  line-height: 56rpx;
+  padding-left: 20rpx;
+  box-sizing: border-box;
+}
+.assets-wrap .assets-tips text.data-v-755661b7 {
+  color: #fa6a00;
+  font-size: 28rpx;
+}
+.assets-wrap .assets-box.data-v-755661b7 {
+  width: 100%;
+  margin-top: 30rpx;
+  background-color: #ffffff;
+  border-radius: 6rpx;
+  padding: 20rpx;
+  box-sizing: border-box;
+}
+.assets-wrap .assets-box .assets-title.data-v-755661b7 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+}
+.assets-wrap .assets-box .assets-title text.data-v-755661b7:nth-child(1) {
+  width: 6rpx;
+  height: 28rpx;
+  border-radius: 2rpx;
+}
+.assets-wrap .assets-box .assets-title text.data-v-755661b7:nth-child(2) {
+  margin-left: 20rpx;
+  font-size: 28rpx;
+  line-height: 28rpx;
+  padding-top: 8rpx;
+  font-weight: 600;
+}
+.assets-wrap .assets-box .assets-list.data-v-755661b7 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+  -webkit-flex-wrap: wrap;
+          flex-wrap: wrap;
+  padding: 0 26rpx 35rpx;
+  margin-top: 53rpx;
+}
+.assets-wrap .assets-box .assets-list .assets-li.data-v-755661b7 {
+  text-align: center;
+}
+.assets-wrap .assets-box .assets-list .assets-li view.data-v-755661b7:nth-child(1) {
+  font-size: 36rpx;
+  line-height: 36rpx;
+}
+.assets-wrap .assets-box .assets-list .assets-li view.data-v-755661b7:nth-child(2) {
+  font-size: 28rpx;
+  line-height: 28rpx;
+  color: #666666;
+  margin-top: 30rpx;
+}
+.assets-wrap .assets-btn.data-v-755661b7 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+          justify-content: center;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 150rpx;
+}
+.assets-wrap .assets-btn button.data-v-755661b7 {
+  width: 300rpx;
+  height: 80rpx;
+  font-size: 28rpx;
+  line-height: 80rpx;
+  margin: 0 15rpx;
+  border-radius: 40rpx;
+}
+.assets-wrap .assets-btn button[type='primary'].data-v-755661b7 {
+  background-color: unset !important;
+  color: #333333;
+  border: 2rpx solid #dddddd;
+}
+.assets-wrap .assets-btn button.data-v-755661b7:nth-child(2) {
+  color: #ffffff;
+}
+

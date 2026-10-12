@@ -1,0 +1,64 @@
+@charset "UTF-8";
+/**
+ * 你可以通过修改这些变量来定制自己的插件主题，实现自定义主题功能
+ * 建议使用scss预处理，并在插件代码中直接使用这些变量（无需 import 这个文件），方便用户通过搭积木的方式开发整体风格一致的App
+ */
+.uni-tip {
+  width: 580rpx;
+  background: #fff;
+  box-sizing: border-box;
+  border-radius: 10rpx;
+  overflow: hidden;
+  height: initial;
+}
+.uni-tip-title {
+  text-align: center;
+  font-weight: bold;
+  font-size: 32rpx;
+  color: #303133;
+  padding-top: 50rpx;
+}
+.uni-tip-content {
+  padding: 0 30rpx;
+  color: #606266;
+  font-size: 28rpx;
+  text-align: center;
+}
+.uni-tip-icon {
+  width: 100%;
+  text-align: center;
+  margin-top: 50rpx;
+}
+.uni-tip-icon image {
+  width: 300rpx;
+}
+.uni-tip-group-button {
+  margin-top: 30rpx;
+  line-height: 120rpx;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  padding: 0 50rpx 50rpx 50rpx;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+}
+.uni-tip-button {
+  width: 200rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  text-align: center;
+  border: none;
+  border-radius: 80rpx;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: #fff;
+  font-size: 28rpx;
+}
+.uni-tip-group-button .close {
+  border: 1px solid #eee;
+}
+.uni-tip-button:after {
+  border: none;
+}
+

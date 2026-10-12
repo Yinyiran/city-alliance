@@ -1,0 +1,139 @@
+{extend name="app/admin/view/base.html"/}
+{block name="resources"}
+{/block}
+{block name="main"}
+<div class="layui-collapse ns-tips">
+	<div class="layui-colla-item">
+		<h2 class="layui-colla-title">操作说明</h2>
+		<ul class="layui-colla-content layui-show">
+			<li>会员可提现余额申请提现</li>
+			<li>「最低提现额度」填 0 或留空 = 不设门槛，小程序端不会展示该条规则；依据微信《小程序平台运营规范》3.3，建议保持 0，勿设置过高门槛</li>
+			<li>手续费率与个税代扣属提现规则必披露项，请如实配置</li>
+		</ul>
+	</div>
+</div>
+
+<div class="layui-form ns-form">
+	<div class="layui-form-item">
+		<label class="layui-form-label">是否启用提现：</label>
+		<div class="layui-input-block">
+			<input type="checkbox" name="is_use" lay-filter="is_use" value="1" lay-skin="switch" {if !empty($config) && $config.is_use==1 } checked {/if} >
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<label class="layui-form-label">提现自动审核：</label>
+		<div class="layui-input-block">
+			<input type="checkbox" name="is_auto_audit" lay-filter="is_auto_audit" value="1" lay-skin="switch" {if !empty($config.value) && $config.value.is_auto_audit==1 } checked {/if} >
+		</div>
+	</div>
+	{if $is_exist}
+	<div class="layui-form-item" style="display: none">
+		<label class="layui-form-label">自动转账：</label>
+		<div class="layui-input-block">
+			<input type="checkbox" name="is_auto_transfer" lay-filter="is_auto_transfer" value="1" lay-skin="switch" {if !empty($config.value) && $config.value.is_auto_transfer==1 } checked {/if} >
+		</div>
+		<div class="ns-word-aux">只有微信和支付宝支付支持自动转账</div>
+	</div>
+	{/if}
+	<div class="layui-form-item">
+		<label class="layui-form-label">提现手续费比率：</label>
+		<div class="layui-input-block">
+		<div class="layui-input-inline">
+			<input type="number" name="rate" value="{if condition="!empty($config.value)"}{$config.value.rate}{else/}0{/if}" lay-verify="positivEinteger" autocomplete="off" class="layui-input ns-len-short">
+		</div>
+			<span class="layui-form-mid">%</span>
+		</div>
+		<div class="ns-word-aux">比率必须为0-100的整数</div>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label">最低提现额度：</label>
+		<div class="layui-input-block">
+			<div class="layui-input-inline">
+				<input type="number" name="min" value="{if condition="!empty($config.value)"}{$config.value.min ?: 0}{else/}0{/if}" lay-verify="withdrawAmount" autocomplete="off" step="0.01" min="0" class="layui-input ns-len-short">
+			</div>
+			<span class="layui-form-mid">元</span>
+		</div>
+		<div class="ns-word-aux">支持 0 或小数，最多两位小数。<b>填 0 表示不设最低提现门槛</b>，此时小程序端不会展示"最低提现金额"；填入大于 0 的值后，小程序端会同步展示并按该值校验。</div>
+	</div>
+	<div class="layui-form-item">
+		<label class="layui-form-label">最高提现额度：</label>
+		<div class="layui-input-block">
+			<div class="layui-input-inline">
+				<input type="number" name="max" value="{if condition="!empty($config.value)"}{$config.value.max ?: 0}{else/}0{/if}" lay-verify="withdrawAmount" autocomplete="off" step="0.01" min="0" class="layui-input ns-len-short">
+			</div>
+			<span class="layui-form-mid">元</span>
+		</div>
+		<div class="ns-word-aux">支持 0 或小数，最多两位小数。填 0 表示不限额度。</div>
+	</div>
+	<div class="layui-form-item">
+		<label class="layui-form-label">转账方式：</label>
+		<div class="layui-input-block">
+			<div class="layui-input-inline">
+				{foreach $transfer_type_list as $k => $v}
+					<input type="checkbox" name="transfer_type[]" title="{$v}" lay-skin="primary" value="{$k}" {if !empty($config['value']) && stripos($config['value']['transfer_type'], $k) !== false}checked{/if}>
+				{/foreach}
+			</div>
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<label class="layui-form-label">提现说明：</label>
+		<div class="layui-input-inline">
+			<textarea class="layui-textarea ns-len-long" name="introduction" maxlength="2000" lay-verify="introduction" placeholder="请输入提现说明">{if condition="!empty($config.value)"}{$config.value.introduction ?: ''}{else/}''{/if}</textarea>
+		</div>
+	</div>
+	<div class="ns-form-row">
+		<button class="layui-btn ns-bg-color" lay-submit lay-filter="save">保存</button>
+	</div>
+</div>
+{/block}
+{block name="script"}
+<script >
+	layui.use('form', function(){
+		var form = layui.form,
+			repeat_flag = false; //防重复标识
+		form.render();
+
+		form.on('submit(save)', function(data){
+			if (repeat_flag) return;
+			repeat_flag = true;
+
+			$.ajax({
+				type: 'POST',
+				dataType: 'JSON',
+				url: ns.url("admin/memberwithdraw/config"),
+				data: data.field,
+				success: function(res) {
+					if (res.code == 0) {
+						layer.msg(res.message);
+					}else{
+						repeat_flag = false;
+						layer.msg(res.message);
+					}
+				}
+			});
+		});
+		
+		// 验证正整数
+		form.verify({
+			positivEinteger: function(value){
+				if(!new RegExp("^(\\d|[1-9]\\d|100)$").test(value)){
+					return '请输入0-100之间的正整数';
+				}
+			},
+			growthInteger: function (value) {
+				if(!new RegExp("(^[1-9]\\d*$)").test(value)){
+					return '请输入正整数';
+				}
+			},
+			// 提现金额：允许 0 与最多两位小数的正数（0 表示不限/不设门槛）
+			withdrawAmount: function (value) {
+				if(!new RegExp("^(0|[1-9]\\d{0,5})(\\.\\d{1,2})?$").test(value)){
+					return '请输入 0 或大于 0 的金额，最多两位小数';
+				}
+			}
+		});
+	});
+
+</script>
+{/block}

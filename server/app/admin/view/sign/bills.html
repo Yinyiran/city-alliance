@@ -1,0 +1,174 @@
+{extend name="base"/}
+{block name="resources"}
+<style>
+	.ns-filter-row {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 10px;
+	}
+	.layui-input-inline {
+		display: inline-block;
+	}
+</style>
+{/block}
+{block name="main"}
+<div class="ns-single-filter-box">
+	<div class="layui-form">
+		<div class="ns-filter-row">
+			<div class="layui-inline">
+				<label class="layui-form-label">账单类型</label>
+				<div class="layui-input-inline" style="width: 150px;">
+					<select name="bill_type" id="bill_type">
+						<option value="">全部类型</option>
+						<option value="shop">商家应付账单</option>
+						<option value="user">用户奖励账单</option>
+					</select>
+				</div>
+			</div>
+
+			<div class="layui-inline">
+				<label class="layui-form-label">扣划状态</label>
+				<div class="layui-input-inline" style="width: 150px;">
+					<select name="pay_status" id="pay_status">
+						<option value="">全部状态</option>
+						<option value="1">已结清 / 已发放</option>
+						<option value="2">扣款失败 / 待补缴</option>
+						<option value="0">待结算处理</option>
+					</select>
+				</div>
+			</div>
+
+			<div class="layui-inline">
+				<label class="layui-form-label">周期标识</label>
+				<div class="layui-input-inline" style="width: 130px;">
+					<input type="text" id="period_key" name="period_key" placeholder="如 2026W38" autocomplete="off" class="layui-input">
+				</div>
+			</div>
+
+			<div class="layui-inline">
+				<label class="layui-form-label">关键词</label>
+				<div class="layui-input-inline" style="width: 180px;">
+					<input type="text" id="search_text" name="search_text" placeholder="账单号 / 商家 / 会员手机" autocomplete="off" class="layui-input">
+				</div>
+			</div>
+
+			<button class="layui-btn layui-btn-primary" lay-submit lay-filter="search">筛选</button>
+			<button class="layui-btn ns-bg-color" type="button" onclick="triggerSettle();">一键手动结算</button>
+			<a href="{:url('admin/sign/settlementrecords')}" class="layui-btn layui-btn-primary">返回流水明细</a>
+			<a href="{:url('admin/sign/config')}" class="layui-btn layui-btn-primary">结算资费设置</a>
+		</div>
+	</div>
+</div>
+
+<table id="bill_list" lay-filter="bill_list"></table>
+
+<!-- 账单类型模板 -->
+<script type="text/html" id="type_tpl">
+	{{# if (d.bill_type == 'shop') { }}
+		<span class="layui-badge layui-bg-blue">商家推广费(应扣)</span>
+	{{# } else { }}
+		<span class="layui-badge layui-bg-green">会员返现(应发)</span>
+	{{# } }}
+</script>
+
+<!-- 关联对象模板 -->
+<script type="text/html" id="relate_tpl">
+	{{# if (d.bill_type == 'shop') { }}
+		<span style="font-weight: 500;">{{ d.site_name || ('门店ID: ' + d.relate_id) }}</span>
+	{{# } else { }}
+		<span>{{ d.nickname || '会员' }} {{# if (d.user_mobile) { }} ({{ d.user_mobile }}) {{# } }}</span>
+	{{# } }}
+</script>
+
+<!-- 扣划/发放状态模板 -->
+<script type="text/html" id="pay_status_tpl">
+	{{# if (d.pay_status == 1) { }}
+		<span class="layui-badge layui-bg-green">已结清 / 已到账</span>
+	{{# } else if (d.pay_status == 2) { }}
+		<span class="layui-badge layui-bg-red">扣款失败 / 余额不足待补缴</span>
+	{{# } else { }}
+		<span class="layui-badge layui-bg-orange">待处理</span>
+	{{# } }}
+</script>
+
+{/block}
+{block name="script"}
+<script>
+	var table, form;
+	layui.use(['form'], function() {
+		form = layui.form;
+		form.render();
+
+		table = new Table({
+			elem: '#bill_list',
+			url: ns.url("admin/sign/bills"),
+			cols: [
+				[
+					{ field: 'bill_no', title: '账单编号', width: '16%', unresize: 'false' },
+					{ field: 'bill_type', title: '账单类型', width: '12%', unresize: 'false', templet: '#type_tpl' },
+					{ field: 'relate_id', title: '结算对象', width: '16%', unresize: 'false', templet: '#relate_tpl' },
+					{ field: 'period_key', title: '结算周期', width: '9%', unresize: 'false' },
+					{
+						field: 'sign_count', title: '有效签到数', width: '8%', unresize: 'false',
+						templet: function(d) { return d.sign_count + ' 次'; }
+					},
+					{
+						field: 'total_money', title: '账单总额', width: '10%', unresize: 'false',
+						templet: function(d) {
+							var color = d.bill_type == 'shop' ? '#ff5722' : '#009688';
+							return '<span style="color:' + color + '; font-weight:600;">¥ ' + parseFloat(d.total_money).toFixed(2) + '</span>';
+						}
+					},
+					{ field: 'pay_status', title: '结算状态', width: '14%', unresize: 'false', templet: '#pay_status_tpl' },
+					{
+						field: 'create_time', title: '出账时间', width: '15%', unresize: 'false',
+						templet: function(d) { return ns.time_to_date(d.create_time); }
+					}
+				]
+			]
+		});
+
+		form.on('submit(search)', function(data) {
+			table.reload({
+				page: { curr: 1 },
+				where: data.field
+			});
+			return false;
+		});
+	});
+
+	function triggerSettle() {
+		layer.confirm('确定要手动执行结算吗？系统将汇总未结算的签到明细，完成扣收与发放。<br><br><label><input type="checkbox" id="force_all_chk2" value="1"> 结算包含当前本周在内的全部流水</label>', {
+			icon: 3,
+			title: '手动执行结算'
+		}, function(index) {
+			var force_all = $('#force_all_chk2').is(':checked') ? 1 : 0;
+			var loadIndex = layer.load(1, { shade: [0.2, '#000'] });
+			$.ajax({
+				url: ns.url("admin/sign/settlemanual"),
+				type: "POST",
+				data: { force_all: force_all },
+				dataType: "JSON",
+				success: function(res) {
+					layer.close(loadIndex);
+					layer.close(index);
+					if (res.code >= 0) {
+						layer.alert(res.message || "结算执行成功", { icon: 6 }, function(idx) {
+							layer.close(idx);
+							location.reload();
+						});
+					} else {
+						layer.msg(res.message || "执行失败", { icon: 5 });
+					}
+				},
+				error: function() {
+					layer.close(loadIndex);
+					layer.close(index);
+					layer.msg("网络请求异常", { icon: 5 });
+				}
+			});
+		});
+	}
+</script>
+{/block}

@@ -1,0 +1,161 @@
+{extend name="base"/}
+{block name="resources"}
+{/block}
+{block name="main"}
+
+
+<!-- 搜索框 -->
+<div class="ns-single-filter-box">
+    <button class="layui-btn ns-bg-color" onclick="add()">添加</button>
+</div>
+
+<table id="user_list" lay-filter="user_list"></table>
+
+<!-- 操作 -->
+<script type="text/html" id="action">
+    <div class="ns-table-btn">
+        <a class="layui-btn" lay-event="edit">编辑</a>
+        <a class="layui-btn" lay-event="delete">删除</a>
+    </div>
+</script>
+
+<script type="text/html" id="image_url">
+    <div class="ns-img-box img_block_sty">
+        {{#  if(d.image){  }}
+        <img layer-src src="{{ns.img(d.image)}}" class="img_sty"/>
+        {{#  }  }}
+    </div>
+</script>
+
+<!-- 状态 -->
+<script type="text/html" id="status">
+    {{ d.status == 1 ? '启用' : '禁用'}}
+</script>
+
+<script type="text/html" id="type">
+    {{#  if(d.type==0){  }}
+        首页轮播
+    {{#  }else if(d.type == 1){  }}
+        校园信息轮播
+
+    {{#  }  }}
+</script>
+{/block}
+{block name="script"}
+<script>
+    var table, form, laytpl, layer_pass, repeat_flag = false; //防重复标识
+    layui.use(['form', 'laytpl'], function() {
+        form = layui.form;
+        laytpl = layui.laytpl;
+        form.render();
+
+        table = new Table({
+            elem: '#user_list',
+            url: ns.url("city://city/nav/lists"),
+            cols: [
+                [{
+                    field: 'name',
+                    title: '名称',
+                    width: '20%',
+                    unresize: 'false'
+                },{
+                    title: '图片',
+                    width: '10%',
+                    unresize: 'false',
+                    templet: '#image_url',
+                },{
+                    field: 'sort',
+                    title: '排序',
+                    width: '20%',
+                    unresize: 'false'
+                }, {
+                    field: 'status',
+                    title: '状态',
+                    width: '12%',
+                    unresize: 'false',
+                    templet: '#status'
+                }, {
+                    field: 'create_time',
+                    title: '创建时间',
+                    width: '18%',
+                    unresize: 'false',
+                    templet: function(data) {
+                        return ns.time_to_date(data.create_time); //创建时间转换方法
+                    }
+                },{
+                    title: '操作',
+                    width: '16%',
+                    toolbar: '#action',
+                    unresize: 'false'
+                }]
+            ],
+        });
+
+        /**
+         * 监听工具栏操作
+         */
+        table.tool(function(obj) {
+            var data = obj.data;
+            switch (obj.event) {
+                case 'edit': //编辑
+                    location.href = ns.url("city://city/nav/edit?banner_id=" + data.id);
+                    break;
+                case 'delete': //删除
+                    deleteBanner(data.id);
+                    break;
+            }
+        });
+
+        /**
+         * 删除
+         */
+        function deleteBanner(banner_id) {
+            if (repeat_flag) return false;
+            repeat_flag = true;
+
+            layer.confirm('确定要删除吗?', function() {
+                $.ajax({
+                    type: 'POST',
+                    dataType: 'JSON',
+                    url: ns.url("city://city/nav/delete"),
+                    data: {banner_id:banner_id},
+                    success: function(res) {
+                        layer.msg(res.message);
+                        repeat_flag = false;
+
+                        if (res.code == 0) {
+                            table.reload();
+                        }
+                    }
+                });
+            }, function () {
+                layer.close();
+                repeat_flag = false;
+            });
+        }
+
+
+        /**
+         * 搜索功能
+         */
+        form.on('submit(search)', function(data) {
+            table.reload({
+                page: {
+                    curr: 1
+                },
+                where: data.field
+            });
+        });
+
+
+    });
+
+    function add() {
+        location.href = ns.url("city://city/nav/add");
+    }
+
+
+</script>
+
+
+{/block}

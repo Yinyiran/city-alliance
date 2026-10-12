@@ -1,0 +1,67 @@
+{extend name="base"/}
+{block name="resources"}
+<style>
+	.ns-form-row {
+		margin-top: 0;
+		margin-left: 220px;
+	}
+</style>
+{/block}
+{block name="main"}
+<div style="height:30px;"></div>
+
+<div class="layui-card ns-card-common ns-card-brief">
+    <div class="layui-card-header">
+        <span class="ns-card-title">评论信息</span>
+    </div>
+    <div class="layui-card-body">
+        <div class="layui-form-item">
+            <label class="layui-form-label img-upload-lable">用户：</label>
+            <div class="layui-input-block">
+                <p>
+                    {$withdraw_info['member_name']}
+                </p>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label img-upload-lable">标题：</label>
+            <div class="layui-input-block">
+                <p>
+                    {$withdraw_info['help_title']}
+                </p>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label img-upload-lable">内容：</label>
+            <div class="layui-input-block">
+                <p>
+                    {$withdraw_info['content']}
+                </p>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label img-upload-lable">时间：</label>
+            <div class="layui-input-block">
+                <p>
+                    {:time_to_date($withdraw_info['create_time'])}
+                </p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div class="ns-form-row">
+	<button class="layui-btn layui-btn-primary" onclick="back()">返回</button>
+</div>
+{/block}
+
+{block name="script"}
+<script>
+	function back() {
+		location.href = ns.url("admin/video/lists");
+	}
+</script>
+{/block}

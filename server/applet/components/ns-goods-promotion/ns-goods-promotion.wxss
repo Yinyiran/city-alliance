@@ -1,0 +1,49 @@
+@charset "UTF-8";
+/**
+ * 你可以通过修改这些变量来定制自己的插件主题，实现自定义主题功能
+ * 建议使用scss预处理，并在插件代码中直接使用这些变量（无需 import 这个文件），方便用户通过搭积木的方式开发整体风格一致的App
+ */
+.ns-goods-promotion {
+  background-color: #fff;
+}
+.ns-goods-promotion .item {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  font-size: 28rpx;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 2rpx solid #eeeeee;
+}
+.ns-goods-promotion .item:last-child {
+  border-bottom: none;
+}
+.ns-goods-promotion .item .promotion-mark {
+  padding: 6rpx 10rpx;
+  margin-right: 16rpx;
+  line-height: 1;
+  color: #fff;
+  border-radius: 6rpx;
+  font-size: 24rpx;
+}
+.ns-goods-promotion .item .title {
+  -webkit-box-flex: 1;
+  -webkit-flex: 1;
+          flex: 1;
+  line-height: 1;
+}
+.ns-goods-promotion .item .iconfont {
+  color: #909399;
+  font-size: 28rpx;
+}
+.ns-goods-promotion .item .img-wrap {
+  width: 38rpx;
+  height: 38rpx;
+}
+.ns-goods-promotion .item .img-wrap image {
+  width: 100%;
+  height: 100%;
+}
+

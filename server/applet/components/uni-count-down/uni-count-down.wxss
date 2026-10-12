@@ -1,0 +1,41 @@
+@charset "UTF-8";
+/**
+ * 你可以通过修改这些变量来定制自己的插件主题，实现自定义主题功能
+ * 建议使用scss预处理，并在插件代码中直接使用这些变量（无需 import 这个文件），方便用户通过搭积木的方式开发整体风格一致的App
+ */
+.uni-countdown {
+  padding: 2rpx 0;
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: inline-flex;
+  -webkit-flex-wrap: nowrap;
+          flex-wrap: nowrap;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+          justify-content: center;
+}
+.uni-countdown__splitor {
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+          justify-content: center;
+  line-height: 44rpx;
+  padding: 0 5rpx;
+  font-size: 24rpx;
+}
+.uni-countdown__splitor.day {
+  line-height: 50rpx;
+}
+.uni-countdown__number {
+  line-height: 44rpx;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+          justify-content: center;
+  height: 44rpx;
+  border-radius: 6rpx;
+  margin: 0 5rpx;
+  font-size: 28rpx;
+  border: 1px solid #000;
+  font-size: 24rpx;
+  padding: 0 10rpx;
+}
+

@@ -1,0 +1,289 @@
+{extend name="base"/}
+{block name="resources"}
+<style>
+	.ns-stat-card-box {
+		display: flex;
+		gap: 16px;
+		margin-bottom: 20px;
+	}
+	.ns-stat-card {
+		flex: 1;
+		background: #fff;
+		border-radius: 8px;
+		padding: 16px 20px;
+		box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+		border: 1px solid #f0f0f0;
+	}
+	.ns-stat-card .title {
+		font-size: 13px;
+		color: #888;
+		margin-bottom: 8px;
+	}
+	.ns-stat-card .num {
+		font-size: 24px;
+		font-weight: 600;
+		color: #222;
+	}
+	.ns-stat-card .num.highlight {
+		color: #ff5722;
+	}
+	.ns-stat-card .num.green {
+		color: #009688;
+	}
+	.ns-stat-card .unit {
+		font-size: 14px;
+		font-weight: normal;
+		color: #666;
+		margin-left: 4px;
+	}
+	.ns-filter-row {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 10px;
+	}
+	.layui-input-inline {
+		display: inline-block;
+	}
+</style>
+{/block}
+{block name="main"}
+<!-- 统计数据面板 -->
+<div class="ns-stat-card-box">
+	<div class="ns-stat-card">
+		<div class="title">待结算签到数</div>
+		<div class="num highlight">{$stats.pending_count|default=0}<span class="unit">笔</span></div>
+	</div>
+	<div class="ns-stat-card">
+		<div class="title">待扣商家总额 (应收)</div>
+		<div class="num highlight">¥ {$stats.pending_shop_fee|default='0.00'}</div>
+	</div>
+	<div class="ns-stat-card">
+		<div class="title">待发用户总额 (应付)</div>
+		<div class="num">¥ {$stats.pending_user_reward|default='0.00'}</div>
+	</div>
+	<div class="ns-stat-card">
+		<div class="title">待结算平台毛利</div>
+		<div class="num green">¥ {$stats.pending_platform_profit|default='0.00'}</div>
+	</div>
+	<div class="ns-stat-card">
+		<div class="title">累计已结清签到数</div>
+		<div class="num green">{$stats.settled_count|default=0}<span class="unit">笔</span></div>
+	</div>
+</div>
+
+<!-- 筛选栏与操作按钮 -->
+<div class="ns-single-filter-box">
+	<div class="layui-form">
+		<div class="ns-filter-row">
+			<div class="layui-inline">
+				<label class="layui-form-label">商家门店</label>
+				<div class="layui-input-inline" style="width: 160px;">
+					<select name="shop_id" id="shop_id">
+						<option value="">全部门店</option>
+						{foreach $shoplist as $shop}
+						<option value="{$shop.site_id}">{$shop.site_name}</option>
+						{/foreach}
+					</select>
+				</div>
+			</div>
+
+			<div class="layui-inline">
+				<label class="layui-form-label">会员信息</label>
+				<div class="layui-input-inline" style="width: 150px;">
+					<input type="text" id="search_member" name="search_member" placeholder="昵称 / 手机号" autocomplete="off" class="layui-input">
+				</div>
+			</div>
+
+			<div class="layui-inline">
+				<label class="layui-form-label">结算状态</label>
+				<div class="layui-input-inline" style="width: 130px;">
+					<select name="settle_status" id="settle_status">
+						<option value="">全部状态</option>
+						<option value="0">0 - 待周结</option>
+						<option value="1">1 - 已出账待扣</option>
+						<option value="2">2 - 已结清</option>
+						<option value="3">3 - 已作废</option>
+					</select>
+				</div>
+			</div>
+
+			<div class="layui-inline">
+				<label class="layui-form-label">周标识</label>
+				<div class="layui-input-inline" style="width: 120px;">
+					<input type="text" id="period_key" name="period_key" placeholder="如 2026W38" autocomplete="off" class="layui-input">
+				</div>
+			</div>
+
+			<div class="layui-inline">
+				<label class="layui-form-label">签到时间</label>
+				<div class="layui-input-inline" style="width: 120px;">
+					<input type="text" class="layui-input" name="start_time" id="start_time" autocomplete="off" placeholder="开始日期" readonly>
+				</div>
+				-
+				<div class="layui-input-inline" style="width: 120px;">
+					<input type="text" class="layui-input" name="end_time" id="end_time" autocomplete="off" placeholder="结束日期" readonly>
+				</div>
+			</div>
+
+			<button class="layui-btn layui-btn-primary" lay-submit lay-filter="search">筛选</button>
+			<button class="layui-btn ns-bg-color" type="button" onclick="triggerSettle();">一键手动结算</button>
+			<a href="{:url('admin/sign/config')}" class="layui-btn layui-btn-primary">结算资费设置</a>
+			<a href="{:url('admin/sign/bills')}" class="layui-btn layui-btn-primary">查看周账单</a>
+		</div>
+	</div>
+</div>
+
+<table id="record_list" lay-filter="record_list"></table>
+
+<!-- 状态模板 -->
+<script type="text/html" id="status_tpl">
+	{{# if (d.settle_status == 0) { }}
+		<span class="layui-badge layui-bg-orange">待周结</span>
+	{{# } else if (d.settle_status == 1) { }}
+		<span class="layui-badge layui-bg-blue">已出账待扣</span>
+	{{# } else if (d.settle_status == 2) { }}
+		<span class="layui-badge layui-bg-green">已结清</span>
+	{{# } else if (d.settle_status == 3) { }}
+		<span class="layui-badge layui-bg-gray">已作废</span>
+	{{# } }}
+</script>
+
+<!-- 会员信息 -->
+<script type="text/html" id="member_tpl">
+	<div style="display: flex; align-items: center; gap: 8px;">
+		{{# if (d.headimg) { }}
+		<img src="{{ ns.img(d.headimg) }}" style="width: 32px; height: 32px; border-radius: 50%;" />
+		{{# } }}
+		<div>
+			<div style="font-weight: 500;">{{ d.nickname || d.username || '会员' }}</div>
+			<div style="color: #999; font-size: 12px;">{{ d.mobile || ('ID: ' + d.member_id) }}</div>
+		</div>
+	</div>
+</script>
+
+<!-- 门店信息 -->
+<script type="text/html" id="shop_tpl">
+	<div style="font-weight: 500;">{{ d.site_name || ('门店ID: ' + d.site_id) }}</div>
+</script>
+
+<!-- 操作模板 -->
+<script type="text/html" id="action_tpl">
+	<div class="ns-table-btn">
+		{{# if (d.settle_status == 0) { }}
+		<a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="invalid">作废</a>
+		{{# } else { }}
+		<span style="color: #ccc; font-size: 12px;">无</span>
+		{{# } }}
+	</div>
+</script>
+
+{/block}
+{block name="script"}
+<script>
+	var table, form, laydate;
+	layui.use(['form', 'laydate'], function() {
+		form = layui.form;
+		laydate = layui.laydate;
+		form.render();
+
+		laydate.render({ elem: '#start_time' });
+		laydate.render({ elem: '#end_time' });
+
+		table = new Table({
+			elem: '#record_list',
+			url: ns.url("admin/sign/settlementrecords"),
+			cols: [
+				[
+					{ field: 'id', title: '流水ID', width: '6%', unresize: 'false' },
+					{ field: 'site_name', title: '商家门店', width: '16%', unresize: 'false', templet: '#shop_tpl' },
+					{ field: 'nickname', title: '签到会员', width: '16%', unresize: 'false', templet: '#member_tpl' },
+					{
+						field: 'shop_fee', title: '商家应付', width: '10%', unresize: 'false',
+						templet: function(d) { return '<span style="color: #ff5722; font-weight: 600;">¥ ' + parseFloat(d.shop_fee).toFixed(2) + '</span>'; }
+					},
+					{
+						field: 'user_reward', title: '用户应得', width: '10%', unresize: 'false',
+						templet: function(d) { return '<span style="color: #009688; font-weight: 600;">¥ ' + parseFloat(d.user_reward).toFixed(2) + '</span>'; }
+					},
+					{
+						field: 'platform_profit', title: '平台毛利', width: '10%', unresize: 'false',
+						templet: function(d) { return '<span style="color: #1e9fff;">¥ ' + parseFloat(d.platform_profit).toFixed(2) + '</span>'; }
+					},
+					{ field: 'period_key', title: '结算周期', width: '10%', unresize: 'false' },
+					{ field: 'settle_status', title: '状态', width: '10%', unresize: 'false', templet: '#status_tpl' },
+					{
+						field: 'create_time', title: '签到时间', width: '14%', unresize: 'false',
+						templet: function(d) { return ns.time_to_date(d.create_time); }
+					},
+					{ title: '操作', width: '8%', unresize: 'false', toolbar: '#action_tpl' }
+				]
+			]
+		});
+
+		form.on('submit(search)', function(data) {
+			table.reload({
+				page: { curr: 1 },
+				where: data.field
+			});
+			return false;
+		});
+
+		table.tool(function(obj) {
+			var data = obj.data;
+			if (obj.event === 'invalid') {
+				layer.confirm('确定要作废流水号 #' + data.id + ' 吗？作废后将不参与周结扣款与返现。', { icon: 3, title: '风控作废' }, function(index) {
+					$.ajax({
+						url: ns.url("admin/sign/invalidrecord"),
+						type: "POST",
+						data: { id: data.id },
+						dataType: "JSON",
+						success: function(res) {
+							layer.close(index);
+							if (res.code >= 0) {
+								layer.msg("作废成功", { icon: 6 });
+								table.reload();
+							} else {
+								layer.msg(res.message || "操作失败", { icon: 5 });
+							}
+						}
+					});
+				});
+			}
+		});
+	});
+
+	function triggerSettle() {
+		layer.confirm('确定要手动触发周结算吗？系统将汇总未结算的签到流水，从商家账户扣除推广费并向会员钱包发放返现收益。<br><br><label><input type="checkbox" id="force_all_chk" value="1"> 结算包含当前本周在内的全部流水</label>', {
+			icon: 3,
+			title: '手动执行周结算'
+		}, function(index) {
+			var force_all = $('#force_all_chk').is(':checked') ? 1 : 0;
+			var loadIndex = layer.load(1, { shade: [0.2, '#000'] });
+			$.ajax({
+				url: ns.url("admin/sign/settlemanual"),
+				type: "POST",
+				data: { force_all: force_all },
+				dataType: "JSON",
+				success: function(res) {
+					layer.close(loadIndex);
+					layer.close(index);
+					if (res.code >= 0) {
+						layer.alert(res.message || "结算执行成功", { icon: 6 }, function(idx) {
+							layer.close(idx);
+							location.reload();
+						});
+					} else {
+						layer.msg(res.message || "执行失败", { icon: 5 });
+					}
+				},
+				error: function() {
+					layer.close(loadIndex);
+					layer.close(index);
+					layer.msg("网络请求异常", { icon: 5 });
+				}
+			});
+		});
+	}
+</script>
+{/block}

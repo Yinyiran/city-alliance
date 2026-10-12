@@ -1,0 +1,43 @@
+.contraction{display:inline-block;margin-right:5px}
+.contraction span{display:inline-block;width:17px;height:17px;font-size: 15px;text-align:center;line-height:14px;cursor:pointer;user-select:none}
+.sku-list{overflow: hidden;padding: 0 45px;}
+.sku-list li{float: left;display: flex;padding: 10px;margin-right: 10px;margin-bottom: 10px;border: 1px solid #EFEFEF;width: 294px;height: 140px;align-items: center;}
+.sku-list li .img-wrap{vertical-align: middle;margin-right: 8px;width: 120px;height: 120px;text-align: center;line-height: 120px;}
+.sku-list li .img-wrap img{max-width: 100%;max-height: 100%;}
+.sku-list li .info-wrap span{margin-bottom: 5px;overflow: hidden;text-overflow: ellipsis;display: -webkit-box;white-space: normal;word-break: break-all;-webkit-box-orient: vertical;-webkit-line-clamp: 1;}
+.sku-list li .info-wrap span.sku-name{-webkit-line-clamp: 2;margin-bottom: 5px;font-weight: bold;}
+.sku-list li .info-wrap span:last-child{margin-bottom: 0;}
+.edit-promote-setting{position:absolute;top:20px;right:0;display:block;font-size:12px}
+
+/* ==================== 商品列表列宽与换行优化 ==================== */
+/* 说明：layui 表格单元格默认为单行（white-space:nowrap）+ 固定行高，列宽按百分比分配时
+/*       文字过长会溢出单元格，与相邻列文字重合；此处统一改为按内容自动换行、行高自适应。*/
+.layui-table-view .layui-table th .layui-table-cell,
+.layui-table-view .layui-table td .layui-table-cell {
+	height: auto;
+	min-height: 40px;
+	padding: 10px 8px;
+	line-height: 20px;
+	white-space: normal;
+	word-break: break-word;
+	overflow-wrap: anywhere;
+}
+/* 表头保持单行居中，避免列名换行后过高 */
+.layui-table-view .layui-table th .layui-table-cell {
+	font-weight: 400;
+	text-align: center;
+}
+/* 操作列按钮换行排列，避免按钮相互压盖 */
+.layui-table-view .layui-table td .layui-table-cell .ns-table-btn a.layui-btn {
+	margin: 2px 4px 2px 0;
+}
+/* 交易类型标签 */
+.ns-trade-type {
+	display: inline-block;
+	max-width: 100%;
+	padding: 0 6px;
+	border-radius: 2px;
+	background: #eef4fb;
+	color: #4a6b8a;
+	line-height: 20px;
+}

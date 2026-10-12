@@ -1,0 +1,524 @@
+{extend name="base"/}
+{block name="resources"}
+{/block}
+{block name="main"}
+<div class="fourstage-nav layui-tab layui-tab-brief" lay-filter="edit_user_tab">
+    <ul class="layui-tab-title">
+        <li class="layui-this" lay-id="basic_info">企业开户</li>
+    </ul>
+</div>
+<div  class="layui-form">
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span class="required">*</span>企业名称：</label>
+        <div class="layui-input-block">
+            <input type="text" name="enterprise_name" autocomplete="off" lay-verify="required" value="{$account_info.enterprise_name ?? ''}" class="layui-input ns-len-long">
+        </div>
+    </div>
+
+    <div class="layui-form-item" data-flag="area" style="width: 100%;">
+        <label class="layui-form-label"><span class="required">*</span>企业注册区域：</label>
+        <div class="layui-input-inline ns-len-mid">
+            <select name="province_id" data-type="province" lay-verify="province_id" data-init="{$account_info.province_id ?? ''}" lay-filter="comProvince"></select>
+        </div>
+        <div class="layui-input-inline ns-len-mid">
+            <select name="city_id" data-type="city" lay-verify="city_id" data-init="{$account_info.city_id ?? ''}" lay-filter="comCity"></select>
+        </div>
+        <div class="layui-input-inline ns-len-mid">
+            <select name="district_id" data-type="district" lay-verify="district_id" data-init="{$account_info.district_id ?? ''}" lay-filter="comDistrict"></select>
+        </div>
+    </div>
+
+    <div class="layui-form-item" data-flag="area">
+        <label class="layui-form-label"><span class="required">*</span>企业详细地址：</label>
+        <div class="layui-input-inline">
+            <input name="address" type="text" lay-verify="required" placeholder="请输入详细地址" value="{$account_info.address ?? ''}" class="layui-input ns-len-mid" autocomplete="off">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span class="required">*</span>统一社会信用码：</label>
+        <div class="layui-input-block">
+            <input name="business_licence_number" lay-verify="required" type="text"  value="{$account_info.business_licence_number ?? ''}" class="layui-input ns-len-long" autocomplete="off">
+        </div>
+        <span class="ns-word-aux">请填写三证合一之后的营业执照上的统一社会信用代码</span>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span class="required">*</span>有效期类型：</label>
+        <div class="layui-input-block" id="business_license_type">
+            <input type="radio" name="business_license_type" lay-filter="businessLicenseType" value="1" title="长期有效" {if $account_info.business_license_type == 1} checked {/if}>
+            <input type="radio" name="business_license_type" lay-filter="businessLicenseType" value="0" title="有期限" {if $account_info.business_license_type == 0} checked {/if}>
+        </div>
+    </div>
+
+    <div class="layui-form-item" id="business_license_time">
+        <label class="layui-form-label"><span class="required">*</span>证件有效期：</label>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input" id="businessLicenseStartTime" lay-verify="business_license_start_time" placeholder="营业执照开始时间" value="" readonly >
+            <input type="hidden" class="layui-input"  name="business_license_start_time" placeholder="营业执照开始时间" value="{$account_info.business_license_start_time ?? ''}">
+        </div>
+        <div class="layui-form-mid layui-word-aux">~</div>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input" id="businessLicenseEndTime" lay-verify="business_license_end_time" placeholder="营业执照结束时间" value="" readonly >
+            <input type="hidden" class="layui-input" name="business_license_end_time" placeholder="营业执照结束时间" value="{$account_info.business_license_end_time ?? ''}">
+        </div>
+    </div>
+
+
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span class="required">*</span>法人姓名：</label>
+        <div class="layui-input-block">
+            <input type="text" name="legal_name" lay-verify="required" autocomplete="off" value="{$account_info.legal_name ?? ''}" class="layui-input ns-len-long">
+        </div>
+    </div>
+
+
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span class="required">*</span>联系人姓名：</label>
+        <div class="layui-input-block">
+            <input type="text" name="contact_name" lay-verify="required" autocomplete="off" value="{$account_info.contact_name ?? ''}" class="layui-input ns-len-long">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span class="required">*</span>联系人手机号：</label>
+        <div class="layui-input-block">
+            <input type="text" name="contact_mobile" lay-verify="required" autocomplete="off" value="{$account_info.contact_mobile ?? ''}" class="layui-input ns-len-long">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span class="required">*</span>法人身份证号码：</label>
+        <div class="layui-input-block">
+            <input type="text" name="id_card_num" lay-verify="required" value="{$account_info.id_card_num ?? ''}" autocomplete="off" class="layui-input  ns-len-long">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span class="required">*</span>法人证件有效期类型：</label>
+        <div class="layui-input-block" id="id_card_time_type">
+            <input type="radio" name="id_card_time_type" lay-filter="legalCertValidityType" value="1" title="长期有效" {if $account_info.id_card_time_type == 1}checked {/if}>
+            <input type="radio" name="id_card_time_type" lay-filter="legalCertValidityType" value="0" title="非长期有效" {if $account_info.id_card_time_type == 0}checked {/if}>
+        </div>
+    </div>
+
+
+    <div class="layui-form-item time-type-view-all" >
+        <label class="layui-form-label"><span class="required">*</span>法人证件证件有效期：</label>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input" id="idCardStartTime" lay-verify="id_card_start_time" placeholder="证件有效期开始时间" value="" readonly >
+            <input type="hidden" class="layui-input" name="id_card_start_time" placeholder="证件有效期开始时间"  value="{$account_info.id_card_start_time ?? ''}">
+        </div>
+        <div class="layui-form-mid layui-word-aux">~</div>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input" id="idCardEndTime" lay-verify="id_card_end_time" placeholder="证件有效期结束时间" value="" readonly >
+            <input type="hidden" class="layui-input" name="id_card_end_time" placeholder="证件有效期结束时间" value="{$account_info.id_card_end_time ?? ''}">
+        </div>
+    </div>
+
+    {if !$account_info.huifu_id}
+    <div class="ns-form-row">
+        <button class="layui-btn ns-bg-color" lay-submit lay-filter="save">保存</button>
+    </div>
+    {/if}
+</div>
+
+<div class="fourstage-nav layui-tab layui-tab-brief" lay-filter="edit_user_tab">
+    <ul class="layui-tab-title">
+        <li class="layui-this" lay-id="basic_info">结算卡设置</li>
+    </ul>
+</div>
+
+<div  class="layui-form">
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span class="required">*</span>结算卡类型：</label>
+        <div class="layui-input-block">
+            <input type="radio" name="card_type" value="0" lay-filter="cardType" title="对公" {if $account_info.card_type == 0}checked {/if}>
+            <input type="radio" name="card_type" value="1" lay-filter="cardType" title="对私法人" {if $account_info.card_type == 1}checked {/if}>
+            <input type="radio" name="card_type" value="2" lay-filter="cardType" title="对私非法人" {if $account_info.card_type == 2}checked {/if}>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span class="required">*</span>结算卡卡号：</label>
+        <div class="layui-input-block">
+            <input type="text" name="card_no" lay-verify="required" autocomplete="off" value="{$account_info.card_no ?? ''}" class="layui-input ns-len-long">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span class="required">*</span>持卡人姓名：</label>
+        <div class="layui-input-block">
+            <input type="text" name="card_name" lay-verify="required" autocomplete="off" value="{$account_info.card_name ?? ''}" class="layui-input ns-len-long">
+        </div>
+    </div>
+
+    <div class="layui-form-item bank_code" {if $account_info['card_type'] != 0} style="display:none" {/if}>
+    <label class="layui-form-label">银行：</label>
+    <div class="layui-input-block ns-len-mid">
+        <select class="ns-group" name="bank_code" lay-filter="bank_code" id="bank_code">
+            <option value=""></option>
+            {volist name="$bank_list" id="group"}
+            <option value="{$group.code}" title="{$group.name}">{$group.name}</option>
+            {/volist}
+        </select>
+    </div>
+</div>
+
+<div class="layui-form-item">
+    <label class="layui-form-label">支行：</label>
+    <div class="layui-input-block">
+        <span onclick="getBranch()" id="branch_code_txt">选择支行</span>
+    </div>
+    <input type="hidden" name="branch_code" id="branch_code">
+</div>
+
+
+<div class="layui-form-item" data-flag="area" style="width: 100%;">
+    <label class="layui-form-label"><span class="required">*</span>银行所在省/市：</label>
+
+    <div class="layui-input-inline ns-len-mid">
+        <select class="bank-province" name="prov_id" data-type="province" data-init="{$account_info.prov_id ?? ''}" lay-filter="bankProvince"></select>
+    </div>
+    <div class="layui-input-inline ns-len-mid">
+        <select class="bank-city" name="area_id" data-type="city" data-init="{$account_info.area_id ?? ''}" lay-filter="bankCity"></select>
+    </div>
+</div>
+
+<div class="layui-form-item card_type" {if $account_info['card_type'] == 0} style="display:none" {/if}>
+<label class="layui-form-label">持卡人身份证号码：</label>
+<div class="layui-input-block">
+    <input type="text" name="cert_no" lay-verify="required" value="{$account_info.cert_no ?? ''}" autocomplete="off" class="layui-input  ns-len-long">
+</div>
+</div>
+
+<div class="layui-form-item card_type" {if $account_info['card_type'] == 0} style="display:none" {/if}>
+<label class="layui-form-label">持卡人证件有效期类型：</label>
+<div class="layui-input-block" id="cert_validity_type">
+    <input type="radio" name="cert_validity_type" value="1" title="长期有效" {if $account_info.id_card_time_type == 1}checked {/if}>
+    <input type="radio" name="cert_validity_type" value="0" title="非长期有效" {if $account_info.id_card_time_type == 0}checked {/if}>
+</div>
+</div>
+
+
+<div class="layui-form-item card_type" {if $account_info['card_type'] == 0} style="display:none" {/if}>
+<label class="layui-form-label">持卡人证件证件有效期：</label>
+<div class="layui-input-inline">
+    <input type="text" class="layui-input" id="certBeginDate" lay-verify="cert_begin_date" placeholder="证件有效期开始时间" value="" readonly >
+    <input type="hidden" class="layui-input" name="cert_begin_date" placeholder="证件有效期开始时间"  value="{$account_info.cert_begin_date ?? ''}">
+</div>
+<div class="layui-form-mid layui-word-aux">~</div>
+<div class="layui-input-inline">
+    <input type="text" class="layui-input" id="certEndDate" lay-verify="cert_end_date" placeholder="证件有效期结束时间" value="" readonly >
+    <input type="hidden" class="layui-input" name="cert_end_date" placeholder="证件有效期结束时间" value="{$account_info.cert_end_date ?? ''}">
+</div>
+</div>
+<div class="ns-form-row">
+    <button class="layui-btn ns-bg-color" lay-submit lay-filter="cardsave">保存</button>
+</div>
+</div>
+
+{if $account_info.huifu_id}
+<div class="fourstage-nav layui-tab layui-tab-brief" lay-filter="edit_user_tab">
+    <ul class="layui-tab-title">
+        <li class="layui-this" lay-id="basic_info">结算卡设置</li>
+    </ul>
+</div>
+
+<div  class="layui-form">
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span class="required">*</span>结算卡类型：</label>
+        <div class="layui-input-block">
+            <input type="radio" name="card_type" value="0" lay-filter="cardType" title="对公" {if $account_info.card_type == 0}checked {/if}>
+            <input type="radio" name="card_type" value="1" lay-filter="cardType" title="对私法人" {if $account_info.card_type == 1}checked {/if}>
+            <input type="radio" name="card_type" value="2" lay-filter="cardType" title="对私非法人" {if $account_info.card_type == 2}checked {/if}>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span class="required">*</span>结算卡卡号：</label>
+        <div class="layui-input-block">
+            <input type="text" name="card_no" lay-verify="required" autocomplete="off" value="{$account_info.card_no ?? ''}" class="layui-input ns-len-long">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span class="required">*</span>持卡人姓名：</label>
+        <div class="layui-input-block">
+            <input type="text" name="card_name" lay-verify="required" autocomplete="off" value="{$account_info.card_name ?? ''}" class="layui-input ns-len-long">
+        </div>
+    </div>
+
+    <div class="layui-form-item bank_code" {if $account_info['card_type'] != 0} style="display:none" {/if}>
+        <label class="layui-form-label">银行：</label>
+        <div class="layui-input-block ns-len-mid">
+            <select class="ns-group" name="bank_code" lay-filter="bank_code" id="bank_code">
+                <option value=""></option>
+                {volist name="$bank_list" id="group"}
+                <option value="{$group.code}" title="{$group.name}">{$group.name}</option>
+                {/volist}
+            </select>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">支行：</label>
+        <div class="layui-input-block">
+            <span onclick="getBranch()" id="branch_code_txt">选择支行</span>
+        </div>
+        <input type="hidden" name="branch_code" id="branch_code">
+    </div>
+
+
+    <div class="layui-form-item" data-flag="area" style="width: 100%;">
+        <label class="layui-form-label"><span class="required">*</span>银行所在省/市：</label>
+
+        <div class="layui-input-inline ns-len-mid">
+            <select class="bank-province" name="prov_id" data-type="province" data-init="{$account_info.prov_id ?? ''}" lay-filter="bankProvince"></select>
+        </div>
+        <div class="layui-input-inline ns-len-mid">
+            <select class="bank-city" name="area_id" data-type="city" data-init="{$account_info.area_id ?? ''}" lay-filter="bankCity"></select>
+        </div>
+    </div>
+
+    <div class="layui-form-item card_type" {if $account_info['card_type'] == 0} style="display:none" {/if}>
+        <label class="layui-form-label">持卡人身份证号码：</label>
+        <div class="layui-input-block">
+            <input type="text" name="cert_no" lay-verify="required" value="{$account_info.cert_no ?? ''}" autocomplete="off" class="layui-input  ns-len-long">
+        </div>
+    </div>
+
+    <div class="layui-form-item card_type" {if $account_info['card_type'] == 0} style="display:none" {/if}>
+        <label class="layui-form-label">持卡人证件有效期类型：</label>
+        <div class="layui-input-block" id="cert_validity_type">
+            <input type="radio" name="cert_validity_type" value="1" title="长期有效" {if $account_info.id_card_time_type == 1}checked {/if}>
+            <input type="radio" name="cert_validity_type" value="0" title="非长期有效" {if $account_info.id_card_time_type == 0}checked {/if}>
+        </div>
+    </div>
+
+
+    <div class="layui-form-item card_type" {if $account_info['card_type'] == 0} style="display:none" {/if}>
+        <label class="layui-form-label">持卡人证件证件有效期：</label>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input" id="certBeginDate" lay-verify="cert_begin_date" placeholder="证件有效期开始时间" value="" readonly >
+            <input type="hidden" class="layui-input" name="cert_begin_date" placeholder="证件有效期开始时间"  value="{$account_info.cert_begin_date ?? ''}">
+        </div>
+        <div class="layui-form-mid layui-word-aux">~</div>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input" id="certEndDate" lay-verify="cert_end_date" placeholder="证件有效期结束时间" value="" readonly >
+            <input type="hidden" class="layui-input" name="cert_end_date" placeholder="证件有效期结束时间" value="{$account_info.cert_end_date ?? ''}">
+        </div>
+    </div>
+    <div class="ns-form-row">
+        <button class="layui-btn ns-bg-color" lay-submit lay-filter="cardsave">保存</button>
+    </div>
+</div>
+{/if}
+
+{/block}
+{block name="script"}
+<script src="ADMIN_JS/address.js"></script>
+
+<script>
+    layui.use(['form','laydate'], function(){
+        var form = layui.form,
+            repeat_flag = false; //防重复标识
+        var laydate = layui.laydate;
+
+        form.render();
+
+        initArea(form); //三级联动初始化
+
+        form.on('radio(cardType)', function(data){
+            var value = data.value;
+
+            if (value == 0){
+                $(".card_type").hide();
+                $(".bank_code").show();
+            } else {
+                $(".card_type").show();
+                $(".bank_code").hide();
+            }
+        });
+
+        form.on('radio(businessLicenseType)', function(data){
+            var value = data.value;
+
+            if (value == 1){
+                $("#business_license_time").hide();
+            } else {
+                $("#business_license_time").show();
+            }
+        });
+
+        laydate.render({
+            elem: '#businessLicenseStartTime',
+            type: 'date',
+            value: "{$account_info.business_license_start_time ?? ''}",
+            format:'yyyy-MM-dd',
+            done: function(value) {
+                $("input[name=business_license_start_time]").val(value);
+            }
+        });
+
+        laydate.render({
+            elem: '#businessLicenseEndTime',
+            type: 'date',
+            value: "{$account_info.business_license_end_time ?? ''}",
+            format:'yyyy-MM-dd',
+            done: function(value) {
+                $("input[name=business_license_end_time]").val(value);
+            }
+        });
+
+        laydate.render({
+            elem: '#idCardStartTime',
+            type: 'date',
+            value: "{$account_info.id_card_start_time ?? ''}",
+            format:'yyyy-MM-dd',
+            done: function(value) {
+                $("input[name=id_card_start_time]").val(value);
+            }
+        });
+
+        laydate.render({
+            elem: '#certEndDate',
+            type: 'date',
+            value: "{$account_info.id_card_end_time ?? ''}",
+            format:'yyyy-MM-dd',
+            done: function(value) {
+                $("input[name=id_card_end_time]").val(value);
+            }
+        });
+
+        laydate.render({
+            elem: '#certBeginDate',
+            type: 'date',
+            value: "{$account_info.cert_end_date ?? ''}",
+            format:'yyyy-MM-dd',
+            done: function(value) {
+                $("input[name=cert_end_date]").val(value);
+            }
+        });
+
+        laydate.render({
+            elem: '#idCardEndTime',
+            type: 'date',
+            value: "{$account_info.id_card_end_time ?? ''}",
+            format:'yyyy-MM-dd',
+            done: function(value) {
+                $("input[name=id_card_end_time]").val(value);
+            }
+        });
+
+        form.verify({
+            required : function(value, item){
+                var msg = $(item).attr("placeholder") != undefined ? $(item).attr("placeholder") : '';
+                if(value == '') return msg;
+            },
+            province_id : function(value, item){
+                if(value == ''){
+                    return '请选择省份';
+                }
+            },
+            city_id : function(value, item){
+                if(value == ''){
+                    return '请选择城市';
+                }
+            },
+            district_id : function(value, item){
+                if(value == ''){
+                    return '请选择区/县';
+                }
+            },
+        });
+
+        form.on('submit(save)', function(data){
+            var full_address  = [];
+            full_address.push($("select[name=province_id] option:selected").text());
+            full_address.push($("select[name=city_id] option:selected").text());
+            full_address.push($("select[name=district_id] option:selected").text());
+
+            data.field.full_address = full_address.toString();
+
+            if (repeat_flag) return;
+            repeat_flag = true;
+
+
+            $.ajax({
+                type: 'POST',
+                url: ns.url("shop/shop/openaccount"),
+                data: data.field,
+                dataType: 'JSON',
+                success: function(res) {
+                    layer.msg(res.message);
+                    repeat_flag = false;
+                    if (res.code == 0) {
+                        setTimeout(function(){ location.reload(); }, 1000);
+                    }
+                }
+            });
+        });
+
+        form.on('submit(cardsave)', function(data){
+
+            if (repeat_flag) return;
+            repeat_flag = true;
+
+            $.ajax({
+                type: 'POST',
+                url: ns.url("shop/shop/opencard"),
+                data: data.field,
+                dataType: 'JSON',
+                success: function(res) {
+                    layer.msg(res.message);
+                    repeat_flag = false;
+                    if (res.code == 0) {
+                        setTimeout(function(){ location.reload(); }, 1000);
+                    }
+                }
+            });
+        });
+    });
+
+    function getBranch() {
+        var selectedValue = $("#bank_code").val();
+        console.error(selectedValue)
+        if (selectedValue==''){
+            layer.msg('请选择银行', {
+                icon: 5
+            });
+            return;
+        }
+        var url = ns.url("shop/shop/branch", {bank_code:selectedValue});
+        //iframe层-父子操作
+        var layerIndex = layer.open({
+            title: "支行列表",
+            type: 2,
+            area: ['1200px', '800px'],
+            // btn: '保存',
+            content: url,
+            end: function () {
+                //location.reload();
+            }
+        });
+    }
+
+    window.addEventListener('message', function(event) {
+        //console.error(event.data)
+        //console.error(event.origin !== "https://fuzhuangjifen.xing-peng.com")
+        // 确保发送方是可信的（可选）
+        if (event.origin !== "https://www.cmyx.top") { // 替换为你的域名
+            return;
+        }
+        $("#branch_code_txt").text(event.data.bank_name);
+        $("#branch_code").val(event.data.serial_number);
+        //console.error(123456)
+        //console.log('Received message:', event.data); // 处理接收到的数据
+    }, false);
+</script>
+{/block}

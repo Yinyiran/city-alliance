@@ -1,0 +1,15 @@
+<IfModule mod_rewrite.c>
+  Options +FollowSymlinks -Multiviews
+  RewriteEngine On
+
+  # 如果请求指向真实存在的文件或目录，直接返回（静态资源/入口目录优先）
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # SPA 前端(public/web/)的 history 模式回退：/web/ 开头的"假路径"都返回 index.html
+  RewriteRule ^web/ /web/index.html [L]
+
+  # 其余请求交给 ThinkPHP
+  RewriteRule ^(.*)$ index.php?s=$1 [QSA,PT,L]
+</IfModule>

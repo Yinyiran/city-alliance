@@ -1,0 +1,56 @@
+@charset "UTF-8";
+/**
+ * 你可以通过修改这些变量来定制自己的插件主题，实现自定义主题功能
+ * 建议使用scss预处理，并在插件代码中直接使用这些变量（无需 import 这个文件），方便用户通过搭积木的方式开发整体风格一致的App
+ */
+.graphic-nav {
+  overflow: hidden;
+  padding: 22rpx 0;
+}
+.graphic-nav .nav-no-scroll {
+  /* padding: 10rpx 0; */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-wrap: wrap;
+          flex-wrap: wrap;
+  padding: 0 10rpx;
+}
+.graphic-nav .nav-no-scroll .text-item {
+  text-align: center;
+  line-height: 1;
+  padding: 16rpx 10rpx;
+  box-sizing: border-box;
+}
+.graphic-nav .nav-no-scroll .text-item .text-item-img {
+  width: 70rpx;
+  height: 70rpx;
+  line-height: 70rpx;
+  display: inline-block;
+}
+.graphic-nav .nav-no-scroll .text-item text {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.graphic-nav .nav-scroll {
+  white-space: nowrap;
+  width: 100%;
+}
+.graphic-nav .nav-scroll .text-item {
+  display: inline-block;
+  width: 20%;
+  text-align: center;
+}
+.graphic-nav .nav-scroll .text-item image {
+  width: 80%;
+}
+.graphic-nav .nav-scroll .text-item text {
+  display: block;
+}
+ .uni-scroll-view::-webkit-scrollbar {
+  /* 隐藏滚动条，但依旧具备可以滚动的功能 */
+  display: none;
+}
+

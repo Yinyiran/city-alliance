@@ -1,0 +1,181 @@
+{extend name="base"/}
+{block name="resources"}
+<style>
+    .ns-form {margin-top: 0;}
+</style>
+{/block}
+{block name="main"}
+<div class="layui-form ns-form" lay-filter="storeform">
+
+    <!--<div class="layui-form-item">
+        <label class="layui-form-label"><span class="required"></span>发布位置：</label>
+        <div class="layui-input-block" style="width: 450px;">
+            <select name="type" >
+                <option value="1" {if $info.type ?? 0 == 1}selected {/if}>首页</option>
+
+            </select>
+        </div>
+    </div>-->
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span class="required">*</span>名称：</label>
+        <div class="layui-input-inline">
+            <input name="name" type="text" value="{$info['name']}" lay-verify="required" class="layui-input ns-len-long">
+        </div>
+    </div>
+
+    <div class="layui-form-item" style="display: none">
+        <label class="layui-form-label">链接：</label>
+        <div class="layui-input-block ns-len-mid">
+            <span class="nav-url-show"></span>
+            <button class="layui-btn layui-btn-primary sm" onclick="selectedLink()">选择链接</button>
+        </div>
+    </div>
+    <input name="banner_url" type="hidden" value="{$info.url}" />
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span class="required"></span>链接商品分类：</label>
+        <div class="layui-input-block ns-len-mid">
+            <select class="ns-category" name="category_id" lay-verify="" autocomplete="off" lay-search="">
+                <option value="">选择商品分类</option>
+                {volist name="$category" id="value"}
+                <option value="{$value['category_id']}" {$info.goods_category_id==$value.category_id ?
+                'selected' : '' }>{$value['category_name']}</option>
+                {/volist}
+            </select>
+        </div>
+        <!--				<div class="ns-word-aux"></div>-->
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label img-upload-lable">图片：</label>
+        <div class="layui-input-block img-upload">
+            <div class="upload-img-block">
+                <div class="upload-img-box {notempty name="$info.image"}hover{/notempty}">
+                    <div class="ns-upload-default" id="bannerUpload">
+                        {notempty name="$info.image"}
+                        <div id="preview_bannerUpload" class="preview_img">
+                            <img layer-src src="{:img($info.image)}" class="img_prev"/>
+                        </div>
+                        {else/}
+                        <div class="upload">
+                            <img src="ADMIN_IMG/upload_img.png" data-id="bannerUpload"/>
+                            <p>点击上传</p>
+                        </div>
+                        {/notempty}
+                    </div>
+                    <div class="operation">
+                        <div>
+                            <i title="图片预览" class="iconfont iconreview js-preview" style="margin-right: 20px;"></i>
+                            <i title="删除图片" class="layui-icon layui-icon-delete js-delete"></i>
+                        </div>
+                        <div class="replace_img js-replace">点击替换</div>
+                    </div>
+                    <input type="hidden" name="image" value="{$info.image}"/>
+                </div>
+            </div>
+        </div>
+        <!--<div class="ns-word-aux">
+            <p>建议图片高度：150像素；图片格式：jpg、png、jpeg。</p>
+        </div>-->
+    </div>
+
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">排序：</label>
+        <div class="layui-input-block">
+            <input type="number" name="sort" lay-verify="required" value="{$info.sort}" class="layui-input ns-len-long">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">状态：</label>
+        <div class="layui-input-block">
+            <input type="checkbox" name="status" value="1" lay-skin="switch" {if condition="$info.status == 1"} checked {/if}/>
+        </div>
+    </div>
+
+    <!-- 表单操作 -->
+    <div class="ns-form-row">
+        <button class="layui-btn ns-bg-color" lay-submit lay-filter="save">保存</button>
+        <button class="layui-btn layui-btn-primary" onclick="back()">返回</button>
+    </div>
+
+    <!-- 隐藏域 -->
+    <input value="{$info.id}" type="hidden" class="user_id" name="banner_id" />
+</div>
+
+{/block}
+{block name="script"}
+
+<script>
+
+    var banner_url_json = $("input[name='banner_url']").val();
+    if(banner_url_json) banner_url_json = JSON.parse(banner_url_json);
+    $(".nav-url-show").text(banner_url_json.title);
+
+    layui.use('form', function() {
+        var form = layui.form,
+            repeat_flag = false; //防重复标识
+        form.render();
+
+        form.on('submit(save)', function(data) {
+            if(!data.field.image) banner_upload.delete();
+
+            if (repeat_flag) return;
+            repeat_flag = true;
+
+            $.ajax({
+                type: 'POST',
+                dataType: 'JSON',
+                url: ns.url("city://city/nav/edit"),
+                data: data.field,
+                success: function(res) {
+                    repeat_flag = false;
+                    if (res.code == 0) {
+                        layer.confirm('编辑成功', {
+                            title:'操作提示',
+                            btn: ['返回列表', '继续操作'],
+                            yes: function(){
+                                location.href = ns.url("city://city/nav/lists")
+                            },
+                            btn2: function() {
+                                location.reload();
+                            }
+                        })
+                    }else{
+                        layer.msg(res.message);
+                    }
+                }
+            });
+        });
+
+        //表单验证
+        form.verify({
+
+        });
+        var banner_upload = new Upload({
+            elem: '#bannerUpload'
+        });
+
+    });
+
+    function back() {
+        location.href = ns.url("city://city/nav/lists");
+    }
+
+    function selectedLink() {
+        if(banner_url_json == ""){
+            banner_url_json = {};
+        }
+        ns.select_link(banner_url_json, '', function (data) {
+            for (var o in data) {
+                if (data[o] == null) delete data[o];
+            }
+
+            $("input[name='banner_url']").val(JSON.stringify(data));
+            $(".nav-url-show").text(data.title);
+        }, 'admin/diy/link');
+    }
+</script>
+{/block}

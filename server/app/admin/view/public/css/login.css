@@ -1,0 +1,214 @@
+html, body {
+	width: 100%;
+	height: 100%;
+}
+
+body {
+	background: #10152b url(../img/login/city_night.jpg) no-repeat center center;
+	background-size: cover;
+	font-family: "Microsoft YaHei", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+	overflow: hidden;
+}
+
+.login-page {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	min-width: 1000px;
+	min-height: 560px;
+}
+
+/* 整体压暗遮罩，贴近设计稿的深色调 */
+.login-page::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(9, 15, 36, .38);
+}
+
+/* ---------------- 左侧标语 ---------------- */
+.login-slogan {
+	position: absolute;
+	left: 9%;
+	top: 50%;
+	transform: translateY(-50%);
+	color: #FFFFFF;
+	z-index: 2;
+}
+
+.login-slogan-title {
+	margin: 0;
+	font-size: 62px;
+	line-height: 1.4;
+	font-weight: 700;
+	letter-spacing: 5px;
+	text-shadow: 0 4px 20px rgba(0, 0, 0, .5);
+}
+
+.login-slogan-line {
+	display: block;
+	width: 90px;
+	height: 4px;
+	border-radius: 2px;
+	background: #FFFFFF;
+	margin: 42px 0 30px;
+}
+
+.login-slogan-sub {
+	margin: 0;
+	font-size: 22px;
+	font-weight: 700;
+	letter-spacing: 3px;
+	opacity: .95;
+	text-shadow: 0 2px 12px rgba(0, 0, 0, .5);
+}
+
+/* ---------------- 右侧登录卡片 ---------------- */
+.login-form {
+	position: absolute;
+	right: 13%;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 380px;
+	box-sizing: border-box;
+	padding: 44px 38px 48px;
+	background: linear-gradient(to top, rgba(200, 206, 218, .38) 0%, rgba(170, 178, 195, .2) 55%, rgba(140, 150, 170, .09) 100%);
+	border: 1px solid rgba(255, 255, 255, .18);
+	border-radius: 8px;
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+	box-shadow: 0 20px 60px rgba(0, 0, 0, .45);
+	z-index: 2;
+}
+
+.login-form-title {
+	color: #FFFFFF;
+	font-size: 20px;
+	letter-spacing: 2px;
+	text-align: center;
+	margin-bottom: 36px;
+}
+
+.layui-form-item {
+	position: relative;
+	margin: 0 0 22px;
+}
+
+.login-form .layui-input {
+	height: 46px;
+	line-height: 46px;
+	box-sizing: border-box;
+	padding-left: 44px;
+	border-radius: 4px;
+	border: 1px solid rgba(255, 255, 255, .18);
+	background-color: rgba(255, 255, 255, .12);
+	color: #FFFFFF;
+	transition: all .2s;
+}
+
+.login-form .layui-input:focus {
+	border-color: #4A7CF7;
+	background-color: rgba(255, 255, 255, .18);
+	box-shadow: 0 0 0 2px rgba(74, 124, 247, .25);
+}
+
+.login-input-icon {
+	position: absolute;
+	left: 15px;
+	top: 50%;
+	transform: translateY(-50%);
+	font-size: 16px;
+	color: rgba(255, 255, 255, .65);
+	z-index: 2;
+}
+
+input::-webkit-input-placeholder {
+	color: rgba(255, 255, 255, .55);
+}
+
+input:-moz-placeholder {
+	color: rgba(255, 255, 255, .55);
+}
+
+input::-moz-placeholder {
+	color: rgba(255, 255, 255, .55);
+}
+
+input:-ms-input-placeholder {
+	color: rgba(255, 255, 255, .55);
+}
+
+input:-webkit-autofill {
+	-webkit-text-fill-color: #FFFFFF !important;
+	transition: background-color 9999s ease-in-out 0s;
+	-webkit-transition-delay: 9999s;
+}
+
+/* ---------------- 验证码 ---------------- */
+.login-verify-box .layui-input {
+	padding-right: 130px;
+}
+
+.login-verify-img {
+	position: absolute;
+	right: 8px;
+	top: 8px;
+	width: 110px;
+	height: 30px;
+	border-radius: 3px;
+	overflow: hidden;
+	background: rgba(255, 255, 255, .9);
+	cursor: pointer;
+}
+
+.login-verify-img img {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+/* ---------------- 登录按钮 ---------------- */
+.login-btn-box {
+	margin: 34px 0 0;
+}
+
+.login-submit-btn {
+	height: 46px;
+	line-height: 46px;
+	border: none;
+	border-radius: 4px;
+	font-size: 16px;
+	letter-spacing: 8px;
+	text-indent: 8px;
+	color: #FFFFFF;
+	background: linear-gradient(90deg, #3D7BFD, #5B8CFF);
+	box-shadow: 0 8px 20px rgba(61, 123, 253, .35);
+	cursor: pointer;
+}
+
+.login-submit-btn:hover {
+	opacity: .9;
+}
+
+/* ---------------- 小屏适配 ---------------- */
+@media only screen and (max-width: 1280px) {
+	.login-slogan {
+		left: 5%;
+	}
+	.login-form {
+		right: 6%;
+	}
+}
+
+@media only screen and (max-width: 1000px) {
+	.login-slogan {
+		display: none;
+	}
+	.login-form {
+		right: 50%;
+		transform: translate(50%, -50%);
+	}
+}

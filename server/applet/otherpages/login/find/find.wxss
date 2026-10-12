@@ -1,0 +1,81 @@
+@charset "UTF-8";
+/**
+ * 你可以通过修改这些变量来定制自己的插件主题，实现自定义主题功能
+ * 建议使用scss预处理，并在插件代码中直接使用这些变量（无需 import 这个文件），方便用户通过搭积木的方式开发整体风格一致的App
+ */
+page {
+  background: #ffffff !important;
+  overflow: hidden;
+}
+.captcha {
+  width: 170rpx;
+  height: 50rpx;
+}
+.find-form {
+  padding: 100rpx 80rpx 0;
+}
+.find-form .form-input {
+  margin-top: 60rpx;
+  height: 60rpx;
+  border-bottom: 2rpx solid #eeeeee;
+}
+.find-form .form-input input {
+  padding: 0;
+  font-size: 28rpx;
+}
+.find-form .find-btn {
+  margin: 374rpx 0 0;
+  border-radius: 40rpx;
+  color: #fff;
+}
+.find-form .find-btn[disabled] {
+  background-color: #f7f7f7 !important;
+}
+.forget-section {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: reverse;
+  -webkit-flex-direction: row-reverse;
+          flex-direction: row-reverse;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+  margin-top: 10rpx;
+  height: 70rpx;
+  line-height: 70rpx;
+}
+.align-type {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+}
+.header-wrap {
+  width: 80%;
+  height: 100%;
+  margin: calc(120rpx + 44px) auto 0;
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: bottom;
+  position: relative;
+}
+.header-wrap .title {
+  font-size: 50rpx;
+  font-weight: bold;
+}
+.iconclose {
+  font-size: 52rpx;
+  position: fixed;
+  left: 24rpx;
+  top: 72rpx;
+  z-index: 9;
+  color: #000;
+}
+.placeholder-class {
+  color: #bfbfbf;
+}
+

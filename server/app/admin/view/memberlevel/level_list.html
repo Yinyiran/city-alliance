@@ -1,0 +1,205 @@
+{extend name="base"/}
+{block name="resources"}
+{/block}
+{block name="main"}
+
+<!-- 搜索框 -->
+<!--<div class="ns-single-filter-box">
+	<button class="layui-btn ns-bg-color" onclick="addLevel()">添加等级</button>
+
+	<div class="layui-form">
+		<div class="layui-input-inline">
+			<input type="text" name="search_text" placeholder="请输入等级名称" autocomplete="off" class="layui-input">
+			<button type="button" class="layui-btn layui-btn-primary" lay-filter="search" lay-submit>
+				<i class="layui-icon">&#xe615;</i>
+			</button>
+		</div>
+	</div>
+</div>-->
+
+<!-- 会员等级列表 -->
+<table id="level_list" lay-filter="level_list"></table>
+
+<!-- 操作 -->
+<script type="text/html" id="action">
+	<div class="ns-table-btn">
+		<a class="layui-btn" lay-event="setPoint">配置积分</a>
+		<a class="layui-btn" lay-event="edit">编辑</a>
+		{{# if(d.is_default == 0){ }}
+<!--		<a class="layui-btn" lay-event="del">删除</a>-->
+<!--		<a class="layui-btn" lay-event="setDefault">设为默认</a>-->
+		{{# } }}
+	</div>
+</script>
+{/block}
+{block name="script"}
+<script>
+	layui.use(['form'], function() {
+		var table,
+			form = layui.form,
+			repeat_flag = false; //防重复标识
+
+		table = new Table({
+			elem: '#level_list',
+			url: ns.url("admin/memberlevel/levelList"),
+			cols: [
+				[{
+					field: 'level_name',
+					title: '等级名称',
+					width: '20%',
+					unresize: 'false'
+				},
+				{
+					field: 'point_feedback',
+					title: '积分回馈倍率',
+					width: '25%',
+					unresize: 'false',
+					templet: function(data) {
+						return '<div style="display:flex;align-items:center;">' +
+							'<input type="number" step="0.1" min="0" class="layui-input ns-point-input" style="width:80px;height:30px;line-height:30px;text-align:center;padding:0 5px;display:inline-block;" value="' + (data.point_feedback || 0) + '" data-id="' + data.level_id + '" data-name="' + data.level_name + '">' +
+							'<span style="margin-left:6px;color:#666;">倍</span>' +
+							'</div>';
+					}
+				},
+				{
+					field: '',
+					title: '等级权益',
+					width: '30%',
+					unresize: 'false',
+					templet: function (data) {
+						var text = '';
+						//if (data.is_free_shipping == 1) text += '购物享商品包邮；';
+						if (data.consume_discount != 100) text += '购物享'+ (data.consume_discount / 10) +'折优惠；';
+						if (data.point_feedback > 0) {
+							text += '<span style="color:#F55606;font-weight:600;">购物享'+ data.point_feedback +'倍积分回馈；</span>';
+						} else {
+							text += '<span style="color:#999;">无积分回馈；</span>';
+						}
+						return text;
+					}
+				},{
+					title: '操作',
+					width: '25%',
+					unresize: 'false',
+					toolbar: '#action'
+				}]
+			]
+		});
+		
+		/**
+		 * 工具栏操作，编辑、删除、配置积分
+		 */
+		table.tool(function(obj) {
+			var data = obj.data,
+				event = obj.event;
+				
+			switch (event) {
+				case 'edit': 
+					location.href = ns.url("admin/memberlevel/editLevel?level_id=" + data.level_id);
+					break;
+				case 'setPoint':
+					layer.prompt({
+						title: '设置【' + data.level_name + '】消费积分回馈倍率',
+						value: data.point_feedback || 0,
+						formType: 0
+					}, function(value, index) {
+						var num = parseFloat(value);
+						if (isNaN(num) || num < 0) {
+							layer.msg('请输入有效的积分倍率（大于等于0）');
+							return;
+						}
+						layer.close(index);
+						savePointFeedback(data.level_id, num);
+					});
+					break;
+				case 'del':
+					delMemberLevel(data.level_id);
+					break;
+			}
+		});
+
+		// 输入框直接修改积分倍率
+		$('body').on('change', '.ns-point-input', function() {
+			var level_id = $(this).attr('data-id');
+			var point_feedback = $(this).val();
+			var num = parseFloat(point_feedback);
+			if (isNaN(num) || num < 0) {
+				layer.msg('请输入有效的积分倍率');
+				return;
+			}
+			savePointFeedback(level_id, num);
+		});
+
+		function savePointFeedback(level_id, point_feedback) {
+			if (repeat_flag) return;
+			repeat_flag = true;
+			$.ajax({
+				type: 'POST',
+				url: ns.url("admin/memberlevel/setPointFeedback"),
+				data: {
+					level_id: level_id,
+					point_feedback: point_feedback
+				},
+				dataType: 'JSON',
+				success: function(res) {
+					repeat_flag = false;
+					layer.msg(res.message || '设置成功');
+					if (res.code == 0) {
+						table.reload();
+					}
+				},
+				error: function() {
+					repeat_flag = false;
+					layer.msg('请求失败，请稍后重试');
+				}
+			});
+		}
+
+		/**
+		 * 搜索功能
+		 */
+		form.on('submit(search)', function(data) {
+			table.reload( {
+				page: {
+					curr: 1
+				},
+				where: data.field
+			});
+		});
+
+		// 删除方法
+		function delMemberLevel(level_ids) {
+			if(repeat_flag) return false;
+			repeat_flag = true;
+				
+			layer.confirm('确定要删除该等级吗?', function() {
+				$.ajax({
+					type: 'POST',
+					url: ns.url("admin/memberlevel/deleteLevel"),
+					data: {level_ids: level_ids},
+					dataType: 'JSON',
+					success: function(res) {
+						layer.msg(res.message);
+						repeat_flag = false;
+
+						if(res.code == 0){
+							table.reload();
+						}
+						
+					}
+				});
+			}, function () {
+				layer.close();
+				repeat_flag = false;
+			});
+		}
+	});
+
+	/**
+	 * 点击跳转添加会员等级页面
+	 */
+	function addLevel() {
+		location.href = ns.url("admin/memberlevel/addLevel");
+	}
+</script>
+{/block}

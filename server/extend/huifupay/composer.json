@@ -1,0 +1,5 @@
+{
+    "require": {
+        "huifurepo/dg-php-sdk": "^2.0"
+    }
+}

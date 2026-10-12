@@ -1,0 +1,115 @@
+.goods-edit-wrap {
+	margin-bottom: 160rpx;
+}
+.form-title {
+	margin: $margin-updown $margin-both;
+	padding: 0 $padding;
+	color: $color-tip;
+}
+.goods-item {
+	background: #fff;
+	padding: $padding;
+	margin-top: $margin-updown;
+	.title {
+		margin: $margin-updown $margin-both;
+		&.gray {
+		}
+	}
+	.goods-type {
+		display: flex;
+		margin: $margin-updown 60rpx;
+		view {
+			flex: 1;
+			text-align: center;
+			border: 1px solid $color-disabled;
+			color: $color-tip;
+			margin-right: 40rpx;
+			position: relative;
+			height: 80rpx;
+			line-height: 80rpx;
+			&:last-child {
+				margin-right: 0;
+			}
+			.iconfont {
+				display: none;
+			}
+			&.selected {
+				.iconfont {
+					display: block;
+					position: absolute;
+					bottom: -22rpx;
+					right: -22rpx;
+					font-size: 80rpx;
+				}
+			}
+		}
+	}
+	.form-wrap {
+		display: flex;
+		align-items: center;
+		margin: 0 $margin-both;
+		border-bottom: 1px solid $color-line;
+		height: 100rpx;
+		line-height: 100rpx;
+		&:last-child {
+			border-bottom: none;
+		}
+		.label {
+			vertical-align: middle;
+			margin-right: $margin-both;
+		}
+		input {
+			vertical-align: middle;
+			display: inline-block;
+			flex: 1;
+			text-align: right;
+		}
+		&.more-wrap {
+			.selected {
+				vertical-align: middle;
+				display: inline-block;
+				flex: 1;
+				text-align: right;
+				color: $color-tip;
+			}
+			.iconfont {
+				color: $color-tip;
+				margin-left: 20rpx;
+			}
+		}
+		&.goods-img {
+			height: 200rpx;
+			line-height: 200rpx;
+			display: block;
+			position: relative;
+			.img-list {
+				position: absolute;
+				width: 80%;
+				top: 0;
+				left: 100rpx;
+				margin-top: 40rpx;
+				margin-left: 40rpx;
+			}
+			.tips {
+				color: $color-tip;
+				font-size: $font-size-activity-tag;
+				margin-top: 20rpx;
+			}
+		}
+		.unit {
+			margin-left: 20rpx;
+			width: 40rpx;
+		}
+	}
+}
+.footer-wrap {
+	position: fixed;
+	width: 100%;
+	// background-color: #fff;
+	bottom: 0;
+	// height: 100rpx;
+	// line-height: 100rpx;
+	// border-top: 1px solid $color-line;
+	padding: 40rpx 0;
+	z-index: 10;
+}

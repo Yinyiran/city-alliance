@@ -1,0 +1,21 @@
+<?php
+namespace BsPaySdk\config;
+
+class MerConfig {
+
+    /**
+     * @var string 商户rsa私钥，用来进行对斗拱接口调用的请求数据加签
+     */
+    public $rsa_merch_private_key = "MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCubXI6dAv2hCPvkYbXHashJoYl99wp/9Daut0suhzPa6qO/lacf2HgpfSX3fY9a2IKqcoMB6hmdn/Kd0h0WAuYFpiiOSdSlWhfmPz716LRXT4XZ0AGMOA5PCJ0ij5BCMjq9k8VM3yCKCIQAyCcDlBkGFZ2+OeSxOXTnxA2BPfTw+7KBb7O0IuTHivxepCSF29HabLCKdgH8DGDBkXz3TiMzPRS8nwGk1UW8Fwit1RoVjD+lU3EaT4T8EUjzlRMINQdfhNmen386FDTtVSBvJdo6SOD0vgWkfRHNbbFDBmJnjy2XUJelu0LmREZGO34qCMq1MieUf+4oMNWfcRqNpzdAgMBAAECggEBAICBe6Wa93FP2xXV1kzHu9s5gZ2ZZSfAI4PyJZ6dIzqhbM/ai77Sji6utWvpiE+pvFp0yrlgLu4GIZHtnYCxmSEcjKj/iHvsPTApC0ETlg2/L06Yr++ftKIWLqBDdSf+q9+HRa4t924A2U+Irk6qsQl9cL5IFHvp+hSV3KCfumHVgb2TYpp4lEYRbz/C5wPgLo3Yzz6ubvxtVk+wimyUOSqttFcZYn3ozrE/4Ti8/8ZfUFPkXjLziyiaWR89kkgLoKUfU6dlWJUZcK2q7I37cN1nAoUeZXX1QdFhyTPVWk+AAMCY1mi/+YZ7DoKNf7OivN485/sK49JUF/IOIanagAECgYEA1yv/4yezVH+sOBIRGFY0aRaF2QcSlmx7/H00nNZ6jGeWgBz/cn0y9vJqT3CBtn67Scys+BjmRL1uSEZpaOe5mf35PW3H/A9b1+Uz9mvJUMGqEbTXGPct50O0pA0f6p+kFY0GJKRkZRUfFB21Yw+kNwDEn4kKc9y5608CcjACYAECgYEAz4ZI6u3HeKt2YNA4gvH+/uJzAYlDf6BXOjVAitFvY16fzljWpZXvemWpcD1BUNhMdIlZ2KPcsfB+Qa1kECdMHSdnOZU/DhSf+CNwI9EDRJIHM7hL94gPf/bsqjzhNma6XMXauAZwbRF6FW02tPnlESxDwlRHhp00hejw/dmpvN0CgYBIaHAV2vhICSbFP58tF2VPr9qe6/hfUmZu0xtvY+WddgZ5WkjEGEmcPHt1/CBKb19LOGtEmexzWWPRQpCaUtBsd8D14QmZUvnPLzxLQn5ehK1chASWTCfQWUJiqmABLnOjJO/aSM/YDEGHHXA6w7q5H7MLFKzFzJNsEgx6rJlAAQKBgQC+2lDVPjjk0UvdXaGbS9Ontbru/r4E8gFGlxL0mAhI6w0tSKafQnUrq7NYdf1LzKEDzA3FH24od3SmEkCkWn+1kDduzcNfv7gfDPhk+CR5O5NEDYpP6+HVXdHp/nNhBLj/+TZdaA6dQCV27yoQ5oG0eXEXl0rwkkNro/9+dl+UQQKBgEuLFYSJhjp6NigNhwNxQi7TWTpAzU0zJX8lflivyAhvPktWxhZuq07Wd2zTmrq2s1U/Az+egwLkvjYvdwGCy0fl8cZlllNNEefvzKf8ZsKD6enxt/myfuW+9FjL4bFSkRITiwJs/B9u1pB6xbBEp6ST6xG+sXmm5Egdq3hfl2N2";
+
+    /**
+     * @var string 商户汇付rsa公钥，用来进行对斗拱接口应答数据的验签，以及部分请求数据非对称加密
+     */
+	public $rsa_huifu_public_key = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArm1yOnQL9oQj75GG1x2rISaGJffcKf/Q2rrdLLocz2uqjv5WnH9h4KX0l932PWtiCqnKDAeoZnZ/yndIdFgLmBaYojknUpVoX5j8+9ei0V0+F2dABjDgOTwidIo+QQjI6vZPFTN8gigiEAMgnA5QZBhWdvjnksTl058QNgT308PuygW+ztCLkx4r8XqQkhdvR2mywinYB/AxgwZF8904jMz0UvJ8BpNVFvBcIrdUaFYw/pVNxGk+E/BFI85UTCDUHX4TZnp9/OhQ07VUgbyXaOkjg9L4FpH0RzW2xQwZi';
+	
+	public $product_id = 'HSK';
+	
+	public $sys_id = '6666000126879397';
+
+    public $huifu_id = '6666000172947614';
+}
