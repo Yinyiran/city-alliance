@@ -1,0 +1,15 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "🚀 推送 Server 到生产仓库 (city-alliance-server)",
+            "type": "shell",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\push-server.ps1",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        }
+    ]
+}
