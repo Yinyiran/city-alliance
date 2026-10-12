@@ -37,3 +37,4 @@ _server_old/
 _merchant_old/
 _customer_old/
 **/.git.bak/
+.git_server/
