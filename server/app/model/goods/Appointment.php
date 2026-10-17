@@ -48,6 +48,18 @@ class Appointment extends BaseModel
                 if ($start_time >= $end_time) {
                     return $this->error([], '第 ' . $no . ' 条预约规则的开始时间必须早于结束时间（暂不支持跨天时段）');
                 }
+
+                // 校验：不能超出门店营业时间区间
+                $store = model('store')->getInfo([ [ 'store_id', '=', intval($rule[ 'store_id' ]) ] ], 'store_name,open_date');
+                if (!empty($store) && !empty($store[ 'open_date' ])) {
+                    $store_hours = $this->parseOpenHours($store[ 'open_date' ]);
+                    if ($store_hours) {
+                        if ($start_time < $store_hours[ 'start' ] || $end_time > $store_hours[ 'end' ]) {
+                            $s_name = $store[ 'store_name' ] ?: ('门店' . $rule[ 'store_id' ]);
+                            return $this->error([], '第 ' . $no . ' 条规则的时间段（' . substr($start_time, 0, 5) . ' ~ ' . substr($end_time, 0, 5) . '）超出了门店【' . $s_name . '】的营业时间区间（' . substr($store_hours[ 'start' ], 0, 5) . ' ~ ' . substr($store_hours[ 'end' ], 0, 5) . '）');
+                        }
+                    }
+                }
                 $interval = intval($rule[ 'interval_minutes' ] ?? 30);
                 if ($interval < 5) $interval = 30;
                 $max_num = intval($rule[ 'max_num' ] ?? 1);
@@ -584,14 +596,42 @@ class Appointment extends BaseModel
     }
 
     /**
+     * 解析门店营业时间区间
+     * @param string $open_date
+     * @return array|null ['start' => '09:00:00', 'end' => '18:00:00']
+     */
+    public function parseOpenHours($open_date)
+    {
+        $open_date = trim($open_date);
+        if (empty($open_date)) return null;
+        $parts = preg_split('/[-~至到]/u', $open_date);
+        if (count($parts) === 2) {
+            $start = trim($parts[0]);
+            $end = trim($parts[1]);
+            if ($start && $end) {
+                return [
+                    'start' => $this->toTimeStr($start),
+                    'end' => $this->toTimeStr($end)
+                ];
+            }
+        }
+        return null;
+    }
+
+    /**
      * 时间格式化
      */
     public function toTimeStr($time)
     {
         $time = trim($time);
         if (empty($time)) return '09:00:00';
-        if (preg_match('/^\d{1,2}:\d{2}$/', $time)) return $time . ':00';
-        if (preg_match('/^\d{1,2}:\d{2}:\d{2}$/', $time)) return sprintf('%02d:%s', intval(substr($time, 0, 2)), substr($time, 3));
+        $parts = explode(':', $time);
+        if (count($parts) >= 2) {
+            $h = sprintf('%02d', intval($parts[0]));
+            $m = sprintf('%02d', intval($parts[1]));
+            $s = isset($parts[2]) ? sprintf('%02d', intval($parts[2])) : '00';
+            return "{$h}:{$m}:{$s}";
+        }
         return '09:00:00';
     }
 

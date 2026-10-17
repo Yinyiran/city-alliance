@@ -779,8 +779,8 @@
 {/block}
 {block name="script"}
 <script>
-	window.__APPOINTMENT_RULES__ = {$appointment_rules|default='[]'};
-	window.__STORE_LIST__ = {$store_list|default='[]'};
+	window.__APPOINTMENT_RULES__ = {$appointment_rules|raw|default='[]'};
+	window.__STORE_LIST__ = {$store_list|raw|default='[]'};
 </script>
 <script src="__STATIC__/ext/drag-arrange.js"></script>
 <script src="__STATIC__/ext/video/videojs-ie8.min.js"></script>

@@ -460,14 +460,22 @@ class Goods extends BaseShop
     }
 
     /**
+     * 获取商户的可预约门店列表（供前端异步调用）
+     */
+    public function getStoreList()
+    {
+        return success(0, '', $this->getTradeStoreList());
+    }
+
+    /**
      * 获取商户的可预约门店列表（交易类型配置用）
      */
     private function getTradeStoreList()
     {
         $store_list = model('store')->getList([
             [ 'site_id', '=', $this->site_id ],
-            [ 'is_pickup', '=', 1 ],
-        ], 'store_id,store_name,open_date', 'store_id asc', 'a', [], '', 100);
+            [ 'status', '=', 1 ],
+        ], 'store_id,store_name,open_date,is_frozen,is_pickup', 'store_id asc', 'a', [], '', 100);
 
         $result = [];
         foreach ($store_list as $store) {
@@ -475,6 +483,7 @@ class Goods extends BaseShop
                 'store_id' => $store[ 'store_id' ],
                 'store_name' => $store[ 'store_name' ],
                 'open_date' => $store[ 'open_date' ] ?? '',
+                'is_frozen' => $store[ 'is_frozen' ] ?? 0,
             ];
         }
         return $result;
