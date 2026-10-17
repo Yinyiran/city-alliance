@@ -143,7 +143,7 @@
 									<div class="goods-category-con-wrap">
 										<div class="layui-block">
 											<div class="layui-input-inline ns-cate-input-defalut">
-												<input type="text" readonly lay-verify="required" autocomplete="off" class="layui-input ns-len-mid select-category" />
+												<input type="text" readonly lay-verify="required" {if condition="isset($has_goods_category) && $has_goods_category == 0"}placeholder="请登录城市后台，管理商品分类" lay-reqText="请登录城市后台，管理商品分类"{else/}placeholder="请选择商品分类"{/if} autocomplete="off" class="layui-input ns-len-mid select-category" />
 												<input type="hidden" class="category_id" />
 												<input type="hidden" class="category_id_1" />
 												<input type="hidden" class="category_id_2" />
@@ -166,6 +166,9 @@
 											<ul></ul>
 										</div>
 									</div>
+								</div>
+								<div class="ns-word-aux js-goods-category-empty-tip" style="color: #ff5722; {if condition="!isset($has_goods_category) || $has_goods_category != 0"}display: none;{/if} line-height: 28px; margin-top: 5px;">
+									<i class="layui-icon layui-icon-tips" style="margin-right: 3px;"></i>请登录城市后台，管理商品分类
 								</div>
 							</div>
 						</div>
@@ -306,7 +309,7 @@
 				{include file="goods/trade_type_box" /}
 
 				<!-- 配送信息 -->
-				<div class="layui-card ns-card-common js-shipping-card" style="display: none">
+				<div class="layui-card ns-card-common js-shipping-card" style="{if !in_array($goods_info.trade_type, [3, 4])}display: none{/if}">
 					<div class="layui-card-header">
 						<span class="ns-card-title">配送信息</span>
 					</div>

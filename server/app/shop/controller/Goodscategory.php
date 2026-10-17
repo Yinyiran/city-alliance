@@ -212,6 +212,9 @@ class Goodscategory extends BaseShop
 
         $condition[] = [ 'website_id', '=', $shop['website_id'] ];
         $list = $goods_category_list = $goods_category_model->getCategoryByParent($condition, 'category_id,category_name,pid,level,category_id_1,category_id_2,category_id_3');
+        if (empty($list['data'])) {
+            $list['message'] = '请登录城市后台，管理商品分类';
+        }
         return $list;
     }
 

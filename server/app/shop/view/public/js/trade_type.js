@@ -47,8 +47,8 @@ layui.use(['form'], function () {
             var types = String($(this).data('trade')).split(',');
             $(this).css('display', types.indexOf(tradeType) > -1 ? '' : 'none');
         });
-        //仅到店自提(0)与快递邮寄(3)需要物流配送信息，其余为到店/同城场景
-        var needShipping = tradeType === '0' || tradeType === '3';
+        //仅在交易类型选择 快递邮寄(3)、外卖配送(4) 时显示配送信息，到店场景(0自提/1消费/2预约)无需配送信息
+        var needShipping = tradeType === '3' || tradeType === '4';
         $('.js-shipping-card').css('display', needShipping ? '' : 'none');
     }
 

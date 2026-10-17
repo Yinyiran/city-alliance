@@ -151,6 +151,9 @@
 										</div>
 									</div>
 								</div>
+								<div class="ns-word-aux js-goods-category-empty-tip" style="color: #ff5722; {if condition="!isset($has_goods_category) || $has_goods_category != 0"}display: none;{/if} line-height: 28px; margin-top: 5px;">
+									<i class="layui-icon layui-icon-tips" style="margin-right: 3px;"></i>请登录城市后台，管理商品分类
+								</div>
 							</div>
 						</div>
 					</div>
@@ -312,7 +315,7 @@
 {include file="goods/trade_type_box" /}
 
 <!-- 配送信息 -->
-<div class="layui-card ns-card-common js-shipping-card" style="display: none">
+<div class="layui-card ns-card-common js-shipping-card" style="{if !in_array($goods_info.trade_type, [3, 4])}display: none{/if}">
 	<div class="layui-card-header">
 		<span class="ns-card-title">配送信息</span>
 	</div>

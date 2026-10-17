@@ -184,6 +184,27 @@ class Goods extends BaseShop
     {
         if (request()->isAjax()) {
             $category_array = input("category_id", 0);// 分类id
+            $has_category = false;
+            if (is_array($category_array)) {
+                foreach ($category_array as $cat) {
+                    if (!empty($cat)) {
+                        $has_category = true;
+                        break;
+                    }
+                }
+            } elseif (!empty($category_array)) {
+                $has_category = true;
+            }
+
+            if (!$has_category) {
+                $city_cat_count = model('goods_category')->getCount([['website_id', '=', $this->website_id]]);
+                if ($city_cat_count <= 0) {
+                    return error(-1, '请登录城市后台，管理商品分类');
+                } else {
+                    return error(-1, '请选择商品分类');
+                }
+            }
+
             $category_json = json_encode($category_array);//分类字符串
             $category_id = ',' . implode(',', $category_array) . ',';
 
@@ -260,12 +281,14 @@ class Goods extends BaseShop
             //获取一级商品分类
             $goods_category_model = new GoodsCategoryModel();
             $condition = [
-                [ 'pid', '=', 0 ]
+                [ 'pid', '=', 0 ],
+                [ 'website_id', '=', $this->website_id ]
             ];
 
             $goods_category_list = $goods_category_model->getCategoryList($condition, 'category_id,category_name,level,commission_rate');
             $goods_category_list = $goods_category_list[ 'data' ];
             $this->assign("goods_category_list", $goods_category_list);
+            $this->assign("has_goods_category", !empty($goods_category_list) ? 1 : 0);
 
             //获取品牌
             $goods_brand_model = new GoodsBrandModel();
@@ -410,11 +433,13 @@ class Goods extends BaseShop
             $goods_category_model = new GoodsCategoryModel();
             $condition = [
                 [ 'pid', '=', 0 ],
+                [ 'website_id', '=', $this->website_id ]
             ];
 
             $goods_category_list = $goods_category_model->getCategoryList($condition, 'category_id,category_name,level,commission_rate');
             $goods_category_list = $goods_category_list[ 'data' ];
             $this->assign("goods_category_list", $goods_category_list);
+            $this->assign("has_goods_category", !empty($goods_category_list) ? 1 : 0);
 
             //获取运费模板
             $express_template_model = new ExpressTemplateModel();

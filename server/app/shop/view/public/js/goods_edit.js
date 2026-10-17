@@ -370,6 +370,22 @@ $(function () {
 
 			if (next == 'detail') {
 
+				var has_cate_val = false;
+				$(".select-category").each(function () {
+					if ($(this).val()) {
+						has_cate_val = true;
+					}
+				});
+				if (!has_cate_val) {
+					if (window.hasGoodsCategory === false) {
+						layer.msg("请登录城市后台，管理商品分类");
+					} else {
+						layer.msg("请选择商品分类");
+					}
+					element.tabChange('goods_tab', "basic");
+					return false;
+				}
+
 				if (goodsImage.length == 0) {
 					layer.msg("请上传商品主图");
 					element.tabChange('goods_tab', "basic");
@@ -610,6 +626,10 @@ $(function () {
 			},
 			//运费模板
 			shipping_template: function (value) {
+				var tradeType = String($("input[name=trade_type]:checked").val() || '0');
+				if (tradeType !== '3' && tradeType !== '4') {
+					return;
+				}
 				if ($("input[name='is_free_shipping']:checked").val() == 0) {
 					if (value == "") {
 						element.tabChange('goods_tab', "basic");
@@ -705,10 +725,23 @@ $(function () {
 
 			// 商品分类
 			var category_id = [];
+			var has_selected_cate = false;
 			$(".ns-goods-cate .layui-block").each(function () {
 				var cate_id = $(this).find(".category_id").val();
 				category_id.push(cate_id);
+				if (cate_id) {
+					has_selected_cate = true;
+				}
 			});
+			if (!has_selected_cate) {
+				if (window.hasGoodsCategory === false) {
+					layer.msg("请登录城市后台，管理商品分类");
+				} else {
+					layer.msg("请选择商品分类");
+				}
+				element.tabChange('goods_tab', "basic");
+				return false;
+			}
 			data.field.category_id = category_id;
 
 			if ($("input[name='add_spec_img']").is(":checked")) {

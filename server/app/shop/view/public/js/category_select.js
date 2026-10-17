@@ -5,6 +5,10 @@ $(function () {
 
 // 添加商品分类
 function addGoodsCate() {
+	if (window.hasGoodsCategory === false) {
+		layer.msg('请登录城市后台，管理商品分类', {icon: 5});
+		return;
+	}
 	if ($(".goods-category-con-wrap .layui-block").length < 10) {
 		var html = `
 			<div class="layui-block">
@@ -54,7 +58,7 @@ function getGoodsCategoryTree(level, pid) {
 		async: false,
 		success: function(data) {
 			var category_html = '';
-			if (data['data']) {
+			if (data['data'] && data['data'].length > 0) {
 				$.each(data.data, function(category_key, category_val) {
 					//一级分类
 					category_html += '<li data-value="' + category_val.category_id + '" data-level="' + level + '" pid="' + pid + '" child="' + (category_val.child_count > 0) + '">';
@@ -63,7 +67,25 @@ function getGoodsCategoryTree(level, pid) {
 						category_html += '<i class="layui-icon-right layui-icon"></i>';
 					}
 					category_html += '</li>';
-				})
+				});
+				if (level == 1 && pid == 0) {
+					window.hasGoodsCategory = true;
+					$('.js-goods-category-empty-tip').hide();
+					$('.select-category').attr('placeholder', '请选择商品分类');
+					$('.select-category').removeAttr('lay-reqText');
+				}
+			} else {
+				if (level == 1 && pid == 0) {
+					window.hasGoodsCategory = false;
+					category_html = '<li class="category-empty-tip" style="padding: 24px 12px; color: #ff5722; text-align: center; cursor: default; line-height: 1.8; font-size: 13px;"><i class="layui-icon layui-icon-tips" style="display: block; font-size: 24px; margin-bottom: 6px;"></i>请登录城市后台，管理商品分类</li>';
+					if ($('.js-goods-category-empty-tip').length) {
+						$('.js-goods-category-empty-tip').show();
+					} else {
+						$('.ns-goods-category-wrap-box').after('<div class="ns-word-aux js-goods-category-empty-tip" style="color: #ff5722; line-height: 28px; margin-top: 5px;"><i class="layui-icon layui-icon-tips" style="margin-right: 3px;"></i>请登录城市后台，管理商品分类</div>');
+					}
+					$('.select-category').attr('placeholder', '请登录城市后台，管理商品分类');
+					$('.select-category').attr('lay-reqText', '请登录城市后台，管理商品分类');
+				}
 			}
 			$('.goodsCategory_' + level + ' ul').html(category_html);
 		}
@@ -73,6 +95,9 @@ function getGoodsCategoryTree(level, pid) {
 $("body").on('click', '.ns-goods-category-wrap-box .goodsCategory ul li', function() {
 	var level = $(this).attr('data-level');
 	var value = $(this).attr('data-value');
+	if (!level || $(this).hasClass('category-empty-tip')) {
+		return;
+	}
 	var isVal = 0;
 	
 	$('.ns-goods-category-wrap-box .goodsCategory_2, .ns-goods-category-wrap-box .goodsCategory_3').addClass('hide');
@@ -143,8 +168,12 @@ function setSelectGoodsCaregory(isVal) {
 	}
 }
 
-$("body").on('focus', '.ns-goods-category-wrap-box .select-category', function() {
+$("body").on('focus click', '.ns-goods-category-wrap-box .select-category', function() {
 	getGoodsCategoryTree(1, 0);
+
+	if (window.hasGoodsCategory === false) {
+		layer.msg('请登录城市后台，管理商品分类', {icon: 5});
+	}
 
 	$(".ns-goods-category-wrap-box .category-wrap").css('display', 'flex');
 	_index = $(this).parents(".layui-block").index();
