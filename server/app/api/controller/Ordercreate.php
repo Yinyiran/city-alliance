@@ -289,20 +289,23 @@ class Ordercreate extends BaseApi
         }
 
         // 获取店铺信息
-        $shop_info = model('shop')->getInfo([ [ 'site_id', '=', $site_id ] ], 'site_id, site_name, logo, website_id')[ 'data' ] ?? [];
+        $shop_info = model('shop')->getInfo([ [ 'site_id', '=', $site_id ] ], 'site_id, site_name, logo, website_id, shop_status') ?: [];
         if (empty($shop_info)) {
             return $this->response($this->error('', '商家不存在或未营业'));
+        }
+        if (isset($shop_info['shop_status']) && $shop_info['shop_status'] == 0) {
+            return $this->response($this->error('', '商家已暂停营业'));
         }
 
         // 获取门店信息（若未指定则取该店铺的默认门店）
         $store_info = [];
         if ($store_id > 0) {
-            $store_info = model('store')->getInfo([ [ 'store_id', '=', $store_id ], [ 'site_id', '=', $site_id ] ], 'store_id, store_name, address, full_address, telphone')[ 'data' ] ?? [];
+            $store_info = model('store')->getInfo([ [ 'store_id', '=', $store_id ], [ 'site_id', '=', $site_id ] ], 'store_id, store_name, address, full_address, telphone') ?: [];
         }
         if (empty($store_info)) {
-            $store_info = model('store')->getInfo([ [ 'site_id', '=', $site_id ], [ 'is_default', '=', 1 ] ], 'store_id, store_name, address, full_address, telphone')[ 'data' ] ?? [];
+            $store_info = model('store')->getInfo([ [ 'site_id', '=', $site_id ], [ 'is_default', '=', 1 ] ], 'store_id, store_name, address, full_address, telphone') ?: [];
             if (empty($store_info)) {
-                $store_info = model('store')->getInfo([ [ 'site_id', '=', $site_id ] ], 'store_id, store_name, address, full_address, telphone')[ 'data' ] ?? [];
+                $store_info = model('store')->getInfo([ [ 'site_id', '=', $site_id ] ], 'store_id, store_name, address, full_address, telphone') ?: [];
             }
         }
 
@@ -311,7 +314,7 @@ class Ordercreate extends BaseApi
         $delivery_store_info = !empty($store_info) ? json_encode($store_info, JSON_UNESCAPED_UNICODE) : '';
 
         // 会员信息
-        $member_info = model('member')->getInfo([ [ 'member_id', '=', $this->member_id ] ], 'nickname, mobile, headimg')[ 'data' ] ?? [];
+        $member_info = model('member')->getInfo([ [ 'member_id', '=', $this->member_id ] ], 'nickname, mobile, headimg') ?: [];
 
         // 生成单号
         $order_common = new \app\model\order\OrderCommon();
