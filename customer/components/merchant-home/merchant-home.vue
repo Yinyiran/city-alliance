@@ -211,9 +211,9 @@
 							<uv-icon name="eye" size="10" color="#fff"></uv-icon>
 							<text class="m-l-4">{{ item.click_num }}</text>
 						</view>
-						<!-- 特惠/核销/积分标签 -->
-						<view class="tag-badge" :class="{ 'point-tag': isPointGoods || item.goods_type == 1 }">
-							{{ (isPointGoods || item.goods_type == 1) ? '积分兑换' : '门店核销' }}
+						<!-- 特惠/核销/积分/交易类型标签 -->
+						<view class="tag-badge" :class="getGoodsTagClass(item)">
+							{{ getGoodsTag(item) }}
 						</view>
 					</view>
 
@@ -1129,6 +1129,31 @@ export default {
 			return parts[1] || '';
 		},
 
+		// 获取商品交易类型/特惠角标文案
+		getGoodsTag(item) {
+			if (!item) return '到店自提';
+			if (this.isPointGoods || item.goods_type == 1) return '积分兑换';
+			const tradeMap = {
+				0: '到店自提',
+				1: Number(item.allow_custom_amount) === 1 ? '金额自定' : '到店消费',
+				2: '预约到店',
+				3: '快递配送',
+				4: '同城外卖'
+			};
+			return tradeMap[Number(item.trade_type || 0)] || '到店自提';
+		},
+
+		// 获取商品角标专属样式类
+		getGoodsTagClass(item) {
+			if (!item) return '';
+			if (this.isPointGoods || item.goods_type == 1) return 'point-tag';
+			const t = Number(item.trade_type || 0);
+			if (t === 2) return 'appt-tag';
+			if (t === 3) return 'express-tag';
+			if (t === 4) return 'takeaway-tag';
+			return '';
+		},
+
 		// 供父页面调用的下拉刷新
 		refresh() {
 			this.initCurrentCity();
@@ -1667,6 +1692,18 @@ export default {
 
 					&.point-tag {
 						background: linear-gradient(135deg, #FF9500 0%, #FF5500 100%);
+					}
+
+					&.appt-tag {
+						background: linear-gradient(135deg, #7B2CBF 0%, #9D4EDD 100%);
+					}
+
+					&.express-tag {
+						background: linear-gradient(135deg, #0072FF 0%, #00C6FF 100%);
+					}
+
+					&.takeaway-tag {
+						background: linear-gradient(135deg, #0BA360 0%, #3CBA92 100%);
 					}
 				}
 			}
