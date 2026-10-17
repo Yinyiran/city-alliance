@@ -706,10 +706,29 @@ class Store extends BaseModel
             $list = model('store')->getList($store_condition, $field, 'store_id desc');
         }
 
-        // 4. LBS距离计算与格式化
+        // 4. 批量查询商家信息补充 site_name、logo 与 avatar
+        $site_ids = array_unique(array_filter(array_column($list, 'site_id')));
+        $shop_map = [];
+        if (!empty($site_ids)) {
+            $shop_rows = \think\facade\Db::name('shop')->whereIn('site_id', $site_ids)->field('site_id,site_name,logo,avatar')->select()->toArray();
+            $shop_map = array_column($shop_rows, null, 'site_id');
+        }
+
+        // 5. LBS距离计算与格式化
         $latitude = $data['latitude'] ?? null;
         $longitude = $data['longitude'] ?? null;
         foreach ($list as $key => $value) {
+            $sid = $value['site_id'] ?? 0;
+            $shop = $shop_map[$sid] ?? [];
+            if (empty($value['site_name'])) {
+                $list[$key]['site_name'] = !empty($shop['site_name']) ? $shop['site_name'] : ($value['store_name'] ?? '');
+            }
+            if (empty($value['store_logo']) && !empty($shop['logo'])) {
+                $list[$key]['store_logo'] = $shop['logo'];
+            }
+            $list[$key]['logo'] = !empty($value['store_logo']) ? $value['store_logo'] : (!empty($value['store_image']) ? $value['store_image'] : ($shop['logo'] ?? ($shop['avatar'] ?? '')));
+            $list[$key]['avatar'] = $list[$key]['logo'];
+
             $full_address = str_replace(',', '', $value['full_address'] ?? '') . ($value['address'] ?? '');
             $list[$key]['address_text'] = $full_address ?: ($value['address'] ?? '');
             $list[$key]['distance'] = '';
@@ -721,7 +740,7 @@ class Store extends BaseModel
             }
         }
 
-        // 5. 若有经纬度，按距离由近到远排序
+        // 6. 若有经纬度，按距离由近到远排序
         if (!empty($latitude) && !empty($longitude)) {
             usort($list, function ($a, $b) {
                 if ($a['distance_value'] == $b['distance_value']) return 0;

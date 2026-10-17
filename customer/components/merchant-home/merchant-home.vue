@@ -682,6 +682,16 @@ export default {
 					if (res.data.site_id) {
 						uni.setStorageSync('user_site_id', res.data.site_id);
 						uni.setStorageSync('site_id', res.data.site_id);
+						uni.setStorageSync('selected_site_id', res.data.site_id);
+						uni.setStorageSync('index_shop_info', {
+							site_id: res.data.site_id,
+							site_name: res.data.site_name || res.data.store_name,
+							store_id: res.data.store_id || '',
+							store_name: res.data.store_name || res.data.site_name,
+							logo: res.data.store_logo || res.data.store_image || res.data.logo || '',
+							avatar: res.data.store_logo || res.data.store_image || res.data.logo || '',
+							address: res.data.address || res.data.full_address || ''
+						});
 					}
 					// 设置 Banner 列表
 					if (Array.isArray(res.data.banner_list) && res.data.banner_list.length > 0) {

@@ -4,8 +4,6 @@
 
 		<view class="top-nav-action acea-row row-middle row-between">
 			<view class="safe-tag acea-row row-middle">
-				<uv-icon name="shield-check" color="#07c160" size="14"></uv-icon>
-				<text class="m-l-8">微信支付官方安全保障</text>
 			</view>
 			<view class="record-btn acea-row row-middle" @click="goToRecords">
 				<uv-icon name="order" color="#F55606" size="14"></uv-icon>
@@ -19,7 +17,7 @@
 				<view class="shop-left acea-row row-middle" v-if="selectedShop && selectedShop.site_id">
 					<image :src="$util.img(selectedShop.logo || selectedShop.avatar)" class="shop-logo" mode="aspectFill"></image>
 					<view class="m-l-20">
-						<view class="shop-name font-32 font-weight-6 text-more">{{ selectedShop.site_name }}</view>
+						<view class="shop-name font-32 font-weight-6 text-more">{{ selectedShop.site_name || selectedShop.store_name }}</view>
 						<view class="shop-sub font-22 text-more" v-if="selectedShop.address">{{ selectedShop.address }}</view>
 						<view class="shop-sub font-22" v-else>到店买单 · 直接付款</view>
 					</view>
@@ -96,11 +94,6 @@
 					{{ paying ? '正在调起微信支付...' : (amount ? `确认付款 ￥${Number(amount).toFixed(2)}` : '请输入金额付款') }}
 				</button>
 			</view>
-
-			<view class="bottom-tips font-22 acea-row row-middle row-center">
-				<uv-icon name="lock-fill" size="12" color="#aaa"></uv-icon>
-				<text class="m-l-6">付款资金直接结算至商家账户</text>
-			</view>
 		</view>
 
 		<!-- 商家选择抽屉弹窗 -->
@@ -127,7 +120,7 @@
 						<view class="acea-row row-middle shop-item-left">
 							<image :src="$util.img(s.logo || s.avatar)" class="picker-logo" mode="aspectFill"></image>
 							<view class="m-l-16">
-								<view class="font-28 font-weight-6 text-more w-380">{{ s.site_name }}</view>
+								<view class="font-28 font-weight-6 text-more w-380">{{ s.site_name || s.store_name }}</view>
 								<view class="font-22 text-more w-380" style="color: #999;" v-if="s.address">{{ s.address }}</view>
 							</view>
 						</view>
@@ -178,7 +171,7 @@
 </template>
 
 <script>
-import { membershoppages, websiteStore, quickPayCreate, huifupay } from '@/common/js/api.js';
+import { huifupay, membershoppages, quickPayCreate, storeDetail, websiteStore, storeList } from '@/common/js/api.js';
 
 export default {
 	data() {
@@ -210,51 +203,116 @@ export default {
 	onLoad(options) {
 		if (options && options.site_id) {
 			this.site_id = Number(options.site_id);
+		} else {
+			// 默认读取 pages/index/index 中选中的商家
+			let indexSiteId = uni.getStorageSync('selected_site_id') || uni.getStorageSync('site_id') || uni.getStorageSync('user_site_id');
+			let indexShopInfo = uni.getStorageSync('index_shop_info');
+			if (indexSiteId) {
+				this.site_id = Number(indexSiteId);
+				if (indexShopInfo && Number(indexShopInfo.site_id) === Number(indexSiteId)) {
+					this.selectedShop = indexShopInfo;
+				}
+			}
 		}
 		this.initShops();
 	},
 	methods: {
-		initShops() {
-			// 先加载关注店铺列表
-			membershoppages({ page: 1, page_size: 50 }).then(res => {
-				let list = (res.data && res.data.list) || [];
-				this.shopList = list;
-				this.filteredShopList = list;
-
-				if (this.site_id) {
-					let found = list.find(s => Number(s.site_id) === this.site_id);
-					if (found) {
-						this.selectedShop = found;
-						return;
-					}
-				}
-
-				// 如果有关注店铺，默认选中第一个
-				if (list.length > 0 && !this.selectedShop) {
-					this.selectedShop = list[0];
-				}
-
-				// 如果没有关注店铺或没匹配到，补充从全部入驻商家拉取备选
-				if (!this.selectedShop) {
-					websiteStore({ page: 1, page_size: 30 }).then(res2 => {
-						let allStores = (res2.data && res2.data.list) || [];
-						if (allStores.length > 0) {
-							this.shopList = this.shopList.concat(allStores);
-							this.filteredShopList = this.shopList;
-							if (this.site_id) {
-								let found = allStores.find(s => Number(s.site_id) === this.site_id);
-								if (found) {
-									this.selectedShop = found;
-									return;
-								}
-							}
-							if (!this.selectedShop) {
-								this.selectedShop = allStores[0];
-							}
-						}
+		normalizeShopItem(s) {
+			if (!s || !s.site_id) return null;
+			let site_name = s.site_name || s.store_name || '';
+			let store_name = s.store_name || s.site_name || '';
+			let logo = s.logo || s.avatar || s.store_logo || s.store_image || '';
+			let address = s.address || s.address_text || s.full_address || '';
+			return {
+				site_id: Number(s.site_id),
+				site_name,
+				store_id: s.store_id || '',
+				store_name,
+				logo,
+				avatar: logo,
+				address
+			};
+		},
+		async initShops() {
+			// 1. 若已有当前 site_id（来自首页 index 选中或外部传入）但还没有完整信息，直接拉取该店铺详情
+			if (this.site_id && (!this.selectedShop || !this.selectedShop.site_name)) {
+				try {
+					let storeRes = await storeDetail({
+						site_id: this.site_id,
+						store_id: uni.getStorageSync('store_id') || ''
 					});
+					if (storeRes && storeRes.code >= 0 && storeRes.data) {
+						let norm = this.normalizeShopItem(storeRes.data);
+						if (norm) this.selectedShop = norm;
+					}
+				} catch (e) {
+					console.error('获取首页选中的店铺详情失败', e);
 				}
-			});
+			}
+
+			let allList = [];
+			let idSet = new Set();
+			const addShop = item => {
+				let norm = this.normalizeShopItem(item);
+				if (!norm || !norm.site_id) return;
+				if (!idSet.has(norm.site_id)) {
+					idSet.add(norm.site_id);
+					allList.push(norm);
+				}
+			};
+
+			// 当前已选中的商家排在首位
+			if (this.selectedShop && this.selectedShop.site_id) {
+				addShop(this.selectedShop);
+			}
+
+			// 2. 加载关注店铺列表（如果有登录态与关注列表）
+			try {
+				let res = await membershoppages({ page: 1, page_size: 50, keyword: '' });
+				let list = (res && res.data && res.data.list) || [];
+				if (Array.isArray(list)) {
+					list.forEach(addShop);
+				}
+			} catch (e) {
+				console.warn('获取关注店铺列表失败或未登录', e);
+			}
+
+			// 3. 从全平台/城市分站门店列表拉取商家
+			try {
+				let websiteId = uni.getStorageSync('website_id') || 0;
+				let res2 = await websiteStore({ page: 1, page_size: 50, website_id: websiteId });
+				let rawStores = (res2 && res2.data) || [];
+				let storeArr = Array.isArray(rawStores) ? rawStores : (rawStores.list || []);
+				if (Array.isArray(storeArr)) {
+					storeArr.forEach(addShop);
+				}
+			} catch (e) {
+				console.warn('获取城市门店列表失败', e);
+			}
+
+			// 4. 兜底尝试 storeList 接口
+			if (allList.length === 0) {
+				try {
+					let res3 = await storeList({ page: 1, page_size: 30 });
+					let raw3 = (res3 && res3.data && res3.data.list) || (res3 && res3.data) || [];
+					if (Array.isArray(raw3)) {
+						raw3.forEach(addShop);
+					}
+				} catch (e) {
+					console.warn('获取storeList失败', e);
+				}
+			}
+
+			this.shopList = allList;
+			this.filteredShopList = allList;
+
+			// 如果当前没有选中商家，默认选中列表首位
+			if (!this.selectedShop && this.shopList.length > 0) {
+				this.selectedShop = this.shopList[0];
+				this.site_id = Number(this.shopList[0].site_id);
+			} else if (this.selectedShop && !this.site_id) {
+				this.site_id = Number(this.selectedShop.site_id);
+			}
 		},
 		onAmountInput(e) {
 			let val = e.detail.value;
@@ -281,7 +339,11 @@ export default {
 			if (!k) {
 				this.filteredShopList = this.shopList;
 			} else {
-				this.filteredShopList = this.shopList.filter(s => (s.site_name || '').toLowerCase().includes(k));
+				this.filteredShopList = this.shopList.filter(s => {
+					let name = (s.site_name || s.store_name || '').toLowerCase();
+					let addr = (s.address || '').toLowerCase();
+					return name.includes(k) || addr.includes(k);
+				});
 			}
 		},
 		chooseShop(shop) {

@@ -133,10 +133,11 @@ class ShopMember extends BaseModel
      * @param string $order
      * @param string $field
      */
-    public function getMemberShopPageList($condition = [], $data, $page = 1, $page_size = PAGE_LIST_ROWS, $order = 'nsm.subscribe_time desc', $field = 'ns.site_id, ns.site_name, ns.is_own, ns.logo, ns.telephone,ns.sub_num, nsm.subscribe_time,ns.seo_description,ns.shop_desccredit,ns.shop_servicecredit,ns.shop_deliverycredit,ns.shop_sales,ns.shop_sales,ns.is_own')
+    public function getMemberShopPageList($condition = [], $data = [], $page = 1, $page_size = PAGE_LIST_ROWS, $order = 'nsm.subscribe_time desc', $field = 'ns.site_id, ns.site_name, ns.is_own, ns.logo, ns.telephone,ns.sub_num, nsm.subscribe_time,ns.seo_description,ns.shop_desccredit,ns.shop_servicecredit,ns.shop_deliverycredit,ns.shop_sales,ns.shop_sales,ns.is_own')
     {
-        $longitude = $data['longitude'];
-        $latitude = $data['latitude'];
+        $longitude = $data['longitude'] ?? null;
+        $latitude = $data['latitude'] ?? null;
+        $keyword = $data['keyword'] ?? '';
         $field = 'ns.site_id, ns.site_name, ns.is_own, ns.logo,ns.sub_num, nsm.subscribe_time, nsm.create_time,
         ns.shop_desccredit,ns.shop_servicecredit,ns.shop_deliverycredit,ns.shop_sales,ns.shop_sales,ns.is_own';
         $condition[] = [ 'nm.is_delete', '=', 0 ];
@@ -153,8 +154,8 @@ class ShopMember extends BaseModel
                 'inner'
             ],
         ];
-        if ($data['keyword'] != '') {
-            $condition[] = [ 'ns.site_name', 'like', '%'.$data['keyword'].'%' ];
+        if (!empty($keyword)) {
+            $condition[] = [ 'ns.site_name', 'like', '%'.$keyword.'%' ];
         }
         $list = model("shop_member")->pageList($condition, $field, $order, $page, $page_size, $alias, $join);
 

@@ -102,7 +102,7 @@ class Shopmember extends BaseApi
         $data = [
             'latitude' => $this->params["latitude"] ?? null,
             'longitude' => $this->params["longitude"] ?? null,
-            'keyword' => $this->params['keyword'],
+            'keyword' => $this->params['keyword'] ?? '',
         ];
         $res = $shop_member_model->getMemberShopPageList($condition, $data, $page, $page_size, 'nsm.subscribe_time');
         return $this->response($res);
