@@ -88,7 +88,7 @@ class Model
     final public function pageList($condition = [], $field = true, $order = '', $page = 1, $list_rows = PAGE_LIST_ROWS, $alias = 'a', $join = [], $group = null, $limit = null)
     {
         self::$query_obj = Db::name($this->table)->alias($alias)->where($condition)->order($order);
-        $count_obj = Db::name($this->table)->alias($alias)->where($condition)->order($order);
+        $count_obj = Db::name($this->table)->alias($alias)->where($condition);
         if (!empty($join)) {
             $db_obj = self::$query_obj;
             self::$query_obj = $this->parseJoin($db_obj, $join);
@@ -134,12 +134,11 @@ class Model
      */
     final public function rawPageList($condition = [], $field = true, $order = '', $page = 1, $list_rows = PAGE_LIST_ROWS, $alias = 'a', $join = [], $group = null, $limit = null)
     {
+        $count_obj = Db::name($this->table)->alias($alias)->where($condition);
         if (is_array($order)) {
             self::$query_obj = Db::name($this->table)->alias($alias)->where($condition)->order($order);
-            $count_obj = Db::name($this->table)->alias($alias)->where($condition)->order($order);
         } else {
             self::$query_obj = Db::name($this->table)->alias($alias)->where($condition)->orderRaw($order);
-            $count_obj = Db::name($this->table)->alias($alias)->where($condition)->orderRaw($order);
         }
 
         if (!empty($join)) {

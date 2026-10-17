@@ -647,21 +647,16 @@ class Goodssku extends BaseApi
 
         if ($lat !== null && $lng !== null) {
             if ($store_id > 0) {
-                $store_subquery = "SELECT site_id, 
-                    FORMAT(st_distance(point({$lng}, {$lat}), point(longitude, latitude)) * 111195 / 1000, 2) as distance,
-                    st_distance(point({$lng}, {$lat}), point(longitude, latitude)) * 111195 / 1000 as distance_val
-                    FROM store WHERE store_id = {$store_id}";
+                $dist_expr = "IFNULL((SELECT FORMAT(st_distance(point({$lng}, {$lat}), point(longitude, latitude)) * 111195 / 1000, 2) FROM store WHERE store_id = {$store_id} AND longitude != '' AND latitude != ''), 0)";
+                $dist_val_sql = "IFNULL((SELECT st_distance(point({$lng}, {$lat}), point(longitude, latitude)) * 111195 / 1000 FROM store WHERE store_id = {$store_id} AND longitude != '' AND latitude != ''), 999999999)";
             } else {
-                $store_subquery = "SELECT site_id, 
-                    FORMAT(MIN(st_distance(point({$lng}, {$lat}), point(longitude, latitude)) * 111195 / 1000), 2) as distance,
-                    MIN(st_distance(point({$lng}, {$lat}), point(longitude, latitude)) * 111195 / 1000) as distance_val
-                    FROM store WHERE status = 1 AND is_frozen = 0 AND is_pickup = 1 GROUP BY site_id";
+                $dist_expr = "IFNULL((SELECT FORMAT(MIN(st_distance(point({$lng}, {$lat}), point(longitude, latitude)) * 111195 / 1000), 2) FROM store WHERE site_id = gs.site_id AND status = 1 AND is_frozen = 0 AND is_pickup = 1 AND longitude != '' AND latitude != ''), 0)";
+                $dist_val_sql = "IFNULL((SELECT MIN(st_distance(point({$lng}, {$lat}), point(longitude, latitude)) * 111195 / 1000) FROM store WHERE site_id = gs.site_id AND status = 1 AND is_frozen = 0 AND is_pickup = 1 AND longitude != '' AND latitude != ''), 999999999)";
             }
-            $join[] = [ Db::raw('(' . $store_subquery . ') st'), 'st.site_id = gs.site_id', 'left' ];
-            $field .= ',IFNULL(st.distance, 0) as distance';
+            $field .= ', ' . $dist_expr . ' as distance';
 
             if ($order_distance) {
-                $order_by = Db::raw('IF(st.distance_val IS NULL, 1, 0) ASC, st.distance_val ASC, gs.sort DESC, gs.create_time DESC');
+                $order_by = Db::raw($dist_val_sql . ' ' . $sort . ', gs.sort DESC, gs.create_time DESC');
             } else {
                 if ($order != "sale_num" && $order != "discount_price") {
                     $order = 'gs.sort';
@@ -671,7 +666,7 @@ class Goodssku extends BaseApi
                 $order_by = $order . ' ' . $sort . ', gs.create_time desc';
             }
         } else {
-            $field .= ',0 as distance';
+            $field .= ', 0 as distance';
             if ($order != "sale_num" && $order != "discount_price") {
                 $order = 'gs.sort';
             } else {
