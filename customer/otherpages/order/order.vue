@@ -20,11 +20,12 @@
 							<uv-icon color="#555555" size="8" name="arrow-right"></uv-icon>
 						</view>
 					</view>
-					<view class="status" v-if="item.order_status==0">{{statusText(item)}}</view>
-						<view class="status" v-else-if="item.order_status==1">{{statusText(item)}}</view>
-						<view class="status" v-else-if="item.order_status==2" style="color: #FE780F;">{{statusText(item)}}</view>
-						<view class="" v-else>{{statusText(item)}}</view>
-					</view>
+					<view class="status-gray" v-if="item.order_status==-1 || (item.trade_type==2 && item.appointment_status==2)" style="color:#999">{{statusText(item)}}</view>
+					<view class="status" v-else-if="item.order_status==0">{{statusText(item)}}</view>
+					<view class="status" v-else-if="item.order_status==1">{{statusText(item)}}</view>
+					<view class="status" v-else-if="item.order_status==2" style="color: #FE780F;">{{statusText(item)}}</view>
+					<view class="" v-else>{{statusText(item)}}</view>
+				</view>
 					<!-- 预约信息 -->
 					<view class="appt" v-if="item.trade_type==2 && item.appointment_date">
 						<text class="appt-label">预约</text>
@@ -62,11 +63,11 @@
 				<view class="btns acea-row row-middle row-right">
 					<view class="btn1" v-if="item.order_status==0" @click.stop="orderClose(item.order_id)">取消订单</view>
 					<view class="btn2" v-if="item.order_status==0" @click.stop="goPay(item)">立即支付</view>
-					<view class="btn1" v-if="item.trade_type==2 && item.appointment_status==1" @click.stop="cancelAppointment(item)">取消预约</view>
-					<view class="btn3" v-if="item.order_status==1" @click.stop="goRefund(item)">申请退款</view>
+					<view class="btn1" v-if="item.trade_type==2 && item.appointment_status==1 && item.order_status==1" @click.stop="cancelAppointment(item)">取消预约</view>
+					<view class="btn3" v-if="item.order_status==1 && item.trade_type!=2" @click.stop="goRefund(item)">申请退款</view>
 					<view class="btn5" v-if="isVerifyOrder(item)" @click.stop="goDetail(item)">去核销</view>
 					<view class="btn3" v-if="canConfirmReceipt(item)" @click.stop="confirmReceipt(item)">确认收货</view>
-					<view class="btn1" v-if="item.order_status==2" @click.stop="goRefund(item)">申请售后</view>
+					<view class="btn1" v-if="item.order_status==2 && item.trade_type!=2" @click.stop="goRefund(item)">申请售后</view>
 					<view class="btn4" v-if="item.order_status==10" @click.stop="againBuy(item)">再次购买</view>
 				</view>
 			</view>
@@ -150,13 +151,23 @@
 			},
 			//订单列表状态文案
 			statusText(item){
+				const st = Number(item.order_status);
+				const t = Number(item.trade_type || 0);
+				const apptSt = Number(item.appointment_status);
+
+				if (st === -1) {
+					return (t === 2 && apptSt === 2) ? '已取消' : '已关闭';
+				}
+				if (t === 2 && apptSt === 2) {
+					return '已取消';
+				}
+
 				if (Number(item.pay_scene) === 1) {
 					return Number(item.pay_status) === 1 ? '买单成功' : '待付款';
 				}
 				//优先取后端按订单类型计算的交易状态，其次前端按矩阵兜底
 				let text = item.trade_status_name || this.orderTradeStatusName(item.order_type, item.order_status);
 				//预约到店：已预约但未核销时提示待到店，比「待核销」更贴合用户视角
-				const t = Number(item.trade_type||0);
 				if(t === 2 && item.appointment_status === 1 && Number(item.order_status) !== 2){
 					text = '待到店';
 				}
@@ -166,8 +177,12 @@
 			isVerifyOrder(item){
 				const ot = Number(item.order_type||1);
 				const st = Number(item.order_status);
+				if (st === -1) return false;
 				if(ot !== 2) return false;
 				if(Number(item.pay_scene) === 1) return false; // 快捷买单已完成，无需核销
+				const t = Number(item.trade_type || 0);
+				const apptSt = Number(item.appointment_status);
+				if (t === 2 && apptSt !== 1) return false;
 				return (st === 1 || st === 2) && Number(item.delivery_status||0) != 1;
 			},
 			//是否可确认收货：快递订单已发货、外卖订单配送中（外卖由商家确认送达，顾客亦可确认）

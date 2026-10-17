@@ -1,9 +1,16 @@
-﻿<template>
+<template>
 	<view>
 		<uv-sticky :bg-color="bgcolor">
 			<nvabar type='1' title='订单详情' titleStyle='color:#222'></nvabar>
 		</uv-sticky>
-		<view class="acea-row row-middle row-center row-column status" v-if="info.order_status==0">
+		<view class="acea-row row-middle row-center row-column status status1" v-if="info.order_status==-1 || (info.trade_type==2 && info.appointment_status==2)">
+			<view class="acea-row row-middle" style="color: #222222;">
+				<uv-icon name="close-circle" size="18" color="#222"></uv-icon>
+				<text class="m-l-8">{{info.trade_type==2 && info.appointment_status==2 ? '预约已取消' : '已关闭'}}</text>
+			</view>
+			<view class="m-t-12" style="color: #999;">{{info.trade_type==2 && info.appointment_status==2 ? '预约已取消，名额已释放' : '订单已关闭'}}</view>
+		</view>
+		<view class="acea-row row-middle row-center row-column status" v-else-if="info.order_status==0">
 			<view class="acea-row row-middle">
 				<image src="/otherpages/static/pay.png" class="w-36 h-36 m-r-12" mode=""></image>
 				{{tradeStatusName}}
@@ -13,9 +20,9 @@
 		<view class="acea-row row-middle row-center row-column status status-pending" v-else-if="isStoreTrade && isOrderPendingVerify">
 			<view class="acea-row row-middle" style="color: #FE780F;">
 				<uv-icon name="scan" size="20" color="#FE780F"></uv-icon>
-				<text class="m-l-8">待核销</text>
+				<text class="m-l-8">{{info.trade_type==2 ? '待到店' : '待核销'}}</text>
 			</view>
-			<view class="m-t-12" style="color: #999;">请向商家出示下方核销码进行核销</view>
+			<view class="m-t-12" style="color: #999;">{{info.trade_type==2 ? '请在预约时间到店，出示下方核销码进行核销' : '请向商家出示下方核销码进行核销'}}</view>
 		</view>
 		<view class="acea-row row-middle row-center row-column status status1" v-else-if="[1,2,3].includes(Number(info.order_status))">
 			<view class="acea-row row-middle">
@@ -38,13 +45,6 @@
 				<text class="m-l-8">{{tradeStatusName}}</text>
 			</view>
 			<view class="m-t-12" style="color: #999;">{{isStoreTrade ? '订单商品已完成核销，感谢您的光临' : '交易已完成，感谢您的支持'}}</view>
-		</view>
-		<view class="acea-row row-middle row-center row-column status status1" v-else-if="info.order_status==-1">
-			<view class="acea-row row-middle" style="color: #222222;">
-				<uv-icon name="close-circle" size="18" color="#222"></uv-icon>
-				已关闭
-			</view>
-			<view class="m-t-12" style="color: #999;">订单已关闭</view>
 		</view>
 
 		<!-- 预约信息卡片 -->
@@ -190,6 +190,8 @@
 							<view class="" v-else-if="!isStoreTrade && Number(info.order_status) == 3">
 								<view class="order-goods-tag-pending">{{isLocalOrder ? '配送中' : '已发货'}}</view>
 							</view>
+							<view class="" v-else-if="(info.order_status == -1 || (info.trade_type == 2 && info.appointment_status == 2)) && (item.refund_status == 0 || item.refund_status == -1)">
+							</view>
 							<view class="" v-else-if="item.refund_status == 0 || item.refund_status == -1"
 								@click="goRefund(item.order_goods_id)">退款</view>
 							<view @click="goRefundDetail(item.order_goods_id)" v-else>
@@ -278,12 +280,12 @@
 		<view class="btms iphone-x" v-else-if="info.order_status==1">
 			<view class="acea-row row-middle row-right">
 				<view class="btn2" v-if="info.trade_type==2 && info.appointment_status==1" @click="doCancelAppointment">取消预约</view>
-				<view class="btn2" v-if="info.trade_type!=2" @click="goRefund">申请退款</view>
+				<view class="btn2" v-if="info.trade_type!=2" @click="applyOrderRefund">申请退款</view>
 			</view>
 		</view>
 		<view class="btms iphone-x" v-else-if="canConfirmReceipt">
 			<view class="acea-row row-middle row-right">
-				<view class="btn2" @click="goRefund">申请退款</view>
+				<view class="btn2" @click="applyOrderRefund">申请退款</view>
 				<view class="btn1" @click="doConfirmReceipt">确认收货</view>
 			</view>
 		</view>
@@ -334,7 +336,12 @@
 			},
 			//是否处于待核销中间态（到店类已支付未核销）
 			isOrderPendingVerify() {
-				return [1, 2].includes(Number(this.info.order_status || 0));
+				const st = Number(this.info.order_status || 0);
+				const t = Number(this.info.trade_type || 0);
+				const apptSt = Number(this.info.appointment_status);
+				if (st === -1) return false;
+				if (t === 2 && apptSt === 2) return false;
+				return [1, 2].includes(st);
 			},
 			//走快递物流的商品项（快递邮寄(3)，或到店自提(0)但配送方式为快递）
 			expressList() {
@@ -375,9 +382,20 @@
 			},
 			//交易状态名称（按订单类型映射，兜底历史数据快照）
 			tradeStatusName() {
-				if (this.info.trade_status_name) return this.info.trade_status_name;
 				const ot = Number(this.info.order_type || 1);
 				const st = Number(this.info.order_status || 0);
+				const t = Number(this.info.trade_type || 0);
+				const apptSt = Number(this.info.appointment_status);
+				if (st === -1) {
+					return (t === 2 && apptSt === 2) ? '已取消' : '已关闭';
+				}
+				if (t === 2 && apptSt === 2) {
+					return '已取消';
+				}
+				if (t === 2 && apptSt === 1 && st !== 2 && st !== 4 && st !== 10) {
+					return '待到店';
+				}
+				if (this.info.trade_status_name) return this.info.trade_status_name;
 				let map;
 				if (ot === 3) {
 					map = { 0: '待支付', 1: '待接单', 2: '备餐中', 3: '配送中', 4: '已送达', 10: '已完成', '-1': '已关闭' };
@@ -428,6 +446,9 @@
 			},
 			//预约状态文案
 			apptStatusText() {
+				if (Number(this.info.order_status) === -1) {
+					return Number(this.info.appointment_status) === 2 ? '已取消' : '已关闭';
+				}
 				const map = { 0: '待付款', 1: '已预约', 2: '已取消', 3: '已过期', 4: '已完成' };
 				return map[Number(this.info.appointment_status)] || '已预约';
 			},
@@ -442,6 +463,7 @@
 				if (!this.isStoreTrade) return false;
 				if (this.isOrderVerified) return false;
 				if (this.info.order_status == -1) return false;
+				if (Number(this.info.trade_type || 0) === 2 && Number(this.info.appointment_status) === 2) return false;
 				if (this.info.order_status == 0 && this.info.pay_status == 0) return false;
 				return this.info.order_status == 1 || this.info.order_status == 2 || this.info.pay_status == 1;
 			},
@@ -449,7 +471,9 @@
 				return this.verifyCode || this.info.delivery_code || this.info.order_no || '';
 			},
 			bgcolor() {
-				if (this.info.order_status == 0) {
+				if (this.info.order_status == -1 || (this.info.trade_type == 2 && this.info.appointment_status == 2)) {
+					return '#F7F7F7';
+				} else if (this.info.order_status == 0) {
 					return '#FFF0EB'
 				} else if (this.info.order_status == 1) {
 					return '#EAFEF1'
@@ -490,8 +514,8 @@
 					}
 				});
 			},
-			//申请退款
-			goRefund() {
+			//申请整单退款
+			applyOrderRefund() {
 				this.$util.redirectTo('/otherpages/refund/refund', { id: this.id });
 			},
 			//确认收货（快递邮寄/外卖配送）

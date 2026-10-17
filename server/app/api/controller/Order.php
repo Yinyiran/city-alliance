@@ -60,11 +60,13 @@ class Order extends BaseApi
                 break;
             case "waitstock"://待提货
                 $condition[] = ["order_status", "in", [2]];
+                $condition[] = ["appointment_status", "<>", 2];
                 break;
             case "waitappointment"://待到店（到店自提/到店消费/预约到店未核销）
                 $condition[] = [ "order_status", "in", [ 1, 2 ] ];
                 $condition[] = [ "trade_type", "in", [ 0, 1, 2 ] ];
                 $condition[] = [ "delivery_status", "=", 0 ];
+                $condition[] = [ "appointment_status", "<>", 2 ];
                 break;
             case "waitexpress"://外卖配送中
                 $condition[] = [ "order_type", "=", 3 ];
@@ -234,6 +236,13 @@ class Order extends BaseApi
 
         //未支付直接关闭订单并释放名额
         if ($order_info[ 'pay_status' ] == 0) {
+            $appointment_model = new Appointment();
+            $appointment_model->release($order_id, Appointment::STATUS_CANCEL);
+            model('order')->update([
+                'appointment_status' => 2,
+                'modify_time' => time(),
+            ], [ [ 'order_id', '=', $order_id ] ]);
+
             $order_model = new OrderModel();
             return $this->response($order_model->orderClose([
                 [ 'order_id', '=', $order_id ],
@@ -241,7 +250,7 @@ class Order extends BaseApi
             ]));
         }
 
-        //已支付：取消预约并退款（按订单退款流程处理）
+        //已支付：取消预约，释放名额，尝试原路退款并彻底关闭订单
         $appointment_model = new Appointment();
         $appointment_model->release($order_id, Appointment::STATUS_CANCEL);
         model('order')->update([
@@ -249,7 +258,30 @@ class Order extends BaseApi
             'modify_time' => time(),
         ], [ [ 'order_id', '=', $order_id ] ]);
 
-        return $this->response($this->success([ 'order_id' => $order_id ], '预约已取消，如需退款请在订单中申请')); 
+        $order_refund_model = new OrderRefundModel();
+        $order_refund_model->activeRefund($order_id, '用户取消预约', '用户取消预约');
+
+        //确保订单状态变为已关闭（-1）
+        $curr_order = model('order')->getInfo([ [ 'order_id', '=', $order_id ] ], 'order_status');
+        if (!empty($curr_order) && $curr_order['order_status'] != -1) {
+            $order_model = new OrderModel();
+            $close_res = $order_model->orderClose([
+                [ 'order_id', '=', $order_id ],
+                [ 'member_id', '=', $this->member_id ],
+            ]);
+            if ($close_res['code'] < 0) {
+                model('order')->update([
+                    'order_status' => OrderCommon::ORDER_CLOSE,
+                    'order_status_name' => '已关闭',
+                    'order_status_action' => json_encode(['action' => []], JSON_UNESCAPED_UNICODE),
+                    'close_time' => time(),
+                    'is_lock' => 0,
+                    'is_enable_refund' => 0
+                ], [ [ 'order_id', '=', $order_id ] ]);
+            }
+        }
+
+        return $this->response($this->success([ 'order_id' => $order_id ], '预约已取消')); 
     }
 
     /**
@@ -288,6 +320,7 @@ class Order extends BaseApi
                     break;
                 case "waitstock"://待核销
                     $condition[] = [ "order_status", "in", [ 2 ] ];
+                    $condition[] = [ "appointment_status", "<>", 2 ];
                     break;
             }
             if ($order_status == 'refunding') {
