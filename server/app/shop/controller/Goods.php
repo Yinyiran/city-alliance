@@ -266,7 +266,9 @@ class Goods extends BaseShop
             $res = $goods_model->addGoods($data);
             //保存预约时段规则
             if ($res[ 'code' ] == 0 && !empty($data[ 'trade_type' ]) && $data[ 'trade_type' ] == 2) {
-                $rules = json_decode(input("appointment_rules", "[]"), true);
+                $raw_rules = input("appointment_rules", "[]");
+                $rules = is_array($raw_rules) ? $raw_rules : json_decode($raw_rules, true);
+                if (!is_array($rules)) $rules = [];
                 $appointment_model = new AppointmentModel();
                 $rule_res = $appointment_model->saveRules($res[ 'data' ], $rules, [
                     'site_id' => $this->site_id,
@@ -405,7 +407,9 @@ class Goods extends BaseShop
             $res = $goods_model->editGoods($data);
             //保存预约时段规则
             if ($res[ 'code' ] == 0 && ($data[ 'trade_type' ] ?? 0) == 2) {
-                $rules = json_decode(input("appointment_rules", "[]"), true);
+                $raw_rules = input("appointment_rules", "[]");
+                $rules = is_array($raw_rules) ? $raw_rules : json_decode($raw_rules, true);
+                if (!is_array($rules)) $rules = [];
                 $appointment_model = new AppointmentModel();
                 $rule_res = $appointment_model->saveRules($data[ 'goods_id' ], $rules, [
                     'site_id' => $this->site_id,

@@ -41,7 +41,11 @@ class Appointment extends BaseModel
             foreach ($rules as $idx => $rule) {
                 $no = intval($idx) + 1;
                 if (empty($rule[ 'store_id' ])) return $this->error([], '第 ' . $no . ' 条预约规则未选择门店');
-                $week_days = trim((string)($rule[ 'week_days' ] ?? ''));
+                $week_days = $rule[ 'week_days' ] ?? '';
+                if (is_array($week_days)) {
+                    $week_days = implode(',', $week_days);
+                }
+                $week_days = trim((string)$week_days);
                 if ($week_days === '') return $this->error([], '第 ' . $no . ' 条预约规则未选择可预约星期');
                 $start_time = $this->toTimeStr($rule[ 'start_time' ] ?? '09:00');
                 $end_time = $this->toTimeStr($rule[ 'end_time' ] ?? '18:00');
@@ -628,7 +632,8 @@ class Appointment extends BaseModel
      */
     public function toTimeStr($time)
     {
-        $time = trim($time);
+        if (is_array($time)) return '09:00:00';
+        $time = trim((string)$time);
         if (empty($time)) return '09:00:00';
         $parts = explode(':', $time);
         if (count($parts) >= 2) {
