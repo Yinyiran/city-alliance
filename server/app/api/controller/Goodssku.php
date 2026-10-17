@@ -547,17 +547,19 @@ class Goodssku extends BaseApi
         $min_point = $this->params[ 'min_point' ] ?? ''; //积分区间，小
         $max_point = $this->params[ 'max_point' ] ?? ''; //积分区间，大
         $site_id = $this->params[ 'site_id' ] ?? '';
+        $store_id = intval($this->params[ 'store_id' ] ?? 0);
         if (!$goods_type) $goods_type = '0';
         if (!$platform) $platform = '0';
-        $store_model = new StoreModel();
+
         $condition = [
-            ['status', '=', 1],
-            ['is_frozen', '=', 0],
-            ['is_pickup', '=', 1],
+            [ 's.shop_status', '=', 1 ],
+            [ 'gs.goods_state', '=', 1 ],
+            [ 'gs.verify_state', '=', 1 ],
+            [ 'gs.is_delete', '=', 0 ],
+            [ 'g.is_delete', '=', 0 ],
         ];
 
         if (!empty($website_id) && $platform == 0) {
-
             $condition[] = [ 'gs.website_id', '=', $website_id ];
         }
 
@@ -623,58 +625,64 @@ class Goodssku extends BaseApi
 
         // 非法参数进行过滤
         if ($sort != "desc" && $sort != "asc") {
-            $sort = "";
+            $sort = "desc";
         }
 
-        // 非法参数进行过滤
-        $order_distance = 0;
-        if ($order != '') {
-            if ($order == 'distance') {
-                $order_distance = 1;
-            }
-            if ($order != "sale_num" && $order != "discount_price") {
-                $order = 'gs.sort';
-            } else {
-                $order = 'gs.' . $order;
-            }
-            $order_by = $order . ' ' . $sort;
-        } else {
-            $order_by = 'gs.sort desc,gs.create_time desc';
-        }
+        $order_distance = ($order === 'distance');
 
-
-
-        $condition[] = [ 'gs.goods_state', '=', 1 ];
-        $condition[] = [ 'gs.verify_state', '=', 1 ];
-        $condition[] = [ 'gs.is_delete', '=', 0 ];
-
-        $latlng = array(
-            'lat' => $latitude ?: null,
-            'lng' => $longitude ?: null,
-        );
+        $alias = 'gs';
+        $join = [
+            [ 'goods g', 'gs.sku_id = g.sku_id', 'inner' ],
+            [ 'shop s', 's.site_id = gs.site_id', 'inner' ],
+        ];
 
         $field = 'gs.goods_id,gs.sku_id,gs.sku_name,gs.price,gs.market_price,gs.discount_price,gs.stock,
         gs.sale_num,gs.sku_image,gs.goods_name,gs.site_id,gs.website_id,gs.is_own,gs.is_free_shipping,
         gs.introduction,gs.promotion_type,gs.create_time,gs.goods_state,gs.goods_class,gs.goods_class_name,
         gs.max_buy,gs.min_buy,g.goods_image,g.site_name,gs.goods_spec_format,gs.is_virtual,gs.recommend_way,
-        shop.site_name,shop.logo,gs.click_num,gs.point,gs.trade_type,gs.service_duration,g.allow_custom_amount,g.min_order_amount,g.max_order_amount';
+        s.site_name,s.logo,gs.click_num,gs.point,gs.trade_type,gs.service_duration,g.allow_custom_amount,g.min_order_amount,g.max_order_amount';
 
-        $store_res = $store_model->getStoreOrder($condition, $field, $latlng); //距离排序order
-        $condition = $store_res['condition'];
-        $field = $store_res['field'];
+        $lat = ($latitude !== null && $latitude !== '') ? floatval($latitude) : null;
+        $lng = ($longitude !== null && $longitude !== '') ? floatval($longitude) : null;
 
-        if ($order_distance) { //按照距离排序
-            $order_by = $store_res['order'];
+        if ($lat !== null && $lng !== null) {
+            if ($store_id > 0) {
+                $store_subquery = "SELECT site_id, 
+                    FORMAT(st_distance(point({$lng}, {$lat}), point(longitude, latitude)) * 111195 / 1000, 2) as distance,
+                    st_distance(point({$lng}, {$lat}), point(longitude, latitude)) * 111195 / 1000 as distance_val
+                    FROM store WHERE store_id = {$store_id}";
+            } else {
+                $store_subquery = "SELECT site_id, 
+                    FORMAT(MIN(st_distance(point({$lng}, {$lat}), point(longitude, latitude)) * 111195 / 1000), 2) as distance,
+                    MIN(st_distance(point({$lng}, {$lat}), point(longitude, latitude)) * 111195 / 1000) as distance_val
+                    FROM store WHERE status = 1 AND is_frozen = 0 AND is_pickup = 1 GROUP BY site_id";
+            }
+            $join[] = [ Db::raw('(' . $store_subquery . ') st'), 'st.site_id = gs.site_id', 'left' ];
+            $field .= ',IFNULL(st.distance, 0) as distance';
+
+            if ($order_distance) {
+                $order_by = Db::raw('IF(st.distance_val IS NULL, 1, 0) ASC, st.distance_val ASC, gs.sort DESC, gs.create_time DESC');
+            } else {
+                if ($order != "sale_num" && $order != "discount_price") {
+                    $order = 'gs.sort';
+                } else {
+                    $order = 'gs.' . $order;
+                }
+                $order_by = $order . ' ' . $sort . ', gs.create_time desc';
+            }
+        } else {
+            $field .= ',0 as distance';
+            if ($order != "sale_num" && $order != "discount_price") {
+                $order = 'gs.sort';
+            } else {
+                $order = 'gs.' . $order;
+            }
+            $order_by = $order . ' ' . $sort . ', gs.create_time desc';
         }
-        $alias = 's';
-        $join = [
-            ['shop', 's.site_id = shop.site_id', 'inner'],
-            ['goods_sku gs', 's.site_id = gs.site_id', 'inner'],
-            [ 'goods g', 'gs.sku_id = g.sku_id', 'inner' ],
-        ];
-        $list = model('store')->pageList($condition, $field, $order_by, $page, $page_size, $alias, $join);
 
         $goods = new GoodsModel();
+        $list = $goods->getGoodsSkuPageList($condition, $page, $page_size, $order_by, $field, $alias, $join);
+
         $token = $this->checkToken();
         if ($token['code'] >= 0) {
             if (!empty($list['data']['list'])) {
@@ -682,7 +690,7 @@ class Goodssku extends BaseApi
 
                     // 是否参与会员等级折扣
                     $goods_member_price = $goods->getGoodsPrice($v['sku_id'], $this->member_id);
-                    $goods_member_price = $goods_member_price['data'];
+                    $goods_member_price = $goods_member_price['data'] ?? [];
                     if (!empty($goods_member_price['member_price'])) {
                         $list['data']['list'][$k]['member_price'] = $goods_member_price['member_price'];
                     }
@@ -693,6 +701,6 @@ class Goodssku extends BaseApi
                 }
             }
         }
-        return $this->response($this->success($list));
+        return $this->response($list);
     }
 }

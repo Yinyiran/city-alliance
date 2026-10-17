@@ -60,14 +60,14 @@
 						</view>
 				</view> -->
 				<view class="btns acea-row row-middle row-right">
-					<view class="btn1" v-if="item.order_status==0" @click="orderClose(item.order_id)">取消订单</view>
-					<view class="btn2" v-if="item.order_status==0" @click="goPay(item)">立即支付</view>
-					<view class="btn1" v-if="item.trade_type==2 && item.appointment_status==1" @click="cancelAppointment(item)">取消预约</view>
-					<view class="btn3" v-if="item.order_status==1" @click="goRefund(item)">申请退款</view>
-					<view class="btn5" v-if="isVerifyOrder(item)" @click="goDetail(item)">去核销</view>
-					<view class="btn3" v-if="canConfirmReceipt(item)" @click="confirmReceipt(item)">确认收货</view>
-					<view class="btn1" v-if="item.order_status==2" @click="goRefund(item)">申请售后</view>
-					<view class="btn4" v-if="item.order_status==10" @click="againBuy(item)">再次购买</view>
+					<view class="btn1" v-if="item.order_status==0" @click.stop="orderClose(item.order_id)">取消订单</view>
+					<view class="btn2" v-if="item.order_status==0" @click.stop="goPay(item)">立即支付</view>
+					<view class="btn1" v-if="item.trade_type==2 && item.appointment_status==1" @click.stop="cancelAppointment(item)">取消预约</view>
+					<view class="btn3" v-if="item.order_status==1" @click.stop="goRefund(item)">申请退款</view>
+					<view class="btn5" v-if="isVerifyOrder(item)" @click.stop="goDetail(item)">去核销</view>
+					<view class="btn3" v-if="canConfirmReceipt(item)" @click.stop="confirmReceipt(item)">确认收货</view>
+					<view class="btn1" v-if="item.order_status==2" @click.stop="goRefund(item)">申请售后</view>
+					<view class="btn4" v-if="item.order_status==10" @click.stop="againBuy(item)">再次购买</view>
 				</view>
 			</view>
 			<view v-if="!loading&&!list.length" class="empty-wrap">
@@ -200,7 +200,31 @@
 				this.$util.redirectTo('/otherpages/orderDetail/orderDetail',{id:item.order_id});
 			},
 			goPay(item){
-				this.$util.redirectTo('/otherpages/orderDetail/orderDetail',{id:item.order_id});
+				if (item.out_trade_no) {
+					huifupay({ out_trade_no: item.out_trade_no }).then(resA => {
+						if (resA.code == 0) {
+							uni.requestPayment({
+								provider: 'wxpay',
+								timeStamp: resA.data.timeStamp,
+								nonceStr: resA.data.nonceStr,
+								package: resA.data.package,
+								signType: resA.data.signType,
+								paySign: resA.data.paySign,
+								success: () => {
+									this.page = 1;
+									this.getlist();
+								},
+								fail: () => {}
+							});
+						} else {
+							uni.showToast({ title: resA.message || '发起支付失败', icon: 'none' });
+						}
+					}).catch(() => {
+						this.$util.redirectTo('/otherpages/orderDetail/orderDetail', { id: item.order_id });
+					});
+				} else {
+					this.$util.redirectTo('/otherpages/orderDetail/orderDetail', { id: item.order_id });
+				}
 			},
 			goRefund(item){
 				this.$util.redirectTo('/otherpages/orderDetail/orderDetail',{id:item.order_id});

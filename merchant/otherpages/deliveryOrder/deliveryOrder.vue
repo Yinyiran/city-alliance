@@ -51,7 +51,7 @@
 						</view>
 				</view> -->
 				<view class="btns acea-row row-middle row-right">
-					<view class="btn2" @click="gonext(item.delivery_code)">核销</view>
+					<view class="btn2" @click.stop="gonext(item.delivery_code)">核销</view>
 				</view>
 			</view>
 		</view>
