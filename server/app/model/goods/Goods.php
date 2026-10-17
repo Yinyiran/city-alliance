@@ -588,8 +588,8 @@ public function addSignrewardGoods($data)
 
                 'goods_shop_category_ids' => $data[ 'goods_shop_category_ids' ] ?? '',
                 'supplier_id' => $data[ 'supplier_id' ] ?? 0,
-                //交易类型 0到店自提 1到店消费 2预约到店 3快递邮寄 4外卖配送（goods 与 goods_sku 表均存在）
-                'trade_type' => $data[ 'trade_type' ] ?? 0,
+                //交易类型 0到店自提 1到店消费 2预约到店 3快递邮寄 4外卖配送（平台福利商品全部为快递商品3）
+                'trade_type' => !empty($data['is_admin']) ? 3 : ($data['trade_type'] ?? 3),
                 'service_duration' => $data[ 'service_duration' ] ?? 0,
 
             );
@@ -1057,8 +1057,8 @@ public function addSignrewardGoods($data)
                 'verify_state' => $verify_state,
                 'goods_shop_category_ids' => $data[ 'goods_shop_category_ids' ] ?? '',
                 'supplier_id' => $data[ 'supplier_id' ] ?? 0,
-                //交易类型 0到店自提 1到店消费 2预约到店 3快递邮寄 4外卖配送（goods 与 goods_sku 表均存在）
-                'trade_type' => $data[ 'trade_type' ] ?? 0,
+                //交易类型 0到店自提 1到店消费 2预约到店 3快递邮寄 4外卖配送（平台福利商品全部为快递商品3）
+                'trade_type' => !empty($data['is_admin']) ? 3 : ($data['trade_type'] ?? 3),
                 'service_duration' => $data[ 'service_duration' ] ?? 0,
                 'site_name' => $shop_info[ 'site_name' ],
                 'website_id' => $shop_info[ 'website_id' ],

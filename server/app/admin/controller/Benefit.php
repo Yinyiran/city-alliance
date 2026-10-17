@@ -234,6 +234,7 @@ class Benefit extends BaseAdmin
                 'supplier_id' => input("supplier_id", 0),//供应商id
                 'point' => input("point", 0),// 商品积分（取第一个sku）
                 'is_admin' => 1,
+                'trade_type' => 3, // 平台福利商品全部为快递商品(3)
             ];
 
             $goods_model = new GoodsModel();
@@ -354,6 +355,7 @@ class Benefit extends BaseAdmin
                 'supplier_id' => input("supplier_id", 0),//供应商id
                 'point' => input("point", 0),// 商品积分（取第一个sku）
                 'is_admin' => 1,
+                'trade_type' => 3, // 平台福利商品全部为快递商品(3)
             ];
 
             $res = $goods_model->editBenefitGoods($data);
