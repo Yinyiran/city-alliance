@@ -485,4 +485,26 @@ class Model
         }
         return $result;
     }
+
+    /**
+     * 获取数据表字段名列表
+     * @return array
+     */
+    final public function getFields()
+    {
+        return $this->getTableFields();
+    }
+
+    /**
+     * 获取数据表字段名列表
+     * @return array
+     */
+    final public function getTableFields()
+    {
+        try {
+            return Db::name($this->table)->getTableFields();
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
 }

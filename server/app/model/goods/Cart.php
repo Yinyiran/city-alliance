@@ -53,7 +53,12 @@ class Cart extends BaseModel
     {
         static $exists = null;
         if ( $exists === null ) {
-            $exists = in_array( 'store_id', model( 'goods_cart' )->getFields(), true );
+            try {
+                $fields = model( 'goods_cart' )->getFields();
+                $exists = is_array( $fields ) && in_array( 'store_id', $fields, true );
+            } catch ( \Throwable $e ) {
+                $exists = false;
+            }
         }
         return $exists;
     }

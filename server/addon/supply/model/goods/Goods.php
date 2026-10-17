@@ -678,7 +678,12 @@ class Goods extends BaseModel
     {
         static $exists = null;
         if ($exists === null) {
-            $exists = in_array('trade_type', model('supply_goods')->getFields(), true);
+            try {
+                $fields = model('supply_goods')->getFields();
+                $exists = is_array($fields) && in_array('trade_type', $fields, true);
+            } catch (\Throwable $e) {
+                $exists = false;
+            }
         }
         return $exists;
     }

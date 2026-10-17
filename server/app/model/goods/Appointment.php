@@ -135,8 +135,13 @@ class Appointment extends BaseModel
 
         static $fields = null;
         if ($fields === null) {
-            $fields = model('goods')->getFields();
+            try {
+                $fields = model('goods')->getFields();
+            } catch (\Throwable $e) {
+                $fields = [];
+            }
         }
+        $fields = is_array($fields) ? $fields : [];
         $want = [];
         if (in_array('appointment_days', $fields, true)) $want[] = 'appointment_days';
         if (in_array('appointment_grace_minutes', $fields, true)) $want[] = 'appointment_grace_minutes';
