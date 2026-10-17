@@ -8,6 +8,13 @@ layui.use(['form'], function () {
     var RULES = window.__APPOINTMENT_RULES__;
     var STORE_LIST = window.__STORE_LIST__;
 
+    if (typeof STORE_LIST === 'string') {
+        try { STORE_LIST = JSON.parse(STORE_LIST); } catch (e) {}
+    }
+    if (typeof RULES === 'string') {
+        try { RULES = JSON.parse(RULES); } catch (e) {}
+    }
+
     if (!Array.isArray(STORE_LIST) || !STORE_LIST.length) {
         try {
             var sData = $('#js_store_list_data').val();
@@ -168,8 +175,17 @@ layui.use(['form'], function () {
         $('.js-rule-store').each(function () {
             var index = $(this).data('index');
             if (!RULES[index]) return;
-            RULES[index].store_id = $(this).val();
+            var val = $(this).val();
+            if (!val) {
+                var layVal = $(this).siblings('.layui-form-select').find('dl dd.layui-this').attr('lay-value');
+                if (layVal) val = layVal;
+            }
+            RULES[index].store_id = val || '';
             var text = $(this).find('option:selected').text();
+            if (!text || text === '请选择门店') {
+                var layText = $(this).siblings('.layui-form-select').find('dl dd.layui-this').text();
+                if (layText) text = layText;
+            }
             RULES[index].store_name = (text == '请选择门店') ? '' : text.replace(/\s*\(.*?\)$/, '');
         });
         $('.js-rule-start').each(function () {
@@ -207,11 +223,12 @@ layui.use(['form'], function () {
 
     //规则合法性提示：避免商户保存出「无法被预约」的规则
     function checkRules() {
+        saveRules();
         var enabledCount = 0;
         for (var i = 0; i < RULES.length; i++) {
             var r = RULES[i];
             if (Number(r.status) !== 0) enabledCount++;
-            if (!r.store_id) return '第 ' + (i + 1) + ' 条规则未选择门店';
+            if (!r.store_id || String(r.store_id) === '0' || String(r.store_id) === '') return '第 ' + (i + 1) + ' 条规则未选择门店';
             if (!r.week_days || !r.week_days.length) return '第 ' + (i + 1) + ' 条规则未选择可预约星期';
             if (!r.start_time || !r.end_time) return '第 ' + (i + 1) + ' 条规则未填写时间段';
 
@@ -284,11 +301,15 @@ layui.use(['form'], function () {
     $(document).on('change', '.js-week', saveRules);
     $(document).on('change keyup', '.js-rule-start,.js-rule-end,.js-rule-interval,.js-rule-max,.js-rule-duration,.js-rule-stop', saveRules);
     $(document).on('change', '.js-rule-status', saveRules);
-    $(document).on('change', '.js-rule-store', function () {
-        var idx = $(this).data('index');
-        var storeId = $(this).val();
-        if (RULES[idx]) {
+    // 监听 Layui select 门店切换
+    form.on('select(rule_store)', function (data) {
+        var elem = $(data.elem);
+        var idx = elem.data('index');
+        var storeId = data.value;
+        if (typeof idx !== 'undefined' && RULES[idx]) {
             RULES[idx].store_id = storeId;
+            var text = elem.find('option[value="' + storeId + '"]').text() || elem.find('option:selected').text() || '';
+            RULES[idx].store_name = (text == '请选择门店') ? '' : text.replace(/\s*\(.*?\)$/, '');
             var hours = getStoreOpenHours(storeId);
             if (hours) {
                 var curS = parseTimeStr(RULES[idx].start_time);
@@ -300,8 +321,48 @@ layui.use(['form'], function () {
                     RULES[idx].end_time = hours.end + ':00';
                 }
             }
+            var tr = elem.closest('tr');
+            tr.find('td:eq(2) .ns-word-aux').remove();
+            tr.find('td:eq(2)').append(getStoreHoursTip(storeId));
+            if (RULES[idx].start_time) {
+                tr.find('.js-rule-start').val(timeVal(RULES[idx].start_time, '09:00'));
+            }
+            if (RULES[idx].end_time) {
+                tr.find('.js-rule-end').val(timeVal(RULES[idx].end_time, '18:00'));
+            }
         }
-        renderRules();
+        saveRules();
+    });
+
+    $(document).on('change', '.js-rule-store', function () {
+        var idx = $(this).data('index');
+        var storeId = $(this).val();
+        if (typeof idx !== 'undefined' && RULES[idx]) {
+            RULES[idx].store_id = storeId;
+            var text = $(this).find('option[value="' + storeId + '"]').text() || $(this).find('option:selected').text() || '';
+            RULES[idx].store_name = (text == '请选择门店') ? '' : text.replace(/\s*\(.*?\)$/, '');
+            var hours = getStoreOpenHours(storeId);
+            if (hours) {
+                var curS = parseTimeStr(RULES[idx].start_time);
+                var curE = parseTimeStr(RULES[idx].end_time);
+                if (!curS || curS < hours.start || curS >= hours.end) {
+                    RULES[idx].start_time = hours.start + ':00';
+                }
+                if (!curE || curE > hours.end || curE <= hours.start) {
+                    RULES[idx].end_time = hours.end + ':00';
+                }
+            }
+            var tr = $(this).closest('tr');
+            tr.find('td:eq(2) .ns-word-aux').remove();
+            tr.find('td:eq(2)').append(getStoreHoursTip(storeId));
+            if (RULES[idx].start_time) {
+                tr.find('.js-rule-start').val(timeVal(RULES[idx].start_time, '09:00'));
+            }
+            if (RULES[idx].end_time) {
+                tr.find('.js-rule-end').val(timeVal(RULES[idx].end_time, '18:00'));
+            }
+        }
+        saveRules();
     });
 
     //初始化
