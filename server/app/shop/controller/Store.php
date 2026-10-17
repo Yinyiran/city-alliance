@@ -70,6 +70,20 @@ class Store extends BaseShop
     }
 
     /**
+     * 门店账号查重
+     * @return array
+     */
+    public function checkUsername()
+    {
+        if (request()->isAjax()) {
+            $username = trim(input('username', ''));
+            $store_id = input('store_id', 0);
+            $store_model = new StoreModel();
+            return $store_model->checkUsername($username, $store_id, $this->site_id);
+        }
+    }
+
+    /**
      * 添加门店
      * @return mixed
      */
@@ -209,7 +223,11 @@ class Store extends BaseShop
                 "is_o2o" => $is_o2o,
                 "open_date" => $open_date,
             );
-            $result = $store_model->editStore($data, $condition);
+            $user_data = [
+                'username' => input('username', ''),
+                'password' => input('password', ''),
+            ];
+            $result = $store_model->editStore($data, $condition, $user_data);
             return $result;
         } else {
             //查询省级数据列表

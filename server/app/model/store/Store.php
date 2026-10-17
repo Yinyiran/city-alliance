@@ -17,6 +17,73 @@ class Store extends BaseModel
 {
 
     /**
+     * 检查门店账号是否可用（查重）
+     * @param string $username
+     * @param int $store_id
+     * @param int $site_id
+     * @return array
+     */
+    public function checkUsername($username, $store_id = 0, $site_id = 0)
+    {
+        $username = trim($username);
+        if (empty($username)) {
+            return $this->error('', '请输入门店账号');
+        }
+        if (!preg_match('/^[a-zA-Z0-9_\x{4e00}-\x{9fa5}]{2,30}$/u', $username)) {
+            return $this->error('', '账号由2-30位字母、数字、下划线或中文组成');
+        }
+
+        // 1. 检查 user 表中是否有相同 username 且 app_module 为 store
+        $user_condition = [
+            [ 'username', '=', $username ],
+            [ 'app_module', '=', 'store' ]
+        ];
+        if ($store_id > 0) {
+            $user_condition[] = [ 'site_id', '<>', $store_id ];
+        }
+        $user_count = model('user')->getCount($user_condition);
+        if ($user_count > 0) {
+            return $this->error('', '该门店账号已存在，请更换其他账号');
+        }
+
+        // 2. 检查 store 表中是否有相同 username
+        $store_condition = [
+            [ 'username', '=', $username ]
+        ];
+        if ($store_id > 0) {
+            $store_condition[] = [ 'store_id', '<>', $store_id ];
+        }
+        $store_count = model('store')->getCount($store_condition);
+        if ($store_count > 0) {
+            return $this->error('', '该门店账号已存在，请更换其他账号');
+        }
+
+        // 3. 检查 user 表中系统核心保留账号（admin、city、supply等）
+        $system_user_count = model('user')->getCount([
+            [ 'username', '=', $username ],
+            [ 'app_module', 'in', ['admin', 'city', 'supply'] ]
+        ]);
+        if ($system_user_count > 0) {
+            return $this->error('', '该账号为系统保留账号或已被占用，请更换其他账号');
+        }
+
+        // 4. 检查是否与其他商家的店铺账号重名
+        $other_shop_condition = [
+            [ 'username', '=', $username ],
+            [ 'app_module', '=', 'shop' ]
+        ];
+        if ($site_id > 0) {
+            $other_shop_condition[] = [ 'site_id', '<>', $site_id ];
+        }
+        $other_shop_count = model('user')->getCount($other_shop_condition);
+        if ($other_shop_count > 0) {
+            return $this->error('', '该账号已被其他商家占用，请更换其他账号');
+        }
+
+        return $this->success([], '该账号可以使用');
+    }
+
+    /**
      * 添加门店
      * @param unknown $data
      */
@@ -26,6 +93,23 @@ class Store extends BaseModel
         if ($site_id === '') {
             return $this->error('', 'REQUEST_SITE_ID');
         }
+
+        // 提前校验门店账号查重与密码
+        if ($is_store == 1) {
+            $username = trim($user_data['username'] ?? '');
+            if (empty($username)) {
+                return $this->error('', '请输入门店账号');
+            }
+            if (empty($user_data['password'])) {
+                return $this->error('', '请输入门店密码');
+            }
+            $check_res = $this->checkUsername($username, 0, $site_id);
+            if ($check_res['code'] < 0) {
+                return $check_res;
+            }
+            $user_data['username'] = $username;
+        }
+
         $data[ 'create_time' ] = time();
 
         $shop_model = new Shop();
@@ -36,7 +120,7 @@ class Store extends BaseModel
 
         try {
             if ($is_store == 1) {
-                $data[ 'username' ] = $is_store == 1 ? $user_data[ 'username' ] : '';
+                $data[ 'username' ] = $user_data[ 'username' ];
                 $data[ 'store_id' ] = model("site")->add([ 'site_type' => 'store' ]);
                 $store_id = model('store')->add($data);
                 Cache::tag("store")->clear();
@@ -50,17 +134,6 @@ class Store extends BaseModel
                     'create_time' => time()
                 ];
                 $group_id = $group->addGroup($group_data)[ 'data' ];
-
-                //用户检测
-                if (empty($user_data[ 'username' ])) {
-                    model("store")->rollback();
-                    return $this->error('', 'USER_NOT_EXIST');
-                }
-                $user_count = model("user")->getCount([ [ 'username', '=', $user_data[ 'username' ] ], [ 'app_module', '=', 'store' ] ]);
-                if ($user_count > 0) {
-                    model("store")->rollback();
-                    return $this->error('', 'USERNAME_EXISTED');
-                }
 
                 //添加用户
                 $data_user = [
@@ -91,15 +164,85 @@ class Store extends BaseModel
     /**
      * 修改门店
      * @param unknown $data
+     * @param $condition
+     * @param array $user_data
      * @return multitype:string
      */
-    public function editStore($data, $condition)
+    public function editStore($data, $condition, $user_data = [])
     {
         $check_condition = array_column($condition, 2, 0);
         $site_id = isset($check_condition[ 'site_id' ]) ? $check_condition[ 'site_id' ] : '';
         if ($site_id === '') {
             return $this->error('', 'REQUEST_SITE_ID');
         }
+        $store_id = isset($check_condition[ 'store_id' ]) ? $check_condition[ 'store_id' ] : '';
+        if ($store_id === '') {
+            return $this->error('', 'REQUEST_STORE_ID');
+        }
+
+        $store_info = model('store')->getInfo([ [ 'store_id', '=', $store_id ], [ 'site_id', '=', $site_id ] ]);
+        if (empty($store_info)) {
+            return $this->error('', 'STORE_NOT_EXIST');
+        }
+
+        // 如果原有门店未设置账号，且传入了新账号，支持初始化创建门店账号
+        if (empty($store_info['username']) && !empty($user_data['username'])) {
+            $username = trim($user_data['username']);
+            $password = trim($user_data['password'] ?? '');
+            if (empty($password)) {
+                return $this->error('', '请输入门店密码');
+            }
+            $check_res = $this->checkUsername($username, $store_id, $site_id);
+            if ($check_res['code'] < 0) {
+                return $check_res;
+            }
+
+            model('store')->startTrans();
+            try {
+                // 确保用户组存在
+                $group_info = model('group')->getInfo([ [ 'site_id', '=', $store_id ], [ 'app_module', '=', 'store' ] ]);
+                if (empty($group_info)) {
+                    $group = new Group();
+                    $group_data = [
+                        'site_id' => $store_id,
+                        'app_module' => 'store',
+                        'group_name' => '管理员组',
+                        'is_system' => 1,
+                        'create_time' => time()
+                    ];
+                    $group_id = $group->addGroup($group_data)['data'];
+                } else {
+                    $group_id = $group_info['group_id'];
+                }
+
+                // 添加门店管理员用户
+                $data_user = [
+                    'app_module' => 'store',
+                    'app_group' => 0,
+                    'is_admin' => 1,
+                    'group_id' => $group_id,
+                    'group_name' => '管理员组',
+                    'site_id' => $store_id,
+                    'username' => $username,
+                    'password' => data_md5($password),
+                    'create_time' => time(),
+                    'status' => 1
+                ];
+                model('user')->add($data_user);
+
+                $data['username'] = $username;
+                $data['modify_time'] = time();
+                $res = model('store')->update($data, $condition);
+                Cache::tag("store")->clear();
+
+                model('store')->commit();
+                return $this->success($res);
+            } catch (\Exception $e) {
+                model('store')->rollback();
+                return $this->error('', $e->getMessage());
+            }
+        }
+
         $data[ "modify_time" ] = time();
         $res = model('store')->update($data, $condition);
         Cache::tag("store")->clear();
@@ -126,7 +269,7 @@ class Store extends BaseModel
         model('store')->startTrans();
         try {
             //删除站点
-            model('site')->delete([ [ 'app_module', '=', 'store' ], [ 'site_id', '=', $store_id ] ]);
+            model('site')->delete([ [ 'site_type', '=', 'store' ], [ 'site_id', '=', $store_id ] ]);
             //删除门店
             model('store')->delete($condition);
             Cache::tag("store")->clear();

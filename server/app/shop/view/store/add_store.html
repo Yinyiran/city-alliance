@@ -143,18 +143,18 @@
 	<div class="layui-form-item">
 		<label class="layui-form-label">营业时间：</label>
 		<div class="layui-input-block">
-			<input type="text" name="open_date" class="layui-input ns-len-long">
-
+			<input type="text" name="open_date" id="open_date" placeholder="请选择营业时间区间（如 09:00 - 18:00）" readonly autocomplete="off" class="layui-input ns-len-mid">
 		</div>
-		<div class="ns-word-aux ">例：上午9:00-12:00，下午2:00-6:00</div>
+		<div class="ns-word-aux">请选择门店每日营业时间区间，如 09:00 - 18:00（到店预约时间段须在此区间内）</div>
 	</div>
 
 	{if $is_exit == 1}
 	<div class="layui-form-item">
 		<label class="layui-form-label"><span class="required">*</span>门店账号：</label>
 		<div class="layui-input-block">
-			<input type="text" name="username" lay-verify="required" placeholder="请输入门店账号" autocomplete="off" class="layui-input ns-len-mid">
+			<input type="text" name="username" lay-verify="required|check_username" placeholder="请输入门店账号" autocomplete="off" class="layui-input ns-len-mid">
 		</div>
+		<div class="ns-word-aux username-tips">请输入2-30位门店账号，用于登录门店端后台（全平台账号唯一）</div>
 	</div>
 
 	<div class="layui-form-item">
@@ -182,11 +182,19 @@
 <script type="text/javascript" src="SHOP_JS/address.js"></script>
 <script type="text/javascript" src="STATIC_JS/map_address.js"></script>
 <script>
-	var form, repeat_flag, map_class;
+	var form, repeat_flag, map_class, laydate;
 
-	layui.use(['form'], function() {
+	layui.use(['form', 'laydate'], function() {
 		form = layui.form;
+		laydate = layui.laydate;
 		repeat_flag = false;//防重复标识
+
+		laydate.render({
+			elem: '#open_date',
+			type: 'time',
+			range: true,
+			format: 'HH:mm'
+		});
 
 		form.render();
 		
@@ -227,8 +235,61 @@
 				if(value == ""){
 					return '请输入门店名称';
 				}
+			},
+			check_username : function (value, item) {
+				if ('{$is_exit}' == '1') {
+					if (!value.trim()) {
+						return '请输入门店账号';
+					}
+					if (username_status === -1) {
+						return $('.username-tips').text() || '该门店账号已存在，请更换其他账号';
+					}
+				}
 			}
         });
+
+		var username_status = 0; // 0 未检测, 1 可用, -1 已存在或格式错误
+		var is_checking_username = false;
+
+		function checkUsernameAjax(username, callback) {
+			username = $.trim(username);
+			if (!username) {
+				username_status = 0;
+				$('.username-tips').html('请输入2-30位门店账号，用于登录门店端后台（全平台账号唯一）');
+				$('input[name="username"]').removeClass('layui-form-danger');
+				if (callback) callback(false);
+				return;
+			}
+			is_checking_username = true;
+			$.ajax({
+				type: "POST",
+				dataType: 'JSON',
+				url: ns.url("shop/store/checkUsername"),
+				data: { username: username },
+				success: function(res) {
+					is_checking_username = false;
+					if (res.code == 0) {
+						username_status = 1;
+						$('.username-tips').html('<span style="color: #5FB878;"><i class="layui-icon layui-icon-ok"></i> ' + (res.message || '该账号可以使用') + '</span>');
+						$('input[name="username"]').removeClass('layui-form-danger');
+						if (callback) callback(true);
+					} else {
+						username_status = -1;
+						$('.username-tips').html('<span style="color: #FF5722;"><i class="layui-icon layui-icon-close"></i> ' + res.message + '</span>');
+						$('input[name="username"]').addClass('layui-form-danger');
+						if (callback) callback(false);
+					}
+				},
+				error: function() {
+					is_checking_username = false;
+					if (callback) callback(false);
+				}
+			});
+		}
+
+		$('input[name="username"]').on('blur', function() {
+			checkUsernameAjax($(this).val());
+		});
 
 		// 门店LOGO
 		var store_upload = new Upload({
@@ -245,6 +306,38 @@
             }else{
                 $(".empty-address").hide();
             }
+
+			if ('{$is_exit}' == '1' && data.field.username) {
+				if (username_status === -1) {
+					layer.msg($('.username-tips').text() || '该门店账号已存在，请更换其他账号');
+					$('input[name="username"]').addClass('layui-form-danger').focus();
+					return false;
+				}
+				if (username_status === 0) {
+					var valid = true;
+					$.ajax({
+						type: "POST",
+						dataType: 'JSON',
+						url: ns.url("shop/store/checkUsername"),
+						async: false,
+						data: { username: data.field.username },
+						success: function(res) {
+							if (res.code != 0) {
+								valid = false;
+								username_status = -1;
+								layer.msg(res.message);
+								$('.username-tips').html('<span style="color: #FF5722;"><i class="layui-icon layui-icon-close"></i> ' + res.message + '</span>');
+								$('input[name="username"]').addClass('layui-form-danger').focus();
+							} else {
+								username_status = 1;
+								$('.username-tips').html('<span style="color: #5FB878;"><i class="layui-icon layui-icon-ok"></i> ' + (res.message || '该账号可以使用') + '</span>');
+								$('input[name="username"]').removeClass('layui-form-danger');
+							}
+						}
+					});
+					if (!valid) return false;
+				}
+			}
            
             var full_address  = [];
             full_address.push($("select[name=province_id] option:selected").text());

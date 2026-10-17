@@ -133,18 +133,36 @@
 	<div class="layui-form-item">
 		<label class="layui-form-label">营业时间：</label>
 		<div class="layui-input-block">
-			<input type="text" name="open_date" value="{$info.open_date}" class="layui-input ns-len-long">
+			<input type="text" name="open_date" id="open_date" value="{$info.open_date}" placeholder="请选择营业时间区间（如 09:00 - 18:00）" readonly autocomplete="off" class="layui-input ns-len-mid">
 		</div>
-		<div class="ns-word-aux ">例：上午9:00-12:00，下午2:00-6:00</div>
+		<div class="ns-word-aux">请选择门店每日营业时间区间，如 09:00 - 18:00（到店预约时间段须在此区间内）</div>
 	</div>
 
 	{if $is_exit == 1}
+	{if !empty($info.username)}
 	<div class="layui-form-item">
 		<label class="layui-form-label">门店账号：</label>
 		<div class="layui-input-block">
 			<p class="ns-input-text">{$info.username}</p>
 		</div>
+		<div class="ns-word-aux">门店账号创建后不可修改</div>
 	</div>
+	{else/}
+	<div class="layui-form-item">
+		<label class="layui-form-label">门店账号：</label>
+		<div class="layui-input-block">
+			<input type="text" name="username" placeholder="请输入门店账号" autocomplete="off" class="layui-input ns-len-mid">
+		</div>
+		<div class="ns-word-aux username-tips">当前门店为店铺默认主门店，暂未分配独立门店账号。若需独立登录门店后台，可在此设置</div>
+	</div>
+	<div class="layui-form-item">
+		<label class="layui-form-label">门店密码：</label>
+		<div class="layui-input-block">
+			<input type="password" name="password" placeholder="请输入门店密码" autocomplete="off" class="layui-input ns-len-mid">
+		</div>
+		<div class="ns-word-aux">设置账号时必填</div>
+	</div>
+	{/if}
 	{/if}
 
 	<div class="ns-form-row">
@@ -164,12 +182,20 @@
 <script type="text/javascript" src="SHOP_JS/address.js"></script>
 <script type="text/javascript" src="STATIC_JS/map_address.js"></script>
 <script>
-	var form, repeat_flag, map_class;
+	var form, repeat_flag, map_class, laydate;
 
-	layui.use(['form'], function() {
+	layui.use(['form', 'laydate'], function() {
 		form = layui.form;
+		laydate = layui.laydate;
 		repeat_flag = false;//防重复标识
 		
+		laydate.render({
+			elem: '#open_date',
+			type: 'time',
+			range: true,
+			format: 'HH:mm'
+		});
+
 		form.render();
 		
 		var initdata = {province_id : '{$info.province_id}', city_id : '{$info.city_id}', district_id : '{$info.district_id}'};
@@ -214,6 +240,36 @@
 			}
 		});
 
+		var username_status = 0; // 0 未检测, 1 可用, -1 已存在或格式错误
+		if ($('input[name="username"]').length > 0) {
+			$('input[name="username"]').on('blur', function() {
+				var username = $.trim($(this).val());
+				if (!username) {
+					username_status = 0;
+					$('.username-tips').html('当前门店为店铺默认主门店，暂未分配独立门店账号。若需独立登录门店后台，可在此设置');
+					$('input[name="username"]').removeClass('layui-form-danger');
+					return;
+				}
+				$.ajax({
+					type: "POST",
+					dataType: 'JSON',
+					url: ns.url("shop/store/checkUsername"),
+					data: { username: username, store_id: '{$store_id}' },
+					success: function(res) {
+						if (res.code == 0) {
+							username_status = 1;
+							$('.username-tips').html('<span style="color: #5FB878;"><i class="layui-icon layui-icon-ok"></i> ' + (res.message || '该账号可以使用') + '</span>');
+							$('input[name="username"]').removeClass('layui-form-danger');
+						} else {
+							username_status = -1;
+							$('.username-tips').html('<span style="color: #FF5722;"><i class="layui-icon layui-icon-close"></i> ' + res.message + '</span>');
+							$('input[name="username"]').addClass('layui-form-danger');
+						}
+					}
+				});
+			});
+		}
+
 		// 门店LOGO
 		var store_upload = new Upload({
 			elem: '#storeUpload',
@@ -221,6 +277,43 @@
 		});
 
 		form.on('submit(save)', function(data){
+			if ($('input[name="username"]').length > 0 && data.field.username) {
+				if (!data.field.password) {
+					layer.msg('设置门店账号时，必须填写门店密码');
+					$('input[name="password"]').focus();
+					return false;
+				}
+				if (username_status === -1) {
+					layer.msg($('.username-tips').text() || '该门店账号已存在，请更换其他账号');
+					$('input[name="username"]').addClass('layui-form-danger').focus();
+					return false;
+				}
+				if (username_status === 0) {
+					var valid = true;
+					$.ajax({
+						type: "POST",
+						dataType: 'JSON',
+						url: ns.url("shop/store/checkUsername"),
+						async: false,
+						data: { username: data.field.username, store_id: '{$store_id}' },
+						success: function(res) {
+							if (res.code != 0) {
+								valid = false;
+								username_status = -1;
+								layer.msg(res.message);
+								$('.username-tips').html('<span style="color: #FF5722;"><i class="layui-icon layui-icon-close"></i> ' + res.message + '</span>');
+								$('input[name="username"]').addClass('layui-form-danger').focus();
+							} else {
+								username_status = 1;
+								$('.username-tips').html('<span style="color: #5FB878;"><i class="layui-icon layui-icon-ok"></i> ' + (res.message || '该账号可以使用') + '</span>');
+								$('input[name="username"]').removeClass('layui-form-danger');
+							}
+						}
+					});
+					if (!valid) return false;
+				}
+			}
+
 			if( data.field.longitude == "" || data.field.latitude == ""){
 				layer.msg('请确认地理位置!');
 				$(".empty-address").show();
