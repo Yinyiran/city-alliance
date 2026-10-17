@@ -154,6 +154,9 @@ class OrderCreate extends BaseModel
     public function create($data)
     {
         $this->is_create = 1;
+        if (isset($data['appointment']) && is_string($data['appointment'])) {
+            $data['appointment'] = json_decode($data['appointment'], true) ?: [];
+        }
         $calculate_data = $this->calculate($data);
         if (isset($calculate_data['code']) && $calculate_data['code'] < 0)
             return $calculate_data;
@@ -192,86 +195,92 @@ class OrderCreate extends BaseModel
                 //订单主表
                 $order_type = $this->orderType($v, $calculate_data);
                 $order_no = $this->createOrderNo($v['site_id'], $data['member_id']);
-                $data_order = [
-                    'order_no' => $order_no,
-                    'site_id' => $v['site_id'],
-                    'site_name' => $v['site_name'],
-                    'order_from' => $data['order_from'],
-                    'order_from_name' => $data['order_from_name'],
-                    'order_type' => $order_type['order_type_id'],
-                    'order_type_name' => $order_type['order_type_name'],
-                    'order_status_name' => $order_type['order_status']['name'],
-                    'order_status_action' => json_encode($order_type['order_status'], JSON_UNESCAPED_UNICODE),
-                    'out_trade_no' => $temp_out_trade_no,
-                    'member_id' => $data['member_id'],
-                    'name' => $calculate_data['member_address']['name'] ?? '',
-                    'mobile' => $calculate_data['member_address']['mobile'] ?? '',
-                    'telephone' => $calculate_data['member_address']['telephone'] ?? '',
-                    'province_id' => $calculate_data['member_address']['province_id'] ?? '',
-                    'city_id' => $calculate_data['member_address']['city_id'] ?? '',
-                    'district_id' => $calculate_data['member_address']['district_id'] ?? '',
-                    'community_id' => $calculate_data['member_address']['community_id'] ?? '',
-                    'address' => $calculate_data['member_address']['address'] ?? '',
-                    'full_address' => $calculate_data['member_address']['full_address'] ?? '',
-                    'longitude' => $calculate_data['member_address']['longitude'] ?? '',
-                    'latitude' => $calculate_data['member_address']['latitude'] ?? '',
-                    'buyer_ip' => request()->ip(),
-                    'goods_money' => $v['goods_money'],
-                    'delivery_money' => $v['delivery_money'],
-                    'coupon_id' => isset($v['coupon_id']) ? $v['coupon_id'] : 0,
-                    'coupon_money' => $v['coupon_money'],
-                    'adjust_money' => $v['adjust_money'],
-                    'invoice_money' => $v['invoice_money'],
-
-                    'promotion_money' => $v['promotion_money'],
-                    'order_money' => $v['order_money'],
-                    'balance_money' => $v['balance_money'],
-                    'pay_money' => $v['pay_money'],
-                    'create_time' => time(),
-                    'is_enable_refund' => 0,
-                    'order_name' => $v["order_name"],
-                    'goods_num' => $v['goods_num'],
-                    'delivery_type' => $delivery_type,
-                    'delivery_type_name' => $delivery_type_name,
-                    'delivery_store_id' => $v["delivery_store_id"] ?? 0,
-                    "delivery_store_name" => $v["delivery_store_name"] ?? '',
-                    "delivery_store_info" => $v["delivery_store_info"] ?? '',
-                    "buyer_message" => $v["buyer_message"],
-                    "website_id" => $v["website_id"],
-
-                    'buyer_ask_delivery_time' => $v['buyer_ask_delivery_time'] ?? '',//定时达
-
-                    "platform_coupon_id" => $v["platform_coupon_id"] ?? 0,
-                    "platform_coupon_money" => $v["platform_coupon_money"] ?? 0,
-                    "platform_coupon_total_money" => $v["platform_coupon_total_money"] ?? 0,
-                    "platform_coupon_shop_money" => $v["platform_coupon_shop_money"] ?? 0,
-
-                    //发票相关
-                    "invoice_delivery_money" => $v["invoice_delivery_money"] ?? 0,
-                    "taxpayer_number" => $v["taxpayer_number"] ?? '',
-                    "invoice_rate" => $v["invoice_rate"] ?? 0,
-                    "invoice_content" => $v["invoice_content"] ?? '',
-                    "invoice_full_address" => $v["invoice_full_address"] ?? '',
-                    "is_invoice" => $v["is_invoice"] ?? 0,
-                    "invoice_type" => $v["invoice_type"] ?? 0,
-                    "invoice_title" => $v["invoice_title"] ?? '',
-                    'is_tax_invoice' => $v["is_tax_invoice"] ?? '',
-                    'invoice_email' => $v["invoice_email"] ?? '',
-                    'invoice_title_type' => $v["invoice_title_type"] ?? 0,
-                    'video_id' => $calculate_data['video_id'] ?? 0,
                     //交易类型相关
-                    'trade_type' => $v[ 'trade_type' ] ?? 0,
-                    'custom_amount' => $v[ 'trade_info' ][ 'custom_amount' ] ?? 0,
-                    'appointment_id' => $v[ 'trade_info' ][ 'appointment_id' ] ?? 0,
-                    'appointment_date' => $v[ 'trade_info' ][ 'appointment_date' ] ?? '',
-                    'appointment_slot' => $v[ 'trade_info' ][ 'appointment_slot' ] ?? '',
-                    'appointment_num' => $v[ 'trade_info' ][ 'appointment_num' ] ?? 0,
-                    'appointment_user' => $data[ 'appointment' ][ 'user_name' ] ?? '',
-                    'appointment_mobile' => $data[ 'appointment' ][ 'mobile' ] ?? '',
-                    'appointment_remark' => $data[ 'appointment' ][ 'remark' ] ?? '',
-                    'appointment_status' => (($v[ 'trade_type' ] ?? 0) == self::TRADE_APPOINTMENT) ? 0 : -1,
-                    'pay_scene' => intval($data[ 'pay_scene' ] ?? 0),
-                ];
+                    $order_trade_type = intval($v[ 'trade_type' ] ?? 0);
+                    $appointment_date = !empty($v[ 'trade_info' ][ 'appointment_date' ]) ? $v[ 'trade_info' ][ 'appointment_date' ] : (!empty($data[ 'appointment' ][ 'appointment_date' ]) && $order_trade_type == self::TRADE_APPOINTMENT ? $data[ 'appointment' ][ 'appointment_date' ] : null);
+                    if (empty($appointment_date) || !is_string($appointment_date)) {
+                        $appointment_date = null;
+                    }
+                    $data_order = [
+                        'order_no' => $order_no,
+                        'site_id' => $v['site_id'],
+                        'site_name' => $v['site_name'],
+                        'order_from' => $data['order_from'],
+                        'order_from_name' => $data['order_from_name'],
+                        'order_type' => $order_type['order_type_id'],
+                        'order_type_name' => $order_type['order_type_name'],
+                        'order_status_name' => $order_type['order_status']['name'],
+                        'order_status_action' => json_encode($order_type['order_status'], JSON_UNESCAPED_UNICODE),
+                        'out_trade_no' => $temp_out_trade_no,
+                        'member_id' => $data['member_id'],
+                        'name' => $calculate_data['member_address']['name'] ?? '',
+                        'mobile' => $calculate_data['member_address']['mobile'] ?? '',
+                        'telephone' => $calculate_data['member_address']['telephone'] ?? '',
+                        'province_id' => $calculate_data['member_address']['province_id'] ?? '',
+                        'city_id' => $calculate_data['member_address']['city_id'] ?? '',
+                        'district_id' => $calculate_data['member_address']['district_id'] ?? '',
+                        'community_id' => $calculate_data['member_address']['community_id'] ?? '',
+                        'address' => $calculate_data['member_address']['address'] ?? '',
+                        'full_address' => $calculate_data['member_address']['full_address'] ?? '',
+                        'longitude' => $calculate_data['member_address']['longitude'] ?? '',
+                        'latitude' => $calculate_data['member_address']['latitude'] ?? '',
+                        'buyer_ip' => request()->ip(),
+                        'goods_money' => $v['goods_money'],
+                        'delivery_money' => $v['delivery_money'],
+                        'coupon_id' => isset($v['coupon_id']) ? $v['coupon_id'] : 0,
+                        'coupon_money' => $v['coupon_money'],
+                        'adjust_money' => $v['adjust_money'],
+                        'invoice_money' => $v['invoice_money'],
+
+                        'promotion_money' => $v['promotion_money'],
+                        'order_money' => $v['order_money'],
+                        'balance_money' => $v['balance_money'],
+                        'pay_money' => $v['pay_money'],
+                        'create_time' => time(),
+                        'is_enable_refund' => 0,
+                        'order_name' => $v["order_name"],
+                        'goods_num' => $v['goods_num'],
+                        'delivery_type' => $delivery_type,
+                        'delivery_type_name' => $delivery_type_name,
+                        'delivery_store_id' => $v["delivery_store_id"] ?? 0,
+                        "delivery_store_name" => $v["delivery_store_name"] ?? '',
+                        "delivery_store_info" => $v["delivery_store_info"] ?? '',
+                        "buyer_message" => $v["buyer_message"],
+                        "website_id" => $v["website_id"],
+
+                        'buyer_ask_delivery_time' => $v['buyer_ask_delivery_time'] ?? '',//定时达
+
+                        "platform_coupon_id" => $v["platform_coupon_id"] ?? 0,
+                        "platform_coupon_money" => $v["platform_coupon_money"] ?? 0,
+                        "platform_coupon_total_money" => $v["platform_coupon_total_money"] ?? 0,
+                        "platform_coupon_shop_money" => $v["platform_coupon_shop_money"] ?? 0,
+
+                        //发票相关
+                        "invoice_delivery_money" => $v["invoice_delivery_money"] ?? 0,
+                        "taxpayer_number" => $v["taxpayer_number"] ?? '',
+                        "invoice_rate" => $v["invoice_rate"] ?? 0,
+                        "invoice_content" => $v["invoice_content"] ?? '',
+                        "invoice_full_address" => $v["invoice_full_address"] ?? '',
+                        "is_invoice" => $v["is_invoice"] ?? 0,
+                        "invoice_type" => $v["invoice_type"] ?? 0,
+                        "invoice_title" => $v["invoice_title"] ?? '',
+                        'is_tax_invoice' => $v["is_tax_invoice"] ?? '',
+                        'invoice_email' => $v["invoice_email"] ?? '',
+                        'invoice_title_type' => $v["invoice_title_type"] ?? 0,
+                        'video_id' => $calculate_data['video_id'] ?? 0,
+                        //交易类型相关
+                        'trade_type' => $order_trade_type,
+                        'custom_amount' => $v[ 'trade_info' ][ 'custom_amount' ] ?? 0,
+                        'appointment_id' => $v[ 'trade_info' ][ 'appointment_id' ] ?? 0,
+                        'appointment_date' => $appointment_date,
+                        'appointment_slot' => $v[ 'trade_info' ][ 'appointment_slot' ] ?? ($data[ 'appointment' ][ 'start_time' ] ?? ''),
+                        'appointment_num' => $v[ 'trade_info' ][ 'appointment_num' ] ?? intval($data[ 'appointment' ][ 'num' ] ?? 0),
+                        'appointment_user' => $data[ 'appointment' ][ 'user_name' ] ?? '',
+                        'appointment_mobile' => $data[ 'appointment' ][ 'mobile' ] ?? '',
+                        'appointment_remark' => $data[ 'appointment' ][ 'remark' ] ?? '',
+                        'appointment_status' => ($order_trade_type == self::TRADE_APPOINTMENT) ? 0 : -1,
+                        'pay_scene' => intval($data[ 'pay_scene' ] ?? 0),
+                    ];
 
                 $order_id = model("order")->add($data_order);
                 $order_id_arr[] = $order_id;
@@ -1019,6 +1028,9 @@ class OrderCreate extends BaseModel
      */
     public function calculate($data)
     {
+        if (isset($data['appointment']) && is_string($data['appointment'])) {
+            $data['appointment'] = json_decode($data['appointment'], true) ?: [];
+        }
         $data = $this->initMemberAddress($data);//初始化地址
         $data = $this->initMemberAccount($data);//初始化会员账户
         //余额付款
@@ -1238,16 +1250,21 @@ class OrderCreate extends BaseModel
         $field = ' sku_id, sku_name, sku_no, 
             price, discount_price, cost_price, stock, weight, volume, sku_image, 
             site_id, site_name, website_id, is_own, goods_state, verify_state, is_virtual, 
-            is_free_shipping, shipping_template, goods_class, goods_class_name, goods_id,max_buy,min_buy,goods_name,sku_spec_format,point';
+            is_free_shipping, shipping_template, goods_class, goods_class_name, goods_id,max_buy,min_buy,goods_name,sku_spec_format,point,trade_type,service_duration';
 
         $goods_list = model("goods_sku")->getList($condition, $field, '');
         $shop_goods_list = [];
         if (!empty($goods_list)) {
             foreach ($goods_list as $k => $v) {
                 //todo  移除sku的佣金比率,取用所属商品的佣金比率
-                $goods_info = model('goods')->getInfo([['goods_id', '=', $v['goods_id']]], 'commission_rate,goods_image');
+                $goods_info = model('goods')->getInfo([['goods_id', '=', $v['goods_id']]], 'commission_rate,goods_image,trade_type,service_duration,min_order_amount,max_order_amount,allow_custom_amount');
                 $v['commission_rate'] = $goods_info['commission_rate'] ?? 0;
                 $v['goods_image'] = $goods_info['goods_image'] ?? '';
+                $v['trade_type'] = intval($v['trade_type'] ?? ($goods_info['trade_type'] ?? 0));
+                $v['service_duration'] = intval($v['service_duration'] ?? ($goods_info['service_duration'] ?? 0));
+                $v['allow_custom_amount'] = $goods_info['allow_custom_amount'] ?? 0;
+                $v['min_order_amount'] = $goods_info['min_order_amount'] ?? 0;
+                $v['max_order_amount'] = $goods_info['max_order_amount'] ?? 0;
                 if($v['is_virtual'])
                 {
                     $this->is_virtual = 1;
