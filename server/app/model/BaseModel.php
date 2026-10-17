@@ -36,8 +36,10 @@ class BaseModel
         } else {
             $code_array = array_keys($lang_array);
             $code_index = array_search($code_var, $code_array);
-            if ($code_index != false) {
+            if ($code_index !== false) {
                 $code_var = 10000 + $code_index;
+            } else {
+                $code_var = 0;
             }
         }
         return success($code_var, $lang_var, $data);

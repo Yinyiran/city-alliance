@@ -75,12 +75,10 @@ class Store extends BaseShop
      */
     public function checkUsername()
     {
-        if (request()->isAjax()) {
-            $username = trim(input('username', ''));
-            $store_id = input('store_id', 0);
-            $store_model = new StoreModel();
-            return $store_model->checkUsername($username, $store_id, $this->site_id);
-        }
+        $username = trim(input('username', ''));
+        $store_id = input('store_id', 0);
+        $store_model = new StoreModel();
+        return $store_model->checkUsername($username, $store_id, $this->site_id);
     }
 
     /**

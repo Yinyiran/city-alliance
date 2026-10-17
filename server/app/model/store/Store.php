@@ -80,7 +80,7 @@ class Store extends BaseModel
             return $this->error('', '该账号已被其他商家占用，请更换其他账号');
         }
 
-        return $this->success([], '该账号可以使用');
+        return success(0, '该账号可以使用', []);
     }
 
     /**
