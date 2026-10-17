@@ -149,7 +149,10 @@ Order.prototype.cols = [
         className : "transaction-status",
         merge : true,
         template : function(orderitem,order){
-            var html = '<div>' + (order.trade_status_name || orderTradeStatusName(order.order_type, order.order_status)) + '</div>';
+            var html = '<div>' + (order.trade_status_name || order.order_status_name || orderTradeStatusName(order.order_type, order.order_status)) + '</div>';
+            if (order.trade_type_name) {
+                html += '<div>' + order.trade_type_name + '</div>';
+            }
             html += '<div>' + order.promotion_type_name;
             html += order.promotion_status_name != '' ? '(' + order.promotion_status_name + ')' : '';
             html += '</div>';

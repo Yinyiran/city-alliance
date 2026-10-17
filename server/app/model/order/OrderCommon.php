@@ -1576,6 +1576,14 @@ class OrderCommon extends BaseModel
         $temp_info = $order_model->orderDetail($order_info);
         $order_info = array_merge($order_info, $temp_info);
 
+        $context = self::getOrderTradeContext($order_info);
+        $order_info[ 'trade_status_name' ] = $context[ 'trade_status_name' ];
+        $order_info[ 'status_desc' ] = $context[ 'status_desc' ];
+        $order_info[ 'actions' ] = $context[ 'actions' ];
+        $order_info[ 'can_verify' ] = $context[ 'can_verify' ];
+        $order_info[ 'trade_type_name' ] = $context[ 'trade_type_name' ];
+        $order_info[ 'order_status_name' ] = $context[ 'trade_status_name' ];
+
         //如果是待收货状态,需要查询订单自动收货的时间
         if ($order_info[ 'order_status' ] == self::ORDER_DELIVERY) {
             $order_id = $order_info[ 'order_id' ];
@@ -1699,6 +1707,13 @@ class OrderCommon extends BaseModel
                 } else {
                     $order_list[ 'list' ][ $k ][ 'nickname' ] = "";
                 }
+                $context = self::getOrderTradeContext($v);
+                $order_list[ 'list' ][ $k ][ 'trade_status_name' ] = $context[ 'trade_status_name' ];
+                $order_list[ 'list' ][ $k ][ 'status_desc' ] = $context[ 'status_desc' ];
+                $order_list[ 'list' ][ $k ][ 'actions' ] = $context[ 'actions' ];
+                $order_list[ 'list' ][ $k ][ 'can_verify' ] = $context[ 'can_verify' ];
+                $order_list[ 'list' ][ $k ][ 'trade_type_name' ] = $context[ 'trade_type_name' ];
+                $order_list[ 'list' ][ $k ][ 'order_status_name' ] = $context[ 'trade_status_name' ];
             }
         }
 

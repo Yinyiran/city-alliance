@@ -263,22 +263,36 @@
 				return 'status-doing';
 			},
 			deliverTitle() {
+				if (Number(this.info.trade_type) === 2) return '预约核销信息';
 				if (this.isStoreTrade) return '核销信息';
 				return Number(this.info.order_type) === 3 ? '配送信息' : '物流信息';
 			},
 			statusDesc() {
+				if (this.info && this.info.status_desc) {
+					return this.info.status_desc;
+				}
 				const ot = Number(this.info.order_type || 1);
 				const s = Number(this.info.order_status || 0);
+				const t = Number(this.info.trade_type || 0);
+				const apptSt = Number(this.info.appointment_status || 0);
+				if (s === -1) {
+					return (t === 2 && apptSt === 2) ? '预约已取消，名额已释放' : '订单已关闭';
+				}
 				if (s === 0) return '等待买家付款';
-				if (s === -1) return '订单已关闭';
-				if (ot === 3) {
+				if (ot === 3 || t === 4) {
 					if (s === 1) return '请尽快接单并安排备餐';
 					if (s === 2) return '备餐完成后请安排配送员配送';
 					if (s === 3) return '配送中，送达后请点击「确认送达」';
 					return '订单已送达';
 				}
-				if (ot === 2) {
-					if (s === 1 || s === 2) return '买家到店后请出示核销码完成核销';
+				if (ot === 2 || [0, 1, 2].includes(t)) {
+					if (t === 2 && apptSt === 2) return '预约已取消，名额已释放';
+					if (s === 1 || s === 2) {
+						if (t === 2) return '买家预约到店，核销后完成履约';
+						if (t === 0) return '买家自提到店，核销后交付商品';
+						if (t === 1) return '买家店内消费，核销后完成结算';
+						return '买家到店后请出示核销码完成核销';
+					}
 					return '订单已核销完成';
 				}
 				if (s === 1 || s === 2) return '请尽快为买家安排发货';

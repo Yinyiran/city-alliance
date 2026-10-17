@@ -279,15 +279,16 @@ class TradeOrder extends BaseModel
             $order_type = intval($row['order_type']);
             $order_status = intval($row['order_status']);
 
-            //状态文案以订单类型（实际配送链路）为准，兜底历史数据的 order_status_name 快照
-            $row['trade_status_name'] = OrderCommonModel::orderTypeStatusName($order_type, $order_status, $row);
+            //状态文案以订单类型（实际配送链路）为准，优先取 SSOT 统一状态机引擎
+            $context = OrderCommonModel::getOrderTradeContext($row);
+            $row['trade_status_name'] = $context['trade_status_name'];
+            $row['status_desc'] = $context['status_desc'];
+            $row['can_verify'] = $context['can_verify'];
             //虚拟订单(order_type=4)不在商家配送链路内，归入 all 分组避免出现 biz_type=false
             $biz = array_search($order_type, self::bizTypeMap());
             $row['biz_type'] = $biz !== false ? $biz : self::BIZ_ALL;
-            //交易类型名称：到店自提/到店消费/预约到店同属「到店核销」链路(order_type=2)，
-            //但业务含义不同（自提带走 / 店内消费 / 预约时段），需单独展示避免店员混淆。
-            //名称统一由 OrderCreate::tradeTypeName 提供，避免各端各自维护映射。
-            $row['trade_type_name'] = OrderCreate::tradeTypeName( $row[ 'trade_type' ] ?? 0 );
+            //交易类型名称：到店自提/到店消费/预约到店同属「到店核销」链路(order_type=2)
+            $row['trade_type_name'] = $context['trade_type_name'] ?: OrderCreate::tradeTypeName( $row[ 'trade_type' ] ?? 0 );
             $row['goods_list'] = $goods_map[$row['order_id']] ?? [];
             $row['member_info'] = $member_map[$row['member_id']] ?? [];
             $row['nickname'] = $member_map[$row['member_id']]['nickname'] ?? ($row['name'] ?: '匿名用户');
@@ -327,7 +328,14 @@ class TradeOrder extends BaseModel
     {
         $order_type = intval($order['order_type'] ?? 1);
         $order_status = intval($order['order_status'] ?? 0);
+        $trade_type = intval($order['trade_type'] ?? 0);
+        $appointment_status = intval($order['appointment_status'] ?? 0);
         $actions = [];
+
+        // 若订单已关闭（-1）或预约已取消（appointment_status=2），商家端不提供核销/发货等操作
+        if ($order_status == -1 || ($trade_type == 2 && $appointment_status == 2)) {
+            return [];
+        }
 
         if ($order_type == 1) {
             //快递邮寄

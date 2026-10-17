@@ -148,8 +148,8 @@ Order.prototype.cols = [
 			//
 			// }
 			
-			var html = '<div>' + (order.trade_status_name || orderTradeStatusName(order.order_type, order.order_status)) + '</div>';
-			html += '<div>' + (order.order_type_name || '') + '</div>';
+			var html = '<div>' + (order.trade_status_name || order.order_status_name || orderTradeStatusName(order.order_type, order.order_status)) + '</div>';
+			html += '<div>' + (order.trade_type_name || order.order_type_name || '') + '</div>';
 			html += '<div>' + order.promotion_type_name;
 
 			if(order.promotion_type_name != '商品预售' && order.promotion_status_name!='已完成'){
