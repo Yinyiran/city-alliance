@@ -22,9 +22,8 @@
 					</view>
 					<view class="status-gray" v-if="item.order_status==-1 || (item.trade_type==2 && item.appointment_status==2)" style="color:#999">{{statusText(item)}}</view>
 					<view class="status" v-else-if="item.order_status==0">{{statusText(item)}}</view>
-					<view class="status" v-else-if="item.order_status==1">{{statusText(item)}}</view>
-					<view class="status" v-else-if="item.order_status==2" style="color: #FE780F;">{{statusText(item)}}</view>
-					<view class="" v-else>{{statusText(item)}}</view>
+					<view class="status" v-else-if="[4, 10].includes(Number(item.order_status))" style="color: #25B85B;">{{statusText(item)}}</view>
+					<view class="status" v-else style="color: #FE780F;">{{statusText(item)}}</view>
 				</view>
 					<!-- 预约信息 -->
 					<view class="appt" v-if="item.trade_type==2 && item.appointment_date">
@@ -61,14 +60,14 @@
 						</view>
 				</view> -->
 				<view class="btns acea-row row-middle row-right">
-					<view class="btn1" v-if="item.order_status==0" @click.stop="orderClose(item.order_id)">取消订单</view>
-					<view class="btn2" v-if="item.order_status==0" @click.stop="goPay(item)">立即支付</view>
-					<view class="btn1" v-if="item.trade_type==2 && item.appointment_status==1 && item.order_status==1" @click.stop="cancelAppointment(item)">取消预约</view>
-					<view class="btn3" v-if="item.order_status==1 && item.trade_type!=2" @click.stop="goRefund(item)">申请退款</view>
-					<view class="btn5" v-if="isVerifyOrder(item)" @click.stop="goDetail(item)">去核销</view>
-					<view class="btn3" v-if="canConfirmReceipt(item)" @click.stop="confirmReceipt(item)">确认收货</view>
-					<view class="btn1" v-if="item.order_status==2 && item.trade_type!=2" @click.stop="goRefund(item)">申请售后</view>
-					<view class="btn4" v-if="item.order_status==10" @click.stop="againBuy(item)">再次购买</view>
+					<view class="btn1" v-if="hasAction(item, 'cancel_order')" @click.stop="orderClose(item.order_id)">取消订单</view>
+					<view class="btn2" v-if="hasAction(item, 'pay')" @click.stop="goPay(item)">立即支付</view>
+					<view class="btn1" v-if="hasAction(item, 'cancel_appointment')" @click.stop="cancelAppointment(item)">取消预约</view>
+					<view class="btn3" v-if="hasAction(item, 'apply_refund')" @click.stop="goRefund(item)">申请退款</view>
+					<view class="btn5" v-if="hasAction(item, 'show_verify')" @click.stop="goDetail(item)">{{verifyBtnText(item)}}</view>
+					<view class="btn3" v-if="hasAction(item, 'confirm_receipt')" @click.stop="confirmReceipt(item)">确认收货</view>
+					<view class="btn1" v-if="hasAction(item, 'aftersale')" @click.stop="goRefund(item)">申请售后</view>
+					<view class="btn4" v-if="hasAction(item, 'again_buy')" @click.stop="againBuy(item)">再次购买</view>
 				</view>
 			</view>
 			<view v-if="!loading&&!list.length" class="empty-wrap">
@@ -149,29 +148,75 @@
 				map = {0:'待支付',1:'待发货',2:'待发货',3:'已发货',4:'已收货',10:'已完成','-1':'已关闭'};
 				return map[order_status] || '已收货';
 			},
-			//订单列表状态文案
+			//订单列表状态文案（优先取后端 SSOT 统一状态，纯前端全矩阵兜底）
 			statusText(item){
+				if (item.trade_status_name) {
+					return item.trade_status_name;
+				}
 				const st = Number(item.order_status);
 				const t = Number(item.trade_type || 0);
 				const apptSt = Number(item.appointment_status);
+				const deliverySt = Number(item.delivery_status || 0);
+				const payScene = Number(item.pay_scene || 0);
+				const paySt = Number(item.pay_status || 0);
 
+				if (payScene === 1) {
+					if (st === -1) return '已关闭';
+					return paySt === 1 ? '买单成功' : '待付款';
+				}
+				if (st === 0) return '待支付';
 				if (st === -1) {
 					return (t === 2 && apptSt === 2) ? '已取消' : '已关闭';
 				}
-				if (t === 2 && apptSt === 2) {
-					return '已取消';
-				}
+				if (t === 2 && apptSt === 2) return '已取消';
+				if (t === 2 && apptSt === 3) return '已过期';
 
-				if (Number(item.pay_scene) === 1) {
-					return Number(item.pay_status) === 1 ? '买单成功' : '待付款';
+				if (t === 0) {
+					if (st === 4 || deliverySt === 1) return '已提货';
+					if (st === 10) return '已完成';
+					return '待提货';
 				}
-				//优先取后端按订单类型计算的交易状态，其次前端按矩阵兜底
-				let text = item.trade_status_name || this.orderTradeStatusName(item.order_type, item.order_status);
-				//预约到店：已预约但未核销时提示待到店，比「待核销」更贴合用户视角
-				if(t === 2 && item.appointment_status === 1 && Number(item.order_status) !== 2){
-					text = '待到店';
+				if (t === 1) {
+					if (st === 4 || deliverySt === 1) return '已消费';
+					if (st === 10) return '已完成';
+					return '待消费';
 				}
-				return text;
+				if (t === 2) {
+					if (st === 4 || apptSt === 4 || deliverySt === 1) return '已到店';
+					if (st === 10) return '已完成';
+					return '待到店';
+				}
+				if (t === 4 || Number(item.order_type) === 3) {
+					const localMap = { 1: '待接单', 2: '备餐中', 3: '配送中', 4: '已送达', 10: '已完成' };
+					return localMap[st] || '配送中';
+				}
+				const expressMap = { 1: '待发货', 2: '待发货', 3: '已发货', 4: '已收货', 10: '已完成' };
+				return expressMap[st] || '已发货';
+			},
+			//操作动作权限判定（后端 Action-Driven 优先，前端兜底降级）
+			hasAction(item, action) {
+				if (item.actions && Array.isArray(item.actions)) {
+					return item.actions.includes(action);
+				}
+				const st = Number(item.order_status);
+				const t = Number(item.trade_type || 0);
+				const apptSt = Number(item.appointment_status);
+				const ot = Number(item.order_type || 1);
+				if (action === 'cancel_order') return st === 0;
+				if (action === 'pay') return st === 0;
+				if (action === 'cancel_appointment') return t === 2 && apptSt === 1 && st === 1;
+				if (action === 'show_verify') return this.isVerifyOrder(item);
+				if (action === 'apply_refund') return (st === 1 || (st === 2 && ot !== 2)) && t !== 2;
+				if (action === 'confirm_receipt') return this.canConfirmReceipt(item);
+				if (action === 'aftersale') return st === 4 || (st === 2 && Number(item.delivery_status) === 1);
+				if (action === 'again_buy') return st === 10 || st === -1 || (t === 2 && apptSt === 2);
+				return false;
+			},
+			verifyBtnText(item) {
+				const t = Number(item.trade_type || 0);
+				if (t === 0) return '去提货';
+				if (t === 1) return '去消费';
+				return '去核销';
 			},
 			//是否可核销（到店类且未核销：待支付与已关闭不可核销）
 			isVerifyOrder(item){

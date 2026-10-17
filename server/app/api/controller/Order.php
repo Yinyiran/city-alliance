@@ -58,15 +58,16 @@ class Order extends BaseApi
                 $condition[] = [ "order_status", "in", [ 4, 10 ] ];
                 $condition[] = [ "is_evaluate", "=", 1 ];
                 break;
-            case "waitstock"://待提货
-                $condition[] = ["order_status", "in", [2]];
-                $condition[] = ["appointment_status", "<>", 2];
-                break;
-            case "waitappointment"://待到店（到店自提/到店消费/预约到店未核销）
+            case "waitstock"://待提货/待核销（到店自提0 / 到店消费1）
                 $condition[] = [ "order_status", "in", [ 1, 2 ] ];
-                $condition[] = [ "trade_type", "in", [ 0, 1, 2 ] ];
                 $condition[] = [ "delivery_status", "=", 0 ];
-                $condition[] = [ "appointment_status", "<>", 2 ];
+                $condition[] = [ "trade_type", "in", [ 0, 1 ] ];
+                break;
+            case "waitappointment"://待到店（仅预约到店2，且已预约未核销）
+                $condition[] = [ "order_status", "in", [ 1, 2 ] ];
+                $condition[] = [ "trade_type", "=", 2 ];
+                $condition[] = [ "delivery_status", "=", 0 ];
+                $condition[] = [ "appointment_status", "=", 1 ];
                 break;
             case "waitexpress"://外卖配送中
                 $condition[] = [ "order_type", "=", 3 ];
@@ -318,9 +319,16 @@ class Order extends BaseApi
                     $condition[] = [ "order_status", "in", [ 4, 10 ] ];
                     $condition[] = [ "is_evaluate", "=", 1 ];
                     break;
-                case "waitstock"://待核销
-                    $condition[] = [ "order_status", "in", [ 2 ] ];
-                    $condition[] = [ "appointment_status", "<>", 2 ];
+                case "waitstock"://待提货/待核销（到店自提0 / 到店消费1）
+                    $condition[] = [ "order_status", "in", [ 1, 2 ] ];
+                    $condition[] = [ "delivery_status", "=", 0 ];
+                    $condition[] = [ "trade_type", "in", [ 0, 1 ] ];
+                    break;
+                case "waitappointment"://待到店（仅预约到店2，且已预约未核销）
+                    $condition[] = [ "order_status", "in", [ 1, 2 ] ];
+                    $condition[] = [ "trade_type", "=", 2 ];
+                    $condition[] = [ "delivery_status", "=", 0 ];
+                    $condition[] = [ "appointment_status", "=", 1 ];
                     break;
             }
             if ($order_status == 'refunding') {

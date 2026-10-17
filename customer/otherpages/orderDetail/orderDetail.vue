@@ -6,23 +6,23 @@
 		<view class="acea-row row-middle row-center row-column status status1" v-if="info.order_status==-1 || (info.trade_type==2 && info.appointment_status==2)">
 			<view class="acea-row row-middle" style="color: #222222;">
 				<uv-icon name="close-circle" size="18" color="#222"></uv-icon>
-				<text class="m-l-8">{{info.trade_type==2 && info.appointment_status==2 ? '预约已取消' : '已关闭'}}</text>
+				<text class="m-l-8">{{tradeStatusName}}</text>
 			</view>
-			<view class="m-t-12" style="color: #999;">{{info.trade_type==2 && info.appointment_status==2 ? '预约已取消，名额已释放' : '订单已关闭'}}</view>
+			<view class="m-t-12" style="color: #999;">{{statusDesc}}</view>
 		</view>
 		<view class="acea-row row-middle row-center row-column status" v-else-if="info.order_status==0">
 			<view class="acea-row row-middle">
 				<image src="/otherpages/static/pay.png" class="w-36 h-36 m-r-12" mode=""></image>
 				{{tradeStatusName}}
 			</view>
-			<view class="m-t-12" style="color: #999;">请在23小时59分钟内完成支付，逾期将会自动取消订单</view>
+			<view class="m-t-12" style="color: #999;">{{statusDesc}}</view>
 		</view>
 		<view class="acea-row row-middle row-center row-column status status-pending" v-else-if="isStoreTrade && isOrderPendingVerify">
 			<view class="acea-row row-middle" style="color: #FE780F;">
 				<uv-icon name="scan" size="20" color="#FE780F"></uv-icon>
-				<text class="m-l-8">{{info.trade_type==2 ? '待到店' : '待核销'}}</text>
+				<text class="m-l-8">{{tradeStatusName}}</text>
 			</view>
-			<view class="m-t-12" style="color: #999;">{{info.trade_type==2 ? '请在预约时间到店，出示下方核销码进行核销' : '请向商家出示下方核销码进行核销'}}</view>
+			<view class="m-t-12" style="color: #999;">{{statusDesc}}</view>
 		</view>
 		<view class="acea-row row-middle row-center row-column status status1" v-else-if="[1,2,3].includes(Number(info.order_status))">
 			<view class="acea-row row-middle">
@@ -270,23 +270,15 @@
 				</view>
 			</view>
 		</view>
-		<view class="h-300"></view>
-		<view class="btms iphone-x" v-if="info.order_status==0">
+		<view class="h-300" v-if="hasAnyBottomAction"></view>
+		<view class="btms iphone-x" v-if="hasAnyBottomAction">
 			<view class="acea-row row-middle row-right">
-				<view class="btn2" @click="orderClose">取消订单</view>
-				<view class="btn1" @click="huifupay">立即付款</view>
-			</view>
-		</view>
-		<view class="btms iphone-x" v-else-if="info.order_status==1">
-			<view class="acea-row row-middle row-right">
-				<view class="btn2" v-if="info.trade_type==2 && info.appointment_status==1" @click="doCancelAppointment">取消预约</view>
-				<view class="btn2" v-if="info.trade_type!=2" @click="applyOrderRefund">申请退款</view>
-			</view>
-		</view>
-		<view class="btms iphone-x" v-else-if="canConfirmReceipt">
-			<view class="acea-row row-middle row-right">
-				<view class="btn2" @click="applyOrderRefund">申请退款</view>
-				<view class="btn1" @click="doConfirmReceipt">确认收货</view>
+				<view class="btn2" v-if="hasAction('cancel_order')" @click="orderClose">取消订单</view>
+				<view class="btn1" v-if="hasAction('pay')" @click="huifupay">立即付款</view>
+				<view class="btn2" v-if="hasAction('cancel_appointment')" @click="doCancelAppointment">取消预约</view>
+				<view class="btn2" v-if="hasAction('apply_refund')" @click="applyOrderRefund">申请退款</view>
+				<view class="btn1" v-if="hasAction('confirm_receipt')" @click="doConfirmReceipt">确认收货</view>
+				<view class="btn2" v-if="hasAction('aftersale')" @click="applyOrderRefund">申请售后</view>
 			</view>
 		</view>
 	</view>
@@ -414,21 +406,34 @@
 			},
 			//已支付后各状态说明（按订单类型 × 订单状态）
 			statusDesc() {
+				if (this.info && this.info.status_desc) return this.info.status_desc;
 				const ot = Number(this.info.order_type || 1);
 				const s = Number(this.info.order_status || 0);
 				const t = Number(this.info.trade_type || 0);
-				if (ot === 3) {
+				if (s === -1) {
+					return (t === 2 && Number(this.info.appointment_status) === 2) ? '预约已取消，名额已释放' : '订单已关闭';
+				}
+				if (s === 0) return '请在限定时间内完成支付，超时将会自动取消订单';
+				if (t === 0) {
+					if (s === 1 || s === 2) return '订单已支付，请前往指定门店出示自提码提货';
+					return '订单商品已完成提货，感谢光临';
+				}
+				if (t === 1) {
+					if (s === 1 || s === 2) return '订单已支付，请前往门店向店员出示消费码';
+					return '店内消费已核销，感谢惠顾';
+				}
+				if (t === 2) {
+					if (s === 1 || s === 2) return '已为您锁定预约时段，请按时出示服务码';
+					return '预约服务已核销完成，感谢光临';
+				}
+				if (ot === 3 || t === 4) {
 					if (s === 1) return '商家接单后即开始备餐';
 					if (s === 2) return '商家正在为您备餐，请耐心等待';
 					if (s === 3) return '商家已安排配送，请保持电话畅通';
 					return '外卖已送达，感谢您的惠顾';
 				}
-				if (ot === 2) {
-					if (s === 1 || s === 2) return '订单已支付，请到店出示核销码完成核销';
-					return '订单已核销，感谢您的光临';
-				}
 				//快递邮寄
-				if (s === 1 || s === 2) return t === 0 ? '订单已支付，商家将为您安排配送' : '订单已支付，商家将快递邮寄给您';
+				if (s === 1 || s === 2) return '订单已支付，商家将快递邮寄给您';
 				return '商品已寄出，请留意查收';
 			},
 			//核销码标题（到店自提/到店消费/预约到店均为到店扫码核销）
@@ -459,6 +464,9 @@
 				return this.info.order_status == 4 || this.info.order_status == 10;
 			},
 			canShowVerifyCode() {
+				if (this.info && typeof this.info.can_verify !== 'undefined') {
+					return Boolean(this.info.can_verify);
+				}
 				//仅到店扫码核销类需要核销码；快递邮寄/外卖配送走物流或同城配送
 				if (!this.isStoreTrade) return false;
 				if (this.isOrderVerified) return false;
@@ -486,6 +494,29 @@
 			},
 		},
 		methods: {
+			hasAction(action) {
+				if (this.info && this.info.actions && Array.isArray(this.info.actions)) {
+					return this.info.actions.includes(action);
+				}
+				const st = Number(this.info.order_status);
+				const t = Number(this.info.trade_type || 0);
+				const apptSt = Number(this.info.appointment_status);
+				if (action === 'cancel_order') return st === 0;
+				if (action === 'pay') return st === 0;
+				if (action === 'cancel_appointment') return t === 2 && apptSt === 1 && st === 1;
+				if (action === 'apply_refund') return (st === 1 || (st === 2 && t !== 2)) && t !== 2;
+				if (action === 'confirm_receipt') return this.canConfirmReceipt;
+				if (action === 'aftersale') return st === 4;
+				return false;
+			},
+			hasAnyBottomAction() {
+				return this.hasAction('cancel_order') ||
+					this.hasAction('pay') ||
+					this.hasAction('cancel_appointment') ||
+					this.hasAction('apply_refund') ||
+					this.hasAction('confirm_receipt') ||
+					this.hasAction('aftersale');
+			},
 			//取消预约
 			doCancelAppointment() {
 				uni.showModal({

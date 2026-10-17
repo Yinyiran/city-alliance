@@ -211,64 +211,275 @@ class OrderCommon extends BaseModel
     }
 
     /**
-     * 按订单类型（实际配送链路）输出交易状态文案（各端统一数据源）
+     * 统一根据订单完整上下文计算业务交易状态、说明与动作集合（各端SSOT权威数据源）
+     * 涵盖五种商品交易类型：0到店自提 1到店消费 2预约到店 3快递邮寄 4外卖配送，以及快捷买单(pay_scene=1)
      *
-     * 为什么用 order_type 而不是 trade_type 判定：
-     * 到店自提(trade_type=0)不强制配送方式——顾客选门店自提则为自提订单(order_type=2)走核销流程，
-     * 选快递则为普通订单(order_type=1)走物流流程。按 order_type 判定可同时覆盖两种情况。
-     *
-     * 快递邮寄(order_type=1)：待支付 → 待发货 → 已发货 → 已收货 → 已完成
-     * 到店核销 (order_type=2)：待支付 → 待核销 → 已核销 → 已完成
-     * 外卖自配送(order_type=3)：待支付 → 待接单 → 备餐中 → 配送中 → 已送达 → 已完成
-     *
-     * @param int $order_type 订单类型 1普通 2自提 3外卖 4虚拟
+     * @param array $order 订单数据
+     * @return array [
+     *     'trade_status_name' => '待提货',
+     *     'status_desc'       => '订单已支付，请出示自提提货码提货',
+     *     'actions'           => ['show_verify', 'apply_refund'],
+     *     'can_verify'        => true,
+     *     'trade_type_name'   => '到店自提'
+     * ]
+     */
+    public static function getOrderTradeContext($order)
+    {
+        if (empty($order) || !is_array($order)) {
+            return [
+                'trade_status_name' => '',
+                'status_desc'       => '',
+                'actions'           => [],
+                'can_verify'        => false,
+                'trade_type_name'   => ''
+            ];
+        }
+
+        $st = intval($order['order_status'] ?? 0);
+        $pay_st = intval($order['pay_status'] ?? 0);
+        $ot = intval($order['order_type'] ?? 1);
+        $trade_type = intval($order['trade_type'] ?? 0);
+        $appt_st = intval($order['appointment_status'] ?? -1);
+        $delivery_st = intval($order['delivery_status'] ?? 0);
+        $pay_scene = intval($order['pay_scene'] ?? 0);
+        $refund_st = intval($order['refund_status'] ?? 0);
+
+        $trade_type_name = OrderCreate::tradeTypeName($trade_type);
+        $actions = [];
+        $status_name = '';
+        $status_desc = '';
+        $can_verify = false;
+
+        // 1. 快捷买单场景
+        if ($pay_scene == 1) {
+            $trade_type_name = '到店买单';
+            if ($st == -1) {
+                $status_name = '已关闭';
+                $status_desc = '买单订单已关闭';
+                $actions = ['again_buy'];
+            } elseif ($pay_st == 1 || $st == 10) {
+                $status_name = '买单成功';
+                $status_desc = '已向商家付款成功，感谢光临';
+                $actions = ['again_buy'];
+            } else {
+                $status_name = '待支付';
+                $status_desc = '请在超时前完成买单支付';
+                $actions = ['cancel_order', 'pay'];
+            }
+            return [
+                'trade_status_name' => $status_name,
+                'status_desc'       => $status_desc,
+                'actions'           => $actions,
+                'can_verify'        => false,
+                'trade_type_name'   => $trade_type_name
+            ];
+        }
+
+        // 2. 待支付阶段（所有类型通用）
+        if ($st == 0 && $pay_st == 0) {
+            $status_name = '待支付';
+            $status_desc = '请在限定时间内完成支付，超时订单将自动关闭';
+            $actions = ['cancel_order', 'pay'];
+            return [
+                'trade_status_name' => $status_name,
+                'status_desc'       => $status_desc,
+                'actions'           => $actions,
+                'can_verify'        => false,
+                'trade_type_name'   => $trade_type_name
+            ];
+        }
+
+        // 3. 已关闭阶段（所有类型通用，预约单区分显示已取消）
+        if ($st == -1) {
+            if ($trade_type == OrderCreate::TRADE_APPOINTMENT && $appt_st == 2) {
+                $status_name = '预约已取消';
+                $status_desc = '预约已取消，名额已释放';
+            } else {
+                $status_name = '已关闭';
+                $status_desc = '订单已关闭';
+            }
+            $actions = ['again_buy'];
+            return [
+                'trade_status_name' => $status_name,
+                'status_desc'       => $status_desc,
+                'actions'           => $actions,
+                'can_verify'        => false,
+                'trade_type_name'   => $trade_type_name
+            ];
+        }
+
+        // 4. 维权处理中（全单处于售后维权）
+        if ($refund_st > 0 && !in_array($refund_st, [0, 3, 6])) {
+            $status_name = '退款中';
+            $status_desc = '退款申请处理中，请关注退款进度';
+            $actions = ['view_refund'];
+            return [
+                'trade_status_name' => $status_name,
+                'status_desc'       => $status_desc,
+                'actions'           => $actions,
+                'can_verify'        => false,
+                'trade_type_name'   => $trade_type_name
+            ];
+        }
+
+        // 5. 五种交易类型各自的履约状态机
+        switch ($trade_type) {
+            case OrderCreate::TRADE_PICKUP: // 0: 到店自提
+                if ($st == 4 || $delivery_st == 1) {
+                    $status_name = '已提货';
+                    $status_desc = '订单商品已完成线下提货，感谢光临';
+                    $actions = ['aftersale', 'again_buy'];
+                } elseif ($st == 10) {
+                    $status_name = '已完成';
+                    $status_desc = '交易已完成，感谢您的支持';
+                    $actions = ['aftersale', 'again_buy'];
+                } else {
+                    $status_name = '待提货';
+                    $status_desc = '订单已支付，请前往指定门店出示自提码提货';
+                    $actions = ['show_verify', 'apply_refund'];
+                    $can_verify = true;
+                }
+                break;
+
+            case OrderCreate::TRADE_CONSUME: // 1: 到店消费
+                if ($st == 4 || $delivery_st == 1) {
+                    $status_name = '已消费';
+                    $status_desc = '店内消费已核销，感谢您的惠顾';
+                    $actions = ['aftersale', 'again_buy'];
+                } elseif ($st == 10) {
+                    $status_name = '已完成';
+                    $status_desc = '交易已完成，感谢您的支持';
+                    $actions = ['aftersale', 'again_buy'];
+                } else {
+                    $status_name = '待消费';
+                    $status_desc = '订单已支付，请进店向店员出示消费码';
+                    $actions = ['show_verify', 'apply_refund'];
+                    $can_verify = true;
+                }
+                break;
+
+            case OrderCreate::TRADE_APPOINTMENT: // 2: 预约到店
+                if ($appt_st == 2) {
+                    $status_name = '预约已取消';
+                    $status_desc = '预约已取消，名额已释放';
+                    $actions = ['again_buy'];
+                } elseif ($appt_st == 3) {
+                    $status_name = '已过期';
+                    $status_desc = '预约时段已过，请重新预约或联系门店';
+                    $actions = ['again_buy'];
+                } elseif ($st == 4 || $appt_st == 4 || $delivery_st == 1) {
+                    $status_name = '已到店';
+                    $status_desc = '预约服务已核销完成，感谢您的光临';
+                    $actions = ['aftersale', 'again_buy'];
+                } elseif ($st == 10) {
+                    $status_name = '已完成';
+                    $status_desc = '服务已完成，感谢您的支持';
+                    $actions = ['aftersale', 'again_buy'];
+                } else {
+                    $status_name = '待到店';
+                    $status_desc = '已为您锁定预约时段，请准时到店出示服务码';
+                    $actions = ['show_verify', 'cancel_appointment'];
+                    $can_verify = true;
+                }
+                break;
+
+            case OrderCreate::TRADE_LOCAL: // 4: 外卖配送
+                if ($st == 1) {
+                    $status_name = '待接单';
+                    $status_desc = '商家接单后即开始为您备餐制作';
+                    $actions = ['apply_refund'];
+                } elseif ($st == 2) {
+                    $status_name = '备餐中';
+                    $status_desc = '商家正在为您备餐制作，请耐心等待';
+                    $actions = ['apply_refund'];
+                } elseif ($st == 3) {
+                    $status_name = '配送中';
+                    $status_desc = '外卖正在配送中，请保持电话畅通';
+                    $actions = ['confirm_receipt'];
+                } elseif ($st == 4) {
+                    $status_name = '已送达';
+                    $status_desc = '外卖已送达，祝您用餐愉快';
+                    $actions = ['aftersale', 'again_buy'];
+                } elseif ($st == 10) {
+                    $status_name = '已完成';
+                    $status_desc = '订单已完成，感谢惠顾';
+                    $actions = ['aftersale', 'again_buy'];
+                } else {
+                    $status_name = '配送中';
+                    $status_desc = '外卖配送中';
+                    $actions = ['confirm_receipt'];
+                }
+                break;
+
+            case OrderCreate::TRADE_EXPRESS: // 3: 快递邮寄
+            default:
+                if ($ot == 3) {
+                    if ($st == 1) { $status_name = '待接单'; $status_desc = '商家接单后即开始备餐'; $actions = ['apply_refund']; }
+                    elseif ($st == 2) { $status_name = '备餐中'; $status_desc = '商家正在备餐制作'; $actions = ['apply_refund']; }
+                    elseif ($st == 3) { $status_name = '配送中'; $status_desc = '外卖配送中，请保持电话畅通'; $actions = ['confirm_receipt']; }
+                    elseif ($st == 4) { $status_name = '已送达'; $status_desc = '外卖已送达'; $actions = ['aftersale', 'again_buy']; }
+                    else { $status_name = '已完成'; $status_desc = '交易已完成'; $actions = ['aftersale', 'again_buy']; }
+                    break;
+                }
+                if ($st == 1 || ($st == 2 && $delivery_st == 0)) {
+                    $status_name = '待发货';
+                    $status_desc = '商家将尽快为您打包并通过快递发出';
+                    $actions = ['apply_refund'];
+                } elseif ($st == 3 || ($st == 2 && $delivery_st == 1)) {
+                    $status_name = '已发货';
+                    $status_desc = '商品已快递寄出，请留意查收快递包裹';
+                    $actions = ['confirm_receipt', 'view_trace', 'apply_refund'];
+                } elseif ($st == 4) {
+                    $status_name = '已收货';
+                    $status_desc = '商品已确认收货，交易已完成';
+                    $actions = ['aftersale', 'again_buy'];
+                } elseif ($st == 10) {
+                    $status_name = '已完成';
+                    $status_desc = '交易已完成，感谢您的支持';
+                    $actions = ['aftersale', 'again_buy'];
+                } else {
+                    $status_name = '已收货';
+                    $status_desc = '商品已确认收货';
+                    $actions = ['aftersale', 'again_buy'];
+                }
+                break;
+        }
+
+        return [
+            'trade_status_name' => $status_name,
+            'status_desc'       => $status_desc,
+            'actions'           => array_values(array_unique($actions)),
+            'can_verify'        => $can_verify,
+            'trade_type_name'   => $trade_type_name
+        ];
+    }
+
+    /**
+     * 按订单类型输出交易状态文案（兼容旧调用，已接入统一状态机）
+     * @param int|array $order_type 订单类型或完整订单数组
      * @param int $order_status 订单状态
+     * @param array $order_info 完整订单数据可选
      * @return string
      */
-    public static function orderTypeStatusName($order_type, $order_status)
+    public static function orderTypeStatusName($order_type, $order_status = 0, $order_info = [])
     {
-        $order_type = intval($order_type);
-        $order_status = intval($order_status);
-
-        if ($order_type == 3) {
-            //外卖自配送（商家自配，不接第三方）
-            $map = [
-                0 => '待支付',
-                1 => '待接单',
-                2 => '备餐中',
-                3 => '配送中',
-                4 => '已送达',
-                10 => '已完成',
-                -1 => '已关闭',
-            ];
-            return $map[ $order_status ] ?? '已送达';
+        if (is_array($order_type)) {
+            $context = self::getOrderTradeContext($order_type);
+            return $context['trade_status_name'];
         }
-
-        if ($order_type == 2) {
-            //到店核销（到店自提/到店消费/预约到店）
-            $map = [
-                0 => '待支付',
-                1 => '待核销',
-                2 => '待核销',
-                3 => '待核销',
-                4 => '已核销',
-                10 => '已完成',
-                -1 => '已关闭',
-            ];
-            return $map[ $order_status ] ?? '已核销';
+        if (!empty($order_info) && is_array($order_info)) {
+            $order_info['order_type'] = $order_type;
+            $order_info['order_status'] = $order_status;
+            $context = self::getOrderTradeContext($order_info);
+            return $context['trade_status_name'];
         }
-
-        //快递邮寄（含到店自提商品走快递发货的情况）
-        $map = [
-            0 => '待支付',
-            1 => '待发货',
-            2 => '待发货',
-            3 => '已发货',
-            4 => '已收货',
-            10 => '已完成',
-            -1 => '已关闭',
+        $fake_order = [
+            'order_type' => intval($order_type),
+            'order_status' => intval($order_status),
+            'trade_type' => (intval($order_type) == 2) ? 0 : (intval($order_type) == 3 ? 4 : 3)
         ];
-        return $map[ $order_status ] ?? '已收货';
+        $context = self::getOrderTradeContext($fake_order);
+        return $context['trade_status_name'];
     }
 
     /**
@@ -1582,11 +1793,15 @@ class OrderCommon extends BaseModel
         if (empty($order_info))
             return $this->error([], "当前订单不是本账号的订单!");
 
-$action = empty($order_info[ "order_status_action" ]) ? [] : json_decode($order_info[ "order_status_action" ], true);
+        $context = self::getOrderTradeContext($order_info);
+        $order_info[ 'trade_status_name' ] = $context[ 'trade_status_name' ];
+        $order_info[ 'status_desc' ] = $context[ 'status_desc' ];
+        $order_info[ 'actions' ] = $context[ 'actions' ];
+        $order_info[ 'can_verify' ] = $context[ 'can_verify' ];
+        $order_info[ 'trade_type_name' ] = $context[ 'trade_type_name' ];
+        $action = empty($order_info[ "order_status_action" ]) ? [] : json_decode($order_info[ "order_status_action" ], true);
         $member_action = $action[ "member_action" ] ?? [];
         $order_info[ 'action' ] = $member_action;
-        //按订单类型（实际配送链路）计算的交易状态文案
-        $order_info[ 'trade_status_name' ] = self::orderTypeStatusName($order_info[ 'order_type' ] ?? 1, $order_info[ 'order_status' ] ?? 0);
         $order_goods_list = model('order_goods')->getList([ [ 'order_id', "=", $order_id ], [ "member_id", "=", $member_id ] ]);
 
 //        $complain_model = new Complain();
@@ -1678,9 +1893,12 @@ $action = empty($order_info[ "order_status_action" ]) ? [] : json_decode($order_
                 $action = empty($v[ "order_status_action" ]) ? [] : json_decode($v[ "order_status_action" ], true);
                 $member_action = $action[ "member_action" ] ?? [];
                 $order_list[ 'list' ][ $k ][ 'action' ] = $member_action;
-                //按订单类型（实际配送链路）计算的交易状态文案，供各端展示使用
-                //order_status_name 为下单/流转时的落库快照，历史数据文案与新状态机不一致
-                $order_list[ 'list' ][ $k ][ 'trade_status_name' ] = self::orderTypeStatusName($v[ 'order_type' ] ?? 1, $v[ 'order_status' ] ?? 0);
+                $context = self::getOrderTradeContext($v);
+                $order_list[ 'list' ][ $k ][ 'trade_status_name' ] = $context[ 'trade_status_name' ];
+                $order_list[ 'list' ][ $k ][ 'status_desc' ] = $context[ 'status_desc' ];
+                $order_list[ 'list' ][ $k ][ 'actions' ] = $context[ 'actions' ];
+                $order_list[ 'list' ][ $k ][ 'can_verify' ] = $context[ 'can_verify' ];
+                $order_list[ 'list' ][ $k ][ 'trade_type_name' ] = $context[ 'trade_type_name' ];
             }
         }
         return $this->success($order_list);

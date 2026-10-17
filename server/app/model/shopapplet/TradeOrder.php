@@ -280,7 +280,7 @@ class TradeOrder extends BaseModel
             $order_status = intval($row['order_status']);
 
             //状态文案以订单类型（实际配送链路）为准，兜底历史数据的 order_status_name 快照
-            $row['trade_status_name'] = OrderCommonModel::orderTypeStatusName($order_type, $order_status);
+            $row['trade_status_name'] = OrderCommonModel::orderTypeStatusName($order_type, $order_status, $row);
             //虚拟订单(order_type=4)不在商家配送链路内，归入 all 分组避免出现 biz_type=false
             $biz = array_search($order_type, self::bizTypeMap());
             $row['biz_type'] = $biz !== false ? $biz : self::BIZ_ALL;
