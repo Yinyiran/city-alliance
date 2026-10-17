@@ -1129,16 +1129,16 @@ export default {
 			return parts[1] || '';
 		},
 
-		// 获取商品交易类型/特惠角标文案
+		// 获取商品交易类型/特惠角标文案（与交易类型定义严格相同）
 		getGoodsTag(item) {
 			if (!item) return '到店自提';
 			if (this.isPointGoods || item.goods_type == 1) return '积分兑换';
 			const tradeMap = {
 				0: '到店自提',
-				1: Number(item.allow_custom_amount) === 1 ? '金额自定' : '到店消费',
+				1: '到店消费',
 				2: '预约到店',
-				3: '快递配送',
-				4: '同城外卖'
+				3: '快递邮寄',
+				4: '外卖配送'
 			};
 			return tradeMap[Number(item.trade_type || 0)] || '到店自提';
 		},
