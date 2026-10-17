@@ -31,6 +31,11 @@
 						<text>{{item.appointment_date}} {{item.appointment_slot}}</text>
 						<text class="appt-store" v-if="item.delivery_store_name">· {{item.delivery_store_name}}</text>
 					</view>
+					<!-- 快捷买单信息 -->
+					<view class="appt" v-if="item.pay_scene==1">
+						<text class="appt-label" style="background:#FFF0E6;color:#F55606;">到店买单</text>
+						<text v-if="item.buyer_message" style="color: #888; font-size: 22rpx; margin-left: 8rpx;">备注: {{item.buyer_message}}</text>
+					</view>
 				<view class="acea-row row-middle m-t-28 row-between" v-for="(items,indexs) in item.order_goods">
 					<image :src="$util.img(items.sku_image)" class="w-140 h-140 bor-16" mode=""></image>
 					<view class="widths h-140 acea-row row-between row-column">
@@ -145,6 +150,9 @@
 			},
 			//订单列表状态文案
 			statusText(item){
+				if (Number(item.pay_scene) === 1) {
+					return Number(item.pay_status) === 1 ? '买单成功' : '待付款';
+				}
 				//优先取后端按订单类型计算的交易状态，其次前端按矩阵兜底
 				let text = item.trade_status_name || this.orderTradeStatusName(item.order_type, item.order_status);
 				//预约到店：已预约但未核销时提示待到店，比「待核销」更贴合用户视角
@@ -159,6 +167,7 @@
 				const ot = Number(item.order_type||1);
 				const st = Number(item.order_status);
 				if(ot !== 2) return false;
+				if(Number(item.pay_scene) === 1) return false; // 快捷买单已完成，无需核销
 				return (st === 1 || st === 2) && Number(item.delivery_status||0) != 1;
 			},
 			//是否可确认收货：快递订单已发货、外卖订单配送中（外卖由商家确认送达，顾客亦可确认）

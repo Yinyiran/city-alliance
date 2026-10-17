@@ -77,6 +77,9 @@ class Order extends BaseApi
                 ],'order_id');
                 $condition[] = [ "order_id", "in", $order_ids ];
                 break;
+            case "quickpay"://快捷买单/向商家付款记录
+                $condition[] = [ "pay_scene", "=", 1 ];
+                break;
         }
 //		if (c !== "all") {
 //			$condition[] = [ "order_status", "=", $order_status ];
@@ -84,6 +87,31 @@ class Order extends BaseApi
         $page_index = isset($this->params[ 'page' ]) ? $this->params[ 'page' ] : 1;
         $page_size = isset($this->params[ 'page_size' ]) ? $this->params[ 'page_size' ] : PAGE_LIST_ROWS;
         $res = $order_common_model->getMemberOrderPageList($condition, $page_index, $page_size, "create_time desc");
+        return $this->response($res);
+    }
+
+    /**
+     * 快捷买单/向商家付款明细列表
+     */
+    public function quickPayLists()
+    {
+        $token = $this->checkToken();
+        if ($token[ 'code' ] < 0) return $this->response($token);
+
+        $page = isset($this->params[ 'page' ]) ? intval($this->params[ 'page' ]) : 1;
+        $page_size = isset($this->params[ 'page_size' ]) ? intval($this->params[ 'page_size' ]) : PAGE_LIST_ROWS;
+        $site_id = isset($this->params[ 'site_id' ]) ? intval($this->params[ 'site_id' ]) : 0;
+
+        $condition = [
+            [ 'member_id', '=', $this->member_id ],
+            [ 'pay_scene', '=', 1 ],
+        ];
+        if ($site_id > 0) {
+            $condition[] = [ 'site_id', '=', $site_id ];
+        }
+
+        $order_common_model = new OrderCommonModel();
+        $res = $order_common_model->getMemberOrderPageList($condition, $page, $page_size, "create_time desc");
         return $this->response($res);
     }
 

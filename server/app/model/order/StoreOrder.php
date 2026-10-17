@@ -199,6 +199,12 @@ class StoreOrder extends OrderCommon
         $res = model('order')->update($data, $condition);
 
         $result = $verify->qrcode($code[ 'data' ][ 'verify_code' ], "all", "pickup", "create");
+
+        // 线下扫码买单/快捷付款：顾客现场付款即交易完成，无需核销
+        if (intval($order_info[ 'pay_scene' ] ?? 0) == 1 && intval($order_info[ 'trade_type' ] ?? 0) == 1) {
+            $this->orderComplete($order_info[ 'order_id' ]);
+        }
+
         return $this->success($res);
     }
 

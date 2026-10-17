@@ -107,6 +107,13 @@
 				<view class="font-20" style="color: #999;">已收藏 {{ infos.shop_member_num || 0 }}个</view>
 				<image src="/static/coll.png" mode=""></image>
 			</view>
+			<view class="" @click="gonext('quickPay')">
+				<view class="font-26 font-weight-6">
+					付款
+				</view>
+				<view class="font-20" style="color: #999;">扫码买单/快捷付款</view>
+				<image src="/static/money.png" mode=""></image>
+			</view>
 		</view>
 		<view class="tools">
 			<uv-grid :col="4">

@@ -126,6 +126,20 @@
 					}
 				},
 				{
+					"path": "quickPay/quickPay",
+					"style": {
+						"navigationBarTitleText": "向商家付款",
+						"navigationStyle": "custom"
+					}
+				},
+				{
+					"path": "quickPayList/quickPayList",
+					"style": {
+						"navigationBarTitleText": "付款明细",
+						"navigationStyle": "custom"
+					}
+				},
+				{
 					"path": "setTing/setTing",
 					"style": {
 						"navigationBarTitleText": "设置",

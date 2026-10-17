@@ -50,7 +50,13 @@
 				custom-item-style="border-radius: 30rpx;" activeColor='#F55606' bgColor="#FFFFFF" mode="button"
 				@change="change"></uv-subsection>
 			<view class="container p-32 m-t-32">
-				<view class="font-32 font-weight-6 m-b-32">金额明细</view>
+				<view class="acea-row row-middle row-between m-b-32">
+					<view class="font-32 font-weight-6">金额明细</view>
+					<view class="font-24 acea-row row-middle" style="color: #F55606;" @click="$util.redirectTo('/otherpages/quickPayList/quickPayList')">
+						<text>付款明细</text>
+						<uv-icon name="arrow-right" color="#F55606" size="12" customStyle="margin-left: 4rpx;"></uv-icon>
+					</view>
+				</view>
 				<view v-for="(item,index) in list" class="items acea-row row-middle row-between" :key="index">
 					<view class="acea-row row-middle">
 						<image src="/static/avatar.png" v-if="!item.headimg" class="w-64 h-64 bor-32" mode=""></image>

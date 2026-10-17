@@ -265,4 +265,147 @@ class Ordercreate extends BaseApi
         return $this->response($this->success($res));
     }
 
+    /**
+     * 快捷买单/向商家付款：创建订单并生成支付流水
+     */
+    public function quickPay()
+    {
+        $token = $this->checkToken();
+        if ($token[ 'code' ] < 0) return $this->response($token);
+
+        $site_id = intval($this->params[ 'site_id' ] ?? 0);
+        $amount = round(floatval($this->params[ 'amount' ] ?? 0), 2);
+        $remark = trim(strval($this->params[ 'remark' ] ?? ''));
+        $store_id = intval($this->params[ 'store_id' ] ?? 0);
+
+        if ($site_id <= 0) {
+            return $this->response($this->error('', '请选择付款商家'));
+        }
+        if ($amount <= 0) {
+            return $this->response($this->error('', '请输入有效的付款金额'));
+        }
+        if ($amount > 50000) {
+            return $this->response($this->error('', '单笔付款金额不能超过50000元'));
+        }
+
+        // 获取店铺信息
+        $shop_info = model('shop')->getInfo([ [ 'site_id', '=', $site_id ] ], 'site_id, site_name, logo, website_id')[ 'data' ] ?? [];
+        if (empty($shop_info)) {
+            return $this->response($this->error('', '商家不存在或未营业'));
+        }
+
+        // 获取门店信息（若未指定则取该店铺的默认门店）
+        $store_info = [];
+        if ($store_id > 0) {
+            $store_info = model('store')->getInfo([ [ 'store_id', '=', $store_id ], [ 'site_id', '=', $site_id ] ], 'store_id, store_name, address, full_address, telphone')[ 'data' ] ?? [];
+        }
+        if (empty($store_info)) {
+            $store_info = model('store')->getInfo([ [ 'site_id', '=', $site_id ], [ 'is_default', '=', 1 ] ], 'store_id, store_name, address, full_address, telphone')[ 'data' ] ?? [];
+            if (empty($store_info)) {
+                $store_info = model('store')->getInfo([ [ 'site_id', '=', $site_id ] ], 'store_id, store_name, address, full_address, telphone')[ 'data' ] ?? [];
+            }
+        }
+
+        $delivery_store_id = $store_info[ 'store_id' ] ?? 0;
+        $delivery_store_name = $store_info[ 'store_name' ] ?? $shop_info[ 'site_name' ];
+        $delivery_store_info = !empty($store_info) ? json_encode($store_info, JSON_UNESCAPED_UNICODE) : '';
+
+        // 会员信息
+        $member_info = model('member')->getInfo([ [ 'member_id', '=', $this->member_id ] ], 'nickname, mobile, headimg')[ 'data' ] ?? [];
+
+        // 生成单号
+        $order_common = new \app\model\order\OrderCommon();
+        $order_no = $order_common->createOrderNo($site_id);
+        $pay_model = new \app\model\system\Pay();
+        $out_trade_no = $pay_model->createOutTradeNo($this->member_id);
+
+        model('order')->startTrans();
+        try {
+            $order_data = [
+                'order_no' => $order_no,
+                'site_id' => $site_id,
+                'site_name' => $shop_info[ 'site_name' ],
+                'website_id' => $shop_info[ 'website_id' ] ?? 0,
+                'order_name' => '向' . $shop_info[ 'site_name' ] . '付款',
+                'order_from' => $this->params[ 'app_type' ] ?? 'weapp',
+                'order_from_name' => $this->params[ 'app_type_name' ] ?? '微信小程序',
+                'order_type' => 2, // 门店订单类型
+                'order_type_name' => '到店买单',
+                'trade_type' => 1, // 到店消费
+                'pay_scene' => 1,  // 线下扫码买单/快捷付款
+                'custom_amount' => $amount,
+                'out_trade_no' => $out_trade_no,
+                'member_id' => $this->member_id,
+                'name' => $member_info[ 'nickname' ] ?: '顾客',
+                'mobile' => $member_info[ 'mobile' ] ?: '',
+                'full_address' => $store_info[ 'full_address' ] ?? ($store_info[ 'address' ] ?? ''),
+                'delivery_type' => 'store',
+                'delivery_type_name' => '到店买单',
+                'delivery_store_id' => $delivery_store_id,
+                'delivery_store_name' => $delivery_store_name,
+                'delivery_store_info' => $delivery_store_info,
+                'goods_money' => $amount,
+                'order_money' => $amount,
+                'pay_money' => $amount,
+                'goods_num' => 1,
+                'buyer_message' => $remark,
+                'order_status' => 0, // 待支付
+                'order_status_name' => '待支付',
+                'pay_status' => 0,
+                'create_time' => time(),
+                'is_enable_refund' => 0,
+            ];
+
+            $order_id = model('order')->add($order_data);
+
+            $order_goods_data = [
+                'order_id' => $order_id,
+                'site_id' => $site_id,
+                'site_name' => $shop_info[ 'site_name' ],
+                'order_no' => $order_no,
+                'member_id' => $this->member_id,
+                'sku_name' => '向商家付款',
+                'goods_name' => '快捷买单',
+                'sku_image' => $shop_info[ 'logo' ] ?: '',
+                'price' => $amount,
+                'cost_price' => $amount,
+                'num' => 1,
+                'goods_money' => $amount,
+                'cost_money' => $amount,
+                'real_goods_money' => $amount,
+                'trade_type' => 1,
+                'delivery_status' => 0,
+                'delivery_status_name' => '待支付',
+            ];
+            model('order_goods')->add($order_goods_data);
+
+            // 写入系统支付记录
+            $pay_model->addPay(
+                $site_id,
+                $out_trade_no,
+                '',
+                '向' . $shop_info[ 'site_name' ] . '付款',
+                '快捷买单' . $amount . '元',
+                $amount,
+                '',
+                'OrderPayNotify',
+                ''
+            );
+
+            model('order')->commit();
+
+            return $this->response($this->success([
+                'out_trade_no' => $out_trade_no,
+                'order_id' => $order_id,
+                'order_no' => $order_no,
+                'pay_money' => $amount,
+                'site_name' => $shop_info[ 'site_name' ],
+                'logo' => $shop_info[ 'logo' ] ?? '',
+            ]));
+        } catch (\Exception $e) {
+            model('order')->rollback();
+            return $this->response($this->error('', $e->getMessage()));
+        }
+    }
+
 }

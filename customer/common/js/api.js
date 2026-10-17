@@ -209,3 +209,7 @@ export const myIncomeSummary=params=>server('/api/memberlevel/myIncomeSummary',p
 export const myIncomeList=params=>server('/api/memberlevel/myIncomeList',params)
 // 我的关联商家店铺列表（老板+店员+归属）
 export const myShopList=params=>server('/api/shop/myshoplist',params)
+// 快捷买单/向商家付款 下单
+export const quickPayCreate=params=>server('/api/ordercreate/quickPay',params)
+// 快捷买单/向商家付款 记录明细
+export const quickPayList=params=>server('/api/order/quickPayLists',params)

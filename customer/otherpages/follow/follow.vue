@@ -52,7 +52,8 @@
 												</view>
 											</view>
 											<view class="w2 acea-row row-middle">
-												<view class="m-r-16" @click="open1(item)">
+												<view class="pay-btn m-r-12" @click.stop="goPay(item)">付款</view>
+												<view class="m-r-12" @click="open1(item)">
 													<image src="/otherpages/static/map3.png" mode=""></image>
 												</view>
 												<view class="" @click="calls(item)">
@@ -112,6 +113,11 @@
 			search(){
 				this.page=1
 				this.getlist()
+			},
+			goPay(e) {
+				uni.navigateTo({
+					url: `/otherpages/quickPay/quickPay?site_id=${e.site_id}`
+				})
 			},
 			calls(e) {
 				uni.makePhoneCall({
@@ -182,7 +188,7 @@
 	}
 
 	.w1 {
-		width: calc(100% - 152rpx - 16rpx);
+		width: calc(100% - 240rpx);
 
 		view {
 			font-weight: 400;
@@ -193,9 +199,22 @@
 	}
 
 	.w2 {
-		view {
-			width: 56rpx;
-			height: 56rpx;
+		.pay-btn {
+			width: 96rpx;
+			height: 52rpx;
+			background: linear-gradient(135deg, #FF6A00 0%, #F51D1D 100%);
+			color: #fff;
+			font-size: 24rpx;
+			font-weight: 600;
+			border-radius: 26rpx;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		view:not(.pay-btn) {
+			width: 52rpx;
+			height: 52rpx;
 			background: #F5F5F5;
 			border-radius: 12rpx;
 			display: flex;
@@ -204,8 +223,8 @@
 		}
 
 		image {
-			width: 28rpx;
-			height: 28rpx;
+			width: 26rpx;
+			height: 26rpx;
 		}
 	}
 
