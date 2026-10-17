@@ -202,23 +202,28 @@ class Shop extends BaseApi
         }
         $staff_site_ids = array_values(array_unique($staff_site_ids));
 
-        // 3. 我所归属的店铺：member.site_id 以及关注店铺，排除前两类
+        // 3. 我所归属的店铺：业务规则确保用户的归属商家只有一个（排除已是老板/店员的店铺）
         $belong_site_ids = [];
+        $target_belong_id = 0;
         if ($belong_site_id > 0 && !in_array($belong_site_id, $owner_site_ids) && !in_array($belong_site_id, $staff_site_ids)) {
-            $belong_site_ids[] = $belong_site_id;
-        }
-        $follow_site_ids = Db::name('shop_member')
-            ->where([['member_id', '=', $member_id], ['is_subscribe', '=', 1]])
-            ->column('site_id');
-        if (!empty($follow_site_ids)) {
-            foreach ($follow_site_ids as $fsid) {
-                $fsid = (int)$fsid;
-                if ($fsid > 0 && !in_array($fsid, $owner_site_ids) && !in_array($fsid, $staff_site_ids) && !in_array($fsid, $belong_site_ids)) {
-                    $belong_site_ids[] = $fsid;
-                }
+            $target_belong_id = $belong_site_id;
+        } else {
+            // 如果 member.site_id 尚未设置或已被排除，从 shop_member 取最后一个有效归属商家
+            $last_follow_site = (int)Db::name('shop_member')
+                ->where([['member_id', '=', $member_id], ['is_subscribe', '=', 1], ['site_id', '>', 0]])
+                ->order('id desc')
+                ->value('site_id');
+            if ($last_follow_site > 0 && !in_array($last_follow_site, $owner_site_ids) && !in_array($last_follow_site, $staff_site_ids)) {
+                $target_belong_id = $last_follow_site;
             }
         }
-        $belong_site_ids = array_values(array_unique($belong_site_ids));
+        if ($target_belong_id > 0) {
+            $belong_site_ids = [$target_belong_id];
+            // 若 member.site_id 为空，自动自愈同步更新
+            if ($belong_site_id <= 0) {
+                Db::name('member')->where('member_id', $member_id)->update(['site_id' => $target_belong_id]);
+            }
+        }
 
         $all_site_ids = array_values(array_unique(array_merge($owner_site_ids, $staff_site_ids, $belong_site_ids)));
         if (empty($all_site_ids)) {

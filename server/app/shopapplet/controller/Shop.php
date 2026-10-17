@@ -93,7 +93,7 @@ class Shop extends Common
             if (!empty($mobile)) {
                 $q->whereOr('mobile', $mobile);
             }
-        })->find();
+        })->order('is_manager desc, employee_id asc')->find();
 
         if (empty($myinfo)) {
             $myinfo = [];
@@ -104,24 +104,14 @@ class Shop extends Common
             if (empty($shopinfo['member_id'])) {
                 Db::name('shop')->where('site_id', $site_id)->update(['member_id' => $this->member_id]);
             }
-            if (empty($myinfo['employee_id'])) {
-                $new_id = Db::name('shop_employee')->insertGetId([
-                    'shop_id' => $site_id,
-                    'member_id' => $this->member_id,
-                    'username' => !empty($user_nickname) ? $user_nickname : '老板',
-                    'mobile' => $mobile,
-                    'headimg' => $user_headimg,
-                    'is_manager' => 1,
-                    'status' => 1,
-                    'is_deleted' => 0,
-                    'create_time' => time()
-                ]);
-                $myinfo['employee_id'] = $new_id;
-                $myinfo['username'] = !empty($user_nickname) ? $user_nickname : '老板';
-                $myinfo['mobile'] = $mobile;
-            } elseif ($myinfo['is_manager'] != 1) {
-                Db::name('shop_employee')->where('employee_id', $myinfo['employee_id'])->update(['is_manager' => 1]);
-                $myinfo['is_manager'] = 1;
+            if (!empty($myinfo['employee_id'])) {
+                if ($myinfo['is_manager'] != 1) {
+                    Db::name('shop_employee')->where('employee_id', $myinfo['employee_id'])->update(['is_manager' => 1]);
+                }
+                if (empty($myinfo['member_id'])) {
+                    Db::name('shop_employee')->where('employee_id', $myinfo['employee_id'])->update(['member_id' => $this->member_id]);
+                    $myinfo['member_id'] = $this->member_id;
+                }
             }
             if (empty($myinfo['username'])) {
                 $myinfo['username'] = !empty($user_nickname) ? $user_nickname : '老板';
@@ -313,6 +303,7 @@ class Shop extends Common
                 }
             })
             ->where('is_deleted', 0)
+            ->order('is_manager desc, employee_id asc')
             ->find();
 
         $is_manager = 0;
@@ -323,21 +314,13 @@ class Shop extends Common
                 Db::name('shop')->where('site_id', $site_id)->update(['member_id' => $curr_member_id]);
                 $shop['member_id'] = $curr_member_id;
             }
-            // 自动补齐 shop_employee
-            if (empty($emp)) {
-                Db::name('shop_employee')->insert([
-                    'shop_id' => $site_id,
-                    'member_id' => $curr_member_id,
-                    'username' => !empty($member['nickname']) ? $member['nickname'] : (!empty($member['username']) ? $member['username'] : '老板'),
-                    'mobile' => $mobile,
-                    'headimg' => $member['headimg'] ?? '',
-                    'is_manager' => 1,
-                    'status' => 1,
-                    'is_deleted' => 0,
-                    'create_time' => time()
-                ]);
-            } elseif ($emp['is_manager'] != 1) {
-                Db::name('shop_employee')->where('employee_id', $emp['employee_id'])->update(['is_manager' => 1]);
+            if (!empty($emp)) {
+                if ($emp['is_manager'] != 1) {
+                    Db::name('shop_employee')->where('employee_id', $emp['employee_id'])->update(['is_manager' => 1]);
+                }
+                if (empty($emp['member_id'])) {
+                    Db::name('shop_employee')->where('employee_id', $emp['employee_id'])->update(['member_id' => $curr_member_id]);
+                }
             }
         }
 

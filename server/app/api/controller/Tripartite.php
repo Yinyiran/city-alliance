@@ -90,11 +90,10 @@ class Tripartite extends BaseApi
 
         $this->params['mobile'] = $decrypt_data['data']['purePhoneNumber'];
 
-        // 绑定商家ID参数识别
-        if (empty($this->params['site_id']) && !empty($this->params['share_site_id'])) {
-            $this->params['site_id'] = (int)$this->params['share_site_id'];
-        }
-        if (!empty($this->params['site_id'])) {
+        // 绑定商家ID参数识别（优先级：site_id -> share_site_id -> user_site_id -> relate_site_id）
+        if (empty($this->params['site_id'])) {
+            $this->params['site_id'] = (int)($this->params['share_site_id'] ?? ($this->params['user_site_id'] ?? ($this->params['relate_site_id'] ?? 0)));
+        } else {
             $this->params['site_id'] = (int)$this->params['site_id'];
         }
 

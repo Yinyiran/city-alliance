@@ -10,6 +10,8 @@ use app\model\BaseModel;
 use app\model\message\Email;
 use app\model\message\Sms;
 use app\model\system\Stat;
+use app\model\shop\ShopMember;
+use think\facade\Db;
 
 /**
  * 注册
@@ -18,6 +20,82 @@ use app\model\system\Stat;
  */
 class Register extends BaseModel
 {
+    /**
+     * 解析用户注册/绑定的归属商家ID，确保永远不为 0
+     * 优先级：
+     * 1. 员工表关联（若手机号存在于商家员工表且未删除，所属商家即为该店铺）
+     * 2. 请求显式携带（site_id / share_site_id / relate_site_id，且店铺状态为 1）
+     * 3. 邀请人归属（若 suid 存在，继承邀请人的所属员工店铺或所属商家）
+     * 4. 城市分站默认店铺（若传了 website_id，查找该城市下的首家有效商家）
+     * 5. 系统默认兜底商家（取数据库中首家有效状态的商家店铺，确保绝不为 0）
+     *
+     * @param array $data
+     * @return int
+     */
+    public function resolveAffiliatedSiteId($data)
+    {
+        $site_id = 0;
+
+        // 1. 如果手机号在商家员工表中，所属商家就是该商家
+        if (!empty($data['mobile'])) {
+            $emp = Db::name('shop_employee')
+                ->where([['mobile', '=', $data['mobile']], ['is_deleted', '=', 0]])
+                ->order('employee_id desc')
+                ->find();
+            if ($emp && !empty($emp['shop_id'])) {
+                $site_id = (int)$emp['shop_id'];
+            }
+        }
+
+        // 2. 如果请求携带了商家ID（通过分享卡片或扫商家码进入）
+        if (empty($site_id)) {
+            $req_site_id = (int)($data['site_id'] ?? ($data['share_site_id'] ?? ($data['relate_site_id'] ?? 0)));
+            if ($req_site_id > 0) {
+                $site_exists = Db::name('shop')->where([['site_id', '=', $req_site_id], ['shop_status', '=', 1]])->count();
+                if ($site_exists) {
+                    $site_id = $req_site_id;
+                }
+            }
+        }
+
+        // 3. 邀请人所属商家
+        if (empty($site_id) && !empty($data['suid'])) {
+            $p_member = Db::name('member')->where([['member_id', '=', $data['suid']], ['is_delete', '=', 0]])->find();
+            if ($p_member) {
+                if (!empty($p_member['mobile'])) {
+                    $p_emp = Db::name('shop_employee')->where([['mobile', '=', $p_member['mobile']], ['is_deleted', '=', 0]])->find();
+                    if ($p_emp && !empty($p_emp['shop_id'])) {
+                        $site_id = (int)$p_emp['shop_id'];
+                    }
+                }
+                if (empty($site_id) && !empty($p_member['site_id'])) {
+                    $site_id = (int)$p_member['site_id'];
+                }
+            }
+        }
+
+        // 4. 当前城市/站点下的首家有效店铺
+        if (empty($site_id) && !empty($data['website_id'])) {
+            $city_site_id = Db::name('shop')
+                ->where([['website_id', '=', (int)$data['website_id']], ['shop_status', '=', 1], ['site_id', '>', 0]])
+                ->order('site_id asc')
+                ->value('site_id');
+            if (!empty($city_site_id)) {
+                $site_id = (int)$city_site_id;
+            }
+        }
+
+        // 5. 兜底商家：数据库中首家有效店铺（确保绝不为 0）
+        if (empty($site_id)) {
+            $default_site_id = Db::name('shop')
+                ->where([['shop_status', '=', 1], ['site_id', '>', 0]])
+                ->order('site_id asc')
+                ->value('site_id');
+            $site_id = !empty($default_site_id) ? (int)$default_site_id : 1;
+        }
+
+        return (int)$site_id;
+    }
 
     /**
      * 用户名密码注册(必传username， password),之前检测重复性,判断用户名是否为手机，邮箱
@@ -30,16 +108,14 @@ class Register extends BaseModel
         $member_level = new MemberLevel();
         $member_level_info = $member_level->getMemberLevelInfo([['is_default', '=', 1]], 'level_id,level_name');
         $member_level_info = $member_level_info['data'];
-        $site_id = !empty($data['site_id']) ? (int)$data['site_id'] : 0;
         if (isset($data['suid']) && !empty($data['suid'])) {
             $count = model("member")->getCount([['member_id', '=', $data['suid']], ['is_delete', '=', 0]]);
             if (!$count) {
                 $data['suid'] = 0;
-            } else if (empty($site_id)) {
-                $p_site_id = model("member")->getValue([['member_id', '=', $data['suid']]], 'site_id');
-                if (!empty($p_site_id)) $site_id = (int)$p_site_id;
             }
         }
+        $site_id = $this->resolveAffiliatedSiteId($data);
+
         $data_reg = [
             'source_member' => isset($data['suid']) ? $data['suid'] : 0,
             'username' => $data['username'],
@@ -64,6 +140,8 @@ class Register extends BaseModel
         ];
         $res = model("member")->add($data_reg);
         if ($res) {
+            // 同步加入唯一归属商家 shop_member 记录
+            (new ShopMember())->addShopMember($site_id, $res);
             //添加统计
             $stat = new Stat();
             $stat->addShopStat(['member_count' => 1, 'site_id' => 0]);
@@ -91,7 +169,6 @@ class Register extends BaseModel
 
         $staff_member_id = 0;
 
-        $site_id = 0;
         if (isset($data['suid']) && !empty($data['suid'])) {
             $count = model("member")->getCount([['member_id', '=', $data['suid']], ['is_delete', '=', 0]]);
             if (!$count) $data['suid'] = 0;
@@ -113,24 +190,8 @@ class Register extends BaseModel
             }
         }
 
-        // 确定新注册用户所属商家ID
-        // 1. 如果手机号在商家员工表中，所属商家就是该商家
-        if (!empty($data['mobile'])) {
-            $emp = \think\facade\Db::name('shop_employee')
-                ->where([['mobile', '=', $data['mobile']], ['is_deleted', '=', 0]])
-                ->find();
-            if ($emp && !empty($emp['shop_id'])) {
-                $site_id = (int)$emp['shop_id'];
-            }
-        }
-        // 2. 如果请求携带了商家ID（通过分享卡片或扫商家码进入）
-        if (empty($site_id) && !empty($data['site_id'])) {
-            $site_id = (int)$data['site_id'];
-        }
-        // 3. 如果邀请人所属商家存在，继承邀请人的商家
-        if (empty($site_id) && !empty($p_member) && !empty($p_member['site_id'])) {
-            $site_id = (int)$p_member['site_id'];
-        }
+        // 解析并确保唯一有效归属商家
+        $site_id = $this->resolveAffiliatedSiteId($data);
 
         $data_reg = [
             'source_member' => isset($data['suid']) ? $data['suid'] : 0,
@@ -168,10 +229,12 @@ class Register extends BaseModel
         if ($res) {
             // 如果新注册用户是员工，将员工记录关联其 member_id
             if (!empty($data['mobile'])) {
-                \think\facade\Db::name('shop_employee')
+                Db::name('shop_employee')
                     ->where([['mobile', '=', $data['mobile']], ['is_deleted', '=', 0]])
                     ->update(['member_id' => $res]);
             }
+            // 同步加入唯一归属商家 shop_member 记录
+            (new ShopMember())->addShopMember($site_id, $res);
             //添加统计
             $stat = new Stat();
             $stat->addShopStat(['member_count' => 1, 'site_id' => 0]);
@@ -204,6 +267,8 @@ class Register extends BaseModel
                 $count = model("member")->getCount([['member_id', '=', $data['suid']], ['is_delete', '=', 0]]);
                 if (!$count) $data['suid'] = 0;
             }
+            $site_id = $this->resolveAffiliatedSiteId($data);
+
             $data_reg = [
                 'source_member' => isset($data['suid']) ? $data['suid'] : 0,
                 'email' => $data['email'],
@@ -223,10 +288,13 @@ class Register extends BaseModel
                 'login_time' => time(),
                 'login_type' => empty($data['app_type']) ? '' : $data['app_type'],
                 'login_type_name' => empty($data['app_type_name']) ? '' : $data['app_type_name'],
-                'last_login_time' => time()
+                'last_login_time' => time(),
+                'site_id' => $site_id,
             ];
             $res = model("member")->add($data_reg);
             if ($res) {
+                // 同步加入唯一归属商家 shop_member 记录
+                (new ShopMember())->addShopMember($site_id, $res);
                 //添加统计
                 $stat = new Stat();
                 $stat->addShopStat(['member_count' => 1, 'site_id' => 0]);
@@ -289,6 +357,8 @@ class Register extends BaseModel
                 $data['nickName']);
         }
 
+        $site_id = $this->resolveAffiliatedSiteId($data);
+
         $data_reg = [
             'source_member' => isset($data['suid']) ? $data['suid'] : 0,
             'username' => $username,
@@ -310,9 +380,12 @@ class Register extends BaseModel
             'login_type_name' => empty($data['app_type_name']) ? '' : $data['app_type_name'],
             'last_login_time' => time(),
             'staff_member_id' => $staff_member_id,
+            'site_id' => $site_id,
         ];
         $res = model("member")->add($data_reg);
         if ($res) {
+            // 同步加入唯一归属商家 shop_member 记录
+            (new ShopMember())->addShopMember($site_id, $res);
             //添加统计
             $stat = new Stat();
             $stat->addShopStat(['member_count' => 1, 'site_id' => 0]);

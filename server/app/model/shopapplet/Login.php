@@ -47,11 +47,11 @@ public function mobileLogin($data)
             ], [ [ 'member_id', '=', $info[ 'member_id' ] ] ]);
 
             event("MemberLogin", [ 'member_id' => $info[ 'member_id' ] ], true);
-            $employeeinfo =  Db::name("shop_employee")->where("mobile='".$data[ 'mobile' ]."' and is_deleted=0")->find(); 
-            if(!empty($employeeinfo)){
-                $member_id=$info[ 'member_id' ] ;
-                Db::name("shop_employee")->where(["employee_id"=>$employeeinfo["employee_id"]])->update(["member_id"=>$member_id]);
-            }
+            $member_id = $info['member_id'];
+            Db::name("shop_employee")->where([
+                ['mobile', '=', $data['mobile']],
+                ['is_deleted', '=', 0]
+            ])->update(["member_id" => $member_id]);
 
             //用户第三方信息刷新
             $this->refreshAuth($info[ 'member_id' ], $data);

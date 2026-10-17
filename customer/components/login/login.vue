@@ -378,7 +378,7 @@ export default {
 			// loading 由 http.js 统一管理（并发计数配对），此处手动调用会多出 hideLoading
 					uni.login({
 						success: res => {
-							const shareSiteId = uni.getStorageSync('share_site_id') || ''
+							const shareSiteId = uni.getStorageSync('share_site_id') || uni.getStorageSync('user_site_id') || uni.getStorageSync('site_id') || ''
 							const inviteCode = this.suid || uni.getStorageSync('invite_code') || ''
 							const params = {
 								code: res.code,

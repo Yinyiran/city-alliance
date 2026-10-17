@@ -993,12 +993,16 @@ class Shop extends BaseCity
     {
         $new_site_id = input('site_id', 0);
 
-        // 自动检查并添加 store_id 字段
+        // 自动检查并添加 store_id 字段及索引
         try {
             $prefix = config('database.connections.mysql.prefix', '');
             $has_col = Db::query("SHOW COLUMNS FROM `{$prefix}shop_employee` LIKE 'store_id'");
             if (empty($has_col)) {
                 Db::execute("ALTER TABLE `{$prefix}shop_employee` ADD COLUMN `store_id` INT(11) NOT NULL DEFAULT 0 COMMENT '门店id' AFTER `shop_id`");
+            }
+            $has_idx = Db::query("SHOW INDEX FROM `{$prefix}shop_employee` WHERE Key_name = 'idx_shop_mobile_deleted'");
+            if (empty($has_idx)) {
+                Db::execute("ALTER TABLE `{$prefix}shop_employee` ADD INDEX `idx_shop_mobile_deleted` (`shop_id`, `mobile`, `is_deleted`)");
             }
         } catch (\Throwable $e) {}
 
@@ -1102,11 +1106,17 @@ class Shop extends BaseCity
 
             $shop = model('shop')->getInfo(['site_id' => $site_id]);
 
+            $member_id = \think\facade\Db::name('member')->where([
+                ['mobile', '=', $username],
+                ['is_delete', '=', 0]
+            ])->value('member_id') ?: 0;
+
             $res = model('shop_employee')->add([
                 'shop_id' => $site_id,
                 'store_id' => intval($store_id),
                 'username' => $name,
                 'mobile' => $username,
+                'member_id' => $member_id,
                 'create_time' => time(),
                 'is_manager' => $is_manager,
                 'website_id' => $shop['website_id'] ?? 0,
@@ -1116,7 +1126,7 @@ class Shop extends BaseCity
                 if ($is_manager) {
                     \think\facade\Db::name('shop')->where('site_id', $site_id)->update(['zlr_employee_id' => $res]);
                 }
-                \app\model\shopapplet\ShopEmployee::syncMemberPartnerLevel(0, $username);
+                \app\model\shopapplet\ShopEmployee::syncMemberPartnerLevel($member_id, $username);
             }
             $res = (new BaseModel())->success($res);
             return $res;
@@ -1173,7 +1183,7 @@ class Shop extends BaseCity
 
             $shop = model('shop')->getInfo(['site_id' => $site_id]);
 
-            $res = model('shop_employee')->update([
+            $update_data = [
                 'shop_id' => $site_id,
                 'store_id' => intval($store_id),
                 'username' => $name,
@@ -1181,12 +1191,22 @@ class Shop extends BaseCity
                 'is_manager' => $is_manager,
                 'website_id' => $shop['website_id'] ?? 0,
                 'headimg' => $image_url,
-            ], ['employee_id' => $id]);
+            ];
+            $curr_member_id = model('shop_employee')->getValue([['employee_id', '=', $id]], 'member_id');
+            if (empty($curr_member_id)) {
+                $m_id = \think\facade\Db::name('member')->where([['mobile', '=', $username], ['is_delete', '=', 0]])->value('member_id');
+                if (!empty($m_id)) {
+                    $update_data['member_id'] = $m_id;
+                    $curr_member_id = $m_id;
+                }
+            }
+
+            $res = model('shop_employee')->update($update_data, ['employee_id' => $id]);
             if ($res) {
                 if ($is_manager) {
                     \think\facade\Db::name('shop')->where('site_id', $site_id)->update(['zlr_employee_id' => $id]);
                 }
-                \app\model\shopapplet\ShopEmployee::syncMemberPartnerLevel(0, $username);
+                \app\model\shopapplet\ShopEmployee::syncMemberPartnerLevel($curr_member_id ?: 0, $username);
             }
             $res = (new BaseModel())->success($res);
             return $res;

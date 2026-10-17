@@ -18,7 +18,7 @@ class ShopMember extends BaseModel
 {
 
     /**
-     * 添加店铺关注会员
+     * 添加店铺关注会员（业务规则：用户的归属商家只有一个，保留/更新为最后一个，其余删除）
      * @param $site_id
      * @param $member_id
      * @param int $is_subscribe
@@ -26,30 +26,68 @@ class ShopMember extends BaseModel
      */
     public function addShopMember($site_id, $member_id, $is_subscribe = 1)
     {
+        $site_id = (int)$site_id;
+        $member_id = (int)$member_id;
+        if ($site_id <= 0 || $member_id <= 0) {
+            return $this->error('', 'PARAM_ERROR');
+        }
 
-        $shop_member_info = model("shop_member")->getInfo([ [ 'site_id', '=', $site_id ], [ 'member_id', '=', $member_id ] ], 'id,is_subscribe');
+        // 查找该用户已有的所有 shop_member 记录
+        $existing_records = Db::name('shop_member')
+            ->where('member_id', $member_id)
+            ->order('id desc')
+            ->select()
+            ->toArray();
+
+        $target_record = null;
+        $delete_ids = [];
+
+        foreach ($existing_records as $rec) {
+            if ((int)$rec['site_id'] === $site_id && empty($target_record)) {
+                $target_record = $rec;
+            } else {
+                $delete_ids[] = $rec['id'];
+            }
+        }
+
+        // 清理多余记录，确保用户归属商家唯一
+        if (!empty($delete_ids)) {
+            Db::name('shop_member')->whereIn('id', $delete_ids)->delete();
+        }
+
         $sub_num = 0;
-        if (!empty($shop_member_info)) {
-            if($is_subscribe == 1){
-                $res = model("shop_member")->update([ 'is_subscribe' => $is_subscribe, 'subscribe_time' => time(), 'create_time' => time(), 'cancel_time' => 0 ], [ [ 'site_id', '=', $site_id ], [ 'member_id', '=', $member_id ] ]);
-
-                if ($shop_member_info[ 'is_subscribe' ] == 0 && $is_subscribe == 1) {
+        if (!empty($target_record)) {
+            if ($is_subscribe == 1) {
+                Db::name('shop_member')->where('id', $target_record['id'])->update([
+                    'is_subscribe' => 1,
+                    'subscribe_time' => time(),
+                    'cancel_time' => 0,
+                    'create_time' => $target_record['create_time'] ?: time(),
+                ]);
+                if ($target_record['is_subscribe'] == 0) {
                     $sub_num = 1;
                 }
             }
-
         } else {
             $data = [
                 'site_id' => $site_id,
                 'member_id' => $member_id,
                 'subscribe_time' => time(),
                 'is_subscribe' => $is_subscribe,
+                'cancel_time' => 0,
                 'create_time' => time(),
             ];
-            $res = model("shop_member")->add($data);
+            Db::name('shop_member')->insert($data);
             if ($is_subscribe == 1) {
                 $sub_num = 1;
             }
+        }
+
+        // 同步更新 member 表的归属商家 site_id
+        if ($is_subscribe == 1) {
+            Db::name('member')
+                ->where([['member_id', '=', $member_id], ['is_delete', '=', 0]])
+                ->update(['site_id' => $site_id]);
         }
 
         if ($sub_num != 0) {

@@ -76,6 +76,18 @@ class Login extends BaseApi
                 $res   = $login->mobileLogin($this->params);
                 if ($res['code'] >= 0) {
                     $member_id = $res['data']['member_id'];
+                    Db::name("shop_employee")->where([
+                        ['mobile', '=', $this->params['mobile']],
+                        ['is_deleted', '=', 0]
+                    ])->update(["member_id" => $member_id]);
+                    $emp_info = Db::name("shop_employee")->where([
+                        ['mobile', '=', $this->params['mobile']],
+                        ['is_deleted', '=', 0]
+                    ])->order('employee_id desc')->find();
+                    if ($emp_info && !empty($emp_info['shop_id'])) {
+                        Db::name("member")->where([['member_id', '=', $member_id], ['is_delete', '=', 0]])->update(['site_id' => (int)$emp_info['shop_id']]);
+                        (new \app\model\shop\ShopMember())->addShopMember((int)$emp_info['shop_id'], $member_id);
+                    }
                     EmployeeModel::syncMemberPartnerLevel($member_id, $this->params['mobile']);
                     $token = $this->createToken($member_id);
                     $res   = $this->success(['token' => $token]);
@@ -84,6 +96,18 @@ class Login extends BaseApi
                 $res = $register->mobileRegister($this->params);
                 if ($res['code'] >= 0) {
                     $member_id = $res['data'];
+                    Db::name("shop_employee")->where([
+                        ['mobile', '=', $this->params['mobile']],
+                        ['is_deleted', '=', 0]
+                    ])->update(["member_id" => $member_id]);
+                    $emp_info = Db::name("shop_employee")->where([
+                        ['mobile', '=', $this->params['mobile']],
+                        ['is_deleted', '=', 0]
+                    ])->order('employee_id desc')->find();
+                    if ($emp_info && !empty($emp_info['shop_id'])) {
+                        Db::name("member")->where([['member_id', '=', $member_id], ['is_delete', '=', 0]])->update(['site_id' => (int)$emp_info['shop_id']]);
+                        (new \app\model\shop\ShopMember())->addShopMember((int)$emp_info['shop_id'], $member_id);
+                    }
                     EmployeeModel::syncMemberPartnerLevel($member_id, $this->params['mobile']);
                     $token = $this->createToken($member_id);
                     $res   = $this->success(['token' => $token]);

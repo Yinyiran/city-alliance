@@ -13,6 +13,8 @@ use think\db\exception\DataNotFoundException;
 use think\db\exception\DbException;
 use think\db\exception\ModelNotFoundException;
 use app\model\upload\Upload;
+use app\model\shop\ShopMember;
+use think\facade\Db;
 
 /**
  * 登录
@@ -129,6 +131,13 @@ class Login extends BaseModel
                     $member_data['headimg'] = $img;
                 }*/
                 $member_data['headimg'] = $data['avatarUrl'];
+            }
+            // 检查所属商家绑定（若为空，自动解析并同步绑定）
+            $current_site_id = (int)model("member")->getValue([ [ 'member_id', '=', $info[ 'member_id' ] ] ], 'site_id');
+            if (empty($current_site_id)) {
+                $target_site_id = (new Register())->resolveAffiliatedSiteId($data);
+                $member_data['site_id'] = $target_site_id;
+                (new ShopMember())->addShopMember($target_site_id, $info['member_id']);
             }
             //更新登录时间
             model("member")->update($member_data, [ [ 'member_id', '=', $info[ 'member_id' ] ] ]);
@@ -278,22 +287,33 @@ class Login extends BaseModel
             ];
 
             // 检查所属商家绑定
-            $current_site_id = model("member")->getValue([ [ 'member_id', '=', $info[ 'member_id' ] ] ], 'site_id');
+            $current_site_id = (int)model("member")->getValue([ [ 'member_id', '=', $info[ 'member_id' ] ] ], 'site_id');
+            $target_site_id = 0;
             // 1. 如果是商家员工/主理人，绑定为该商家
-            $emp = \think\facade\Db::name('shop_employee')
+            $emp = Db::name('shop_employee')
                 ->where([ [ 'mobile', '=', $info['mobile'] ], [ 'is_deleted', '=', 0 ] ])
+                ->order('employee_id desc')
                 ->find();
             if ($emp && !empty($emp['shop_id'])) {
-                $update_data['site_id'] = (int)$emp['shop_id'];
+                $target_site_id = (int)$emp['shop_id'];
+                $update_data['site_id'] = $target_site_id;
                 if (empty($emp['member_id'])) {
-                    \think\facade\Db::name('shop_employee')->where('employee_id', $emp['employee_id'])->update(['member_id' => $info['member_id']]);
+                    Db::name('shop_employee')->where('employee_id', $emp['employee_id'])->update(['member_id' => $info['member_id']]);
                 }
-            } elseif (empty($current_site_id) && !empty($data['site_id'])) {
-                // 2. 如果用户尚未绑定商家，且本次登录传入了商家ID
-                $update_data['site_id'] = (int)$data['site_id'];
+            } elseif (empty($current_site_id)) {
+                // 2. 如果用户尚未绑定商家，通过解析逻辑获取（支持请求携带或城市/系统兜底）
+                $target_site_id = (new Register())->resolveAffiliatedSiteId($data);
+                $update_data['site_id'] = $target_site_id;
+            } else {
+                $target_site_id = $current_site_id;
             }
 
             model("member")->update($update_data, [ [ 'member_id', '=', $info[ 'member_id' ] ] ]);
+
+            // 同步确保 shop_member 表中也有该唯一的归属商家记录
+            if ($target_site_id > 0) {
+                (new ShopMember())->addShopMember($target_site_id, $info['member_id']);
+            }
 
             event("MemberLogin", [ 'member_id' => $info[ 'member_id' ] ], true);
 
