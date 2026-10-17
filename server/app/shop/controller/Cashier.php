@@ -147,7 +147,7 @@ class Cashier extends BaseShop
         $max = 0;
         $allow = false;
         foreach ($goods_ids as $goods_id) {
-            $goods = model('goods')->getInfo([ [ 'goods_id', '=', $goods_id ] ], 'trade_type,allow_custom_amount,min_order_amount,max_order_amount')[ 'data' ] ?? [];
+            $goods = model('goods')->getInfo([ [ 'goods_id', '=', $goods_id ] ], 'trade_type,allow_custom_amount,min_order_amount,max_order_amount');
             if (intval($goods[ 'trade_type' ] ?? 0) == 1 && intval($goods[ 'allow_custom_amount' ] ?? 0) == 1) {
                 $allow = true;
                 $min = $goods[ 'min_order_amount' ] ?? 0;

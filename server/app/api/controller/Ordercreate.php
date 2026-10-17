@@ -204,7 +204,7 @@ class Ordercreate extends BaseApi
         $num = intval($this->params[ 'num' ] ?? 1);
 
         if (empty($goods_id) && !empty($sku_id)) {
-            $sku_info = model('goods_sku')->getInfo([ [ 'sku_id', '=', $sku_id ] ], 'goods_id')[ 'data' ] ?? [];
+            $sku_info = model('goods_sku')->getInfo([ [ 'sku_id', '=', $sku_id ] ], 'goods_id');
             $goods_id = intval($sku_info[ 'goods_id' ] ?? 0);
         }
         if (empty($goods_id)) {

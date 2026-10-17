@@ -62,7 +62,7 @@ class Pay extends BaseApi
             [ 'order_no', '=', $order_no ],
             [ 'pay_status', '=', 0 ],
             [ 'order_status', '=', 0 ],
-        ], 'order_id,order_no,pay_money,member_id,trade_type,site_id')[ 'data' ] ?? [];
+        ], 'order_id,order_no,pay_money,member_id,trade_type,site_id');
         if (empty($order_info)) {
             return $this->response($this->error('', '订单不存在或已支付'));
         }
@@ -72,7 +72,7 @@ class Pay extends BaseApi
             $goods_ids = model('order_goods')->getColumn([ [ 'order_id', '=', $order_info[ 'order_id' ] ] ], 'goods_id');
             $allow = 0;
             foreach ($goods_ids as $goods_id) {
-                $goods = model('goods')->getInfo([ [ 'goods_id', '=', $goods_id ] ], 'trade_type,allow_custom_amount')[ 'data' ] ?? [];
+                $goods = model('goods')->getInfo([ [ 'goods_id', '=', $goods_id ] ], 'trade_type,allow_custom_amount');
                 if (intval($goods[ 'trade_type' ] ?? 0) == 1 && intval($goods[ 'allow_custom_amount' ] ?? 0) == 1) {
                     $allow = 1;
                     break;
@@ -84,7 +84,7 @@ class Pay extends BaseApi
             $min = 0;
             $max = 0;
             foreach ($goods_ids as $goods_id) {
-                $goods = model('goods')->getInfo([ [ 'goods_id', '=', $goods_id ] ], 'min_order_amount,max_order_amount')[ 'data' ] ?? [];
+                $goods = model('goods')->getInfo([ [ 'goods_id', '=', $goods_id ] ], 'min_order_amount,max_order_amount');
                 $min = $goods[ 'min_order_amount' ] ?? 0;
                 $max = $goods[ 'max_order_amount' ] ?? 0;
                 break;

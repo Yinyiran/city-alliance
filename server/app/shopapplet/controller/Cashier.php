@@ -24,7 +24,7 @@ class Cashier extends BaseApi
         $condition = [ [ 'order_no', '=', $order_no ] ];
         if (!empty($site_id)) $condition[] = [ 'site_id', '=', $site_id ];
 
-        $order_info = model('order')->getInfo($condition, 'order_id,order_no,order_status,pay_status,pay_money,member_id,trade_type,site_id,out_trade_no')[ 'data' ] ?? [];
+        $order_info = model('order')->getInfo($condition, 'order_id,order_no,order_status,pay_status,pay_money,member_id,trade_type,site_id,out_trade_no');
         if (empty($order_info)) return $this->response($this->error([], '订单不存在'));
         if ($order_info[ 'pay_status' ] > 0) return $this->response($this->error([], '该订单已支付'));
 
@@ -72,7 +72,7 @@ class Cashier extends BaseApi
         $max = 0;
         $allow = false;
         foreach ($goods_ids as $goods_id) {
-            $goods = model('goods')->getInfo([ [ 'goods_id', '=', $goods_id ] ], 'trade_type,allow_custom_amount,min_order_amount,max_order_amount')[ 'data' ] ?? [];
+            $goods = model('goods')->getInfo([ [ 'goods_id', '=', $goods_id ] ], 'trade_type,allow_custom_amount,min_order_amount,max_order_amount');
             if (intval($goods[ 'trade_type' ] ?? 0) == 1 && intval($goods[ 'allow_custom_amount' ] ?? 0) == 1) {
                 $allow = true;
                 $min = $goods[ 'min_order_amount' ] ?? 0;
@@ -142,7 +142,7 @@ class Cashier extends BaseApi
         }
         $condition = [ [ 'order_id', '=', $order_id ] ];
         if (!empty($site_id)) $condition[] = [ 'site_id', '=', $site_id ];
-        $order_info = model('order')->getInfo($condition, 'order_id,trade_type')[ 'data' ] ?? [];
+        $order_info = model('order')->getInfo($condition, 'order_id,trade_type');
         if (empty($order_info) || intval($order_info[ 'trade_type' ]) != 2) {
             return $this->response($this->error([], '该订单不是预约订单'));
         }

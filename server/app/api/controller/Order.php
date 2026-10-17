@@ -215,7 +215,7 @@ class Order extends BaseApi
         $order_info = model('order')->getInfo([
             [ 'order_id', '=', $order_id ],
             [ 'member_id', '=', $this->member_id ],
-        ], 'order_id,trade_type,order_status,pay_status,delivery_status,appointment_status')[ 'data' ] ?? [];
+        ], 'order_id,trade_type,order_status,pay_status,delivery_status,appointment_status');
         if (empty($order_info)) {
             return $this->response($this->error('', '未找到该订单'));
         }
@@ -224,6 +224,12 @@ class Order extends BaseApi
         }
         if ($order_info[ 'delivery_status' ] == 1) {
             return $this->response($this->error('', '该订单已核销，无法取消预约'));
+        }
+        if ($order_info[ 'order_status' ] == -1) {
+            return $this->response($this->error('', '该订单已关闭'));
+        }
+        if (isset($order_info[ 'appointment_status' ]) && $order_info[ 'appointment_status' ] == 2) {
+            return $this->response($this->error('', '该预约已取消'));
         }
 
         //未支付直接关闭订单并释放名额
