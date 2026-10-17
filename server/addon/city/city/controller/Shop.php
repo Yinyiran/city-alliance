@@ -18,6 +18,7 @@ use phpoffice\phpexcel\Classes\PHPExcel;
 use phpoffice\phpexcel\Classes\PHPExcel\Writer\Excel2007;
 use app\model\shop\ShopApply as ShopApplyModel;
 use think\facade\Cache;
+use think\facade\Db;
 use think\facade\Session;
 use app\model\web\WebSite;
 use app\model\web\Config as ConfigModel;
@@ -991,11 +992,22 @@ class Shop extends BaseCity
     public function siteStaff()
     {
         $new_site_id = input('site_id', 0);
+
+        // 自动检查并添加 store_id 字段
+        try {
+            $prefix = config('database.connections.mysql.prefix', '');
+            $has_col = Db::query("SHOW COLUMNS FROM `{$prefix}shop_employee` LIKE 'store_id'");
+            if (empty($has_col)) {
+                Db::execute("ALTER TABLE `{$prefix}shop_employee` ADD COLUMN `store_id` INT(11) NOT NULL DEFAULT 0 COMMENT '门店id' AFTER `shop_id`");
+            }
+        } catch (\Throwable $e) {}
+
         if (request()->isAjax()) {
             $page_index = input('page', 1);
             $page_size = input('page_size', PAGE_LIST_ROWS);
             $search_keys = input('search_keys', "");
             $search_username = input('search_username', "");
+            $search_store_id = input('search_store_id', "");
             $condition = [];
             if (!empty($search_keys)) {
                 $condition[] = ['ngb.username', 'like', '%' . $search_keys . '%'];
@@ -1003,20 +1015,52 @@ class Shop extends BaseCity
             if (!empty($search_username)) {
                 $condition[] = ['ngb.mobile', 'like', '%' . $search_username . '%'];
             }
-            $condition[] = ['ngb.shop_id', '=', $new_site_id];
+            if (!empty($new_site_id)) {
+                $condition[] = ['ngb.shop_id', '=', $new_site_id];
+            } else {
+                $condition[] = ['ngb.website_id', '=', $this->site_id];
+            }
+            if ($search_store_id !== '' && $search_store_id !== null) {
+                $condition[] = ['ngb.store_id', '=', intval($search_store_id)];
+            }
+            $condition[] = ['ngb.is_deleted', '=', 0];
 
             $list = model('shop_employee')->pageList($condition, '*', 'employee_id desc', $page_index, $page_size, 'ngb', '', '');
+            
+            // 批量查询店铺名称与门店名称
+            $shop_ids = array_unique(array_filter(array_column($list['list'], 'shop_id')));
+            $store_ids = array_unique(array_filter(array_column($list['list'], 'store_id')));
+            
+            $shop_map = [];
+            if (!empty($shop_ids)) {
+                $shop_map = Db::name('shop')->whereIn('site_id', $shop_ids)->column('site_name', 'site_id');
+            }
+            $store_map = [];
+            if (!empty($store_ids)) {
+                $store_map = Db::name('store')->whereIn('store_id', $store_ids)->column('store_name', 'store_id');
+            }
+
             foreach ($list['list'] as $key => $value) {
                 if (empty($value['phone'])) {
                     $list['list'][$key]['phone'] = '-';
                 }
-
-
+                $list['list'][$key]['site_name'] = $shop_map[$value['shop_id']] ?? '-';
+                $list['list'][$key]['store_name'] = !empty($value['store_id']) ? ($store_map[$value['store_id']] ?? '-') : '全部门店';
             }
             $list = (new BaseModel())->success($list);
             return $list;
         } else {
-            //新增加
+            $shop_info = [];
+            $store_list = [];
+            if (!empty($new_site_id)) {
+                $shop_info = model('shop')->getInfo(['site_id' => $new_site_id], 'site_id, site_name') ?: [];
+                $store_list = model('store')->getList([['site_id', '=', $new_site_id], ['status', '=', 1]], 'store_id, store_name', 'store_id asc') ?: [];
+                if (empty($store_list)) {
+                    $store_list = model('store')->getList([['site_id', '=', $new_site_id]], 'store_id, store_name', 'store_id asc') ?: [];
+                }
+            }
+            $this->assign('shop_info', $shop_info);
+            $this->assign('store_list', $store_list);
             $this->assign('new_site_id', $new_site_id);
             return $this->fetch('shop/site_staff', [], $this->replace);
         }
@@ -1033,6 +1077,7 @@ class Shop extends BaseCity
             $image_url = input('image_url', ""); //头像
             $username = input('username', ''); //员工手机号
             $is_manager = input('is_manager', 0); //是否主理人1是
+            $store_id = input('store_id', 0); //所属门店id
             if (!isMobile($username)) return (new BaseModel())->error('', '手机号格式不正确');
 
             if ($is_manager) {
@@ -1059,11 +1104,12 @@ class Shop extends BaseCity
 
             $res = model('shop_employee')->add([
                 'shop_id' => $site_id,
+                'store_id' => intval($store_id),
                 'username' => $name,
                 'mobile' => $username,
                 'create_time' => time(),
                 'is_manager' => $is_manager,
-                'website_id' => $shop['website_id'],
+                'website_id' => $shop['website_id'] ?? 0,
                 'headimg' => $image_url,
             ]);
             if ($res) {
@@ -1075,6 +1121,10 @@ class Shop extends BaseCity
             $res = (new BaseModel())->success($res);
             return $res;
         } else {
+            $shop_info = model('shop')->getInfo(['site_id' => $site_id], 'site_id, site_name') ?: [];
+            $store_list = model('store')->getList([['site_id', '=', $site_id]], 'store_id, store_name', 'store_id asc') ?: [];
+            $this->assign('shop_info', $shop_info);
+            $this->assign('store_list', $store_list);
             $this->assign('site_id', $site_id);
             return $this->fetch('shop/staff_add', [], $this->replace);
         }
@@ -1088,10 +1138,15 @@ class Shop extends BaseCity
         $site_id = input('site_id', '0');
         if (request()->isAjax()) {
             $id = input('id', 0);
+            if (empty($site_id) && !empty($id)) {
+                $curr_emp = model('shop_employee')->getInfo([['employee_id', '=', $id]], 'shop_id');
+                $site_id = $curr_emp['shop_id'] ?? 0;
+            }
             $name = input('name', ''); //姓名
             $image_url = input('image_url', ""); //头像
             $username = input('username', ''); //员工手机号
             $is_manager = input('is_manager', 0); //是否主理人1是
+            $store_id = input('store_id', 0); //所属门店id
             if (!isMobile($username)) return (new BaseModel())->error('', '手机号格式不正确');
 
             if ($is_manager) {
@@ -1120,10 +1175,11 @@ class Shop extends BaseCity
 
             $res = model('shop_employee')->update([
                 'shop_id' => $site_id,
+                'store_id' => intval($store_id),
                 'username' => $name,
                 'mobile' => $username,
                 'is_manager' => $is_manager,
-                'website_id' => $shop['website_id'],
+                'website_id' => $shop['website_id'] ?? 0,
                 'headimg' => $image_url,
             ], ['employee_id' => $id]);
             if ($res) {
@@ -1137,7 +1193,11 @@ class Shop extends BaseCity
         } else {
             $id = input('id', 0);
             $res = model('shop_employee')->getInfo([['employee_id', '=', $id]]);
-            $site_id = $res['shop_id'];
+            $site_id = $res['shop_id'] ?? 0;
+            $shop_info = model('shop')->getInfo(['site_id' => $site_id], 'site_id, site_name') ?: [];
+            $store_list = model('store')->getList([['site_id', '=', $site_id]], 'store_id, store_name', 'store_id asc') ?: [];
+            $this->assign('shop_info', $shop_info);
+            $this->assign('store_list', $store_list);
             $this->assign("brand_info", $res);
             $this->assign('site_id', $site_id);
             return $this->fetch('shop/staff_edit', [], $this->replace);

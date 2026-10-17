@@ -9,6 +9,26 @@
 {block name="main"}
 <form class="layui-form ns-form">
     <div class="layui-form-item">
+        <label class="layui-form-label">所属店铺：</label>
+        <div class="layui-input-inline">
+            <input type="text" disabled value="{$shop_info.site_name|default=''}" class="layui-input layui-disabled ns-len-long">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">所属门店：</label>
+        <div class="layui-input-inline ns-len-long">
+            <select name="store_id">
+                <option value="0" {if !isset($brand_info.store_id) || $brand_info.store_id == 0}selected{/if}>全部门店（全店通用）</option>
+                {foreach $store_list as $store}
+                <option value="{$store.store_id}" {if isset($brand_info.store_id) && $brand_info.store_id == $store.store_id}selected{/if}>{$store.store_name}</option>
+                {/foreach}
+            </select>
+        </div>
+        <div class="ns-word-aux">默认全店通用，也可指定该员工所属的具体门店</div>
+    </div>
+
+    <div class="layui-form-item">
         <label class="layui-form-label"><span class="required">*</span>姓名：</label>
         <div class="layui-input-inline">
             <input name="name" type="text" value="{$brand_info['username']}" lay-verify="required"
