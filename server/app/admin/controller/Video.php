@@ -74,7 +74,7 @@ class Video extends BaseAdmin
             }
             \think\facade\Cache::tag("website")->clear();
             $msg = $status == 1 ? '已开启提审模式（全平台展示商品）' : '已恢复正常模式（全平台展示视频）';
-            return (new BaseModel())->success($res, $msg);
+            return success(0, $msg, $res);
         }
     }
     
