@@ -60,6 +60,7 @@
 						</view>
 				</view> -->
 				<view class="btns acea-row row-middle row-right">
+					<view class="btn1" v-if="hasAction(item, 'delete_order')" @click.stop="doDeleteOrder(item.order_id)">删除订单</view>
 					<view class="btn1" v-if="hasAction(item, 'cancel_order')" @click.stop="orderClose(item.order_id)">取消订单</view>
 					<view class="btn2" v-if="hasAction(item, 'pay')" @click.stop="goPay(item)">立即支付</view>
 					<view class="btn1" v-if="hasAction(item, 'cancel_appointment')" @click.stop="cancelAppointment(item)">取消预约</view>
@@ -79,7 +80,7 @@
 </template>
 
 <script>
-	import {orderlist,orderClose,cancelAppointment,huifupay,orderTakeDelivery} from "@/common/js/api.js"
+	import {orderlist,orderClose,orderDelete,cancelAppointment,huifupay,orderTakeDelivery} from "@/common/js/api.js"
 	export default {
 		data() {
 			return {
@@ -150,25 +151,28 @@
 			},
 			//订单列表状态文案（优先取后端 SSOT 统一状态，纯前端全矩阵兜底）
 			statusText(item){
-				if (item.trade_status_name) {
-					return item.trade_status_name;
-				}
 				const st = Number(item.order_status);
 				const t = Number(item.trade_type || 0);
 				const apptSt = Number(item.appointment_status);
 				const deliverySt = Number(item.delivery_status || 0);
 				const payScene = Number(item.pay_scene || 0);
 				const paySt = Number(item.pay_status || 0);
+				const refundSt = Number(item.refund_status || 0);
+
+				// 优先处理已全额退款、已取消预约与已关闭订单，避免历史脏数据或旧接口覆盖
+				if (refundSt === 3) return '已退款';
+				if (t === 2 && apptSt === 2) return '已取消';
+				if (st === -1) return (t === 2 && apptSt === 2) ? '已取消' : '已关闭';
+
+				if (item.trade_status_name) {
+					return item.trade_status_name;
+				}
 
 				if (payScene === 1) {
 					if (st === -1) return '已关闭';
 					return paySt === 1 ? '买单成功' : '待付款';
 				}
 				if (st === 0) return '待支付';
-				if (st === -1) {
-					return (t === 2 && apptSt === 2) ? '已取消' : '已关闭';
-				}
-				if (t === 2 && apptSt === 2) return '已取消';
 				if (t === 2 && apptSt === 3) return '已过期';
 
 				if (t === 0) {
@@ -202,6 +206,7 @@
 				const t = Number(item.trade_type || 0);
 				const apptSt = Number(item.appointment_status);
 				const ot = Number(item.order_type || 1);
+				if (action === 'delete_order') return st === -1 || (t === 2 && apptSt === 2) || Number(item.refund_status) === 3;
 				if (action === 'cancel_order') return st === 0;
 				if (action === 'pay') return st === 0;
 				if (action === 'cancel_appointment') return t === 2 && apptSt === 1 && st === 1;
@@ -209,8 +214,30 @@
 				if (action === 'apply_refund') return (st === 1 || (st === 2 && ot !== 2)) && t !== 2;
 				if (action === 'confirm_receipt') return this.canConfirmReceipt(item);
 				if (action === 'aftersale') return st === 4 || (st === 2 && Number(item.delivery_status) === 1);
-				if (action === 'again_buy') return st === 10 || st === -1 || (t === 2 && apptSt === 2);
+				if (action === 'again_buy') return st === 10 || st === -1 || (t === 2 && apptSt === 2) || Number(item.refund_status) === 3;
 				return false;
+			},
+			doDeleteOrder(order_id) {
+				uni.showModal({
+					title: '提示',
+					content: '确定要删除该订单吗？删除后将不再显示',
+					success: (res) => {
+						if (res.confirm) {
+							uni.showLoading({ mask: true });
+							orderDelete({ order_id }).then(res => {
+								uni.hideLoading();
+								uni.showToast({
+									title: res.message || (res.code == 0 ? '删除成功' : '删除失败'),
+									icon: res.code == 0 ? 'success' : 'none'
+								});
+								if (res.code == 0) {
+									this.page = 1;
+									this.getOrderList();
+								}
+							}).catch(() => uni.hideLoading());
+						}
+					}
+				});
 			},
 			verifyBtnText(item) {
 				const t = Number(item.trade_type || 0);

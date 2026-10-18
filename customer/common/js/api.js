@@ -135,6 +135,8 @@ export const shopRanking=params=>server('/api/memberaccount/shopRanking',params)
 export const teamList=params=>server('/fenxiao/api/fenxiao/teamList',params)
 //关闭订单
 export const orderClose=params=>server('/api/order/close',params)
+//删除订单
+export const orderDelete=params=>server('/api/order/delete',params)
 //商家订单创建
 export const storecreate=params=>server('/api/ordercreate/create',params)
 //订单数量下标

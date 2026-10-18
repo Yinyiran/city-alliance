@@ -294,11 +294,14 @@ class OrderCommon extends BaseModel
             if ($trade_type == OrderCreate::TRADE_APPOINTMENT && $appt_st == 2) {
                 $status_name = '预约已取消';
                 $status_desc = '预约已取消，名额已释放';
+            } elseif ($refund_st == 3) {
+                $status_name = '已退款';
+                $status_desc = '订单款项已原路退回，订单已关闭';
             } else {
                 $status_name = '已关闭';
                 $status_desc = '订单已关闭';
             }
-            $actions = ['again_buy'];
+            $actions = ['again_buy', 'delete_order'];
             return [
                 'trade_status_name' => $status_name,
                 'status_desc'       => $status_desc,
@@ -308,8 +311,19 @@ class OrderCommon extends BaseModel
             ];
         }
 
-        // 4. 维权处理中（全单处于售后维权）
-        if ($refund_st > 0 && !in_array($refund_st, [0, 3, 6])) {
+        // 4. 维权处理中 / 已全额退款
+        if ($refund_st == 3) {
+            $status_name = '已退款';
+            $status_desc = '订单款项已原路退回';
+            $actions = ['again_buy', 'delete_order'];
+            return [
+                'trade_status_name' => $status_name,
+                'status_desc'       => $status_desc,
+                'actions'           => $actions,
+                'can_verify'        => false,
+                'trade_type_name'   => $trade_type_name
+            ];
+        } elseif ($refund_st > 0 && !in_array($refund_st, [0, 3, 6])) {
             $status_name = '退款中';
             $status_desc = '退款申请处理中，请关注退款进度';
             $actions = ['view_refund'];
@@ -362,11 +376,11 @@ class OrderCommon extends BaseModel
                 if ($appt_st == 2) {
                     $status_name = '预约已取消';
                     $status_desc = '预约已取消，名额已释放';
-                    $actions = ['again_buy'];
+                    $actions = ['again_buy', 'delete_order'];
                 } elseif ($appt_st == 3) {
                     $status_name = '已过期';
                     $status_desc = '预约时段已过，请重新预约或联系门店';
-                    $actions = ['again_buy'];
+                    $actions = ['again_buy', 'delete_order'];
                 } elseif ($st == 4 || $appt_st == 4 || $delivery_st == 1) {
                     $status_name = '已到店';
                     $status_desc = '预约服务已核销完成，感谢您的光临';
@@ -1804,9 +1818,9 @@ class OrderCommon extends BaseModel
      */
     public function getMemberOrderDetail($order_id, $member_id)
     {
-        $order_info = model('order')->getInfo([ [ 'order_id', "=", $order_id ], [ "member_id", "=", $member_id ] ]);
+        $order_info = model('order')->getInfo([ [ 'order_id', "=", $order_id ], [ "member_id", "=", $member_id ], [ "is_delete", "=", 0 ] ]);
         if (empty($order_info))
-            return $this->error([], "当前订单不是本账号的订单!");
+            return $this->error([], "当前订单不存在或已删除!");
 
         $context = self::getOrderTradeContext($order_info);
         $order_info[ 'trade_status_name' ] = $context[ 'trade_status_name' ];

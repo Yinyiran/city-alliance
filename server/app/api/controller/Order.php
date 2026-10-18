@@ -41,6 +41,7 @@ class Order extends BaseApi
         $order_common_model = new OrderCommonModel();
         $condition = array (
             [ "member_id", "=", $this->member_id ],
+            [ "is_delete", "=", 0 ],
         );
         $order_status = isset($this->params[ 'order_status' ]) ? $this->params[ 'order_status' ] : 'all';
         switch ( $order_status ) {
@@ -108,6 +109,7 @@ class Order extends BaseApi
         $condition = [
             [ 'member_id', '=', $this->member_id ],
             [ 'pay_scene', '=', 1 ],
+            [ 'is_delete', '=', 0 ],
         ];
         if ($site_id > 0) {
             $condition[] = [ 'site_id', '=', $site_id ];
@@ -286,6 +288,51 @@ class Order extends BaseApi
     }
 
     /**
+     * 删除订单（用户删除已关闭/已全额退款的订单）
+     */
+    public function delete()
+    {
+        $token = $this->checkToken();
+        if ($token[ 'code' ] < 0) return $this->response($token);
+
+        $order_id = isset($this->params[ 'order_id' ]) ? intval($this->params[ 'order_id' ]) : 0;
+        if (empty($order_id)) {
+            return $this->response($this->error('', 'REQUEST_ORDER_ID'));
+        }
+
+        $order_info = model('order')->getInfo([
+            [ 'order_id', '=', $order_id ],
+            [ 'member_id', '=', $this->member_id ],
+            [ 'is_delete', '=', 0 ],
+        ], 'order_id, order_status, refund_status, appointment_status, trade_type');
+
+        if (empty($order_info)) {
+            return $this->response($this->error('', '未找到该订单'));
+        }
+
+        // 允许删除：已关闭(-1) 或 已退款(refund_status=3) 或 预约已取消(trade_type=2且appointment_status=2)
+        $can_delete = false;
+        if ($order_info[ 'order_status' ] == -1) {
+            $can_delete = true;
+        } elseif ($order_info[ 'refund_status' ] == 3) {
+            $can_delete = true;
+        } elseif ($order_info[ 'trade_type' ] == 2 && $order_info[ 'appointment_status' ] == 2) {
+            $can_delete = true;
+        }
+
+        if (!$can_delete) {
+            return $this->response($this->error('', '只有已关闭或已退款的订单才可以删除'));
+        }
+
+        $order_common_model = new OrderCommonModel();
+        $res = $order_common_model->deleteOrder([
+            [ 'order_id', '=', $order_id ],
+            [ 'member_id', '=', $this->member_id ],
+        ]);
+        return $this->response($res);
+    }
+
+    /**
      * 获取订单数量
      */
     public function num()
@@ -303,6 +350,7 @@ class Order extends BaseApi
         foreach (explode(',', $this->params[ 'order_status' ]) as $order_status) {
             $condition = array (
                 [ "member_id", "=", $this->member_id ],
+                [ "is_delete", "=", 0 ],
             );
             switch ( $order_status ) {
                 case "waitpay"://待付款

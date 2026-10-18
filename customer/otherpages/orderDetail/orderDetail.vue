@@ -178,16 +178,13 @@
 								</template>
 								<view class="nums m-l-20">x{{item.num}}</view>
 							</view>
-							<view class="" v-if="isStoreTrade && (isOrderVerified || item.delivery_status == 1)">
+							<view class="" v-if="info.order_status != -1 && !(info.trade_type == 2 && info.appointment_status == 2) && isStoreTrade && (isOrderVerified || item.delivery_status == 1)">
 								<view class="order-goods-tag-verified">已核销</view>
 							</view>
-							<view class="" v-else-if="isStoreTrade && info.order_status == 2">
-								<view class="order-goods-tag-pending">待核销</view>
-							</view>
-							<view class="" v-else-if="!isStoreTrade && isOrderVerified">
+							<view class="" v-else-if="info.order_status != -1 && !isStoreTrade && isOrderVerified">
 								<view class="order-goods-tag-verified">已完成</view>
 							</view>
-							<view class="" v-else-if="!isStoreTrade && Number(info.order_status) == 3">
+							<view class="" v-else-if="info.order_status != -1 && !isStoreTrade && Number(info.order_status) == 3">
 								<view class="order-goods-tag-pending">{{isLocalOrder ? '配送中' : '已发货'}}</view>
 							</view>
 							<view class="" v-else-if="(info.order_status == -1 || (info.trade_type == 2 && info.appointment_status == 2)) && (item.refund_status == 0 || item.refund_status == -1)">
@@ -273,6 +270,7 @@
 		<view class="h-300" v-if="hasAnyBottomAction"></view>
 		<view class="btms iphone-x" v-if="hasAnyBottomAction">
 			<view class="acea-row row-middle row-right">
+				<view class="btn2" v-if="hasAction('delete_order')" @click="doDeleteOrder">删除订单</view>
 				<view class="btn2" v-if="hasAction('cancel_order')" @click="orderClose">取消订单</view>
 				<view class="btn1" v-if="hasAction('pay')" @click="huifupay">立即付款</view>
 				<view class="btn2" v-if="hasAction('cancel_appointment')" @click="doCancelAppointment">取消预约</view>
@@ -291,6 +289,7 @@
 		getVerifyCode,
 		cancelAppointment,
 		orderClose as closeOrderApi,
+		orderDelete,
 		orderTakeDelivery,
 		orderExpressTrace
 	} from '@/common/js/api.js';
@@ -501,6 +500,7 @@
 				const st = Number(this.info.order_status);
 				const t = Number(this.info.trade_type || 0);
 				const apptSt = Number(this.info.appointment_status);
+				if (action === 'delete_order') return st === -1 || (t === 2 && apptSt === 2) || Number(this.info.refund_status) === 3;
 				if (action === 'cancel_order') return st === 0;
 				if (action === 'pay') return st === 0;
 				if (action === 'cancel_appointment') return t === 2 && apptSt === 1 && st === 1;
@@ -510,12 +510,37 @@
 				return false;
 			},
 			hasAnyBottomAction() {
-				return this.hasAction('cancel_order') ||
+				return this.hasAction('delete_order') ||
+					this.hasAction('cancel_order') ||
 					this.hasAction('pay') ||
 					this.hasAction('cancel_appointment') ||
 					this.hasAction('apply_refund') ||
 					this.hasAction('confirm_receipt') ||
 					this.hasAction('aftersale');
+			},
+			//删除订单
+			doDeleteOrder() {
+				uni.showModal({
+					title: '提示',
+					content: '确定要删除该订单吗？删除后将不再显示',
+					success: (res) => {
+						if (res.confirm) {
+							uni.showLoading({ mask: true });
+							orderDelete({ order_id: this.id }).then(res => {
+								uni.hideLoading();
+								uni.showToast({
+									title: res.message || (res.code == 0 ? '删除成功' : '删除失败'),
+									icon: res.code == 0 ? 'success' : 'none'
+								});
+								if (res.code == 0) {
+									setTimeout(() => {
+										uni.navigateBack();
+									}, 800);
+								}
+							}).catch(() => uni.hideLoading());
+						}
+					}
+				});
 			},
 			//取消预约
 			doCancelAppointment() {
