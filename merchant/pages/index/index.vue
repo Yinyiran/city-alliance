@@ -31,7 +31,7 @@
 							<image src="/static/go.png" class="w-16 h-16 m-l-4" mode=""></image>
 						</view>
 					</view>
-					<view class="acea-row row-middle row-center" @click="goCashier">
+					<view class="acea-row row-middle row-center m-t-10" @click="goCashier">
 						<image src="/static/img1.png" class="w-88 h-88 m-r-20" mode=""></image>
 						<view class="acea-row row-middle font-32 fcolor1">
 							收银台
@@ -303,16 +303,16 @@
 
 <script>
 	import {
-		getnum,
-		getmemberranklist,
-		getRankList,
-		getInfo,
-		getOrderInfo,
-		dodelivery,
-		getIncomeSummary,
-		tradePendingCount
-	} from "@/common/js/api.js"
-	import ShopSelectPopup from "@/components/shop-select-popup/shop-select-popup.vue"
+	dodelivery,
+	getIncomeSummary,
+	getInfo,
+	getmemberranklist,
+	getnum,
+	getOrderInfo,
+	getRankList,
+	tradePendingCount
+} from "@/common/js/api.js";
+import ShopSelectPopup from "@/components/shop-select-popup/shop-select-popup.vue";
 
 	export default {
 		components: {
@@ -911,8 +911,7 @@
 	}
 
 	.members {
-		margin: 0 32rpx;
-		margin-top: 85rpx;
+		margin: 32rpx 32rpx 0;
 
 		>view {
 			width: calc((100% - 32rpx)/3);
@@ -1035,13 +1034,7 @@
 		margin: 0 32rpx;
 		margin-top: 20rpx;
 		box-sizing: border-box;
-		padding: 32rpx;
-
-		>view:first-child {
-			>view {
-				width: calc((100% - 46rpx)/2);
-			}
-		}
+		padding: 16rpx;
 	}
 
 	.fcolor1 {

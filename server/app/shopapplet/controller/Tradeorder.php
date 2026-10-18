@@ -7,7 +7,7 @@ namespace app\shopapplet\controller;
 
 use app\model\order\LocalOrder as LocalOrderModel;
 use app\model\order\Order as OrderModel;
-use app\model\shopapplet\TradeOrder;
+use app\model\shopapplet\TradeOrder as TradeOrderModel;
 
 /**
  * 商家端订单管理（按交易类型/配送链路处理订单）
@@ -26,7 +26,7 @@ class Tradeorder extends Common
     public function __construct()
     {
         parent::__construct();
-        $this->tradeOrderModel = new TradeOrder();
+        $this->tradeOrderModel = new TradeOrderModel();
     }
 
     /**
@@ -44,8 +44,8 @@ class Tradeorder extends Common
      */
     public function lists()
     {
-        $biz_type = $this->params['biz_type'] ?? TradeOrder::BIZ_ALL;
-        $stage = $this->params['stage'] ?? TradeOrder::STAGE_ALL;
+        $biz_type = $this->params['biz_type'] ?? TradeOrderModel::BIZ_ALL;
+        $stage = $this->params['stage'] ?? TradeOrderModel::STAGE_ALL;
         $searchtxt = $this->params['searchtxt'] ?? '';
         $page = intval($this->params['page'] ?? 1);
         if ($page < 1) $page = 1;
