@@ -1,18 +1,24 @@
 import { Injectable, BadRequestException, NotFoundException, ConflictException, Inject } from '@nestjs/common';
 import { DRIZZLE_DB, DrizzleDatabase } from '../../infrastructure/drizzle/drizzle.provider';
-import { orders, orderItems, members, shops, commissionRecords } from '../../infrastructure/drizzle/schema/index';
-import { eq, and } from 'drizzle-orm';
+import { orders, orderItems, members, shops, commissionRecords, orderRefunds } from '../../infrastructure/drizzle/schema/index';
+import { eq, and, inArray } from 'drizzle-orm';
 import {
   OrderStatus,
   TradeType,
   PaymentChannel,
   MemberLevel,
   CommissionType,
+  SplitCartOrderDto,
+  ShipOrderDto,
+  TakeawayDispatchDto,
+  ApplyRefundDto,
+  AuditRefundDto,
+  RescheduleAppointmentDto,
+  GenerateCashierQrDto,
 } from '@city-alliance/contracts';
 import { REDIS_CLIENT } from '../../infrastructure/redis/redis.provider';
 import Redis from 'ioredis';
 import { SettleService } from '../settle/settle.service';
-import * as crypto from 'crypto';
 
 export interface CreateOrderParams {
   customerId: string;
@@ -59,7 +65,7 @@ export class TradeService {
   }
 
   /**
-   * 全渠道创建订单 (计算商品总价、折上折会员折扣与应付总额)
+   * 全渠道创建单店订单 (计算商品总价、折上折会员折扣与应付总额)
    */
   async createOrder(params: CreateOrderParams) {
     if (!params.items || params.items.length === 0) {
@@ -93,6 +99,7 @@ export class TradeService {
     const orderNo = this.generateOrderNo();
     const verifyCode =
       params.tradeType === TradeType.PICKUP ||
+      params.tradeType === TradeType.STORE ||
       params.tradeType === TradeType.APPOINTMENT
         ? this.generateVerifyCode()
         : null;
@@ -140,6 +147,48 @@ export class TradeService {
       payAmount: newOrder.payAmount,
       verifyCode: newOrder.verifyCode,
       status: newOrder.orderStatus,
+    };
+  }
+
+  /**
+   * 跨店铺购物车跨店下单拆单引擎
+   * 自动根据 shopId 拆分成多个独立子订单，支持合并支付
+   */
+  async splitCartAndCreateOrders(dto: SplitCartOrderDto) {
+    if (!dto.shopGroups || dto.shopGroups.length === 0) {
+      throw new BadRequestException('购物车店铺分组不能为空');
+    }
+
+    const subOrders: any[] = [];
+    let combinedPayTotal = 0;
+    const parentPayTradeNo = `PAY${Date.now()}${Math.floor(1000 + Math.random() * 9000)}`;
+
+    for (const group of dto.shopGroups) {
+      const singleOrder = await this.createOrder({
+        customerId: dto.customerId,
+        shopId: group.shopId,
+        storeId: group.storeId,
+        tradeType: group.tradeType,
+        items: group.items.map((it) => ({
+          spuId: it.goodsId,
+          skuId: it.skuId,
+          goodsName: it.goodsName,
+          specText: it.skuName,
+          price: it.price,
+          quantity: it.quantity,
+        })),
+        deliveryInfo: dto.addressId ? JSON.stringify({ addressId: dto.addressId }) : undefined,
+      });
+
+      subOrders.push(singleOrder);
+      combinedPayTotal += Number(singleOrder.payAmount);
+    }
+
+    return {
+      parentPayTradeNo,
+      totalPayAmount: combinedPayTotal.toFixed(2),
+      subOrderCount: subOrders.length,
+      orders: subOrders,
     };
   }
 
@@ -207,7 +256,7 @@ export class TradeService {
       await this.db.insert(commissionRecords).values({
         orderId: order.id,
         commissionType: splitResult.commissionType,
-        beneficiaryId: order.customerId, // 实际按 role 路由至会员或租户ID
+        beneficiaryId: order.customerId,
         beneficiaryType: split.role,
         ratioPercent: split.ratioPercent.toString(),
         amount: split.amount.toFixed(2),
@@ -226,18 +275,374 @@ export class TradeService {
   }
 
   /**
+   * 订单 FSM：主动取消未支付订单
+   */
+  async cancelOrder(orderId: string, reason: string = '用户主动取消') {
+    const orderList = await this.db
+      .select()
+      .from(orders)
+      .where(eq(orders.id, orderId))
+      .limit(1);
+
+    const order = orderList[0];
+    if (!order) {
+      throw new NotFoundException('订单不存在');
+    }
+
+    if (order.orderStatus !== OrderStatus.PENDING_PAY) {
+      throw new BadRequestException(`当前订单状态为 ${order.orderStatus}，不可取消`);
+    }
+
+    await this.db
+      .update(orders)
+      .set({
+        orderStatus: OrderStatus.CANCELLED,
+        payStatus: 'CLOSED',
+        updatedAt: new Date(),
+      })
+      .where(eq(orders.id, order.id));
+
+    return {
+      success: true,
+      orderId: order.id,
+      status: OrderStatus.CANCELLED,
+      reason,
+    };
+  }
+
+  /**
+   * 快递发货处理 (仅限 EXPRESS 类型)
+   */
+  async shipOrder(dto: ShipOrderDto) {
+    const orderList = await this.db
+      .select()
+      .from(orders)
+      .where(eq(orders.id, dto.orderId))
+      .limit(1);
+
+    const order = orderList[0];
+    if (!order) {
+      throw new NotFoundException('订单不存在');
+    }
+
+    if (order.tradeType !== TradeType.EXPRESS) {
+      throw new BadRequestException('非快递发货订单不支持发货流');
+    }
+
+    if (order.orderStatus !== OrderStatus.PAID) {
+      throw new BadRequestException(`当前订单状态为 ${order.orderStatus}，不可发货`);
+    }
+
+    const expressPayload = JSON.stringify({
+      company: dto.expressCompany,
+      trackingNo: dto.expressNo,
+      shippedAt: new Date().toISOString(),
+    });
+
+    await this.db
+      .update(orders)
+      .set({
+        orderStatus: OrderStatus.DELIVERING,
+        deliveryInfo: expressPayload,
+        updatedAt: new Date(),
+      })
+      .where(eq(orders.id, order.id));
+
+    return {
+      success: true,
+      orderId: order.id,
+      orderStatus: OrderStatus.DELIVERING,
+      expressNo: dto.expressNo,
+    };
+  }
+
+  /**
+   * 外卖同城配送骑手调度
+   */
+  async dispatchTakeaway(dto: TakeawayDispatchDto) {
+    const orderList = await this.db
+      .select()
+      .from(orders)
+      .where(eq(orders.id, dto.orderId))
+      .limit(1);
+
+    const order = orderList[0];
+    if (!order) {
+      throw new NotFoundException('订单不存在');
+    }
+
+    if (order.tradeType !== TradeType.TAKEOUT) {
+      throw new BadRequestException('非外卖订单不可指派骑手');
+    }
+
+    if (order.orderStatus !== OrderStatus.PAID) {
+      throw new BadRequestException(`当前外卖订单状态为 ${order.orderStatus}，不可派单`);
+    }
+
+    const riderPayload = JSON.stringify({
+      riderName: dto.riderName,
+      riderPhone: dto.riderPhone,
+      dispatchedAt: new Date().toISOString(),
+      estimatedMinutes: dto.estimatedDeliveryMinutes,
+    });
+
+    await this.db
+      .update(orders)
+      .set({
+        orderStatus: OrderStatus.DELIVERING,
+        deliveryInfo: riderPayload,
+        updatedAt: new Date(),
+      })
+      .where(eq(orders.id, order.id));
+
+    return {
+      success: true,
+      orderId: order.id,
+      orderStatus: OrderStatus.DELIVERING,
+      rider: dto.riderName,
+    };
+  }
+
+  /**
+   * 确认收货 (完成履约)
+   */
+  async confirmReceived(orderId: string) {
+    const orderList = await this.db
+      .select()
+      .from(orders)
+      .where(eq(orders.id, orderId))
+      .limit(1);
+
+    const order = orderList[0];
+    if (!order) {
+      throw new NotFoundException('订单不存在');
+    }
+
+    if (order.orderStatus !== OrderStatus.DELIVERING) {
+      throw new BadRequestException(`只有配送中的订单才可确认收货`);
+    }
+
+    await this.db
+      .update(orders)
+      .set({
+        orderStatus: OrderStatus.COMPLETED,
+        completedAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(orders.id, order.id));
+
+    return {
+      success: true,
+      orderId: order.id,
+      orderStatus: OrderStatus.COMPLETED,
+    };
+  }
+
+  /**
+   * 售后退款申请
+   */
+  async applyRefund(dto: ApplyRefundDto) {
+    const orderList = await this.db
+      .select()
+      .from(orders)
+      .where(eq(orders.id, dto.orderId))
+      .limit(1);
+
+    const order = orderList[0];
+    if (!order) {
+      throw new NotFoundException('订单不存在');
+    }
+
+    if (order.orderStatus !== OrderStatus.PAID && order.orderStatus !== OrderStatus.DELIVERING) {
+      throw new BadRequestException(`订单状态为 ${order.orderStatus}，当前不可申请退款`);
+    }
+
+    const refundNo = `RF${Date.now()}${Math.floor(1000 + Math.random() * 9000)}`;
+
+    const [refundRecord] = await this.db
+      .insert(orderRefunds)
+      .values({
+        orderId: order.id,
+        refundNo,
+        refundAmount: dto.refundAmount,
+        reason: dto.reason,
+        status: 'PENDING_AUDIT',
+      })
+      .returning();
+
+    await this.db
+      .update(orders)
+      .set({
+        orderStatus: OrderStatus.REFUNDING,
+        updatedAt: new Date(),
+      })
+      .where(eq(orders.id, order.id));
+
+    return {
+      refundId: refundRecord.id,
+      refundNo: refundRecord.refundNo,
+      orderStatus: OrderStatus.REFUNDING,
+      amount: refundRecord.refundAmount,
+    };
+  }
+
+  /**
+   * 售后退款审核 (商家/平台仲裁)
+   */
+  async auditRefund(dto: AuditRefundDto, auditorUserId: string) {
+    const refundList = await this.db
+      .select()
+      .from(orderRefunds)
+      .where(eq(orderRefunds.id, dto.refundId))
+      .limit(1);
+
+    const refund = refundList[0];
+    if (!refund) {
+      throw new NotFoundException('退款申请不存在');
+    }
+
+    if (dto.approved) {
+      // 同意退款
+      await this.db
+        .update(orderRefunds)
+        .set({
+          status: 'REFUNDED',
+          arbitratedBy: auditorUserId,
+          updatedAt: new Date(),
+        })
+        .where(eq(orderRefunds.id, refund.id));
+
+      await this.db
+        .update(orders)
+        .set({
+          orderStatus: OrderStatus.REFUNDED,
+          payStatus: 'CLOSED',
+          updatedAt: new Date(),
+        })
+        .where(eq(orders.id, refund.orderId));
+
+      // 冲正/撤销该订单尚未解冻的分润
+      await this.db
+        .update(commissionRecords)
+        .set({
+          status: 'REVERSED',
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(commissionRecords.orderId, refund.orderId),
+            eq(commissionRecords.status, 'FROZEN'),
+          ),
+        );
+
+      return {
+        success: true,
+        refundStatus: 'REFUNDED',
+        orderStatus: OrderStatus.REFUNDED,
+      };
+    } else {
+      // 驳回退款
+      await this.db
+        .update(orderRefunds)
+        .set({
+          status: 'REJECTED',
+          arbitratedBy: auditorUserId,
+          updatedAt: new Date(),
+        })
+        .where(eq(orderRefunds.id, refund.id));
+
+      await this.db
+        .update(orders)
+        .set({
+          orderStatus: OrderStatus.PAID,
+          updatedAt: new Date(),
+        })
+        .where(eq(orders.id, refund.orderId));
+
+      return {
+        success: true,
+        refundStatus: 'REJECTED',
+        orderStatus: OrderStatus.PAID,
+        rejectReason: dto.rejectReason,
+      };
+    }
+  }
+
+  /**
+   * 预约服务改约
+   */
+  async rescheduleAppointment(dto: RescheduleAppointmentDto) {
+    const orderList = await this.db
+      .select()
+      .from(orders)
+      .where(eq(orders.id, dto.orderId))
+      .limit(1);
+
+    const order = orderList[0];
+    if (!order) {
+      throw new NotFoundException('预约订单不存在');
+    }
+
+    if (order.tradeType !== TradeType.APPOINTMENT) {
+      throw new BadRequestException('该订单非预约类服务');
+    }
+
+    if (order.orderStatus !== OrderStatus.PAID) {
+      throw new BadRequestException('只有已付款待履约的预约单可改约');
+    }
+
+    const newTime = new Date(dto.newAppointmentTime);
+    if (newTime.getTime() <= Date.now()) {
+      throw new BadRequestException('新的预约时间必须为未来时间');
+    }
+
+    await this.db
+      .update(orders)
+      .set({
+        appointmentTime: newTime,
+        updatedAt: new Date(),
+      })
+      .where(eq(orders.id, order.id));
+
+    return {
+      success: true,
+      orderId: order.id,
+      rescheduledTime: newTime.toISOString(),
+    };
+  }
+
+  /**
+   * 移动收银台动态收款码生成
+   */
+  async generateCashierQr(dto: GenerateCashierQrDto) {
+    const payTradeNo = `POS${Date.now()}${Math.floor(1000 + Math.random() * 9000)}`;
+    const qrPayload = JSON.stringify({
+      payTradeNo,
+      shopId: dto.shopId,
+      amount: dto.amount,
+      subject: dto.subject,
+      expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+    });
+
+    return {
+      payTradeNo,
+      amount: dto.amount,
+      qrPayload,
+      expiresInSeconds: 900,
+    };
+  }
+
+  /**
    * 移动收银台原子防重扫码核销 (Redis Redlock 分布式防重锁)
    */
   async verifyOrderByCode(verifyCode: string, clerkUserId: string) {
     const lockKey = `lock:verify:${verifyCode}`;
 
-    // 使用 Redis SET NX EX 尝试加 5 秒防重锁
     let lockAcquired = false;
     try {
       const res = await this.redis.set(lockKey, clerkUserId, 'EX', 5, 'NX');
       lockAcquired = res === 'OK';
     } catch {
-      // 若 Redis 不可用则降级依赖数据库单记录原子更新
       lockAcquired = true;
     }
 

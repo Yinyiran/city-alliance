@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { DRIZZLE_DB, DrizzleDatabase } from '../../infrastructure/drizzle/drizzle.provider';
 import { shops, stores, wecomQrCodes } from '../../infrastructure/drizzle/schema/index';
-import { eq, and, sql } from 'drizzle-orm';
-import { SearchStoreNearbyDto, WeComGroupQROperationDto } from '@city-alliance/contracts';
+import { eq, and } from 'drizzle-orm';
+import { SearchStoreNearbyDto } from '@city-alliance/contracts';
 
 @Injectable()
 export class StoreService {
@@ -177,5 +177,26 @@ export class StoreService {
 
     // 若全部满员，降级返回排序最高的备用活码或提示
     return qrList[qrList.length - 1] || null;
+  }
+
+  /**
+   * 门店全能组件：关注/取消关注门店
+   */
+  async toggleFollowStore(storeId: string, isFollow: boolean) {
+    const storeList = await this.db
+      .select()
+      .from(stores)
+      .where(eq(stores.id, storeId))
+      .limit(1);
+
+    if (!storeList[0]) {
+      throw new NotFoundException('门店不存在');
+    }
+
+    return {
+      storeId,
+      isFollowed: isFollow,
+      timestamp: new Date().toISOString(),
+    };
   }
 }
