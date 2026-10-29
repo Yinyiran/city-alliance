@@ -8,6 +8,7 @@ export enum TradeType {
   APPOINTMENT = 'APPOINTMENT', // 预约制核销服务
   EXPRESS = 'EXPRESS',         // 快递发货实物
   TAKEOUT = 'TAKEOUT',         // 同城外卖即时配送
+  QUICK_PAY = 'QUICK_PAY',     // 收银台线下直接买单
 }
 
 export enum GoodsStatus {
