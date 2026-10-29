@@ -1,0 +1,56 @@
+services:
+  postgres:
+    image: postgis/postgis:17-3.5
+    container_name: city_alliance_postgres
+    restart: unless-stopped
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-city_alliance}
+      POSTGRES_USER: ${POSTGRES_USER:-city_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-city_secret_pass_2026}
+      TZ: Asia/Shanghai
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-city_admin} -d ${POSTGRES_DB:-city_alliance}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - city_network
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: city_alliance_redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD:-city_redis_secret_2026}
+      --appendonly yes
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+    environment:
+      TZ: Asia/Shanghai
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-city_redis_secret_2026}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - city_network
+
+volumes:
+  pg_data:
+    name: city_alliance_pgdata
+  redis_data:
+    name: city_alliance_redisdata
+
+networks:
+  city_network:
+    name: city_alliance_network
+    driver: bridge

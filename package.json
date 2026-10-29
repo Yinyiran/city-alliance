@@ -1,0 +1,27 @@
+{
+  "name": "city-alliance-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "City Alliance (城盟优选) 全栈重构 Monorepo",
+  "packageManager": "pnpm@12.9.1",
+  "scripts": {
+    "dev:backend": "pnpm --filter @city-alliance/backend dev",
+    "dev:admin": "pnpm --filter @city-alliance/admin-web dev",
+    "dev:customer": "pnpm --filter @city-alliance/customer-app dev:weapp",
+    "dev:merchant": "pnpm --filter @city-alliance/merchant-app dev:weapp",
+    "build:contracts": "pnpm --filter @city-alliance/contracts build",
+    "build:backend": "pnpm --filter @city-alliance/backend build",
+    "build:admin": "pnpm --filter @city-alliance/admin-web build",
+    "build": "pnpm --filter @city-alliance/contracts build && pnpm --filter @city-alliance/backend build",
+    "test": "pnpm -r --if-present test",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "clean": "pnpm -r --parallel exec rimraf dist .turbo node_modules",
+    "docker:up": "docker compose -f docker/docker-compose.yml up -d",
+    "docker:down": "docker compose -f docker/docker-compose.yml down",
+    "docker:logs": "docker compose -f docker/docker-compose.yml logs -f"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1",
+    "typescript": "^5.7.3"
+  }
+}

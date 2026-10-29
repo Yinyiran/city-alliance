@@ -1,0 +1,12 @@
+{
+  "name": "@city-alliance/tsconfig",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shared TypeScript configs across City Alliance monorepo",
+  "files": [
+    "base.json",
+    "backend.json",
+    "client.json",
+    "contracts.json"
+  ]
+}
