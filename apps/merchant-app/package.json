@@ -1,0 +1,33 @@
+{
+  "name": "@city-alliance/merchant-app",
+  "version": "1.0.0",
+  "description": "City Alliance (城盟优选) 商家主理人端微信小程序 (Taro 4 + Vue 3 + NutUI)",
+  "private": true,
+  "scripts": {
+    "build:weapp": "taro build --type weapp",
+    "dev:weapp": "taro build --type weapp --watch"
+  },
+  "dependencies": {
+    "@city-alliance/contracts": "workspace:*",
+    "@nutui/icons-vue-taro": "^0.0.9",
+    "@nutui/nutui-taro": "^4.3.14",
+    "@tarojs/components": "4.3.1",
+    "@tarojs/helper": "4.3.1",
+    "@tarojs/plugin-framework-vue3": "4.3.1",
+    "@tarojs/plugin-platform-weapp": "4.3.1",
+    "@tarojs/runtime": "4.3.1",
+    "@tarojs/shared": "4.3.1",
+    "@tarojs/taro": "4.3.1",
+    "pinia": "^2.3.1",
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@city-alliance/tsconfig": "workspace:*",
+    "@tarojs/cli": "4.3.1",
+    "@tarojs/webpack5-runner": "4.3.1",
+    "@vue/babel-plugin-jsx": "^1.2.5",
+    "babel-preset-taro": "4.3.1",
+    "typescript": "^5.7.3",
+    "webpack": "5.98.0"
+  }
+}
