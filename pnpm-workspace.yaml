@@ -4,3 +4,7 @@ packages:
 
 allowBuilds:
   esbuild: true
+  msgpackr-extract: true
+
+minimumReleaseAgeExclude:
+  - bullmq@6.5.1
