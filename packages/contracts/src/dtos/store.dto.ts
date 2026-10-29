@@ -4,14 +4,14 @@ import { z } from 'zod';
  * 门店空间检索与地理位置
  */
 export const SearchStoreNearbySchema = z.object({
-  latitude: z.number().min(-90).max(90),
-  longitude: z.number().min(-180).max(180),
-  radiusKm: z.number().positive().default(50), // 搜索半径 (公里)
+  latitude: z.coerce.number().min(-90).max(90),
+  longitude: z.coerce.number().min(-180).max(180),
+  radiusKm: z.coerce.number().positive().default(50), // 搜索半径 (公里)
   brandId: z.string().uuid().optional(),
   categoryId: z.string().uuid().optional(),
   keyword: z.string().optional(),
-  page: z.number().int().positive().default(1),
-  pageSize: z.number().int().positive().default(20),
+  page: z.coerce.number().int().positive().default(1),
+  pageSize: z.coerce.number().int().positive().default(20),
 });
 export type SearchStoreNearbyDto = z.infer<typeof SearchStoreNearbySchema>;
 
