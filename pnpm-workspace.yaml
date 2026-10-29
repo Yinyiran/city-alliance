@@ -5,6 +5,7 @@ packages:
 allowBuilds:
   esbuild: true
   msgpackr-extract: true
+  vue-demi: true
 
 minimumReleaseAgeExclude:
   - bullmq@6.5.1
