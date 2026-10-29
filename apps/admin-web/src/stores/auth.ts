@@ -34,6 +34,12 @@ export const useAuthStore = defineStore('auth', {
       localStorage.setItem('user_info', JSON.stringify(user));
       localStorage.setItem('user_perms', JSON.stringify(this.permissions));
     },
+    switchRole(role: RoleEnum) {
+      if (this.user) {
+        this.user.role = role;
+        localStorage.setItem('user_info', JSON.stringify(this.user));
+      }
+    },
     logout() {
       this.token = '';
       this.refreshToken = '';
