@@ -45,10 +45,15 @@
             <el-icon><Wallet /></el-icon>
             <template #title>平台资金总清算</template>
           </el-menu-item>
-          <el-menu-item index="/system/configs">
-            <el-icon><Tickets /></el-icon>
-            <template #title>全局配置与审计</template>
-          </el-menu-item>
+          <el-sub-menu index="system-menu">
+            <template #title>
+              <el-icon><Setting /></el-icon>
+              <span>系统与权限中控</span>
+            </template>
+            <el-menu-item index="/system/users">系统账号管理</el-menu-item>
+            <el-menu-item index="/system/roles">角色权限矩阵</el-menu-item>
+            <el-menu-item index="/system/configs">全局配置与审计</el-menu-item>
+          </el-sub-menu>
         </template>
 
         <!-- 城市分公司视角 (CITY_AGENT) -->
@@ -223,6 +228,7 @@ import {
   Goods,
   Tickets,
   Wallet,
+  Setting,
   Fold,
   Expand,
   ArrowDown,

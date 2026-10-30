@@ -555,7 +555,11 @@ export class AuthService {
           { id: '6-2', title: '资金与积分台账', name: 'MemberLedger', path: '/members/ledger', sort: 2, permissions: ['ledger:read'] },
         ]},
         { id: '7', title: '平台资金总清算', name: 'Settle', path: '/settle', icon: 'Wallet', sort: 7, permissions: ['settle:read'] },
-        { id: '8', title: '全局配置与审计', name: 'SystemConfigs', path: '/system/configs', icon: 'Tickets', sort: 8, permissions: ['system:config:read'] },
+        { id: '8', title: '系统与权限中控', name: 'SystemConfigs', path: '/system/configs', icon: 'Setting', sort: 8, permissions: ['system:config:read'], children: [
+          { id: '8-1', title: '系统账号管理', name: 'SystemUsers', path: '/system/users', sort: 1, permissions: ['user:read'] },
+          { id: '8-2', title: '角色权限矩阵', name: 'SystemRoles', path: '/system/roles', sort: 2, permissions: ['role:manage'] },
+          { id: '8-3', title: '全局配置与审计', name: 'SystemConfigs', path: '/system/configs', sort: 3, permissions: ['system:config:read'] },
+        ]},
       ];
     }
 

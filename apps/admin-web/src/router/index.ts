@@ -110,6 +110,18 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '财务清算与个税' },
       },
       {
+        path: 'system/users',
+        name: 'SystemUsers',
+        component: () => import('../views/system/users.vue'),
+        meta: { title: '系统账号管理' },
+      },
+      {
+        path: 'system/roles',
+        name: 'SystemRoles',
+        component: () => import('../views/system/roles.vue'),
+        meta: { title: '角色权限矩阵' },
+      },
+      {
         path: 'system/configs',
         name: 'SystemConfigs',
         component: () => import('../views/system/configs.vue'),
