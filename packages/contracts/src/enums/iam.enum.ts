@@ -11,13 +11,14 @@ export enum TenantType {
 }
 
 export enum RoleEnum {
-  SUPER_ADMIN = 'SUPER_ADMIN',     // 平台超级管理员
+  SUPER_ADMIN = 'SUPER_ADMIN',       // 平台超级管理员
   PLATFORM_STAFF = 'PLATFORM_STAFF', // 平台运营人员
-  CITY_AGENT = 'CITY_AGENT',       // 城市代理负责人
-  SHOP_OWNER = 'SHOP_OWNER',       // 商家主理人 (老板)
-  STORE_MANAGER = 'STORE_MANAGER', // 门店店长
-  STORE_CLERK = 'STORE_CLERK',     // 门店店员/收银员
-  SUPPLIER = 'SUPPLIER',           // 供货商主账号
+  CITY_AGENT = 'CITY_AGENT',         // 城市代理负责人
+  SHOP_OWNER = 'SHOP_OWNER',         // 商家主理人 (老板)
+  STORE_MANAGER = 'STORE_MANAGER',   // 门店店长
+  STORE_CLERK = 'STORE_CLERK',       // 门店店员/收银员
+  SUPPLIER = 'SUPPLIER',             // 供货商主账号
+  MEMBER = 'MEMBER',                 // 普通消费者会员
 }
 
 export enum UserStatus {
@@ -30,4 +31,21 @@ export enum TerminalType {
   ADMIN_WEB = 'ADMIN_WEB',         // PC 统一管理中台
   CUSTOMER_APP = 'CUSTOMER_APP',   // 微信小程序-顾客端
   MERCHANT_APP = 'MERCHANT_APP',   // 微信小程序-商家端
+  STORE_POS = 'STORE_POS',         // 门店自提收银 POS 终端
+  PC_MALL = 'PC_MALL',             // PC 电脑商城前台
+}
+
+export enum ClerkRoleEnum {
+  CASHIER = 'CASHIER', // 核销收银员
+  GUIDE = 'GUIDE',     // 门店导购
+  MANAGER = 'MANAGER', // 驻店店长
+}
+
+export enum DataScopeEnum {
+  ALL = 'ALL',       // 全部数据权限 (平台总部)
+  CITY = 'CITY',     // 城市分公司辖区数据权限
+  SHOP = 'SHOP',     // 商家主理人店铺数据权限
+  STORE = 'STORE',   // 实体门店数据权限
+  SUPPLY = 'SUPPLY', // 供应链供货商数据权限
+  SELF = 'SELF',     // 仅当前个人数据权限
 }

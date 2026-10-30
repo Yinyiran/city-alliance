@@ -5,6 +5,8 @@ import {
   AccountLoginSchema,
   WechatLoginDto,
   WechatLoginSchema,
+  WechatPhoneAuthDto,
+  WechatPhoneAuthSchema,
   RefreshTokenDto,
   RefreshTokenSchema,
   AuthTokenResultDto,
@@ -29,6 +31,16 @@ export class AuthController {
     return this.authService.loginWithWechat(dto);
   }
 
+  @Post('wechat-phone-bind')
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(new ZodValidationPipe(WechatPhoneAuthSchema))
+  async bindWechatPhone(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: WechatPhoneAuthDto,
+  ) {
+    return this.authService.bindWechatPhone(user, dto);
+  }
+
   @Post('refresh')
   @UsePipes(new ZodValidationPipe(RefreshTokenSchema))
   async refresh(@Body() dto: RefreshTokenDto): Promise<AuthTokenResultDto> {
@@ -41,6 +53,16 @@ export class AuthController {
     return {
       code: 200,
       data: user,
+    };
+  }
+
+  @Get('menu-tree')
+  @UseGuards(JwtAuthGuard)
+  async getMenuTree(@CurrentUser() user: AuthenticatedUser) {
+    const menus = await this.authService.getMenuTree(user);
+    return {
+      code: 200,
+      data: menus,
     };
   }
 }

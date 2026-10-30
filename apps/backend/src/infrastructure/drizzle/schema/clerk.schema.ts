@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, numeric, integer, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, text, numeric, integer, timestamp } from 'drizzle-orm/pg-core';
 import { stores } from './store.schema';
 import { users } from './iam.schema';
 
@@ -13,6 +13,8 @@ export const storeClerks = pgTable('store_clerks', {
   realName: varchar('real_name', { length: 50 }).notNull(),
   phone: varchar('phone', { length: 20 }).notNull(),
   role: varchar('role', { length: 30 }).notNull().default('CASHIER'), // CASHIER, GUIDE, MANAGER
+  permissions: text('permissions').array().notNull().default([]), // 细粒度操作权限
+  verifyCount: integer('verify_count').notNull().default(0), // 累计核销笔数
   status: varchar('status', { length: 20 }).notNull().default('ACTIVE'), // ACTIVE, DISABLED
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),

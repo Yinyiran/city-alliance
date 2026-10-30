@@ -15,6 +15,13 @@
       "when": 1793290077163,
       "tag": "0001_great_the_captain",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793366174340,
+      "tag": "0002_dry_red_wolf",
+      "breakpoints": true
     }
   ]
 }

@@ -5,7 +5,7 @@ import {
   CallHandler,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { TenantType } from '@city-alliance/contracts';
+import { DataScopeHelper } from '../helpers/data-scope.helper';
 
 @Injectable()
 export class TenantInterceptor implements NestInterceptor {
@@ -13,16 +13,18 @@ export class TenantInterceptor implements NestInterceptor {
     const request = context.switchToHttp().getRequest();
     const user = request.user;
 
-    // 将多租户边界数据注入请求上下文
-    if (user && user.tenantType) {
+    // 将五级多租户组织拓扑与数据范围注入请求上下文
+    if (user) {
+      const dataScope = DataScopeHelper.resolveDataScope(user);
+      request.dataScope = dataScope;
       request.tenantContext = {
         tenantId: user.tenantId,
         tenantType: user.tenantType,
-        isPlatform: user.tenantType === TenantType.PLATFORM,
-        isCity: user.tenantType === TenantType.CITY,
-        isShop: user.tenantType === TenantType.SHOP,
-        isStore: user.tenantType === TenantType.STORE,
-        isSupply: user.tenantType === TenantType.SUPPLY,
+        shopId: user.shopId,
+        storeId: user.storeId,
+        cityId: user.cityId,
+        isPlatform: dataScope.isAll,
+        dataScope: dataScope.scope,
       };
     }
 

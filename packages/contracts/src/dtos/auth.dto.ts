@@ -17,6 +17,13 @@ export const WechatLoginSchema = z.object({
 });
 export type WechatLoginDto = z.infer<typeof WechatLoginSchema>;
 
+export const WechatPhoneAuthSchema = z.object({
+  code: z.string().min(1, '微信手机号授权临时 code 必传'),
+  encryptedData: z.string().optional(),
+  iv: z.string().optional(),
+});
+export type WechatPhoneAuthDto = z.infer<typeof WechatPhoneAuthSchema>;
+
 export const RefreshTokenSchema = z.object({
   refreshToken: z.string().min(1, 'Refresh Token 必填'),
 });
@@ -31,10 +38,15 @@ export const AuthTokenResultSchema = z.object({
     username: z.string(),
     nickname: z.string(),
     avatarUrl: z.string().nullable().optional(),
+    mobile: z.string().nullable().optional(),
     role: z.nativeEnum(RoleEnum),
     tenantType: z.nativeEnum(TenantType),
     tenantId: z.string().uuid().nullable().optional(),
+    shopId: z.string().uuid().nullable().optional(),
+    storeId: z.string().uuid().nullable().optional(),
+    cityId: z.string().uuid().nullable().optional(),
     permissions: z.array(z.string()),
+    memberCode: z.string().optional(),
   }),
 });
 export type AuthTokenResultDto = z.infer<typeof AuthTokenResultSchema>;

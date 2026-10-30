@@ -5,3 +5,4 @@ export * from './order.dto.js';
 export * from './settlement.dto.js';
 export * from './store.dto.js';
 export * from './sign-in.dto.js';
+export * from './iam.dto.js';

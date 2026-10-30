@@ -6,13 +6,18 @@ export const permissionDirective: Directive = {
     const { value } = binding;
     const authStore = useAuthStore();
 
-    if (value && Array.isArray(value) && value.length > 0) {
-      const requiredPermissions = value;
+    if (value) {
+      const requiredPermissions: string[] = Array.isArray(value) ? value : [value];
+      const userPerms: string[] = authStore.permissions || [];
+
       const hasPermission =
-        authStore.permissions.includes('*') ||
-        requiredPermissions.some((perm) =>
-          authStore.permissions.includes(perm),
-        );
+        authStore.currentRole === 'SUPER_ADMIN' ||
+        userPerms.includes('*') ||
+        requiredPermissions.some((perm) => {
+          if (userPerms.includes(perm)) return true;
+          const prefix = perm.split(':')[0] + ':*';
+          return userPerms.includes(prefix);
+        });
 
       if (!hasPermission) {
         el.parentNode && el.parentNode.removeChild(el);
