@@ -549,6 +549,26 @@ export class AuthService {
   }
 
   /**
+   * 吊销 Refresh Token (主动登出或拉黑，单次轮换防重放)
+   */
+  async revokeRefreshToken(refreshToken: string): Promise<void> {
+    const refreshSecret = this.configService.get<string>(
+      'JWT_REFRESH_SECRET',
+      'city_alliance_refresh_token_secret_key_2026_abc',
+    );
+    try {
+      const decoded = await this.jwtService.verifyAsync(refreshToken, {
+        secret: refreshSecret,
+      });
+      if (decoded.sub && decoded.jti) {
+        await this.redis.del(`auth:refresh:${decoded.sub}:${decoded.jti}`);
+      }
+    } catch {
+      // 忽略无效令牌的解码错误
+    }
+  }
+
+  /**
    * 动态菜单树与细粒度权限 (根据角色和权限过滤)
    */
   async getMenuTree(user: AuthenticatedUser): Promise<MenuItemDto[]> {

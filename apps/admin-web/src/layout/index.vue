@@ -276,9 +276,10 @@ function onRoleChange(newRole: RoleEnum) {
   }
 }
 
-function handleCommand(command: string) {
+async function handleCommand(command: string) {
   if (command === 'logout') {
-    authStore.logout();
+    await authStore.logout();
+    ElMessage.success('已安全退出系统');
     router.push('/login');
   }
 }

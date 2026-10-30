@@ -140,14 +140,24 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
   if (to.meta.public) {
+    if (to.path === '/login' && authStore.isAuthenticated) {
+      return next('/dashboard');
+    }
     return next();
   }
+
+  // 内存中无短期凭据时 (如用户按 F5 刷新页面)，尝试通过 HttpOnly Cookie 执行无感静默恢复
   if (!authStore.isAuthenticated) {
+    const success = await authStore.initAuth();
+    if (success) {
+      return next();
+    }
     return next('/login');
   }
+
   next();
 });
 

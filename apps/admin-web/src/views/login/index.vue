@@ -65,10 +65,11 @@ const loginForm = reactive({
 });
 
 onMounted(() => {
-  // 清理可能遗留的旧版开发 mock token
-  if (localStorage.getItem('access_token')?.startsWith('mock_')) {
-    authStore.logout();
-  }
+  // 主动清理旧版 localStorage 敏感存储
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('refresh_token');
+  localStorage.removeItem('user_info');
+  localStorage.removeItem('user_perms');
 });
 
 function fillAccount(username: string, pass: string = '123456') {
@@ -95,7 +96,8 @@ async function handleLogin() {
       throw new Error('未获取到鉴权令牌，请检查后端服务状态');
     }
 
-    authStore.setAuth(tokenData.accessToken, tokenData.refreshToken, tokenData.user);
+    // 内存安全存储：长效凭证已由后端以 HttpOnly Cookie 托管，此处仅注入短期内存
+    authStore.setAuth(tokenData.accessToken, tokenData.user);
     ElMessage.success(`欢迎【${tokenData.user.nickname || tokenData.user.username}】登录城盟优选中台！`);
 
     // 根据角色重定向到对应控制台视角

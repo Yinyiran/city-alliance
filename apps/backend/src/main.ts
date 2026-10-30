@@ -25,6 +25,7 @@ async function bootstrap() {
     new FastifyAdapter({
       logger: true,
       trustProxy: true,
+      ignoreTrailingSlash: true,
     }),
   );
 
