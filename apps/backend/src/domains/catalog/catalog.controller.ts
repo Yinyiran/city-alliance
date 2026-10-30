@@ -111,6 +111,15 @@ export class CatalogController {
     };
   }
 
+  @Get('categories/tree')
+  async getCategoriesTree() {
+    const data = await this.catalogService.getCategoriesTree();
+    return {
+      code: 200,
+      data,
+    };
+  }
+
   @Get('categories')
   async getCategories() {
     const data = await this.catalogService.getCategories();

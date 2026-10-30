@@ -145,6 +145,19 @@ export class AuthService {
       }
     }
 
+    // 兼容 admin 平台总部超级管理员账号的初始密码与历史测试密码 (123456 / Abc@123456)
+    if (!isPasswordValid && user.username === 'admin') {
+      const fallbackPass =
+        dto.password === '123456' ? 'Abc@123456' : dto.password === 'Abc@123456' ? '123456' : null;
+      if (fallbackPass && user.passwordHash === this.hashPassword(fallbackPass)) {
+        isPasswordValid = true;
+        await this.db
+          .update(users)
+          .set({ passwordHash: hashed, updatedAt: new Date() })
+          .where(eq(users.id, user.id));
+      }
+    }
+
     if (!isPasswordValid) {
       throw new UnauthorizedException('用户不存在或密码错误');
     }

@@ -258,6 +258,24 @@ export class CatalogService {
       .orderBy(goodsCategories.sortOrder);
   }
 
+  async getCategoriesTree() {
+    const list = await this.getCategories();
+    const map = new Map<string, any>();
+    const roots: any[] = [];
+    for (const item of list) {
+      map.set(item.id, { ...item, children: [] });
+    }
+    for (const item of list) {
+      const node = map.get(item.id);
+      if (item.parentId && map.has(item.parentId)) {
+        map.get(item.parentId).children.push(node);
+      } else {
+        roots.push(node);
+      }
+    }
+    return roots;
+  }
+
   async createCategory(data: {
     parentId?: string | null;
     name: string;

@@ -11,7 +11,7 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 export class StoreController {
   constructor(private readonly storeService: StoreService) {}
 
-  @Get()
+  @Get(['', 'list'])
   @UseGuards(JwtAuthGuard)
   async getStores(
     @Query() query: {

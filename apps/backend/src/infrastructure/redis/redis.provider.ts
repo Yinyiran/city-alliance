@@ -16,9 +16,9 @@ export const redisProvider: Provider = {
       port,
       password,
       db,
-      lazyConnect: true,
+      lazyConnect: false,
       maxRetriesPerRequest: 3,
-      enableOfflineQueue: false,
+      enableOfflineQueue: true,
     });
 
     redis.on('error', (err) => {

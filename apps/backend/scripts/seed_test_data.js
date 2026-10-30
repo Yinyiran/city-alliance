@@ -20,7 +20,7 @@ async function seed() {
   console.log('Tenant:', tenant);
 
   // 2. 创建超级管理员账号
-  const pwdHash = hashPassword('Abc@123456');
+  const pwdHash = hashPassword('123456');
   const [adminUser] = await sql`
     INSERT INTO users (tenant_id, username, password_hash, nickname, mobile, status)
     VALUES (${tenant.id}, 'admin', ${pwdHash}, '平台总管理员', '13800000000', 'ACTIVE')

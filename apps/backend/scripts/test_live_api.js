@@ -8,7 +8,7 @@ async function testFullSuite() {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       username: 'admin',
-      password: 'Abc@123456',
+      password: '123456',
       terminal: 'ADMIN_WEB',
     }),
   });

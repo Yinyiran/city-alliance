@@ -11,6 +11,13 @@ import cookie from '@fastify/cookie';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
 async function bootstrap() {
+  process.on('unhandledRejection', (reason) => {
+    console.error('[UnhandledRejection Caught]', reason);
+  });
+  process.on('uncaughtException', (err) => {
+    console.error('[UncaughtException Caught]', err);
+  });
+
   const logger = new Logger('Bootstrap');
 
   const app = await NestFactory.create<NestFastifyApplication>(

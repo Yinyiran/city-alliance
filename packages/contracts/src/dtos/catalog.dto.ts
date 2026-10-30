@@ -58,12 +58,14 @@ export const UpdateGoodsSchema = z.object({
 });
 export type UpdateGoodsDto = z.infer<typeof UpdateGoodsSchema>;
 
+const emptyToUndefined = (val: unknown) => (val === '' ? undefined : val);
+
 export const QueryGoodsSchema = z.object({
-  keyword: z.string().optional(),
-  tradeType: z.string().optional(),
-  status: z.string().optional(),
-  categoryId: z.string().uuid().optional(),
-  shopId: z.string().uuid().optional(),
+  keyword: z.preprocess(emptyToUndefined, z.string().optional()),
+  tradeType: z.preprocess(emptyToUndefined, z.string().optional()),
+  status: z.preprocess(emptyToUndefined, z.string().optional()),
+  categoryId: z.preprocess(emptyToUndefined, z.string().uuid().optional()),
+  shopId: z.preprocess(emptyToUndefined, z.string().uuid().optional()),
   page: z.coerce.number().min(1).default(1),
   pageSize: z.coerce.number().min(1).max(100).default(20),
 });

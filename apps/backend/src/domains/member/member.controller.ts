@@ -15,7 +15,7 @@ import { CurrentUser, AuthenticatedUser } from '../../common/decorators/current-
 export class MemberController {
   constructor(private readonly memberService: MemberService) {}
 
-  @Get()
+  @Get(['', 'list'])
   async getMembers(
     @Query() query: {
       keyword?: string;

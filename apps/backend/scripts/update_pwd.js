@@ -8,7 +8,7 @@ function hashPassword(password) {
 }
 
 async function updatePassword() {
-  const pwdHash = hashPassword('Abc@123456');
+  const pwdHash = hashPassword('123456');
   await sql`
     UPDATE users
     SET password_hash = ${pwdHash}
