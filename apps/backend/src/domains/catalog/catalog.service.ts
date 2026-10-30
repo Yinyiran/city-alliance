@@ -258,6 +258,53 @@ export class CatalogService {
       .orderBy(goodsCategories.sortOrder);
   }
 
+  async createCategory(data: {
+    parentId?: string | null;
+    name: string;
+    icon?: string;
+    sortOrder?: number;
+    isVisible?: boolean;
+  }) {
+    const [cat] = await this.db
+      .insert(goodsCategories)
+      .values({
+        parentId: data.parentId || null,
+        name: data.name,
+        icon: data.icon || null,
+        sortOrder: data.sortOrder || 0,
+        isVisible: data.isVisible !== false,
+      })
+      .returning();
+    return cat;
+  }
+
+  async updateCategory(
+    id: string,
+    data: {
+      parentId?: string | null;
+      name?: string;
+      icon?: string;
+      sortOrder?: number;
+      isVisible?: boolean;
+    },
+  ) {
+    const [cat] = await this.db
+      .update(goodsCategories)
+      .set({
+        ...data,
+      })
+      .where(eq(goodsCategories.id, id))
+      .returning();
+    return cat;
+  }
+
+  async deleteCategory(id: string) {
+    await this.db
+      .delete(goodsCategories)
+      .where(eq(goodsCategories.id, id));
+    return { success: true };
+  }
+
   /**
    * 获取店铺运费模板列表
    */

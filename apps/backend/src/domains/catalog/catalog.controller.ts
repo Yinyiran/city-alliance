@@ -120,6 +120,56 @@ export class CatalogController {
     };
   }
 
+  @Post('categories')
+  @UseGuards(JwtAuthGuard)
+  async createCategory(
+    @Body() body: {
+      parentId?: string | null;
+      name: string;
+      icon?: string;
+      sortOrder?: number;
+      isVisible?: boolean;
+    },
+  ) {
+    const data = await this.catalogService.createCategory(body);
+    return {
+      code: 200,
+      message: '分类创建成功',
+      data,
+    };
+  }
+
+  @Put('categories/:id')
+  @UseGuards(JwtAuthGuard)
+  async updateCategory(
+    @Param('id') id: string,
+    @Body() body: {
+      parentId?: string | null;
+      name?: string;
+      icon?: string;
+      sortOrder?: number;
+      isVisible?: boolean;
+    },
+  ) {
+    const data = await this.catalogService.updateCategory(id, body);
+    return {
+      code: 200,
+      message: '分类更新成功',
+      data,
+    };
+  }
+
+  @Delete('categories/:id')
+  @UseGuards(JwtAuthGuard)
+  async deleteCategory(@Param('id') id: string) {
+    const data = await this.catalogService.deleteCategory(id);
+    return {
+      code: 200,
+      message: '分类已删除',
+      data,
+    };
+  }
+
   @Get('freight-templates')
   @UseGuards(JwtAuthGuard)
   async getFreightTemplates(@Query('shopId') shopId?: string) {
