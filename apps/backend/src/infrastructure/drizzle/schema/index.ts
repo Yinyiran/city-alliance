@@ -12,3 +12,4 @@ export * from './address.schema';
 export * from './clerk.schema';
 export * from './logistics.schema';
 export * from './system.schema';
+export * from './video.schema';

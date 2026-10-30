@@ -1,4 +1,14 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, Inject } from '@nestjs/common';
+import { DRIZZLE_DB, DrizzleDatabase } from '../../infrastructure/drizzle/drizzle.provider';
+import {
+  commissionRecords,
+  withdrawRecords,
+  taxWithholdingRecords,
+  orders,
+  users,
+  members,
+} from '../../infrastructure/drizzle/schema/index';
+import { eq, and, desc, sql } from 'drizzle-orm';
 import {
   MemberLevel,
   CommissionType,
@@ -31,6 +41,11 @@ export interface TaxCalculationResult {
 
 @Injectable()
 export class SettleService {
+  constructor(
+    @Inject(DRIZZLE_DB)
+    private readonly db: DrizzleDatabase,
+  ) {}
+
   /**
    * 四级会员权益配置字典 (SSOT 基准)
    */
@@ -377,6 +392,215 @@ export class SettleService {
       taxAmount,
       platformFee,
       netAmount,
+    };
+  }
+
+  /**
+   * 分页查询佣金清算账本 (自签单2% vs 带单6% vs 合伙人分成，7天状态机延迟解冻)
+   */
+  async getCommissions(query: {
+    page?: number;
+    pageSize?: number;
+    status?: string;
+  }) {
+    const page = Math.max(1, Number(query.page) || 1);
+    const pageSize = Math.min(100, Math.max(1, Number(query.pageSize) || 20));
+    const offset = (page - 1) * pageSize;
+
+    const conditions = [];
+    if (query.status) {
+      conditions.push(eq(commissionRecords.status, query.status));
+    }
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+    const rows = await this.db
+      .select({
+        id: commissionRecords.id,
+        orderId: commissionRecords.orderId,
+        orderNo: orders.orderNo,
+        orderAmount: orders.totalAmount,
+        commissionType: commissionRecords.commissionType,
+        beneficiaryId: commissionRecords.beneficiaryId,
+        beneficiaryType: commissionRecords.beneficiaryType,
+        ratioPercent: commissionRecords.ratioPercent,
+        amount: commissionRecords.amount,
+        status: commissionRecords.status,
+        unfreezeDueDate: commissionRecords.unfreezeDueDate,
+        unfrozenAt: commissionRecords.unfrozenAt,
+        createdAt: commissionRecords.createdAt,
+      })
+      .from(commissionRecords)
+      .leftJoin(orders, eq(commissionRecords.orderId, orders.id))
+      .where(whereClause)
+      .orderBy(desc(commissionRecords.createdAt))
+      .limit(pageSize)
+      .offset(offset);
+
+    const countRes = await this.db
+      .select({ count: sql<number>`count(*)` })
+      .from(commissionRecords)
+      .where(whereClause);
+
+    return {
+      items: rows,
+      total: Number(countRes[0]?.count || 0),
+      page,
+      pageSize,
+    };
+  }
+
+  /**
+   * 分页查询实名提现与阶梯个税代扣代缴审核列表
+   */
+  async getWithdrawals(query: {
+    page?: number;
+    pageSize?: number;
+    status?: string;
+  }) {
+    const page = Math.max(1, Number(query.page) || 1);
+    const pageSize = Math.min(100, Math.max(1, Number(query.pageSize) || 20));
+    const offset = (page - 1) * pageSize;
+
+    const conditions = [];
+    if (query.status) {
+      conditions.push(eq(withdrawRecords.status, query.status));
+    }
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+    const rows = await this.db
+      .select({
+        id: withdrawRecords.id,
+        applicantId: withdrawRecords.applicantId,
+        applicantType: withdrawRecords.applicantType,
+        grossAmount: withdrawRecords.grossAmount,
+        platformFee: withdrawRecords.platformFee,
+        taxAmount: withdrawRecords.taxAmount,
+        netAmount: withdrawRecords.netAmount,
+        channel: withdrawRecords.channel,
+        realName: withdrawRecords.realName,
+        idCardNo: withdrawRecords.idCardNo,
+        bankCardNo: withdrawRecords.bankCardNo,
+        status: withdrawRecords.status,
+        auditNote: withdrawRecords.auditNote,
+        auditorName: users.nickname,
+        auditedAt: withdrawRecords.auditedAt,
+        paidAt: withdrawRecords.paidAt,
+        createdAt: withdrawRecords.createdAt,
+      })
+      .from(withdrawRecords)
+      .leftJoin(users, eq(withdrawRecords.auditedBy, users.id))
+      .where(whereClause)
+      .orderBy(desc(withdrawRecords.createdAt))
+      .limit(pageSize)
+      .offset(offset);
+
+    const countRes = await this.db
+      .select({ count: sql<number>`count(*)` })
+      .from(withdrawRecords)
+      .where(whereClause);
+
+    return {
+      items: rows,
+      total: Number(countRes[0]?.count || 0),
+      page,
+      pageSize,
+    };
+  }
+
+  /**
+   * 审核提现申请 (通过或驳回)
+   */
+  async auditWithdrawal(
+    id: string,
+    approved: boolean,
+    auditNote: string,
+    auditorId: string,
+  ) {
+    const list = await this.db
+      .select()
+      .from(withdrawRecords)
+      .where(eq(withdrawRecords.id, id))
+      .limit(1);
+
+    const record = list[0];
+    if (!record) {
+      throw new NotFoundException('提现申请不存在');
+    }
+
+    if (record.status !== 'AUDITING') {
+      throw new BadRequestException(`当前提现状态为 ${record.status}，无法重复审核`);
+    }
+
+    const nextStatus = approved ? 'PAYING' : 'REJECTED';
+
+    await this.db
+      .update(withdrawRecords)
+      .set({
+        status: nextStatus,
+        auditNote,
+        auditedBy: auditorId,
+        auditedAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(withdrawRecords.id, id));
+
+    return {
+      success: true,
+      status: nextStatus,
+      auditNote,
+    };
+  }
+
+  /**
+   * 提现放款确认 (对公出账成功并生成代扣代缴档案)
+   */
+  async payWithdrawal(id: string, auditorId: string) {
+    const list = await this.db
+      .select()
+      .from(withdrawRecords)
+      .where(eq(withdrawRecords.id, id))
+      .limit(1);
+
+    const record = list[0];
+    if (!record) {
+      throw new NotFoundException('提现申请不存在');
+    }
+
+    if (record.status !== 'PAYING') {
+      throw new BadRequestException('只有审核通过待打款(PAYING)的提现单可执行放款');
+    }
+
+    await this.db
+      .update(withdrawRecords)
+      .set({
+        status: 'SUCCESS',
+        paidAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(withdrawRecords.id, id));
+
+    // 生成劳务税档案
+    if (record.applicantType === 'MEMBER' && Number(record.taxAmount) > 0) {
+      const taxCalc = this.calculateTaxAndNetAmount(Number(record.grossAmount));
+      const now = new Date();
+      const taxPeriod = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      await this.db.insert(taxWithholdingRecords).values({
+        withdrawId: record.id,
+        memberId: record.applicantId,
+        grossAmount: record.grossAmount,
+        costDeduction: taxCalc.costDeduction.toFixed(2),
+        taxableIncome: taxCalc.taxableIncome.toFixed(2),
+        taxRatePercent: taxCalc.taxRatePercent.toFixed(2),
+        quickDeduction: taxCalc.quickDeduction.toFixed(2),
+        taxWithheld: record.taxAmount,
+        taxPeriod,
+      });
+    }
+
+    return {
+      success: true,
+      status: 'SUCCESS',
+      paidAt: new Date(),
     };
   }
 }

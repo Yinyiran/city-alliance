@@ -45,14 +45,23 @@
             <el-icon><Wallet /></el-icon>
             <template #title>平台资金总清算</template>
           </el-menu-item>
+          <el-menu-item index="/content/videos">
+            <el-icon><VideoPlay /></el-icon>
+            <template #title>短视频带货流</template>
+          </el-menu-item>
+          <el-menu-item index="/marketing/coupons">
+            <el-icon><Tickets /></el-icon>
+            <template #title>全网营销中心</template>
+          </el-menu-item>
           <el-sub-menu index="system-menu">
             <template #title>
               <el-icon><Setting /></el-icon>
-              <span>系统与权限中控</span>
+              <span>系统与底层中控</span>
             </template>
             <el-menu-item index="/system/users">系统账号管理</el-menu-item>
             <el-menu-item index="/system/roles">角色权限矩阵</el-menu-item>
-            <el-menu-item index="/system/configs">全局配置与审计</el-menu-item>
+            <el-menu-item index="/system/configs">全局参数与渠道</el-menu-item>
+            <el-menu-item index="/system/license">商业授权与拓扑</el-menu-item>
           </el-sub-menu>
         </template>
 
@@ -229,6 +238,7 @@ import {
   Tickets,
   Wallet,
   Setting,
+  VideoPlay,
   Fold,
   Expand,
   ArrowDown,

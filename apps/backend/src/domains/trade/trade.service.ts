@@ -571,6 +571,57 @@ export class TradeService {
   }
 
   /**
+   * 平台官方争议仲裁裁决 (同时兼容 refundId 或直接根据 orderId 冲正)
+   */
+  async arbitrateOrderRefund(
+    orderId: string,
+    approved: boolean,
+    reason: string,
+    auditorUserId: string,
+  ) {
+    const orderList = await this.db
+      .select()
+      .from(orders)
+      .where(eq(orders.id, orderId))
+      .limit(1);
+    const order = orderList[0];
+    if (!order) {
+      throw new NotFoundException('订单不存在');
+    }
+
+    const refundList = await this.db
+      .select()
+      .from(orderRefunds)
+      .where(eq(orderRefunds.orderId, orderId))
+      .limit(1);
+    let refund = refundList[0];
+
+    if (!refund) {
+      const inserted = await this.db
+        .insert(orderRefunds)
+        .values({
+          orderId,
+          refundNo: `REF${Date.now()}${Math.floor(1000 + Math.random() * 9000)}`,
+          refundAmount: order.payAmount,
+          reason: reason || '平台官方客服介入仲裁',
+          status: 'PENDING_AUDIT',
+        })
+        .returning();
+      refund = inserted[0];
+    }
+
+    return this.auditRefund(
+      {
+        refundId: refund.id,
+        approved,
+        rejectReason: approved ? undefined : reason,
+        isPlatformArbitration: true,
+      },
+      auditorUserId,
+    );
+  }
+
+  /**
    * 预约服务改约
    */
   async rescheduleAppointment(dto: RescheduleAppointmentDto) {
@@ -772,6 +823,7 @@ export class TradeService {
 
     const orderIds = orderRows.map((o) => o.id);
     let itemsByOrder: Record<string, any[]> = {};
+    let refundsByOrder: Record<string, any> = {};
     if (orderIds.length > 0) {
       const itemRows = await this.db
         .select()
@@ -780,6 +832,14 @@ export class TradeService {
       for (const item of itemRows) {
         if (!itemsByOrder[item.orderId]) itemsByOrder[item.orderId] = [];
         itemsByOrder[item.orderId].push(item);
+      }
+
+      const refundRows = await this.db
+        .select()
+        .from(orderRefunds)
+        .where(inArray(orderRefunds.orderId, orderIds));
+      for (const rf of refundRows) {
+        refundsByOrder[rf.orderId] = rf;
       }
     }
 
@@ -793,6 +853,7 @@ export class TradeService {
       ...o,
       items: itemsByOrder[o.id] || [],
       goodsName: itemsByOrder[o.id]?.[0]?.goodsName || '同城精选商品',
+      refundInfo: refundsByOrder[o.id] || null,
     }));
 
     return {

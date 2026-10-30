@@ -12,6 +12,9 @@ import { CatalogModule } from './domains/catalog/catalog.module';
 import { TradeModule } from './domains/trade/trade.module';
 import { SigninModule } from './domains/signin/signin.module';
 import { SupplyModule } from './domains/supply/supply.module';
+import { SystemModule } from './domains/system/system.module';
+import { VideoModule } from './domains/video/video.module';
+import { DashboardModule } from './domains/dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -31,6 +34,9 @@ import { SupplyModule } from './domains/supply/supply.module';
     TradeModule,
     SigninModule,
     SupplyModule,
+    SystemModule,
+    VideoModule,
+    DashboardModule,
   ],
 })
 export class AppModule {}

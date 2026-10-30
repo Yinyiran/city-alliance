@@ -104,6 +104,12 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '供应链供货选品' },
       },
       {
+        path: 'content/videos',
+        name: 'ContentVideos',
+        component: () => import('../views/content/videos.vue'),
+        meta: { title: '短视频内容管理' },
+      },
+      {
         path: 'settle',
         name: 'Settle',
         component: () => import('../views/settle/index.vue'),
@@ -126,6 +132,12 @@ const routes: RouteRecordRaw[] = [
         name: 'SystemConfigs',
         component: () => import('../views/system/configs.vue'),
         meta: { title: '系统参数配置' },
+      },
+      {
+        path: 'system/license',
+        name: 'SystemLicense',
+        component: () => import('../views/system/license.vue'),
+        meta: { title: '商业授权与拓扑' },
       },
     ],
   },

@@ -153,6 +153,24 @@ export class TradeController {
     };
   }
 
+  @Post('arbitrate')
+  async arbitrateOrder(
+    @Body() body: { orderId: string; approved: boolean; reason?: string },
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    const result = await this.tradeService.arbitrateOrderRefund(
+      body.orderId,
+      body.approved,
+      body.reason || '',
+      user.id,
+    );
+    return {
+      code: 200,
+      message: body.approved ? '官方仲裁同意退款完成，分润台账已自动冲正' : '官方仲裁已驳回退款争议',
+      data: result,
+    };
+  }
+
   @Post('appointment/reschedule')
   async rescheduleAppointment(@Body() body: RescheduleAppointmentDto) {
     const result = await this.tradeService.rescheduleAppointment(body);

@@ -173,6 +173,16 @@
               确认收货
             </el-button>
 
+            <!-- 售后纠纷 平台仲裁 -->
+            <el-button
+              v-if="row.orderStatus === 'REFUNDING'"
+              type="danger"
+              size="small"
+              @click="openArbitrateDialog(row, true)"
+            >
+              仲裁退款
+            </el-button>
+
             <!-- 待支付 模拟支付（方便测试） -->
             <el-button
               v-if="row.orderStatus === 'PENDING_PAY'"
@@ -309,8 +319,63 @@
             :closable="false"
           />
         </div>
+
+        <div v-if="activeOrder.orderStatus === 'REFUNDING' || activeOrder.refundInfo" style="margin-top: 20px">
+          <h4>售后纠纷与平台仲裁</h4>
+          <el-card shadow="never" style="background: #fef0f0; border-color: #fde2e2">
+            <p><strong>退款单号:</strong> {{ activeOrder.refundInfo?.refundNo || '系统自动生成' }}</p>
+            <p><strong>申请金额:</strong> ￥{{ activeOrder.refundInfo?.refundAmount || activeOrder.payAmount }}</p>
+            <p><strong>申请原因:</strong> {{ activeOrder.refundInfo?.reason || '买家发起售后退款争议' }}</p>
+            <div v-if="activeOrder.orderStatus === 'REFUNDING'" style="margin-top: 14px; display: flex; gap: 10px">
+              <el-button type="danger" size="small" @click="openArbitrateDialog(activeOrder, true)">同意退款并冲正</el-button>
+              <el-button type="info" size="small" @click="openArbitrateDialog(activeOrder, false)">驳回争议</el-button>
+            </div>
+            <div v-else style="margin-top: 8px">
+              <el-tag :type="activeOrder.orderStatus === 'REFUNDED' ? 'danger' : 'info'">
+                {{ activeOrder.orderStatus === 'REFUNDED' ? '平台已官方裁决全额退款' : '争议已处理' }}
+              </el-tag>
+            </div>
+          </el-card>
+        </div>
       </div>
     </el-drawer>
+
+    <!-- 弹窗：退款官方仲裁 -->
+    <el-dialog v-model="arbitrateDialogVisible" :title="'官方售后仲裁裁决 - ' + (arbitrateApprove ? '同意退款' : '驳回退款')" width="480px">
+      <el-alert
+        v-if="arbitrateApprove"
+        title="重要警示：裁决同意退款后，系统将立即全额退款，并自动撤销该订单在队列中的所有冻结分润流水，执行反向冲正！"
+        type="warning"
+        :closable="false"
+        style="margin-bottom: 16px"
+      />
+      <el-form label-width="90px">
+        <el-form-item label="订单编号">
+          <span style="font-family: monospace; font-weight: 600">{{ arbitrateTargetOrder?.orderNo }}</span>
+        </el-form-item>
+        <el-form-item label="退款金额">
+          <span style="color: #f56c6c; font-weight: 700">￥{{ arbitrateTargetOrder?.refundInfo?.refundAmount || arbitrateTargetOrder?.payAmount }}</span>
+        </el-form-item>
+        <el-form-item label="裁决意见" required>
+          <el-input
+            v-model="arbitrateReason"
+            type="textarea"
+            :rows="3"
+            placeholder="请输入平台仲裁裁决依据（如买卖双方协商一致/商品瑕疵核实退款等）"
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="arbitrateDialogVisible = false">取消</el-button>
+        <el-button
+          :type="arbitrateApprove ? 'danger' : 'primary'"
+          :loading="arbitrating"
+          @click="submitArbitration"
+        >
+          确定执行裁决
+        </el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -595,6 +660,46 @@ async function handlePayMock(row: any) {
 function openDrawer(row: any) {
   activeOrder.value = row;
   drawerVisible.value = true;
+}
+
+// 平台官方仲裁退款
+const arbitrateDialogVisible = ref(false);
+const arbitrateTargetOrder = ref<any>(null);
+const arbitrateApprove = ref(true);
+const arbitrateReason = ref('');
+const arbitrating = ref(false);
+
+function openArbitrateDialog(row: any, approve: boolean = true) {
+  arbitrateTargetOrder.value = row;
+  arbitrateApprove.value = approve;
+  arbitrateReason.value = approve ? '买家诉求合理，平台官方裁决同意全额退款并冲正分润' : '商家已履约交付，买家退款诉求不符合规则，予以驳回';
+  arbitrateDialogVisible.value = true;
+}
+
+async function submitArbitration() {
+  if (!arbitrateReason.value.trim()) {
+    return ElMessage.warning('请输入仲裁裁决依据');
+  }
+  arbitrating.value = true;
+  try {
+    const res: any = await request.post('/trade/arbitrate', {
+      orderId: arbitrateTargetOrder.value.id,
+      approved: arbitrateApprove.value,
+      reason: arbitrateReason.value,
+    });
+    if (res.code === 200) {
+      ElMessage.success(res.message || '官方仲裁裁决处理完成');
+      arbitrateDialogVisible.value = false;
+      if (drawerVisible.value) {
+        drawerVisible.value = false;
+      }
+      fetchOrders();
+    }
+  } catch (err: any) {
+    ElMessage.error(err.message || '仲裁执行失败');
+  } finally {
+    arbitrating.value = false;
+  }
 }
 
 onMounted(() => {
