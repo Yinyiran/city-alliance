@@ -1,14 +1,91 @@
-import { Controller, Get, Post, Query, Param, Body, UsePipes } from '@nestjs/common';
+import { Controller, Get, Post, Put, Query, Param, Body, UsePipes, UseGuards } from '@nestjs/common';
 import { StoreService } from './store.service';
 import {
   SearchStoreNearbyDto,
   SearchStoreNearbySchema,
 } from '@city-alliance/contracts';
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 @Controller('stores')
 export class StoreController {
   constructor(private readonly storeService: StoreService) {}
+
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  async getStores(
+    @Query() query: {
+      keyword?: string;
+      status?: string;
+      shopId?: string;
+      page?: number;
+      pageSize?: number;
+    },
+  ) {
+    const data = await this.storeService.getStoreList(query);
+    return {
+      code: 200,
+      data,
+    };
+  }
+
+  @Post()
+  @UseGuards(JwtAuthGuard)
+  async createStore(
+    @Body() body: {
+      shopId: string;
+      name: string;
+      phone: string;
+      address: string;
+      latitude: string;
+      longitude: string;
+      cloudPrinterSn?: string;
+      cloudPrinterType?: string;
+    },
+  ) {
+    const data = await this.storeService.createStore(body);
+    return {
+      code: 200,
+      message: '连锁分店创建成功',
+      data,
+    };
+  }
+
+  @Put(':id')
+  @UseGuards(JwtAuthGuard)
+  async updateStore(
+    @Param('id') id: string,
+    @Body() body: {
+      name?: string;
+      phone?: string;
+      address?: string;
+      latitude?: string;
+      longitude?: string;
+      cloudPrinterSn?: string;
+      cloudPrinterType?: string;
+    },
+  ) {
+    const data = await this.storeService.updateStore(id, body);
+    return {
+      code: 200,
+      message: '门店信息更新成功',
+      data,
+    };
+  }
+
+  @Put(':id/status')
+  @UseGuards(JwtAuthGuard)
+  async toggleStatus(
+    @Param('id') id: string,
+    @Body('status') status: string,
+  ) {
+    const data = await this.storeService.toggleStoreStatus(id, status);
+    return {
+      code: 200,
+      message: '门店营业状态切换成功',
+      data,
+    };
+  }
 
   @Get('nearby')
   @UsePipes(new ZodValidationPipe(SearchStoreNearbySchema))

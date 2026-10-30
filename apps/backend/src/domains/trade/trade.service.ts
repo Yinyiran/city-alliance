@@ -1,7 +1,7 @@
 import { Injectable, BadRequestException, NotFoundException, ConflictException, Inject } from '@nestjs/common';
 import { DRIZZLE_DB, DrizzleDatabase } from '../../infrastructure/drizzle/drizzle.provider';
-import { orders, orderItems, members, shops, commissionRecords, orderRefunds } from '../../infrastructure/drizzle/schema/index';
-import { eq, and, inArray } from 'drizzle-orm';
+import { orders, orderItems, members, shops, stores, commissionRecords, orderRefunds } from '../../infrastructure/drizzle/schema/index';
+import { eq, and, or, like, inArray, sql, desc } from 'drizzle-orm';
 import {
   OrderStatus,
   TradeType,
@@ -15,7 +15,9 @@ import {
   AuditRefundDto,
   RescheduleAppointmentDto,
   GenerateCashierQrDto,
+  RoleEnum,
 } from '@city-alliance/contracts';
+import { AuthenticatedUser } from '../../common/decorators/current-user.decorator';
 import { REDIS_CLIENT } from '../../infrastructure/redis/redis.provider';
 import Redis from 'ioredis';
 import { SettleService } from '../settle/settle.service';
@@ -694,5 +696,110 @@ export class TradeService {
         await this.redis.del(lockKey);
       } catch {}
     }
+  }
+
+  /**
+   * 分页多维度查询订单列表
+   */
+  async getOrdersList(
+    currentUser: AuthenticatedUser,
+    query: {
+      keyword?: string;
+      tradeType?: string;
+      orderStatus?: string;
+      shopId?: string;
+      page?: number;
+      pageSize?: number;
+    },
+  ) {
+    const page = query.page || 1;
+    const pageSize = query.pageSize || 20;
+    const offset = (page - 1) * pageSize;
+
+    const conditions = [];
+
+    if (currentUser.role === RoleEnum.SHOP_OWNER && currentUser.shopId) {
+      conditions.push(eq(orders.shopId, currentUser.shopId));
+    } else if (query.shopId) {
+      conditions.push(eq(orders.shopId, query.shopId));
+    }
+
+    if (query.keyword?.trim()) {
+      const kw = `%${query.keyword.trim()}%`;
+      conditions.push(or(like(orders.orderNo, kw), like(orders.verifyCode, kw)));
+    }
+
+    if (query.tradeType) {
+      conditions.push(eq(orders.tradeType, query.tradeType));
+    }
+
+    if (query.orderStatus) {
+      conditions.push(eq(orders.orderStatus, query.orderStatus));
+    }
+
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+    const orderRows = await this.db
+      .select({
+        id: orders.id,
+        orderNo: orders.orderNo,
+        customerId: orders.customerId,
+        customerName: members.realName,
+        customerCode: members.memberCode,
+        shopId: orders.shopId,
+        shopName: shops.name,
+        storeId: orders.storeId,
+        storeName: stores.name,
+        tradeType: orders.tradeType,
+        orderStatus: orders.orderStatus,
+        payStatus: orders.payStatus,
+        totalAmount: orders.totalAmount,
+        payAmount: orders.payAmount,
+        paymentChannel: orders.paymentChannel,
+        verifyCode: orders.verifyCode,
+        appointmentTime: orders.appointmentTime,
+        deliveryInfo: orders.deliveryInfo,
+        createdAt: orders.createdAt,
+      })
+      .from(orders)
+      .leftJoin(members, eq(orders.customerId, members.id))
+      .leftJoin(shops, eq(orders.shopId, shops.id))
+      .leftJoin(stores, eq(orders.storeId, stores.id))
+      .where(whereClause)
+      .orderBy(desc(orders.createdAt))
+      .limit(pageSize)
+      .offset(offset);
+
+    const orderIds = orderRows.map((o) => o.id);
+    let itemsByOrder: Record<string, any[]> = {};
+    if (orderIds.length > 0) {
+      const itemRows = await this.db
+        .select()
+        .from(orderItems)
+        .where(inArray(orderItems.orderId, orderIds));
+      for (const item of itemRows) {
+        if (!itemsByOrder[item.orderId]) itemsByOrder[item.orderId] = [];
+        itemsByOrder[item.orderId].push(item);
+      }
+    }
+
+    const countResult = await this.db
+      .select({ count: sql<number>`count(*)` })
+      .from(orders)
+      .where(whereClause);
+    const total = Number(countResult[0]?.count || 0);
+
+    const items = orderRows.map((o) => ({
+      ...o,
+      items: itemsByOrder[o.id] || [],
+      goodsName: itemsByOrder[o.id]?.[0]?.goodsName || '同城精选商品',
+    }));
+
+    return {
+      items,
+      total,
+      page,
+      pageSize,
+    };
   }
 }

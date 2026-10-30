@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, Param, UseGuards, UsePipes } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, Query, UseGuards, UsePipes } from '@nestjs/common';
 import { MemberService } from './member.service';
 import {
   UpgradeMemberOrderDto,
@@ -14,6 +14,35 @@ import { CurrentUser, AuthenticatedUser } from '../../common/decorators/current-
 @UseGuards(JwtAuthGuard)
 export class MemberController {
   constructor(private readonly memberService: MemberService) {}
+
+  @Get()
+  async getMembers(
+    @Query() query: {
+      keyword?: string;
+      level?: string;
+      page?: number;
+      pageSize?: number;
+    },
+  ) {
+    const data = await this.memberService.getMemberList(query);
+    return {
+      code: 200,
+      data,
+    };
+  }
+
+  @Post('custom-partner')
+  async customPartner(
+    @Body() body: { memberCode: string; price: string; remark?: string },
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    const data = await this.memberService.customPartnerUpgrade(body, user.id);
+    return {
+      code: 200,
+      message: '创客合伙人自主开通成功，50/50 分润已实时清算',
+      data,
+    };
+  }
 
   @Get('profile/:id')
   async getProfile(@Param('id') memberId: string) {

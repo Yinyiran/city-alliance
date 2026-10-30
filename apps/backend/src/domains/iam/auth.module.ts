@@ -8,6 +8,8 @@ import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { RoleService } from './role.service';
 import { RoleController } from './role.controller';
+import { PlatformService } from './platform.service';
+import { PlatformController } from './platform.controller';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { PermissionsGuard } from '../../common/guards/permissions.guard';
@@ -16,8 +18,8 @@ import { PermissionsGuard } from '../../common/guards/permissions.guard';
   imports: [
     JwtModule.register({}),
   ],
-  controllers: [AuthController, ClerkController, UserController, RoleController],
-  providers: [AuthService, ClerkService, UserService, RoleService, JwtAuthGuard, RolesGuard, PermissionsGuard],
-  exports: [AuthService, ClerkService, UserService, RoleService, JwtAuthGuard, RolesGuard, PermissionsGuard, JwtModule],
+  controllers: [AuthController, ClerkController, UserController, RoleController, PlatformController],
+  providers: [AuthService, ClerkService, UserService, RoleService, PlatformService, JwtAuthGuard, RolesGuard, PermissionsGuard],
+  exports: [AuthService, ClerkService, UserService, RoleService, PlatformService, JwtAuthGuard, RolesGuard, PermissionsGuard, JwtModule],
 })
 export class AuthModule {}

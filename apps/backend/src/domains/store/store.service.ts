@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { DRIZZLE_DB, DrizzleDatabase } from '../../infrastructure/drizzle/drizzle.provider';
 import { shops, stores, wecomQrCodes } from '../../infrastructure/drizzle/schema/index';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, or, like, desc, sql } from 'drizzle-orm';
 import { SearchStoreNearbyDto } from '@city-alliance/contracts';
 
 @Injectable()
@@ -198,5 +198,145 @@ export class StoreService {
       isFollowed: isFollow,
       timestamp: new Date().toISOString(),
     };
+  }
+
+  /**
+   * 分页多维度查询门店列表 (支持品牌检索、状态筛选)
+   */
+  async getStoreList(query: {
+    keyword?: string;
+    status?: string;
+    shopId?: string;
+    page?: number;
+    pageSize?: number;
+  }) {
+    const page = Number(query.page) || 1;
+    const pageSize = Number(query.pageSize) || 20;
+    const offset = (page - 1) * pageSize;
+
+    const conditions = [];
+
+    if (query.keyword?.trim()) {
+      const kw = `%${query.keyword.trim()}%`;
+      conditions.push(
+        or(
+          like(stores.name, kw),
+          like(stores.address, kw),
+          like(stores.phone, kw),
+          like(shops.name, kw),
+        ),
+      );
+    }
+
+    if (query.status) {
+      conditions.push(eq(stores.status, query.status));
+    }
+
+    if (query.shopId) {
+      conditions.push(eq(stores.shopId, query.shopId));
+    }
+
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+    const rows = await this.db
+      .select({
+        id: stores.id,
+        shopId: stores.shopId,
+        shopName: shops.name,
+        brandLogo: shops.logoUrl,
+        salesMultiplier: shops.salesMultiplier,
+        storeName: stores.name,
+        phone: stores.phone,
+        address: stores.address,
+        latitude: stores.latitude,
+        longitude: stores.longitude,
+        status: stores.status,
+        cloudPrinterSn: stores.cloudPrinterSn,
+        cloudPrinterType: stores.cloudPrinterType,
+        createdAt: stores.createdAt,
+      })
+      .from(stores)
+      .leftJoin(shops, eq(stores.shopId, shops.id))
+      .where(whereClause)
+      .orderBy(desc(stores.createdAt))
+      .limit(pageSize)
+      .offset(offset);
+
+    const countResult = await this.db
+      .select({ count: sql<number>`count(*)` })
+      .from(stores)
+      .leftJoin(shops, eq(stores.shopId, shops.id))
+      .where(whereClause);
+
+    const total = Number(countResult[0]?.count || 0);
+
+    return {
+      items: rows,
+      total,
+      page,
+      pageSize,
+    };
+  }
+
+  async createStore(data: {
+    shopId: string;
+    name: string;
+    phone: string;
+    address: string;
+    latitude: string;
+    longitude: string;
+    cloudPrinterSn?: string;
+    cloudPrinterType?: string;
+  }) {
+    const [store] = await this.db
+      .insert(stores)
+      .values({
+        shopId: data.shopId,
+        name: data.name,
+        phone: data.phone,
+        address: data.address,
+        latitude: data.latitude,
+        longitude: data.longitude,
+        cloudPrinterSn: data.cloudPrinterSn || null,
+        cloudPrinterType: data.cloudPrinterType || null,
+        status: 'OPEN',
+      })
+      .returning();
+    return store;
+  }
+
+  async updateStore(
+    id: string,
+    data: {
+      name?: string;
+      phone?: string;
+      address?: string;
+      latitude?: string;
+      longitude?: string;
+      cloudPrinterSn?: string;
+      cloudPrinterType?: string;
+    },
+  ) {
+    const [store] = await this.db
+      .update(stores)
+      .set({
+        ...data,
+        updatedAt: new Date(),
+      })
+      .where(eq(stores.id, id))
+      .returning();
+    return store;
+  }
+
+  async toggleStoreStatus(id: string, status: string) {
+    const [store] = await this.db
+      .update(stores)
+      .set({
+        status,
+        updatedAt: new Date(),
+      })
+      .where(eq(stores.id, id))
+      .returning();
+    return store;
   }
 }

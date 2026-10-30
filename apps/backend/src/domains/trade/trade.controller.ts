@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { TradeService, CreateOrderParams } from './trade.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser, AuthenticatedUser } from '../../common/decorators/current-user.decorator';
@@ -17,6 +17,25 @@ import {
 @UseGuards(JwtAuthGuard)
 export class TradeController {
   constructor(private readonly tradeService: TradeService) {}
+
+  @Get('orders')
+  async getOrders(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: {
+      keyword?: string;
+      tradeType?: string;
+      orderStatus?: string;
+      shopId?: string;
+      page?: number;
+      pageSize?: number;
+    },
+  ) {
+    const data = await this.tradeService.getOrdersList(user, query);
+    return {
+      code: 200,
+      data,
+    };
+  }
 
   @Post('orders')
   async createOrder(
