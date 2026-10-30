@@ -33,6 +33,7 @@ Thumbs.db
 *.sw?
 
 # Migration temporary directories
+scratch/
 _server_old/
 _merchant_old/
 _customer_old/

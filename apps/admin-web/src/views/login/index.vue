@@ -37,11 +37,11 @@
 
         <div class="quick-demo-box">
           <div style="font-size: 12px; color: #909399; margin-bottom: 8px">
-            开发快捷进入:
+            测试账号快捷填充 (生产/测试数据库真实账号):
           </div>
-          <el-button size="small" @click="quickEnter('SHOP_OWNER')">商家主理人</el-button>
-          <el-button size="small" @click="quickEnter('CITY_AGENT')">城市分公司</el-button>
-          <el-button size="small" @click="quickEnter('SUPER_ADMIN')">平台总部</el-button>
+          <el-button size="small" @click="fillAccount('admin', '123456')">平台总部(admin)</el-button>
+          <el-button size="small" @click="fillAccount('city2', '123456')">城市代理(city2)</el-button>
+          <el-button size="small" @click="fillAccount('shop1', '123456')">商家主理(shop1)</el-button>
         </div>
       </el-form>
     </div>
@@ -49,10 +49,10 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { reactive, ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
-import { RoleEnum, TenantType } from '@city-alliance/contracts';
+import request from '../../utils/request';
 import { ElMessage } from 'element-plus';
 
 const router = useRouter();
@@ -61,29 +61,57 @@ const loading = ref(false);
 
 const loginForm = reactive({
   username: 'admin',
-  password: 'password123',
+  password: '',
 });
 
-function quickEnter(roleStr: string) {
-  const role = roleStr as RoleEnum;
-  authStore.setAuth('mock_access_token_2026', 'mock_refresh_token_2026', {
-    id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
-    username: 'manager_demo',
-    nickname: roleStr === 'SHOP_OWNER' ? '李老板 (主理人)' : '城市代理人',
-    role,
-    tenantType: TenantType.SHOP,
-    permissions: ['*'],
-  });
-  ElMessage.success('登录成功，欢迎进入城盟优选中台！');
-  router.push('/dashboard');
+onMounted(() => {
+  // 清理可能遗留的旧版开发 mock token
+  if (localStorage.getItem('access_token')?.startsWith('mock_')) {
+    authStore.logout();
+  }
+});
+
+function fillAccount(username: string, pass: string = '123456') {
+  loginForm.username = username;
+  loginForm.password = pass;
 }
 
-function handleLogin() {
+async function handleLogin() {
+  if (!loginForm.username.trim() || !loginForm.password.trim()) {
+    ElMessage.warning('请输入登录账号与密码');
+    return;
+  }
+
   loading.value = true;
-  setTimeout(() => {
+  try {
+    const res: any = await request.post('/auth/login', {
+      username: loginForm.username.trim(),
+      password: loginForm.password.trim(),
+      terminal: 'ADMIN_WEB',
+    });
+
+    const tokenData = res.data || res;
+    if (!tokenData || !tokenData.accessToken) {
+      throw new Error('未获取到鉴权令牌，请检查后端服务状态');
+    }
+
+    authStore.setAuth(tokenData.accessToken, tokenData.refreshToken, tokenData.user);
+    ElMessage.success(`欢迎【${tokenData.user.nickname || tokenData.user.username}】登录城盟优选中台！`);
+
+    // 根据角色重定向到对应控制台视角
+    if (tokenData.user.role === 'CITY_AGENT') {
+      router.push('/city/screen');
+    } else if (tokenData.user.role === 'SUPPLIER') {
+      router.push('/supply/goods');
+    } else {
+      router.push('/dashboard');
+    }
+  } catch (err: any) {
+    // 错误信息在 request.ts 的响应拦截器中已弹窗提示
+    console.error('Login error:', err);
+  } finally {
     loading.value = false;
-    quickEnter('SHOP_OWNER');
-  }, 500);
+  }
 }
 </script>
 

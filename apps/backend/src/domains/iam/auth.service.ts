@@ -125,7 +125,27 @@ export class AuthService {
     }
 
     const hashed = this.hashPassword(dto.password);
-    if (user.passwordHash !== hashed) {
+    let isPasswordValid = user.passwordHash === hashed;
+
+    // 兼容重构前 Niushop MD5 与 NiuCloud MD5 哈希加密，验证通过自动无缝升级为现代 SHA-256
+    if (!isPasswordValid) {
+      const legacyNiuCloudHash = crypto
+        .createHash('md5')
+        .update(crypto.createHash('md5').update(dto.password).digest('hex') + 'NiuCloud')
+        .digest('hex');
+      const plainMd5Hash = crypto.createHash('md5').update(dto.password).digest('hex');
+
+      if (user.passwordHash === legacyNiuCloudHash || user.passwordHash === plainMd5Hash) {
+        isPasswordValid = true;
+        // 自动无缝升级密码哈希到现代安全标准 SHA-256 + 专属 Salt
+        await this.db
+          .update(users)
+          .set({ passwordHash: hashed, updatedAt: new Date() })
+          .where(eq(users.id, user.id));
+      }
+    }
+
+    if (!isPasswordValid) {
       throw new UnauthorizedException('用户不存在或密码错误');
     }
 

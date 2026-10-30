@@ -23,10 +23,10 @@ export const freightTemplates = pgTable('freight_templates', {
 export const goodsSpu = pgTable('goods_spu', {
   id: uuid('id').primaryKey().defaultRandom(),
   shopId: uuid('shop_id').notNull().references(() => shops.id, { onDelete: 'cascade' }),
-  name: varchar('name', { length: 200 }).notNull(),
+  name: text('name').notNull(),
   tradeType: varchar('trade_type', { length: 30 }).notNull(), // TAKEOUT, PICKUP, APPOINTMENT, EXPRESS
   categoryId: uuid('category_id'),
-  coverImage: varchar('cover_image', { length: 255 }).notNull(),
+  coverImage: text('cover_image').notNull(),
   albumImages: text('album_images').array().notNull().default([]),
   description: text('description'),
   status: varchar('status', { length: 20 }).notNull().default('ON_SALE'), // ON_SALE, OFF_SALE
