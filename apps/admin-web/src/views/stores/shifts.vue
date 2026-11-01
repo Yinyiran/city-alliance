@@ -6,20 +6,23 @@
           <h3>移动收银台交接班与轧帐流水 (Cashier Shift Reconciliation)</h3>
           <p class="sub-tip">记录收银员交接班时间、现金实收、聚合扫码实收总额与盘点差异</p>
         </div>
+        <el-button @click="fetchShifts">
+          <el-icon><Refresh /></el-icon> 刷新流水
+        </el-button>
       </div>
 
-      <el-table :data="shiftList" stripe style="width: 100%">
+      <el-table v-loading="loading" :data="shiftList" stripe style="width: 100%">
         <el-table-column prop="storeName" label="营业实体门店" min-width="180" />
         <el-table-column prop="clerkName" label="交班收银员" width="130">
           <template #default="{ row }">
-            <div>{{ row.clerkName }}</div>
-            <div style="font-size: 12px; color: #909399">{{ row.clerkNo }}</div>
+            <div>{{ row.clerkName || '值班员' }}</div>
+            <div style="font-size: 12px; color: #909399">{{ row.clerkNo || '-' }}</div>
           </template>
         </el-table-column>
         <el-table-column label="交接班时间跨度" min-width="240">
           <template #default="{ row }">
-            <div>起: {{ row.shiftStart }}</div>
-            <div style="color: #909399">止: {{ row.shiftEnd || '当前值班中...' }}</div>
+            <div>起: {{ formatDate(row.shiftStart) }}</div>
+            <div style="color: #909399">止: {{ row.shiftEnd ? formatDate(row.shiftEnd) : '当前值班中...' }}</div>
           </template>
         </el-table-column>
         <el-table-column prop="orderCount" label="核销/收银笔数" width="130">
@@ -29,16 +32,16 @@
         </el-table-column>
         <el-table-column prop="scanTotal" label="聚合扫码实收" width="140">
           <template #default="{ row }">
-            <span style="color: #409eff; font-weight: 700">￥{{ row.scanTotal }}</span>
+            <span style="color: #409eff; font-weight: 700">￥{{ Number(row.scanTotal || 0).toFixed(2) }}</span>
           </template>
         </el-table-column>
         <el-table-column prop="cashTotal" label="现金实收" width="120">
-          <template #default="{ row }">￥{{ row.cashTotal }}</template>
+          <template #default="{ row }">￥{{ Number(row.cashTotal || 0).toFixed(2) }}</template>
         </el-table-column>
         <el-table-column prop="diffAmount" label="长短款差异" width="120">
           <template #default="{ row }">
             <span :style="{ color: Number(row.diffAmount) === 0 ? '#67c23a' : '#f56c6c', fontWeight: 'bold' }">
-              {{ Number(row.diffAmount) === 0 ? '平账 (0.00)' : '差 ￥' + row.diffAmount }}
+              {{ Number(row.diffAmount) === 0 ? '平账 (0.00)' : '差 ￥' + Number(row.diffAmount).toFixed(2) }}
             </span>
           </template>
         </el-table-column>
@@ -49,64 +52,88 @@
             </el-tag>
           </template>
         </el-table-column>
+        <el-table-column prop="remark" label="备注" min-width="140" show-overflow-tooltip>
+          <template #default="{ row }">
+            <span>{{ row.remark || '-' }}</span>
+          </template>
+        </el-table-column>
       </el-table>
+
+      <div class="pagination-container">
+        <el-pagination
+          v-model:current-page="page"
+          v-model:page-size="pageSize"
+          :total="total"
+          :page-sizes="[10, 20, 50]"
+          layout="total, sizes, prev, pager, next, jumper"
+          @size-change="fetchShifts"
+          @current-change="fetchShifts"
+        />
+      </div>
     </el-card>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { Refresh } from '@element-plus/icons-vue';
+import request from '@/utils/request';
 
-const shiftList = ref([
-  {
-    id: 'sh-1',
-    storeName: '拾光烘焙研磨 (西湖总店)',
-    clerkName: '王小芬',
-    clerkNo: 'CLK-001',
-    shiftStart: '2026-10-29 08:30:00',
-    shiftEnd: '2026-10-29 16:30:00',
-    orderCount: 84,
-    scanTotal: '3,842.50',
-    cashTotal: '150.00',
-    diffAmount: '0.00',
-    status: 'CLOSED',
-  },
-  {
-    id: 'sh-2',
-    storeName: '拾光烘焙研磨 (西湖总店)',
-    clerkName: '张敏',
-    clerkNo: 'CLK-004',
-    shiftStart: '2026-10-29 16:30:00',
-    shiftEnd: '2026-10-29 22:30:00',
-    orderCount: 62,
-    scanTotal: '2,910.00',
-    cashTotal: '80.00',
-    diffAmount: '0.00',
-    status: 'CLOSED',
-  },
-  {
-    id: 'sh-3',
-    storeName: '萌宠星球生活馆 (城西旗舰店)',
-    clerkName: '刘婷婷',
-    clerkNo: 'CLK-003',
-    shiftStart: '2026-10-30 09:00:00',
-    shiftEnd: null,
-    orderCount: 18,
-    scanTotal: '890.00',
-    cashTotal: '0.00',
-    diffAmount: '0.00',
-    status: 'OPEN',
-  },
-]);
+const loading = ref(false);
+const shiftList = ref<any[]>([]);
+const total = ref(0);
+const page = ref(1);
+const pageSize = ref(20);
+
+function formatDate(val?: string) {
+  if (!val) return '-';
+  const d = new Date(val);
+  return d.toLocaleString('zh-CN', { hour12: false });
+}
+
+async function fetchShifts() {
+  loading.value = true;
+  try {
+    const res: any = await request.get('/stores/shifts', {
+      params: {
+        page: page.value,
+        pageSize: pageSize.value,
+      },
+    });
+    if (res && res.data) {
+      shiftList.value = res.data.items || [];
+      total.value = res.data.total || 0;
+    }
+  } catch (err: any) {
+    console.error('Failed to fetch shifts:', err);
+  } finally {
+    loading.value = false;
+  }
+}
+
+onMounted(() => {
+  fetchShifts();
+});
 </script>
 
 <style scoped>
+.shifts-container {
+  padding: 16px;
+}
 .header-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 16px;
 }
 .sub-tip {
   color: #909399;
   font-size: 13px;
   margin-top: 4px;
+}
+.pagination-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
 }
 </style>

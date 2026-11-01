@@ -247,13 +247,33 @@ function onRoleChange(role: string) {
 }
 
 async function fetchClerks() {
+  loading.value = true;
   try {
-    const res: any = await request.get('/iam/clerks');
-    if (res && res.data && res.data.items && res.data.items.length > 0) {
+    const res: any = await request.get('/stores/clerks');
+    if (res && res.data && res.data.items) {
       clerkList.value = res.data.items;
     }
-  } catch {
-    // 保持响应式演示数据
+  } catch (err: any) {
+    console.error('Failed to fetch clerks:', err);
+  } finally {
+    loading.value = false;
+  }
+}
+
+async function fetchStores() {
+  try {
+    const res: any = await request.get('/stores');
+    if (res && res.data && res.data.items) {
+      storeOptions.value = res.data.items.map((s: any) => ({
+        id: s.id,
+        name: s.storeName || s.name,
+      }));
+      if (storeOptions.value.length > 0 && !formData.value.storeId) {
+        formData.value.storeId = storeOptions.value[0].id;
+      }
+    }
+  } catch (err: any) {
+    console.error('Failed to fetch stores:', err);
   }
 }
 
@@ -339,14 +359,13 @@ async function saveClerk() {
       }
       ElMessage.success('店员权限更新成功！');
     } else {
-      const res: any = await request.post('/iam/clerks', {
+      const res: any = await request.post('/stores/clerks', {
         storeId: formData.value.storeId,
         clerkNo: formData.value.clerkNo,
         realName: formData.value.realName,
         phone: formData.value.phone,
         role: formData.value.role,
         permissions: formData.value.permissions,
-        initialPassword: formData.value.initialPassword || undefined,
       });
 
       const selectedStore = storeOptions.value.find((s) => s.id === formData.value.storeId);
@@ -374,6 +393,7 @@ async function saveClerk() {
 
 onMounted(() => {
   fetchClerks();
+  fetchStores();
 });
 </script>
 

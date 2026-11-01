@@ -1,6 +1,15 @@
 import { Injectable, BadRequestException, NotFoundException, ConflictException, Inject } from '@nestjs/common';
 import { DRIZZLE_DB, DrizzleDatabase } from '../../infrastructure/drizzle/drizzle.provider';
-import { orders, orderItems, members, shops, stores, commissionRecords, orderRefunds } from '../../infrastructure/drizzle/schema/index';
+import {
+  orders,
+  orderItems,
+  members,
+  shops,
+  stores,
+  commissionRecords,
+  orderRefunds,
+  storeClerks,
+} from '../../infrastructure/drizzle/schema/index';
 import { eq, and, or, like, inArray, sql, desc } from 'drizzle-orm';
 import {
   OrderStatus,
@@ -735,6 +744,17 @@ export class TradeService {
         })
         .where(eq(orders.id, order.id));
 
+      // 累计店员核销笔数
+      if (clerkUserId) {
+        await this.db
+          .update(storeClerks)
+          .set({
+            verifyCount: sql`${storeClerks.verifyCount} + 1`,
+            updatedAt: new Date(),
+          })
+          .where(eq(storeClerks.userId, clerkUserId));
+      }
+
       return {
         success: true,
         orderId: order.id,
@@ -771,6 +791,11 @@ export class TradeService {
 
     if (currentUser.role === RoleEnum.SHOP_OWNER && currentUser.shopId) {
       conditions.push(eq(orders.shopId, currentUser.shopId));
+    } else if (
+      (currentUser.role === RoleEnum.STORE_MANAGER || currentUser.role === RoleEnum.STORE_CLERK) &&
+      currentUser.storeId
+    ) {
+      conditions.push(eq(orders.storeId, currentUser.storeId));
     } else if (query.shopId) {
       conditions.push(eq(orders.shopId, query.shopId));
     }

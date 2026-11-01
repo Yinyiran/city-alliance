@@ -38,6 +38,24 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '城市分公司大屏' },
       },
       {
+        path: 'city/shops',
+        name: 'CityShops',
+        component: () => import('../views/city/shops.vue'),
+        meta: { title: '辖区主理人商家' },
+      },
+      {
+        path: 'city/settle',
+        name: 'CitySettle',
+        component: () => import('../views/city/settle.vue'),
+        meta: { title: '分公司25%分润账本' },
+      },
+      {
+        path: 'city/config',
+        name: 'CityConfig',
+        component: () => import('../views/city/config.vue'),
+        meta: { title: '分公司站点配置' },
+      },
+      {
         path: 'members',
         name: 'Members',
         component: () => import('../views/members/index.vue'),
@@ -48,6 +66,12 @@ const routes: RouteRecordRaw[] = [
         name: 'MemberLedger',
         component: () => import('../views/members/ledger.vue'),
         meta: { title: '资金与积分台账' },
+      },
+      {
+        path: 'stores/cashier',
+        name: 'StoreCashier',
+        component: () => import('../views/stores/cashier.vue'),
+        meta: { title: '门店收银与核销工作台' },
       },
       {
         path: 'stores',
@@ -102,6 +126,18 @@ const routes: RouteRecordRaw[] = [
         name: 'SupplyGoods',
         component: () => import('../views/supply/goods.vue'),
         meta: { title: '供应链供货选品' },
+      },
+      {
+        path: 'supply/orders',
+        name: 'SupplyOrders',
+        component: () => import('../views/supply/orders.vue'),
+        meta: { title: '采购订单履约' },
+      },
+      {
+        path: 'supply/settle',
+        name: 'SupplySettle',
+        component: () => import('../views/supply/settle.vue'),
+        meta: { title: '供货款结算对账' },
       },
       {
         path: 'content/videos',

@@ -71,7 +71,7 @@
             <el-icon><DataBoard /></el-icon>
             <template #title>城市大屏看板</template>
           </el-menu-item>
-          <el-menu-item index="/platform/shops">
+          <el-menu-item index="/city/shops">
             <el-icon><Goods /></el-icon>
             <template #title>辖区主理人商家</template>
           </el-menu-item>
@@ -83,9 +83,37 @@
             <el-icon><Tickets /></el-icon>
             <template #title>辖区订单监控</template>
           </el-menu-item>
-          <el-menu-item index="/settle">
+          <el-menu-item index="/city/settle">
             <el-icon><Wallet /></el-icon>
             <template #title>分公司25%分润账本</template>
+          </el-menu-item>
+          <el-menu-item index="/city/config">
+            <el-icon><Setting /></el-icon>
+            <template #title>分公司站点配置</template>
+          </el-menu-item>
+        </template>
+
+        <!-- 实体门店核销收银视角 (STORE_MANAGER / STORE_CLERK) -->
+        <template v-else-if="authStore.currentRole === 'STORE_MANAGER' || authStore.currentRole === 'STORE_CLERK'">
+          <el-menu-item index="/stores/cashier">
+            <el-icon><CreditCard /></el-icon>
+            <template #title>收银与核销前台</template>
+          </el-menu-item>
+          <el-menu-item index="/trade">
+            <el-icon><Tickets /></el-icon>
+            <template #title>门店自提订单流水</template>
+          </el-menu-item>
+          <el-menu-item index="/stores/shifts">
+            <el-icon><Timer /></el-icon>
+            <template #title>交接班轧账流水</template>
+          </el-menu-item>
+          <el-menu-item index="/stores/clerks">
+            <el-icon><User /></el-icon>
+            <template #title>门店店员管理</template>
+          </el-menu-item>
+          <el-menu-item index="/stores">
+            <el-icon><Location /></el-icon>
+            <template #title>门店资料与企微码</template>
           </el-menu-item>
         </template>
 
@@ -95,11 +123,11 @@
             <el-icon><Goods /></el-icon>
             <template #title>供货选品池管理</template>
           </el-menu-item>
-          <el-menu-item index="/trade">
+          <el-menu-item index="/supply/orders">
             <el-icon><Tickets /></el-icon>
-            <template #title>采购订单发货</template>
+            <template #title>采购订单履约</template>
           </el-menu-item>
-          <el-menu-item index="/settle">
+          <el-menu-item index="/supply/settle">
             <el-icon><Wallet /></el-icon>
             <template #title>供货款结算对账</template>
           </el-menu-item>
@@ -135,6 +163,7 @@
               <el-icon><Location /></el-icon>
               <span>实体门店与收银</span>
             </template>
+            <el-menu-item index="/stores/cashier">门店收银核销台</el-menu-item>
             <el-menu-item index="/stores">实体门店与活码</el-menu-item>
             <el-menu-item index="/stores/clerks">店员与核销员</el-menu-item>
             <el-menu-item index="/stores/shifts">收银交接班流水</el-menu-item>
@@ -239,6 +268,8 @@ import {
   Wallet,
   Setting,
   VideoPlay,
+  CreditCard,
+  Timer,
   Fold,
   Expand,
   ArrowDown,
@@ -257,7 +288,8 @@ const currentRoleName = computed(() => {
     SUPER_ADMIN: '平台总部',
     CITY_AGENT: '城市分公司',
     SHOP_OWNER: '品牌主理人',
-    STORE_MANAGER: '实体门店',
+    STORE_MANAGER: '实体门店店长',
+    STORE_CLERK: '门店核销收银员',
     SUPPLIER: 'B2B供货商',
   };
   return map[authStore.currentRole] || '商家主理人';

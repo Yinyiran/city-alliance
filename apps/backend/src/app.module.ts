@@ -15,6 +15,7 @@ import { SupplyModule } from './domains/supply/supply.module';
 import { SystemModule } from './domains/system/system.module';
 import { VideoModule } from './domains/video/video.module';
 import { DashboardModule } from './domains/dashboard/dashboard.module';
+import { CityModule } from './domains/city/city.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { DashboardModule } from './domains/dashboard/dashboard.module';
     SystemModule,
     VideoModule,
     DashboardModule,
+    CityModule,
   ],
 })
 export class AppModule {}

@@ -1,7 +1,9 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { DRIZZLE_DB, DrizzleDatabase } from '../../infrastructure/drizzle/drizzle.provider';
-import { orders, members, commissionRecords, shops, tenants } from '../../infrastructure/drizzle/schema/index';
-import { eq, sql, inArray, gte } from 'drizzle-orm';
+import { orders, members, commissionRecords, shops, tenants, stores } from '../../infrastructure/drizzle/schema/index';
+import { eq, and, sql } from 'drizzle-orm';
+import { RoleEnum } from '@city-alliance/contracts';
+import { AuthenticatedUser } from '../../common/decorators/current-user.decorator';
 
 @Injectable()
 export class DashboardService {
@@ -11,14 +13,14 @@ export class DashboardService {
   ) {}
 
   /**
-   * 聚合宏观经营大盘罗盘统计
+   * 聚合宏观经营大盘罗盘统计 (支持平台总部全网与商家主理人单店数据穿透)
    */
-  async getOverview() {
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
+  async getOverview(currentUser?: AuthenticatedUser) {
+    const isShopOwner = currentUser?.role === RoleEnum.SHOP_OWNER && currentUser?.shopId;
+    const orderWhere = isShopOwner ? eq(orders.shopId, currentUser.shopId!) : undefined;
 
-    // 1. 全网成交总额 GMV 与今日 GMV
-    const gmvRes = await this.db
+    // 1. 成交总额 GMV 与今日 GMV
+    const gmvQuery = this.db
       .select({
         totalGmv: sql<string>`coalesce(sum(case when ${orders.payStatus} = 'PAID' or ${orders.orderStatus} in ('PAID', 'DELIVERING', 'COMPLETED') then cast(${orders.payAmount} as numeric) else 0 end), 0)`,
         todayGmv: sql<string>`coalesce(sum(case when (${orders.payStatus} = 'PAID' or ${orders.orderStatus} in ('PAID', 'DELIVERING', 'COMPLETED')) and ${orders.createdAt} >= CURRENT_DATE then cast(${orders.payAmount} as numeric) else 0 end), 0)`,
@@ -27,9 +29,10 @@ export class DashboardService {
       })
       .from(orders);
 
+    const gmvRes = orderWhere ? await gmvQuery.where(orderWhere) : await gmvQuery;
     const stats = gmvRes[0];
 
-    // 2. 会员体量与等级分布
+    // 2. 会员体量与等级分布 (若为商家主理人，则统计在该商户消费或锁客会员)
     const memberRes = await this.db
       .select({
         totalMembers: sql<number>`count(*)`,
@@ -42,7 +45,15 @@ export class DashboardService {
     const memberStats = memberRes[0];
 
     // 3. 自签单 vs 跨店带单分润大盘
-    const commRes = await this.db
+    let commWhere = undefined;
+    if (isShopOwner) {
+      commWhere = and(
+        eq(commissionRecords.beneficiaryType, 'SHOP_OWNER'),
+        eq(commissionRecords.beneficiaryId, currentUser.shopId!),
+      );
+    }
+
+    const commQuery = this.db
       .select({
         selfCommTotal: sql<string>`coalesce(sum(case when ${commissionRecords.commissionType} = 'DAILY_CONSUMPTION_SELF' then cast(${commissionRecords.amount} as numeric) else 0 end), 0)`,
         crossCommTotal: sql<string>`coalesce(sum(case when ${commissionRecords.commissionType} = 'DAILY_CONSUMPTION_CROSS' then cast(${commissionRecords.amount} as numeric) else 0 end), 0)`,
@@ -50,16 +61,20 @@ export class DashboardService {
       })
       .from(commissionRecords);
 
+    const commRes = commWhere ? await commQuery.where(commWhere) : await commQuery;
     const commStats = commRes[0];
 
     // 4. 履约方式构成 (自提、外卖、预约、快递)
-    const tradeTypeRes = await this.db
+    const tradeTypeQuery = this.db
       .select({
         tradeType: orders.tradeType,
         count: sql<number>`count(*)`,
       })
-      .from(orders)
-      .groupBy(orders.tradeType);
+      .from(orders);
+
+    const tradeTypeRes = orderWhere
+      ? await tradeTypeQuery.where(orderWhere).groupBy(orders.tradeType)
+      : await tradeTypeQuery.groupBy(orders.tradeType);
 
     const tradeDistribution: Record<string, number> = {
       PICKUP: 0,
@@ -73,7 +88,16 @@ export class DashboardService {
       }
     }
 
-    // 5. 商家与城市合伙人总数
+    // 5. 实体门店或商家总数
+    let totalStores = 0;
+    if (isShopOwner) {
+      const storesRes = await this.db
+        .select({ count: sql<number>`count(*)` })
+        .from(stores)
+        .where(eq(stores.shopId, currentUser.shopId!));
+      totalStores = Number(storesRes[0]?.count || 0);
+    }
+
     const shopCountRes = await this.db.select({ count: sql<number>`count(*)` }).from(shops);
     const cityCountRes = await this.db.select({ count: sql<number>`count(*)` }).from(tenants);
 
@@ -96,8 +120,8 @@ export class DashboardService {
         partnerTotal: Number(commStats?.partnerCommTotal || 0).toFixed(2),
       },
       merchants: {
-        totalShops: Number(shopCountRes[0]?.count || 0),
-        totalCities: Number(cityCountRes[0]?.count || 0),
+        totalShops: isShopOwner ? 1 : Number(shopCountRes[0]?.count || 0),
+        totalCities: isShopOwner ? totalStores : Number(cityCountRes[0]?.count || 0),
       },
       fulfillmentDistribution: tradeDistribution,
     };

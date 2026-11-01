@@ -1,6 +1,14 @@
 import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { DRIZZLE_DB, DrizzleDatabase } from '../../infrastructure/drizzle/drizzle.provider';
-import { shops, stores, wecomQrCodes } from '../../infrastructure/drizzle/schema/index';
+import {
+  shops,
+  stores,
+  wecomQrCodes,
+  storeClerks,
+  cashierShifts,
+  users,
+  orders,
+} from '../../infrastructure/drizzle/schema/index';
 import { eq, and, or, like, desc, sql } from 'drizzle-orm';
 import { SearchStoreNearbyDto } from '@city-alliance/contracts';
 
@@ -338,5 +346,355 @@ export class StoreService {
       .where(eq(stores.id, id))
       .returning();
     return store;
+  }
+
+  /**
+   * 分页查询门店店员与核销员列表
+   */
+  async getClerksList(query: {
+    storeId?: string;
+    shopId?: string;
+    keyword?: string;
+    page?: number;
+    pageSize?: number;
+  }) {
+    const page = Number(query.page) || 1;
+    const pageSize = Number(query.pageSize) || 20;
+    const offset = (page - 1) * pageSize;
+
+    const conditions = [];
+
+    if (query.storeId) {
+      conditions.push(eq(storeClerks.storeId, query.storeId));
+    }
+    if (query.shopId) {
+      conditions.push(eq(stores.shopId, query.shopId));
+    }
+    if (query.keyword?.trim()) {
+      const kw = `%${query.keyword.trim()}%`;
+      conditions.push(
+        or(
+          like(storeClerks.realName, kw),
+          like(storeClerks.phone, kw),
+          like(storeClerks.clerkNo, kw),
+        ),
+      );
+    }
+
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+    const rows = await this.db
+      .select({
+        id: storeClerks.id,
+        storeId: storeClerks.storeId,
+        storeName: stores.name,
+        userId: storeClerks.userId,
+        username: users.username,
+        clerkNo: storeClerks.clerkNo,
+        realName: storeClerks.realName,
+        phone: storeClerks.phone,
+        role: storeClerks.role,
+        permissions: storeClerks.permissions,
+        verifyCount: storeClerks.verifyCount,
+        status: storeClerks.status,
+        createdAt: storeClerks.createdAt,
+      })
+      .from(storeClerks)
+      .innerJoin(stores, eq(storeClerks.storeId, stores.id))
+      .leftJoin(users, eq(storeClerks.userId, users.id))
+      .where(whereClause)
+      .orderBy(desc(storeClerks.createdAt))
+      .limit(pageSize)
+      .offset(offset);
+
+    const countResult = await this.db
+      .select({ count: sql<number>`count(*)` })
+      .from(storeClerks)
+      .innerJoin(stores, eq(storeClerks.storeId, stores.id))
+      .where(whereClause);
+
+    return {
+      items: rows,
+      total: Number(countResult[0]?.count || 0),
+      page,
+      pageSize,
+    };
+  }
+
+  /**
+   * 添加门店店员/核销员
+   */
+  async createClerk(data: {
+    storeId: string;
+    realName: string;
+    phone: string;
+    clerkNo?: string;
+    role: string;
+    permissions?: string[];
+  }) {
+    const clerkNo = data.clerkNo || `CK${Date.now().toString().slice(-6)}`;
+
+    let userRow = (
+      await this.db
+        .select()
+        .from(users)
+        .where(eq(users.username, data.phone))
+        .limit(1)
+    )[0];
+
+    if (!userRow) {
+      const crypto = await import('crypto');
+      const salt = 'city_alliance_salt_2026_xyz';
+      const defaultHash = crypto
+        .createHash('sha256')
+        .update('123456' + salt)
+        .digest('hex');
+
+      const [newUser] = await this.db
+        .insert(users)
+        .values({
+          username: data.phone,
+          passwordHash: defaultHash,
+          nickname: data.realName,
+          mobile: data.phone,
+          status: 'ACTIVE',
+        })
+        .returning();
+      userRow = newUser;
+    }
+
+    const [clerk] = await this.db
+      .insert(storeClerks)
+      .values({
+        storeId: data.storeId,
+        userId: userRow.id,
+        clerkNo,
+        realName: data.realName,
+        phone: data.phone,
+        role: data.role || 'CASHIER',
+        permissions: data.permissions || ['trade:verify', 'shift:manage'],
+        status: 'ACTIVE',
+      })
+      .returning();
+
+    return clerk;
+  }
+
+  /**
+   * 分页查询交接班对账流水
+   */
+  async getShiftsList(query: {
+    storeId?: string;
+    status?: string;
+    page?: number;
+    pageSize?: number;
+  }) {
+    const page = Number(query.page) || 1;
+    const pageSize = Number(query.pageSize) || 20;
+    const offset = (page - 1) * pageSize;
+
+    const conditions = [];
+    if (query.storeId) {
+      conditions.push(eq(cashierShifts.storeId, query.storeId));
+    }
+    if (query.status) {
+      conditions.push(eq(cashierShifts.status, query.status));
+    }
+
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+    const rows = await this.db
+      .select({
+        id: cashierShifts.id,
+        storeId: cashierShifts.storeId,
+        storeName: stores.name,
+        clerkId: cashierShifts.clerkId,
+        clerkName: storeClerks.realName,
+        clerkNo: storeClerks.clerkNo,
+        shiftStart: cashierShifts.shiftStart,
+        shiftEnd: cashierShifts.shiftEnd,
+        cashTotal: cashierShifts.cashTotal,
+        scanTotal: cashierShifts.scanTotal,
+        orderCount: cashierShifts.orderCount,
+        diffAmount: cashierShifts.diffAmount,
+        status: cashierShifts.status,
+        remark: cashierShifts.remark,
+        createdAt: cashierShifts.createdAt,
+      })
+      .from(cashierShifts)
+      .innerJoin(stores, eq(cashierShifts.storeId, stores.id))
+      .leftJoin(storeClerks, eq(cashierShifts.clerkId, storeClerks.id))
+      .where(whereClause)
+      .orderBy(desc(cashierShifts.shiftStart))
+      .limit(pageSize)
+      .offset(offset);
+
+    const countResult = await this.db
+      .select({ count: sql<number>`count(*)` })
+      .from(cashierShifts)
+      .where(whereClause);
+
+    return {
+      items: rows,
+      total: Number(countResult[0]?.count || 0),
+      page,
+      pageSize,
+    };
+  }
+
+  /**
+   * 获取门店当前生效的班次及今日核销统计
+   */
+  async getCurrentShift(storeId: string) {
+    const [activeShift] = await this.db
+      .select({
+        id: cashierShifts.id,
+        storeId: cashierShifts.storeId,
+        storeName: stores.name,
+        clerkId: cashierShifts.clerkId,
+        clerkName: storeClerks.realName,
+        clerkNo: storeClerks.clerkNo,
+        shiftStart: cashierShifts.shiftStart,
+        cashTotal: cashierShifts.cashTotal,
+        scanTotal: cashierShifts.scanTotal,
+        orderCount: cashierShifts.orderCount,
+        status: cashierShifts.status,
+        remark: cashierShifts.remark,
+      })
+      .from(cashierShifts)
+      .innerJoin(stores, eq(cashierShifts.storeId, stores.id))
+      .leftJoin(storeClerks, eq(cashierShifts.clerkId, storeClerks.id))
+      .where(and(eq(cashierShifts.storeId, storeId), eq(cashierShifts.status, 'OPEN')))
+      .orderBy(desc(cashierShifts.shiftStart))
+      .limit(1);
+
+    const todayStats = await this.db
+      .select({
+        todayVerifyCount: sql<number>`count(*)`,
+        todayVerifyAmount: sql<string>`coalesce(sum(cast(${orders.payAmount} as numeric)), 0)`,
+      })
+      .from(orders)
+      .where(
+        and(
+          eq(orders.storeId, storeId),
+          eq(orders.orderStatus, 'COMPLETED'),
+          sql`${orders.updatedAt} >= CURRENT_DATE`,
+        ),
+      );
+
+    return {
+      currentShift: activeShift || null,
+      todaySummary: {
+        verifyCount: Number(todayStats[0]?.todayVerifyCount || 0),
+        verifyAmount: Number(todayStats[0]?.todayVerifyAmount || 0).toFixed(2),
+      },
+    };
+  }
+
+  /**
+   * 开班打卡签到
+   */
+  async openShift(data: { storeId: string; clerkId: string; remark?: string }) {
+    const existing = await this.db
+      .select()
+      .from(cashierShifts)
+      .where(and(eq(cashierShifts.storeId, data.storeId), eq(cashierShifts.status, 'OPEN')))
+      .limit(1);
+
+    if (existing[0]) {
+      return existing[0];
+    }
+
+    const [shift] = await this.db
+      .insert(cashierShifts)
+      .values({
+        storeId: data.storeId,
+        clerkId: data.clerkId,
+        shiftStart: new Date(),
+        cashTotal: '0.00',
+        scanTotal: '0.00',
+        orderCount: 0,
+        diffAmount: '0.00',
+        status: 'OPEN',
+        remark: data.remark || '开班打卡',
+      })
+      .returning();
+
+    return shift;
+  }
+
+  /**
+   * 交班轧账打单
+   */
+  async closeShift(
+    shiftId: string,
+    data: {
+      cashTotal: number;
+      scanTotal: number;
+      diffAmount?: number;
+      remark?: string;
+    },
+  ) {
+    const [closed] = await this.db
+      .update(cashierShifts)
+      .set({
+        cashTotal: String(data.cashTotal || 0),
+        scanTotal: String(data.scanTotal || 0),
+        diffAmount: String(data.diffAmount || 0),
+        status: 'CLOSED',
+        shiftEnd: new Date(),
+        remark: data.remark || null,
+      })
+      .where(eq(cashierShifts.id, shiftId))
+      .returning();
+
+    return closed;
+  }
+
+  /**
+   * 获取指定门店概况统计
+   */
+  async getStoreStats(storeId: string) {
+    const storeInfo = (
+      await this.db
+        .select({
+          id: stores.id,
+          name: stores.name,
+          phone: stores.phone,
+          address: stores.address,
+          status: stores.status,
+          cloudPrinterSn: stores.cloudPrinterSn,
+          shopName: shops.name,
+        })
+        .from(stores)
+        .leftJoin(shops, eq(stores.shopId, shops.id))
+        .where(eq(stores.id, storeId))
+        .limit(1)
+    )[0];
+
+    const clerkCount =
+      (
+        await this.db
+          .select({ count: sql<number>`count(*)` })
+          .from(storeClerks)
+          .where(eq(storeClerks.storeId, storeId))
+      )[0]?.count || 0;
+
+    const orderStats = (
+      await this.db
+        .select({
+          totalVerified: sql<number>`count(*)`,
+          totalAmount: sql<string>`coalesce(sum(cast(${orders.payAmount} as numeric)), 0)`,
+        })
+        .from(orders)
+        .where(and(eq(orders.storeId, storeId), eq(orders.orderStatus, 'COMPLETED')))
+    )[0];
+
+    return {
+      store: storeInfo,
+      clerkCount: Number(clerkCount),
+      totalVerified: Number(orderStats?.totalVerified || 0),
+      totalAmount: Number(orderStats?.totalAmount || 0).toFixed(2),
+    };
   }
 }

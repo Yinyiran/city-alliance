@@ -3,14 +3,14 @@
     <el-card shadow="never" class="city-header-card">
       <div class="header-box">
         <div>
-          <h2>🏙️ 城市分公司数据大屏 (杭州市运营中心)</h2>
+          <h2>🏙️ 城市分公司数据大屏 ({{ cityData.cityInfo.name }})</h2>
           <p style="color: #909399; font-size: 13px; margin-top: 4px">
-            辖区模式：享有辖区全部新开通会员 25% 现金分成 + 实体门店 2% 流水收益
+            辖区模式：享有辖区全部新开通会员 25% 现金分成 + 实体门店消费带单分成
           </p>
         </div>
         <div class="city-switch">
           <el-tag size="large" type="success" effect="dark">
-            当前管理分公司：杭州城盟数智商业管理有限公司
+            当前分公司代码：{{ cityData.cityInfo.code }}
           </el-tag>
         </div>
       </div>
@@ -20,29 +20,29 @@
       <el-col :span="6">
         <el-card shadow="never" class="stat-item">
           <div class="stat-title">辖区主理人商家</div>
-          <div class="stat-value">42 <span class="unit">家</span></div>
-          <div class="stat-foot">较上月 +8 家</div>
+          <div class="stat-value">{{ cityData.stats.shopCount }} <span class="unit">家</span></div>
+          <div class="stat-foot">已建立战略合作品牌</div>
         </el-card>
       </el-col>
       <el-col :span="6">
         <el-card shadow="never" class="stat-item">
           <div class="stat-title">辖区实体门店总数</div>
-          <div class="stat-value">68 <span class="unit">家</span></div>
-          <div class="stat-foot">LBS活码覆盖率 100%</div>
+          <div class="stat-value">{{ cityData.stats.storeCount }} <span class="unit">家</span></div>
+          <div class="stat-foot">LBS同城活码与台式核销</div>
         </el-card>
       </el-col>
       <el-col :span="6">
         <el-card shadow="never" class="stat-item highlight">
           <div class="stat-title">分公司累计总分润 (25%)</div>
-          <div class="stat-value" style="color: #409eff">￥128,450.00</div>
-          <div class="stat-foot">可提现余额: ￥94,120.00</div>
+          <div class="stat-value" style="color: #409eff">￥{{ cityData.stats.totalProfit }}</div>
+          <div class="stat-foot">可提现余额: ￥{{ cityData.stats.withdrawableBalance }}</div>
         </el-card>
       </el-col>
       <el-col :span="6">
         <el-card shadow="never" class="stat-item">
-          <div class="stat-title">本月自签/跨店交易总额</div>
-          <div class="stat-value" style="color: #67c23a">￥642,250.00</div>
-          <div class="stat-foot">月环比增长 24.5%</div>
+          <div class="stat-title">本月辖区交易总额</div>
+          <div class="stat-value" style="color: #67c23a">￥{{ cityData.stats.monthGmv }}</div>
+          <div class="stat-foot">累计 GMV: ￥{{ cityData.stats.totalGmv }} ({{ cityData.stats.totalOrders }}单)</div>
         </el-card>
       </el-col>
     </el-row>
@@ -51,16 +51,16 @@
       <el-col :span="14">
         <el-card shadow="never">
           <div class="card-title">辖区主力主理人商家业绩排行</div>
-          <el-table :data="topMerchants" stripe style="width: 100%; margin-top: 12px">
+          <el-table :data="cityData.topMerchants" stripe style="width: 100%; margin-top: 12px">
             <el-table-column type="index" label="排名" width="60" />
             <el-table-column prop="name" label="商家主理人" min-width="160" />
             <el-table-column prop="storeCount" label="实体门店" width="90" />
-            <el-table-column prop="monthTurnover" label="月交易额" width="130">
+            <el-table-column prop="monthTurnover" label="本月流水" width="130">
               <template #default="{ row }">￥{{ row.monthTurnover }}</template>
             </el-table-column>
-            <el-table-column prop="branchEarned" label="为分公司贡献25%" width="150">
+            <el-table-column label="城市 25% 收益" width="140">
               <template #default="{ row }">
-                <span style="font-weight: 700; color: #409eff">￥{{ row.branchEarned }}</span>
+                <span style="font-weight: 700; color: #409eff">￥{{ (Number(row.monthTurnover) * 0.02 * 0.25).toFixed(2) }}</span>
               </template>
             </el-table-column>
           </el-table>
@@ -69,20 +69,20 @@
 
       <el-col :span="10">
         <el-card shadow="never">
-          <div class="card-title">分公司收益结构与清算规则</div>
+          <div class="card-title">城市分公司特权与分润细则</div>
           <div class="rule-box">
             <div class="rule-item">
               <span class="badge">1</span>
               <div>
-                <strong>会员开通 25% 锁定分成</strong>
-                <p>辖区内顾客通过任意渠道开通钻石/黑钻会员，分公司即时入账 25% 现金分成。</p>
+                <strong>会员升级 25% 招商分润</strong>
+                <p>辖区内顾客开通钻石/黑钻或推荐合伙人，城市分公司享有 25% 现金分成。</p>
               </div>
             </div>
             <div class="rule-item">
               <span class="badge">2</span>
               <div>
-                <strong>实体门店 2% 综合服务费</strong>
-                <p>辖区门店产生的每一笔自提、外卖与到店核销，享有 2% 门店流水反哺。</p>
+                <strong>同城消费分润反哺</strong>
+                <p>辖区门店产生的每一笔自提、外卖与到店核销，享有 2%~6% 手续费中的分公司比例。</p>
               </div>
             </div>
             <div class="rule-item">
@@ -100,14 +100,44 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { reactive, onMounted } from 'vue';
+import { ElMessage } from 'element-plus';
+import request from '../../utils/request';
 
-const topMerchants = ref([
-  { name: '拾光烘焙研磨工坊 (连锁5店)', storeCount: 5, monthTurnover: '142,500.00', branchEarned: '35,625.00' },
-  { name: '木槿造型美学沙龙', storeCount: 3, monthTurnover: '98,400.00', branchEarned: '24,600.00' },
-  { name: '萌宠星球洗护生活馆', storeCount: 2, monthTurnover: '76,200.00', branchEarned: '19,050.00' },
-  { name: '弄堂里地道私房菜', storeCount: 2, monthTurnover: '58,900.00', branchEarned: '14,725.00' },
-]);
+const cityData = reactive({
+  cityInfo: {
+    id: '',
+    name: '城市分公司运营中心',
+    code: 'CITY_CENTER',
+  },
+  stats: {
+    shopCount: 0,
+    storeCount: 0,
+    totalGmv: '0.00',
+    monthGmv: '0.00',
+    totalOrders: 0,
+    totalProfit: '0.00',
+    settledProfit: '0.00',
+    frozenProfit: '0.00',
+    withdrawableBalance: '0.00',
+  },
+  topMerchants: [] as any[],
+});
+
+async function fetchCityOverview() {
+  try {
+    const res: any = await request.get('/city/overview');
+    if (res?.data) {
+      Object.assign(cityData, res.data);
+    }
+  } catch (err: any) {
+    ElMessage.error(err.message || '获取城市大屏指标失败');
+  }
+}
+
+onMounted(() => {
+  fetchCityOverview();
+});
 </script>
 
 <style scoped>

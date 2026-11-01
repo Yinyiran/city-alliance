@@ -218,6 +218,8 @@ export class AuthService {
         RoleEnum.PLATFORM_STAFF,
         RoleEnum.CITY_AGENT,
         RoleEnum.SHOP_OWNER,
+        RoleEnum.STORE_MANAGER,
+        RoleEnum.STORE_CLERK,
         RoleEnum.SUPPLIER,
       ];
       if (!allowedAdminRoles.includes(resolvedRole)) {
