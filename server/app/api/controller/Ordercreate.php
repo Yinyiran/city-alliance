@@ -289,7 +289,7 @@ class Ordercreate extends BaseApi
         }
 
         // 获取店铺信息
-        $shop_info = model('shop')->getInfo([ [ 'site_id', '=', $site_id ] ], 'site_id, site_name, logo, website_id, shop_status') ?: [];
+        $shop_info = model('shop')->getInfo([ [ 'site_id', '=', $site_id ] ], 'site_id, site_name, logo, website_id, shop_status, pay_redirect_appid, pay_redirect_path, pay_ad_img, pay_ad_url, wecom_group_url') ?: [];
         if (empty($shop_info)) {
             return $this->response($this->error('', '商家不存在或未营业'));
         }
@@ -404,6 +404,11 @@ class Ordercreate extends BaseApi
                 'pay_money' => $amount,
                 'site_name' => $shop_info[ 'site_name' ],
                 'logo' => $shop_info[ 'logo' ] ?? '',
+                'pay_redirect_appid' => $shop_info['pay_redirect_appid'] ?? '',
+                'pay_redirect_path' => $shop_info['pay_redirect_path'] ?? '',
+                'pay_ad_img' => $shop_info['pay_ad_img'] ?? '',
+                'pay_ad_url' => $shop_info['pay_ad_url'] ?? '',
+                'wecom_group_url' => $shop_info['wecom_group_url'] ?? '',
             ]));
         } catch (\Exception $e) {
             model('order')->rollback();

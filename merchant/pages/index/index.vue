@@ -7,6 +7,9 @@
 					<image :src="$util.img(currentShopLogo)" class="shop-logo-img" mode="aspectFill" v-if="currentShopLogo"></image>
 					<image src="/static/logo.png" class="shop-logo-img" mode="aspectFit" v-else></image>
 					<text class="shop-title-text text-more">{{ currentSiteName || '商家中心' }}</text>
+					<view class="shop-level-pill-mini" :class="'mini-lvl-' + (currentLevelId || 1)" v-if="token && currentLevelName">
+						{{ currentLevelName }}
+					</view>
 					<uv-icon name="arrow-down-fill" size="10" color="#F5B67F" customStyle="margin-left: 8rpx; flex-shrink: 0;"></uv-icon>
 				</view>
 				<view class="shop-role-pill" :class="'pill-' + (isManager ? 'manager' : 'staff')" v-if="token">
@@ -348,6 +351,8 @@ import ShopSelectPopup from "@/components/shop-select-popup/shop-select-popup.vu
 				currentSiteId: '',
 				currentSiteName: '',
 				currentShopLogo: '',
+				currentLevelId: 1,
+				currentLevelName: '',
 				isManager: 0,
 				currentRoleName: '员工',
 				incomeSummary: {
@@ -507,6 +512,8 @@ import ShopSelectPopup from "@/components/shop-select-popup/shop-select-popup.vu
 						let shop = res.data;
 						this.currentSiteName = shop.site_name || '商家中心';
 						this.currentShopLogo = shop.logo || '';
+						this.currentLevelId = shop.level_id || 1;
+						this.currentLevelName = shop.level_name || '普通店铺';
 						if (!uni.getStorageSync('site_id') && shop.site_id) {
 							uni.setStorageSync('site_id', shop.site_id);
 							this.currentSiteId = shop.site_id;
@@ -1299,4 +1306,24 @@ import ShopSelectPopup from "@/components/shop-select-popup/shop-select-popup.vu
 			}
 		}
 	}
+
+.shop-level-pill-mini {
+	font-size: 18rpx;
+	padding: 2rpx 10rpx;
+	border-radius: 6rpx;
+	margin-left: 10rpx;
+	flex-shrink: 0;
+	color: #fff;
+	font-weight: 600;
+}
+.mini-lvl-1 {
+	background: #4A5568;
+}
+.mini-lvl-2 {
+	background: linear-gradient(135deg, #D69E2E 0%, #B7791F 100%);
+}
+.mini-lvl-3 {
+	background: linear-gradient(135deg, #805AD5 0%, #553C9A 100%);
+}
+
 </style>

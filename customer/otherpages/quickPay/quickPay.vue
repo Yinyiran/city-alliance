@@ -148,7 +148,33 @@
 						<text class="text-more w-320">{{ lastPayResult.remark }}</text>
 					</view>
 				</view>
-				<view class="success-actions m-t-40">
+				<!-- 商家自定义广告位 -->
+				<view class="pay-ad-box m-t-24" v-if="lastPayResult.pay_ad_img" @click="handleAdClick">
+					<image :src="$util.img(lastPayResult.pay_ad_img)" class="pay-ad-banner" mode="widthFix"></image>
+					<text class="pay-ad-tag">广告</text>
+				</view>
+
+				<!-- 商家企业微信粉丝群入群 -->
+				<view class="wecom-group-card m-t-20 acea-row row-middle row-between" v-if="lastPayResult.wecom_group_url || lastPayResult.group_qrcode" @click="openWecomGroup">
+					<view class="acea-row row-middle">
+						<uv-icon name="chat" color="#07c160" size="24"></uv-icon>
+						<view class="m-l-16 text-left">
+							<view class="font-26 font-weight-6" style="color: #222;">加入商家粉丝福利群</view>
+							<view class="font-22" style="color: #888;">第一时间获取店铺专属优惠</view>
+						</view>
+					</view>
+					<view class="join-btn font-24">去进群</view>
+				</view>
+
+				<!-- 跳转商家专属小程序入口 -->
+				<view class="m-t-24" v-if="lastPayResult.pay_redirect_appid">
+					<button class="custom-applet-btn acea-row row-middle row-center" @click="jumpToMerchantApplet">
+						<uv-icon name="grid-fill" color="#fff" size="16"></uv-icon>
+						<text class="m-l-8">进入商家专属小程序</text>
+					</button>
+				</view>
+
+				<view class="success-actions m-t-32">
 					<button class="view-btn" @click="goToRecords">查看付款明细</button>
 					<button class="done-btn m-t-20" @click="finishPay">完成</button>
 				</view>
@@ -158,7 +184,7 @@
 </template>
 
 <script>
-import { huifupay, membershoppages, quickPayCreate, storeDetail, websiteStore, storeList } from '@/common/js/api.js';
+import { huifupay, membershoppages, quickPayCreate, storeDetail, websiteStore, storeList, messagetmplids } from '@/common/js/api.js';
 
 export default {
 	data() {
@@ -177,7 +203,13 @@ export default {
 				pay_money: 0,
 				order_no: '',
 				pay_time: '',
-				remark: ''
+				remark: '',
+				pay_redirect_appid: '',
+				pay_redirect_path: '',
+				pay_ad_img: '',
+				pay_ad_url: '',
+				wecom_group_url: '',
+				group_qrcode: ''
 			}
 		};
 	},
@@ -216,7 +248,13 @@ export default {
 				store_name,
 				logo,
 				avatar: logo,
-				address
+				address,
+				pay_redirect_appid: s.pay_redirect_appid || '',
+				pay_redirect_path: s.pay_redirect_path || '',
+				pay_ad_img: s.pay_ad_img || '',
+				pay_ad_url: s.pay_ad_url || '',
+				wecom_group_url: s.wecom_group_url || s.wechat_group_url || '',
+				group_qrcode: s.group_qrcode || ''
 			};
 		},
 		async initShops() {
@@ -346,6 +384,67 @@ export default {
 			this.$refs.successPopup.close();
 			uni.navigateBack();
 		},
+		jumpToMerchantApplet() {
+			if (!this.lastPayResult.pay_redirect_appid) return;
+			// #ifdef MP-WEIXIN
+			uni.navigateToMiniProgram({
+				appId: this.lastPayResult.pay_redirect_appid,
+				path: this.lastPayResult.pay_redirect_path || '',
+				fail: (err) => {
+					console.error('跳转小程序失败', err);
+					uni.showToast({ title: '跳转小程序失败，请稍后重试', icon: 'none' });
+				}
+			});
+			// #endif
+			// #ifndef MP-WEIXIN
+			uni.showToast({ title: '请在微信小程序中打开', icon: 'none' });
+			// #endif
+		},
+		handleAdClick() {
+			const url = this.lastPayResult.pay_ad_url;
+			if (!url) return;
+			if (url.startsWith('http://') || url.startsWith('https://')) {
+				uni.setClipboardData({
+					data: url,
+					success: () => {
+						uni.showToast({ title: '链接已复制到剪贴板', icon: 'none' });
+					}
+				});
+			} else {
+				uni.navigateTo({
+					url: url,
+					fail: () => {
+						uni.switchTab({ url: url });
+					}
+				});
+			}
+		},
+		openWecomGroup() {
+			const qr = this.lastPayResult.group_qrcode;
+			const url = this.lastPayResult.wecom_group_url;
+			if (qr) {
+				uni.previewImage({
+					urls: [this.$util.img(qr)]
+				});
+			} else if (url) {
+				if (url.startsWith('http://') || url.startsWith('https://')) {
+					uni.setClipboardData({
+						data: url,
+						success: () => {
+							uni.showModal({
+								title: '加入群聊',
+								content: '社群链接已复制，可粘贴至微信对话框打开加入群聊',
+								showCancel: false
+							});
+						}
+					});
+				} else {
+					uni.previewImage({
+						urls: [this.$util.img(url)]
+					});
+				}
+			}
+		},
 		handlePay() {
 			if (!this.selectedShop || !this.selectedShop.site_id) {
 				uni.showToast({ title: '请先选择收款商家', icon: 'none' });
@@ -383,6 +482,15 @@ export default {
 							.then(resA => {
 								uni.hideLoading();
 								if (resA.code === 0 && resA.data) {
+									// #ifdef MP-WEIXIN
+									try {
+										messagetmplids({ keywords: 'ORDER_PAY' }).then(subRes => {
+											if (subRes && subRes.data && Array.isArray(subRes.data) && subRes.data.length > 0) {
+												uni.requestSubscribeMessage({ tmplIds: subRes.data });
+											}
+										}).catch(() => {});
+									} catch (e) {}
+									// #endif
 									// 调用微信小程序原生支付
 									uni.requestPayment({
 										provider: 'wxpay',
@@ -398,7 +506,13 @@ export default {
 												pay_money: amt,
 												order_no: orderNo,
 												pay_time: this.$util.timeStampTurnTime(Math.floor(Date.now() / 1000)),
-												remark: this.remark
+												remark: this.remark,
+												pay_redirect_appid: (res.data && res.data.pay_redirect_appid) || this.selectedShop.pay_redirect_appid || '',
+												pay_redirect_path: (res.data && res.data.pay_redirect_path) || this.selectedShop.pay_redirect_path || '',
+												pay_ad_img: (res.data && res.data.pay_ad_img) || this.selectedShop.pay_ad_img || '',
+												pay_ad_url: (res.data && res.data.pay_ad_url) || this.selectedShop.pay_ad_url || '',
+												wecom_group_url: (res.data && res.data.wecom_group_url) || this.selectedShop.wecom_group_url || '',
+												group_qrcode: this.selectedShop.group_qrcode || ''
 											};
 											this.$refs.successPopup.open();
 										},
@@ -599,11 +713,61 @@ export default {
 	}
 }
 
+.pay-ad-box {
+	position: relative;
+	border-radius: 16rpx;
+	overflow: hidden;
+	line-height: 0;
+
+	.pay-ad-banner {
+		width: 100%;
+		border-radius: 16rpx;
+	}
+
+	.pay-ad-tag {
+		position: absolute;
+		right: 12rpx;
+		bottom: 12rpx;
+		background: rgba(0, 0, 0, 0.4);
+		color: #fff;
+		font-size: 18rpx;
+		padding: 2rpx 8rpx;
+		border-radius: 6rpx;
+	}
+}
+
+.wecom-group-card {
+	background: #f0fdf4;
+	border: 1rpx solid #bbf7d0;
+	border-radius: 16rpx;
+	padding: 16rpx 20rpx;
+
+	.join-btn {
+		background: #07c160;
+		color: #fff;
+		padding: 8rpx 24rpx;
+		border-radius: 24rpx;
+		font-weight: 600;
+	}
+}
+
+.custom-applet-btn {
+	background: linear-gradient(135deg, #1890ff 0%, #36cfc9 100%);
+	color: #fff;
+	border-radius: 40rpx;
+	height: 76rpx;
+	line-height: 76rpx;
+	font-size: 28rpx;
+	font-weight: bold;
+	border: none;
+	box-shadow: 0 4rpx 16rpx rgba(24, 144, 255, 0.25);
+}
+
 .success-box {
-	width: 580rpx;
+	width: 600rpx;
 	background: #fff;
 	border-radius: 24rpx;
-	padding: 48rpx 36rpx;
+	padding: 44rpx 32rpx;
 	text-align: center;
 
 	.success-icon {

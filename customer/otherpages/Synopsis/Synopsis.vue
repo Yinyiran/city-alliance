@@ -1,4 +1,4 @@
-﻿<template>
+<template>
 	<view>
 		<!-- <uv-sticky> -->
 		<nvabar title='同城商家'></nvabar>
@@ -70,16 +70,17 @@ export default {
 		brandGroupList() {
 			const groups = {};
 			(this.list || []).forEach(store => {
-				if (!store || !store.store_logo) return;
+				const logo = store.store_logo || store.logo || store.store_image;
+				if (!store || !logo) return;
 
 				const brandKey = this.getBrandKey(store);
-				const key = brandKey || store.store_logo;
+				const key = brandKey || logo;
 
 				if (!groups[key]) {
 					groups[key] = {
 						brandKey: key,
 						brandName: brandKey || store.store_name,
-						logo: store.store_logo,
+						logo: logo,
 						storeCount: 0,
 						storeList: []
 					};
@@ -98,23 +99,19 @@ export default {
 	methods: {
 		// 核心品牌提取清洗算法（兼容中英文括号）
 		getBrandKey(store) {
-			// 1. 若接口已带品牌名或企业名，优先采用
-			if (store.site_name && store.site_name.trim()) return store.site_name.trim();
-			if (store.brand_name && store.brand_name.trim()) return store.brand_name.trim();
+			let name = (store.brand_name || store.site_name || store.store_name || '').trim();
+			if (!name) return store.store_logo || store.logo || '';
 
-			let name = (store.store_name || '').trim();
-			if (!name) return store.store_logo || '';
-
-			// 2. 清除成对的中英文括号及括号内的分店说明，如：蜜雪冰城(万达店) / 蜜雪冰城（万达店） -> 蜜雪冰城
+			// 1. 清除成对的中英文括号及括号内的分店说明，如：蜜雪冰城(万达店) / 蜜雪冰城（万达店） -> 蜜雪冰城
 			name = name.replace(/[\(（].*?[\)）]/g, '').trim();
 
-			// 3. 兼容未闭合的中英文左括号或中划线左侧以外内容，如：蜜雪冰城(万达 / 蜜雪冰城-万达店
+			// 2. 兼容未闭合的中英文左括号或中划线左侧以外内容，如：蜜雪冰城(万达 / 蜜雪冰城-万达店
 			name = name.split(/[\(（\-—]/)[0].trim();
 
-			// 4. 清除末尾常见的分店/店缀
+			// 3. 清除末尾常见的分店/店缀
 			name = name.replace(/(总店|分店|旗舰店|专卖店|连锁店|加盟店|店)$/, '').trim();
 
-			return name || store.store_name || store.store_logo;
+			return name || store.store_name || store.store_logo || store.logo || '';
 		},
 		onBrandClick(brand) {
 			if (brand.storeCount === 1) {

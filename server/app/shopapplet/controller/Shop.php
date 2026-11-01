@@ -549,8 +549,8 @@ class Shop extends Common
         if (empty($mobile)) {
             return $this->response($this->error('', '请输入目标会员手机号'));
         }
-        if ($custom_price <= 0) {
-            return $this->response($this->error('', '开通金额必须大于0元'));
+        if ($custom_price < 50) {
+            return $this->response($this->error('', '开通合伙人自定义金额最低门槛为 50 元'));
         }
 
         $target_member = Db::name('member')->where('mobile', $mobile)->where('is_delete', 0)->find();
@@ -563,6 +563,32 @@ class Shop extends Common
         }
 
         $shop = Db::name('shop')->where('site_id', $site_id)->find();
+        if (!$shop) {
+            return $this->response($this->error('', '未找到店铺信息'));
+        }
+
+        $level_id = !empty($shop['level_id']) ? intval($shop['level_id']) : 1;
+        $level_info = Db::name('shop_level')->where('level_id', $level_id)->find();
+        if (!$level_info) {
+            $level_info = Db::name('shop_level')->where('level_id', 1)->find();
+        }
+        $max_partner = !empty($level_info['max_partner_count']) ? intval($level_info['max_partner_count']) : 2;
+
+        // 校验合伙人数量上限
+        $empModel = new \app\model\shopapplet\ShopEmployee();
+        $partner_count = $empModel->getTeamMemberBaseQuery($shop['member_id'], $site_id)
+            ->where('m.member_level', 4)
+            ->count('DISTINCT m.member_id');
+
+        if ($partner_count >= $max_partner) {
+            return $this->response($this->error('', "当前店铺合伙人数量已达【{$level_info['level_name']}】上限（{$max_partner}人），请升级为更高等级店铺"));
+        }
+
+        // 检查免扣费名额
+        $free_num = intval($shop['custom_partner_free_num'] ?? 0);
+        $used_free_num = intval($shop['custom_partner_used_free_num'] ?? 0);
+        $is_free_quota = ($used_free_num < $free_num);
+
         $website_id = $shop['website_id'] ?? 0;
 
         Db::startTrans();
@@ -597,24 +623,454 @@ class Shop extends Common
             $member_account = new \app\model\member\MemberAccount();
             $member_account->addMemberAccount2($target_member['member_id'], 'point', 10000, 'member_level', $order_id, '开通合伙人赠送10000积分', '成为会员');
 
-            // 4. 执行主理人与分公司两方拆分分润
+            // 4. 若享有免扣费名额，消耗名额计数
+            if ($is_free_quota) {
+                Db::name('shop')->where('site_id', $site_id)->inc('custom_partner_used_free_num', 1)->update();
+            }
+
+            // 5. 执行主理人与分公司两方拆分分润 (支持免抽佣配额)
             $settle_model = new \app\model\member\MemberLevelSettlement();
-            $settle_res = $settle_model->calculateCustomPartnerSettlement($order_id, $site_id, $custom_price, $target_member['member_id']);
+            $settle_res = $settle_model->calculateCustomPartnerSettlement($order_id, $site_id, $custom_price, $target_member['member_id'], $is_free_quota);
             if ($settle_res['code'] < 0) {
                 Db::rollback();
                 return $this->response($settle_res);
             }
 
             Db::commit();
+            $msg = $is_free_quota ? '合伙人开通成功！本单享受免抽佣特权，收益100%归门店' : '合伙人已成功开通并完成分润';
             return $this->response($this->success([
                 'order_id' => $order_id,
                 'member_id' => $target_member['member_id'],
                 'nickname' => $target_member['nickname'],
-                'price' => $custom_price
-            ], '恭喜！合伙人已成功开通并完成分润'));
+                'price' => $custom_price,
+                'is_free_quota' => $is_free_quota ? 1 : 0
+            ], $msg));
         } catch (\Exception $e) {
             Db::rollback();
             return $this->response($this->error('', $e->getMessage()));
         }
+    }
+
+    /**
+     * 获取商户合伙人开通配额与限制信息
+     */
+    public function getPartnerQuotaInfo()
+    {
+        $site_id = request()->param("site_id", $this->site_id);
+        if (empty($site_id)) {
+            return $this->response($this->error('', '未获取到商家身份'));
+        }
+        $shop = Db::name('shop')->where('site_id', $site_id)->find();
+        if (!$shop) {
+            return $this->response($this->error('', '店铺不存在'));
+        }
+
+        $level_id = !empty($shop['level_id']) ? intval($shop['level_id']) : 1;
+        $level_info = Db::name('shop_level')->where('level_id', $level_id)->find();
+        if (!$level_info) {
+            $level_info = Db::name('shop_level')->where('level_id', 1)->find();
+        }
+        $max_partner = !empty($level_info['max_partner_count']) ? intval($level_info['max_partner_count']) : 2;
+
+        $empModel = new \app\model\shopapplet\ShopEmployee();
+        $partner_count = $empModel->getTeamMemberBaseQuery($shop['member_id'], $site_id)
+            ->where('m.member_level', 4)
+            ->count('DISTINCT m.member_id');
+
+        $free_num = intval($shop['custom_partner_free_num'] ?? 0);
+        $used_free_num = intval($shop['custom_partner_used_free_num'] ?? 0);
+        $remain_free_quota = max(0, $free_num - $used_free_num);
+
+        return $this->response($this->success([
+            'free_quota' => $free_num,
+            'used_quota' => $used_free_num,
+            'remain_free_quota' => $remain_free_quota,
+            'partner_count' => $partner_count,
+            'max_partner_count' => $max_partner,
+            'is_at_limit' => ($partner_count >= $max_partner) ? 1 : 0,
+            'level_id' => $level_id,
+            'level_name' => $level_info['level_name'] ?? '普通店铺',
+            'min_price' => 50.00
+        ]));
+    }
+
+    /**
+     * 获取店铺等级详情及有效期限
+     */
+    public function getShopLevelDetail()
+    {
+        $site_id = request()->param("site_id", $this->site_id);
+        if (empty($site_id)) {
+            return $this->response($this->error('', '未获取到商家身份'));
+        }
+        $shop = Db::name('shop')->where('site_id', $site_id)->find();
+        if (!$shop) {
+            return $this->response($this->error('', '店铺不存在'));
+        }
+
+        $level_id = !empty($shop['level_id']) ? intval($shop['level_id']) : 1;
+        $level = Db::name('shop_level')->where('level_id', $level_id)->find();
+        if (!$level) {
+            $level = [
+                'level_id' => 1,
+                'level_name' => '普通店铺',
+                'price' => 598.00,
+                'validity_type' => 1,
+                'validity_years' => 1,
+                'max_partner_count' => 2,
+                'max_video_count' => 3,
+                'base_points' => 0,
+                'badge_icon' => '/upload/level/level1.png'
+            ];
+        }
+
+        $is_permanent = (!empty($shop['is_permanent']) || intval($level['validity_type']) === 2) ? 1 : 0;
+        $expire_time = intval($shop['expire_time']);
+        $days_left = 0;
+        if ($is_permanent) {
+            $days_text = '永久合作';
+        } elseif ($expire_time > time()) {
+            $days_left = ceil(($expire_time - time()) / 86400);
+            $days_text = "剩余 {$days_left} 天";
+        } else {
+            $days_text = '已到期';
+        }
+
+        $start_time = !empty($shop['level_start_time']) ? $shop['level_start_time'] : (!empty($shop['create_time']) ? $shop['create_time'] : time());
+
+        return $this->response($this->success([
+            'site_id' => $site_id,
+            'site_name' => $shop['site_name'],
+            'logo' => $shop['logo'],
+            'level_id' => $level_id,
+            'level_name' => $level['level_name'],
+            'badge_icon' => $level['badge_icon'],
+            'is_permanent' => $is_permanent,
+            'start_time' => date('Y-m-d', $start_time),
+            'expire_time' => $is_permanent ? '永久有效' : ($expire_time > 0 ? date('Y-m-d', $expire_time) : '永久有效'),
+            'days_left' => $days_left,
+            'days_text' => $days_text,
+            'max_partner_count' => $level['max_partner_count'],
+            'max_video_count' => $level['max_video_count'],
+            'base_points' => $level['base_points'],
+            'free_partner_quota' => intval($shop['custom_partner_free_num'] ?? 0),
+            'used_partner_quota' => intval($shop['custom_partner_used_free_num'] ?? 0)
+        ]));
+    }
+
+    /**
+     * 获取所有可供购买/升级的店铺等级套餐
+     */
+    public function getShopLevelPackages()
+    {
+        $site_id = request()->param("site_id", $this->site_id);
+        $shop = !empty($site_id) ? Db::name('shop')->where('site_id', $site_id)->find() : null;
+        $current_level_id = $shop ? intval($shop['level_id']) : 1;
+
+        $levels = Db::name('shop_level')
+            ->where('status', 1)
+            ->order('sort asc, level_id asc')
+            ->select()
+            ->toArray();
+
+        foreach ($levels as &$lvl) {
+            $lvl['is_current'] = ($lvl['level_id'] == $current_level_id) ? 1 : 0;
+            $lvl['can_upgrade'] = ($lvl['level_id'] > $current_level_id) ? 1 : 0;
+            $lvl['can_renew'] = ($lvl['level_id'] == $current_level_id && $lvl['validity_type'] != 2) ? 1 : 0;
+        }
+
+        return $this->response($this->success([
+            'current_level_id' => $current_level_id,
+            'list' => $levels
+        ]));
+    }
+
+    /**
+     * 创建店铺等级购买/升级订单
+     */
+    public function createShopLevelOrder()
+    {
+        $site_id = request()->param("site_id", $this->site_id);
+        $to_level_id = intval(request()->param("to_level_id", 0));
+
+        if (empty($site_id)) {
+            return $this->response($this->error('', '未获取到商家身份'));
+        }
+        $target_level = Db::name('shop_level')->where('level_id', $to_level_id)->where('status', 1)->find();
+        if (!$target_level) {
+            return $this->response($this->error('', '无效的目标店铺等级'));
+        }
+
+        $shop = Db::name('shop')->where('site_id', $site_id)->find();
+        if (!$shop) {
+            return $this->response($this->error('', '店铺不存在'));
+        }
+
+        $from_level_id = intval($shop['level_id'] ?? 1);
+        $order_money = floatval($target_level['price']);
+
+        $order_no = 'LO' . date('YmdHis') . rand(1000, 9999);
+        $out_trade_no = 'LT' . date('YmdHis') . rand(10000, 99999);
+
+        $order_data = [
+            'order_no' => $order_no,
+            'out_trade_no' => $out_trade_no,
+            'site_id' => $site_id,
+            'from_level_id' => $from_level_id,
+            'to_level_id' => $to_level_id,
+            'order_money' => $order_money,
+            'pay_status' => 0,
+            'pay_type' => 'wechat',
+            'create_time' => time()
+        ];
+        $order_id = Db::name('shop_level_order')->insertGetId($order_data);
+
+        return $this->response($this->success([
+            'order_id' => $order_id,
+            'order_no' => $order_no,
+            'out_trade_no' => $out_trade_no,
+            'order_money' => $order_money,
+            'target_level_name' => $target_level['level_name']
+        ], '创建升级订单成功'));
+    }
+
+    /**
+     * 确认并完成店铺等级升级 (模拟/支付回调完成)
+     */
+    public function completeShopLevelOrder()
+    {
+        $out_trade_no = trim(request()->param("out_trade_no", ''));
+        if (empty($out_trade_no)) {
+            return $this->response($this->error('', '交易流水号不能为空'));
+        }
+
+        $order = Db::name('shop_level_order')->where('out_trade_no', $out_trade_no)->find();
+        if (!$order) {
+            return $this->response($this->error('', '未找到对应升级订单'));
+        }
+        if ($order['pay_status'] == 1) {
+            return $this->response($this->success('', '该订单已完成支付'));
+        }
+
+        $target_level = Db::name('shop_level')->where('level_id', $order['to_level_id'])->find();
+        if (!$target_level) {
+            return $this->response($this->error('', '目标等级不存在'));
+        }
+
+        Db::startTrans();
+        try {
+            // 1. 更新订单为已支付
+            Db::name('shop_level_order')->where('order_id', $order['order_id'])->update([
+                'pay_status' => 1,
+                'pay_time' => time()
+            ]);
+
+            // 2. 更新店铺等级与有效期
+            $shop = Db::name('shop')->where('site_id', $order['site_id'])->find();
+            $update_data = [
+                'level_id' => $target_level['level_id'],
+                'level_name' => $target_level['level_name']
+            ];
+
+            if ($target_level['validity_type'] == 2) {
+                // 至尊店铺：永久有效
+                $update_data['is_permanent'] = 1;
+                $update_data['expire_time'] = 0;
+            } else {
+                $years = intval($target_level['validity_years'] ?: 1);
+                $base_time = ($shop['expire_time'] > time()) ? $shop['expire_time'] : time();
+                $update_data['is_permanent'] = 0;
+                $update_data['expire_time'] = $base_time + ($years * 365 * 86400);
+            }
+
+            if (empty($shop['level_start_time'])) {
+                $update_data['level_start_time'] = time();
+            }
+
+            Db::name('shop')->where('site_id', $order['site_id'])->update($update_data);
+
+            // 3. 发放赠送的品牌基础积分
+            $bonus_points = intval($target_level['base_points'] ?? 0);
+            if ($bonus_points > 0) {
+                Db::name('shop')->where('site_id', $order['site_id'])->inc('points', $bonus_points)->update();
+            }
+
+            Db::commit();
+            return $this->response($this->success([
+                'level_id' => $target_level['level_id'],
+                'level_name' => $target_level['level_name'],
+                'is_permanent' => $update_data['is_permanent'],
+                'bonus_points' => $bonus_points
+            ], '恭喜！店铺等级升级成功'));
+        } catch (\Exception $e) {
+            Db::rollback();
+            return $this->response($this->error('', $e->getMessage()));
+        }
+    }
+
+    /**
+     * 获取商户多标签二维码列表
+     */
+    public function getShopQrcodeList()
+    {
+        $site_id = request()->param("site_id", $this->site_id);
+        if (empty($site_id)) {
+            return $this->response($this->error('', '未获取到商家身份'));
+        }
+
+        $list = Db::name('shop_qrcode')
+            ->where('site_id', $site_id)
+            ->order('id desc')
+            ->select()
+            ->toArray();
+
+        // 若当前还没有多码记录，自动初始化默认主码
+        if (empty($list)) {
+            $shop = Db::name('shop')->where('site_id', $site_id)->find();
+            $scene_code = 'S_' . $site_id . '_main';
+            $default_qr = [
+                'site_id' => $site_id,
+                'tag_name' => '默认主码 (收银台)',
+                'scene_code' => $scene_code,
+                'qrcode_url' => $shop['logo'] ?? '',
+                'scan_count' => 0,
+                'create_time' => time()
+            ];
+            $id = Db::name('shop_qrcode')->insertGetId($default_qr);
+            $default_qr['id'] = $id;
+            $list = [$default_qr];
+        }
+
+        return $this->response($this->success($list));
+    }
+
+    /**
+     * 添加自定义标签二维码
+     */
+    public function addShopQrcode()
+    {
+        $site_id = request()->param("site_id", $this->site_id);
+        $tag_name = trim(request()->param("tag_name", ''));
+
+        if (empty($site_id)) {
+            return $this->response($this->error('', '未获取到商家身份'));
+        }
+        if (empty($tag_name)) {
+            return $this->response($this->error('', '请输入标签名称(如: 1号桌/外摆区/海报A)'));
+        }
+
+        $scene_code = 'S_' . $site_id . '_' . substr(md5($tag_name . time() . rand(100, 999)), 0, 8);
+        $shop = Db::name('shop')->where('site_id', $site_id)->find();
+
+        $data = [
+            'site_id' => $site_id,
+            'tag_name' => $tag_name,
+            'scene_code' => $scene_code,
+            'qrcode_url' => $shop['logo'] ?? '',
+            'scan_count' => 0,
+            'create_time' => time()
+        ];
+        $id = Db::name('shop_qrcode')->insertGetId($data);
+        $data['id'] = $id;
+
+        return $this->response($this->success($data, '创建标签二维码成功'));
+    }
+
+    /**
+     * 获取官方物料品类与收费配置及商户首单免费资格
+     */
+    public function getMaterialTypeList()
+    {
+        $site_id = request()->param("site_id", $this->site_id);
+        if (empty($site_id)) {
+            return $this->response($this->error('', '未获取到商家身份'));
+        }
+
+        // 检查商户是否曾申领过物料: 首单免费
+        $paid_count = Db::name('shop_material_order')
+            ->where('site_id', $site_id)
+            ->where('pay_status', 1)
+            ->count();
+        $is_first_free = ($paid_count == 0) ? 1 : 0;
+
+        $types = Db::name('shop_material_type')
+            ->where('is_enable', 1)
+            ->order('sort asc, type_id asc')
+            ->select()
+            ->toArray();
+
+        return $this->response($this->success([
+            'is_first_free' => $is_first_free,
+            'list' => $types
+        ]));
+    }
+
+    /**
+     * 申请官方物料制作 (首单免费，后续收费)
+     */
+    public function applyMaterialOrder()
+    {
+        $site_id = request()->param("site_id", $this->site_id);
+        $type_id = intval(request()->param("type_id", 0));
+        $qrcode_id = intval(request()->param("qrcode_id", 0));
+        $contacts_name = trim(request()->param("contacts_name", ''));
+        $contacts_mobile = trim(request()->param("contacts_mobile", ''));
+        $address = trim(request()->param("address", ''));
+
+        if (empty($site_id)) {
+            return $this->response($this->error('', '未获取到商家身份'));
+        }
+        if (empty($type_id)) {
+            return $this->response($this->error('', '请选择物料品类'));
+        }
+        if (empty($contacts_name) || empty($contacts_mobile) || empty($address)) {
+            return $this->response($this->error('', '请完整填写收货人、联系电话及详细收件地址'));
+        }
+
+        $type = Db::name('shop_material_type')->where('type_id', $type_id)->where('is_enable', 1)->find();
+        if (!$type) {
+            return $this->response($this->error('', '物料品类不存在或已下架'));
+        }
+
+        // 判定首单免费
+        $paid_count = Db::name('shop_material_order')
+            ->where('site_id', $site_id)
+            ->where('pay_status', 1)
+            ->count();
+        $is_free = ($paid_count == 0) ? 1 : 0;
+
+        $order_money = 0.00;
+        $pay_status = 1; // 首次免费直接标记已支付/待制作
+        if (!$is_free) {
+            $order_money = floatval($type['cost_price']) + floatval($type['shipping_fee']);
+            $pay_status = 0; // 需支付工本费与运费
+        }
+
+        $order_no = 'MO' . date('YmdHis') . rand(1000, 9999);
+        $data = [
+            'order_no' => $order_no,
+            'site_id' => $site_id,
+            'type_id' => $type_id,
+            'qrcode_id' => $qrcode_id,
+            'is_free' => $is_free,
+            'order_money' => $order_money,
+            'pay_status' => $pay_status,
+            'delivery_status' => 0, // 待制作
+            'contacts_name' => $contacts_name,
+            'contacts_mobile' => $contacts_mobile,
+            'address' => $address,
+            'create_time' => time(),
+            'pay_time' => $is_free ? time() : 0
+        ];
+
+        $order_id = Db::name('shop_material_order')->insertGetId($data);
+
+        return $this->response($this->success([
+            'order_id' => $order_id,
+            'order_no' => $order_no,
+            'is_free' => $is_free,
+            'order_money' => $order_money,
+            'pay_status' => $pay_status
+        ], $is_free ? '恭喜！首次制作物料免费申请成功，我们将尽快制作并发货' : '物料订单创建成功，请支付工本费与运费'));
     }
 }

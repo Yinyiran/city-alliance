@@ -129,3 +129,22 @@ export const Synopsis=params=>server('/api/api/info',params)
 export const modifyheadimg=params=>server('/api/member/modifyheadimg',params)
 //修改昵称
 export const modifynickname=params=>server('/api/member/modifynickname',params)
+
+//合伙人配额与门槛信息
+export const getPartnerQuotaInfo=params=>server('/shopapplet/shop/getPartnerQuotaInfo',params)
+//店铺等级详情与剩余有效期
+export const getShopLevelDetail=params=>server('/shopapplet/shop/getShopLevelDetail',params)
+//店铺等级套餐列表
+export const getShopLevelPackages=params=>server('/shopapplet/shop/getShopLevelPackages',params)
+//创建店铺等级购买/升级订单
+export const createShopLevelOrder=params=>server('/shopapplet/shop/createShopLevelOrder',params)
+//完成店铺等级升级确认
+export const completeShopLevelOrder=params=>server('/shopapplet/shop/completeShopLevelOrder',params)
+//获取商户多标签二维码列表
+export const getShopQrcodeList=params=>server('/shopapplet/shop/getShopQrcodeList',params)
+//添加自定义标签二维码
+export const addShopQrcode=params=>server('/shopapplet/shop/addShopQrcode',params)
+//获取官方物料品类与收费配置
+export const getMaterialTypeList=params=>server('/shopapplet/shop/getMaterialTypeList',params)
+//申领官方实体物料制作
+export const applyMaterialOrder=params=>server('/shopapplet/shop/applyMaterialOrder',params)

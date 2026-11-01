@@ -14,6 +14,8 @@ use BsPaySdk\request\V2MerchantBasicdataEntRequest;
 use BsPaySdk\request\V2TradeSettlementEnchashmentRequest;
 use BsPaySdk\request\V2SupplementaryPictureRequest;
 use BsPaySdk\request\V2TradePaymentScanpayRefundRequest;
+use BsPaySdk\request\V2TradePaymentMicropayRequest;
+use BsPaySdk\request\V2TradePaymentScanpayQueryRequest;
 use BsPaySdk\request\V2UserBusiOpenRequest;
 use CURLFile;
 use function BsPayDemo\getCardInfo;
@@ -31,6 +33,8 @@ require_once  root_path() . '/extend/dg-php-sdk/BsPaySdk/request/V2MerchantBasic
 require_once  root_path() . '/extend/dg-php-sdk/BsPaySdk/request/V2TradeSettlementEnchashmentRequest.php';
 require_once  root_path() . '/extend/dg-php-sdk/BsPaySdk/request/V2SupplementaryPictureRequest.php';
 require_once  root_path() . '/extend/dg-php-sdk/BsPaySdk/request/V2TradePaymentScanpayRefundRequest.php';
+require_once  root_path() . '/extend/dg-php-sdk/BsPaySdk/request/V2TradePaymentMicropayRequest.php';
+require_once  root_path() . '/extend/dg-php-sdk/BsPaySdk/request/V2TradePaymentScanpayQueryRequest.php';
 
 require_once root_path() . '/extend/dg-php-sdk/Composer/BsPayConfig.php';
 
@@ -351,6 +355,56 @@ class Huifu extends BaseModel
         } else {
             return $this->error('',$data['data']['resp_desc']);
         }
+    }
+
+    /**
+     * 汇付线下终端 (扫码盒子) 聚合反扫 (被扫支付)
+     */
+    public function createMicropay($param)
+    {
+        $request = new V2TradePaymentMicropayRequest();
+        $request->setReqDate(date("Ymd"));
+        $request->setReqSeqId(date("YmdHis") . rand(1000, 9999));
+        $huifu_id = !empty($param['huifu_id']) ? $param['huifu_id'] : $this->huifu_id;
+        $request->setHuifuId($huifu_id);
+        $request->setTransAmt(number_format(floatval($param["pay_money"]), 2, '.', ''));
+        $request->setGoodsDesc(str_sub($param["pay_body"] ?? '门店收款', 15));
+        $request->setAuthCode($param["auth_code"]);
+
+        $client = new BsPayClient();
+        $result = $client->postRequest($request);
+
+        if (!$result || $result->isError()) {
+            return $this->error('', $result->getErrorInfo());
+        }
+
+        $data = $result->getRspDatas();
+        if (isset($data['data']['resp_code']) && $data['data']['resp_code'] == '00000000') {
+            return $this->success($data['data']);
+        } else {
+            return $this->error('', $data['data']['resp_desc'] ?? '汇付扫码支付失败');
+        }
+    }
+
+    /**
+     * 汇付线下终端扫码支付查询
+     */
+    public function queryScanPay($out_trade_no, $req_date = '')
+    {
+        $request = new V2TradePaymentScanpayQueryRequest();
+        $request->setReqDate(!empty($req_date) ? $req_date : date("Ymd"));
+        $request->setReqSeqId(date("YmdHis"));
+        $request->setHuifuId($this->huifu_id);
+        $request->setOrgReqDate(!empty($req_date) ? $req_date : date("Ymd"));
+        $request->setOrgReqSeqId($out_trade_no);
+
+        $client = new BsPayClient();
+        $result = $client->postRequest($request);
+        if (!$result || $result->isError()) {
+            return $this->error('', $result->getErrorInfo());
+        }
+        $data = $result->getRspDatas();
+        return $this->success($data['data'] ?? []);
     }
 
     //退款

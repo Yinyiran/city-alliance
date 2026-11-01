@@ -55,6 +55,11 @@ class Shop extends BaseAdmin
             if ($category_id != 0) {
                 $condition[] = [ 'category_id', '=', $category_id ];
             }
+            //店铺等级 (普通店铺/金牌店铺/至尊店铺)
+            $level_id = input('level_id', 0);
+            if ($level_id != 0) {
+                $condition[] = [ 'level_id', '=', $level_id ];
+            }
             //店铺等级
             if ($group_id != 0) {
                 $condition[] = [ 'group_id', '=', $group_id ];
@@ -118,6 +123,9 @@ class Shop extends BaseAdmin
             $shop_group_model = new ShopGroupModel();
             $shop_group_list = $shop_group_model->getGroupList([ [ 'is_own', '=', 0 ] ], 'group_id,is_own,group_name,fee,remark', 'is_own asc,fee asc');
             $this->assign('shop_group_list', $shop_group_list[ 'data' ]);
+            $this->assign('shop_level_list', \think\facade\Db::name('shop_level')->order('sort asc, level_id asc')->select()->toArray());
+            $shop_level_list = \think\facade\Db::name('shop_level')->order('sort asc, level_id asc')->select()->toArray();
+            $this->assign('shop_level_list', $shop_level_list);
 
             $is_addon_city = addon_is_exit('city');
             $this->assign('is_addon_city', $is_addon_city);
@@ -170,7 +178,18 @@ class Shop extends BaseAdmin
                 'region_id' => input('region_id', 0), //所属城市
                 'can_id' => input('can_id', 0), //所属商会
                 'wecom_group_url' => input('wecom_group_url', ''), // 企微群URL
+                'level_id' => input('level_id', 1),
+                'custom_partner_free_num' => input('custom_partner_free_num', 0),
+                'huifu_terminal_id' => input('huifu_terminal_id', ''),
+                'pay_redirect_appid' => input('pay_redirect_appid', ''),
+                'pay_redirect_path' => input('pay_redirect_path', ''),
+                'pay_ad_img' => input('pay_ad_img', ''),
+                'pay_ad_url' => input('pay_ad_url', ''),
             ];
+            $lvl = \think\facade\Db::name('shop_level')->where('level_id', $shop_data['level_id'])->find();
+            $shop_data['level_name'] = $lvl['level_name'] ?? '普通店铺';
+            $shop_data['is_permanent'] = ($lvl && $lvl['validity_type'] == 2) ? 1 : 0;
+            $shop_data['level_start_time'] = time();
             try {
                 $prefix = config('database.connections.mysql.prefix');
                 \think\facade\Db::execute("ALTER TABLE `{$prefix}shop` ADD COLUMN `wecom_group_url` varchar(500) NOT NULL DEFAULT '' COMMENT '企微群URL'");
@@ -266,6 +285,7 @@ class Shop extends BaseAdmin
             $shop_group_model = new ShopGroupModel();
             $shop_group_list = $shop_group_model->getGroupList([ [ 'is_own', '=', 0 ] ], 'group_id,is_own,group_name,fee,remark', 'is_own asc,fee asc');
             $this->assign('shop_group_list', $shop_group_list[ 'data' ]);
+            $this->assign('shop_level_list', \think\facade\Db::name('shop_level')->order('sort asc, level_id asc')->select()->toArray());
             //商家自营等级
             $shop_own_group = $shop_group_model->getGroupList([ [ 'is_own', '=', 1 ] ], 'group_id,is_own,group_name,fee,remark', 'fee asc');
             $this->assign('shop_own_group', $shop_own_group[ 'data' ]);
@@ -343,7 +363,22 @@ class Shop extends BaseAdmin
                 'region_id' => input('region_id', 0), //所属城市
                 'can_id' => input('can_id', 0), //所属商会
                 'wecom_group_url' => input('wecom_group_url', ''), // 企微群URL
+                'level_id' => input('level_id', 1),
+                'custom_partner_free_num' => input('custom_partner_free_num', 0),
+                'huifu_terminal_id' => input('huifu_terminal_id', ''),
+                'pay_redirect_appid' => input('pay_redirect_appid', ''),
+                'pay_redirect_path' => input('pay_redirect_path', ''),
+                'pay_ad_img' => input('pay_ad_img', ''),
+                'pay_ad_url' => input('pay_ad_url', ''),
             ];
+            $lvl = \think\facade\Db::name('shop_level')->where('level_id', $data['level_id'])->find();
+            if ($lvl) {
+                $data['level_name'] = $lvl['level_name'];
+                if ($lvl['validity_type'] == 2) {
+                    $data['is_permanent'] = 1;
+                    $data['expire_time'] = 0;
+                }
+            }
             try {
                 $prefix = config('database.connections.mysql.prefix');
                 \think\facade\Db::execute("ALTER TABLE `{$prefix}shop` ADD COLUMN `wecom_group_url` varchar(500) NOT NULL DEFAULT '' COMMENT '企微群URL'");
@@ -447,6 +482,7 @@ class Shop extends BaseAdmin
             $shop_group_model = new ShopGroupModel();
             $shop_group_list = $shop_group_model->getGroupList([ [ 'is_own', '=', 0 ] ], 'group_id,is_own,group_name,fee,remark', 'is_own asc,fee asc');
             $this->assign('shop_group_list', $shop_group_list[ 'data' ]);
+            $this->assign('shop_level_list', \think\facade\Db::name('shop_level')->order('sort asc, level_id asc')->select()->toArray());
 
             //商家开店套餐（自营）
             $shop_own_group_list = $shop_group_model->getGroupList([ [ 'is_own', '=', 1 ] ], 'group_id,is_own,group_name,fee,remark', 'is_own asc,fee asc');

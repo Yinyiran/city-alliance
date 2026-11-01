@@ -4,11 +4,22 @@
 			<image src="/static/a.png" mode=""></image>
 
 			<view class="acea-row row-middle relative">
-				<image :src="$util.img(info.logo)" v-if="info.logo" class="w-102 h-52  m-r-16" mode=""></image>
-				<view class="acea-row row-middle shop-name-box" v-if="token" @click="openShopSelect">
-					<text class="font-32 text-more" style="max-width: 320rpx;">{{ info.site_name || '选择店铺' }}</text>
-					<uv-icon name="arrow-down-fill" size="10" color="#fff"
-						customStyle="margin-left: 8rpx; flex-shrink: 0;"></uv-icon>
+				<image :src="$util.img(info.logo)" v-if="info.logo" class="w-102 h-52 m-r-16" mode="aspectFill"></image>
+				<view style="flex: 1; overflow: hidden;" v-if="token">
+					<view class="acea-row row-middle shop-name-box" @click="openShopSelect">
+						<text class="font-32 text-more" style="max-width: 240rpx;">{{ info.site_name || '选择店铺' }}</text>
+						<view class="level-badge-tag" :class="'lvl-badge-' + (levelDetail.level_id || 1)" @click.stop="openUpgradePopup">
+							<text class="lvl-badge-txt">{{ levelDetail.level_name || '普通店铺' }}</text>
+							<uv-icon name="arrow-right" size="8" color="#fff" customStyle="margin-left: 4rpx;"></uv-icon>
+						</view>
+						<uv-icon name="arrow-down-fill" size="10" color="#fff"
+							customStyle="margin-left: 8rpx; flex-shrink: 0;"></uv-icon>
+					</view>
+					<view class="acea-row row-middle m-t-8" v-if="levelDetail.level_name">
+						<text class="font-20" style="color: #B2A292;">入驻: {{ levelDetail.start_time || '-' }} · </text>
+						<text class="font-20 m-l-4" :style="levelDetail.is_permanent ? 'color: #F5B67F; font-weight: 600;' : 'color: #CCCCCC;'">{{ levelDetail.days_text }}</text>
+						<text class="upgrade-btn-tag m-l-12" @click.stop="openUpgradePopup">{{ levelDetail.level_id == 3 ? '续费' : '升级' }}</text>
+					</view>
 				</view>
 				<view class="font-32" style="flex: 1;" v-else @click="$refs.login.open(true)">
 					<view class="login-btn">立即登录</view>
@@ -219,6 +230,67 @@
 			</view>
 		</view>
 		</template>
+		<!-- 店铺级别在线购买与升级弹窗 -->
+		<uv-popup ref="levelUpgradePopup" mode="bottom" :round="24" :closeOnClickOverlay="true" customStyle="border-radius: 28rpx 28rpx 0 0; background: #1B1D24;">
+			<view class="level-popup-content" style="padding: 32rpx; color: #fff;">
+				<view class="acea-row row-middle row-between">
+					<view class="acea-row row-middle">
+						<uv-icon name="integral-fill" size="20" color="#F5B67F"></uv-icon>
+						<text class="font-32 font-weight-6 m-l-12" style="color: #FAD5B4;">店铺会员级别与升级</text>
+					</view>
+					<uv-icon name="close" size="18" color="#999" @click="closeUpgradePopup"></uv-icon>
+				</view>
+
+				<view class="current-bar acea-row row-middle row-between m-t-20 p-20" style="background: #252834; border-radius: 12rpx;">
+					<text class="font-26 font-weight-6">{{ info.site_name }}</text>
+					<text class="font-24" style="color: #F5B67F;">当前: {{ levelDetail.level_name || '普通店铺' }} ({{ levelDetail.days_text }})</text>
+				</view>
+
+				<!-- 等级套餐 -->
+				<scroll-view scroll-y="true" style="max-height: 60vh; margin-top: 24rpx;">
+					<view 
+						class="level-card m-b-20" 
+						v-for="(pkg, idx) in levelPackages" 
+						:key="idx"
+						:class="{ 'card-active': selectedLevelId === pkg.level_id, 'card-current': pkg.is_current == 1 }"
+						@click="selectedLevelId = pkg.level_id"
+					>
+						<view class="acea-row row-middle row-between">
+							<view class="acea-row row-middle">
+								<text class="font-30 font-weight-6" :style="pkg.level_id == 3 ? 'color: #FAD5B4;' : ''">{{ pkg.level_name }}</text>
+								<text class="badge-tag m-l-12" v-if="pkg.is_current == 1">当前等级</text>
+								<text class="badge-hot m-l-12" v-else-if="pkg.level_id == 3">最高推荐·永久</text>
+							</view>
+							<view class="price-wrap">
+								<text class="font-24" style="color: #F5B67F;">￥</text>
+								<text class="font-36 font-weight-6" style="color: #F5B67F;">{{ pkg.price }}</text>
+								<text class="font-20" style="color: #8E929E;">/ {{ pkg.validity_type == 2 ? '永久' : (pkg.validity_years + '年') }}</text>
+							</view>
+						</view>
+						<view class="benefits-box m-t-16">
+							<view class="b-item acea-row row-middle">
+								<uv-icon name="checkmark-circle-fill" size="14" color="#F5B67F"></uv-icon>
+								<text class="font-22 m-l-10" style="color: #CCCCCC;">合伙人数量上限：<text style="color: #F5B67F; font-weight: 600;">{{ pkg.max_partner_count }} 人</text></text>
+							</view>
+							<view class="b-item acea-row row-middle m-t-8">
+								<uv-icon name="checkmark-circle-fill" size="14" color="#F5B67F"></uv-icon>
+								<text class="font-22 m-l-10" style="color: #CCCCCC;">短视频上传限制：<text style="color: #F5B67F; font-weight: 600;">{{ pkg.max_video_count > 0 ? (pkg.max_video_count + ' 条') : '无限制 (无限上传)' }}</text></text>
+							</view>
+							<view class="b-item acea-row row-middle m-t-8">
+								<uv-icon name="checkmark-circle-fill" size="14" color="#F5B67F"></uv-icon>
+								<text class="font-22 m-l-10" style="color: #CCCCCC;">品牌基础积分：<text style="color: #F5B67F; font-weight: 600;">{{ pkg.base_points }} 分</text></text>
+							</view>
+						</view>
+					</view>
+				</scroll-view>
+
+				<view class="m-t-32">
+					<button class="upgrade-btn" :loading="upgrading" @click="handleConfirmUpgrade">
+						{{ getUpgradeBtnText() }}
+					</button>
+				</view>
+			</view>
+		</uv-popup>
 		<shop-select-popup ref="shopPopup" @change="onShopChange"></shop-select-popup>
 		<login ref="login" @loginsuccess='loginsuccess'></login>
 	</view>
@@ -232,7 +304,11 @@ import {
 	conorderrank,
 	getInfo,
 	shopList,
-	shopLogin
+	shopLogin,
+	getShopLevelDetail,
+	getShopLevelPackages,
+	createShopLevelOrder,
+	completeShopLevelOrder
 } from "@/common/js/api.js"
 import ShopSelectPopup from "@/components/shop-select-popup/shop-select-popup.vue"
 
@@ -268,7 +344,11 @@ export default {
 			site_id: uni.getStorageSync('site_id'),
 			token: "",
 			loadError: false,
-			loadErrorText: ''
+			loadErrorText: '',
+			levelDetail: {},
+			levelPackages: [],
+			selectedLevelId: 3,
+			upgrading: false
 		};
 	},
 	onLoad() {
@@ -382,9 +462,85 @@ export default {
 				this.site_id = res.data.site_id
 				uni.setStorageSync('site_id', res.data.site_id)
 				this.info = res.data
+				this.fetchLevelDetail()
 			} catch (e) {
 				// 站点信息获取失败不阻断页面其他数据加载
 			}
+		},
+		fetchLevelDetail() {
+			if (!this.site_id) return
+			getShopLevelDetail({ site_id: this.site_id }).then(res => {
+				if (res && res.code === 0 && res.data) {
+					this.levelDetail = res.data
+				}
+			}).catch(err => {
+				console.error('获取店铺等级失败', err)
+			})
+		},
+		openUpgradePopup() {
+			if (!uni.getStorageSync('token')) {
+				this.$refs.login.open()
+				return
+			}
+			getShopLevelPackages({ site_id: this.site_id }).then(res => {
+				if (res && res.code === 0 && res.data) {
+					this.levelPackages = res.data.list || []
+					// 默认选中最高档至尊店铺，或未升级的更高档
+					let higher = this.levelPackages.find(p => p.can_upgrade == 1)
+					if (higher) {
+						this.selectedLevelId = higher.level_id
+					} else {
+						this.selectedLevelId = (this.levelDetail.level_id || 3)
+					}
+					this.$refs.levelUpgradePopup.open()
+				}
+			}).catch(err => {
+				uni.showToast({ title: '加载等级套餐失败', icon: 'none' })
+			})
+		},
+		closeUpgradePopup() {
+			this.$refs.levelUpgradePopup.close()
+		},
+		getUpgradeBtnText() {
+			let sel = (this.levelPackages || []).find(p => p.level_id === this.selectedLevelId)
+			if (!sel) return '立即购买升级'
+			if (sel.is_current == 1) {
+				return `立即续费【${sel.level_name}】 (￥${sel.price})`
+			}
+			return `立即升级为【${sel.level_name}】 (￥${sel.price})`
+		},
+		handleConfirmUpgrade() {
+			let sel = (this.levelPackages || []).find(p => p.level_id === this.selectedLevelId)
+			if (!sel) return
+			this.upgrading = true
+			createShopLevelOrder({
+				site_id: this.site_id,
+				to_level_id: this.selectedLevelId
+			}).then(res => {
+				if (res.code === 0 && res.data) {
+					let out_trade_no = res.data.out_trade_no
+					// 确认完成升级
+					completeShopLevelOrder({ out_trade_no }).then(resA => {
+						this.upgrading = false
+						if (resA.code === 0) {
+							uni.showToast({ title: resA.message || '恭喜！升级成功', icon: 'success' })
+							this.closeUpgradePopup()
+							this.fetchLevelDetail()
+							this.refreshAll()
+						} else {
+							uni.showToast({ title: resA.message || '升级失败', icon: 'none' })
+						}
+					}).catch(() => {
+						this.upgrading = false
+					})
+				} else {
+					this.upgrading = false
+					uni.showToast({ title: res.message || '创建订单失败', icon: 'none' })
+				}
+			}).catch(() => {
+				this.upgrading = false
+				uni.showToast({ title: '网络异常，请重试', icon: 'none' })
+			})
 		},
 		change(e) {
 			if (!uni.getStorageSync('token')) {
@@ -886,4 +1042,84 @@ page {
 		z-index: 1;
 	}
 }
+
+.level-badge-tag {
+	margin-left: 12rpx;
+	padding: 4rpx 14rpx;
+	border-radius: 20rpx;
+	display: inline-flex;
+	align-items: center;
+	background: #3A3D4D;
+
+	.lvl-badge-txt {
+		font-size: 20rpx;
+		font-weight: 600;
+		color: #fff;
+	}
+}
+
+.lvl-badge-1 {
+	background: linear-gradient(135deg, #4A5568 0%, #2D3748 100%);
+	border: 1rpx solid #718096;
+}
+
+.lvl-badge-2 {
+	background: linear-gradient(135deg, #D69E2E 0%, #B7791F 100%);
+	border: 1rpx solid #ECC94B;
+}
+
+.lvl-badge-3 {
+	background: linear-gradient(135deg, #805AD5 0%, #553C9A 100%);
+	border: 1rpx solid #B794F4;
+}
+
+.upgrade-btn-tag {
+	font-size: 18rpx;
+	background: #F5B67F;
+	color: #2A1807;
+	font-weight: 600;
+	padding: 2rpx 10rpx;
+	border-radius: 6rpx;
+}
+
+.level-card {
+	background: #232630;
+	border-radius: 16rpx;
+	padding: 24rpx;
+	border: 2rpx solid #2E3240;
+
+	&.card-active {
+		border-color: #F5B67F;
+		background: rgba(245, 182, 127, 0.08);
+	}
+}
+
+.badge-tag {
+	background: #3A3D4D;
+	color: #8E929E;
+	font-size: 20rpx;
+	padding: 2rpx 10rpx;
+	border-radius: 6rpx;
+}
+
+.badge-hot {
+	background: linear-gradient(135deg, #FA8C16 0%, #D4380D 100%);
+	color: #fff;
+	font-size: 20rpx;
+	padding: 2rpx 10rpx;
+	border-radius: 6rpx;
+	font-weight: 600;
+}
+
+.upgrade-btn {
+	background: linear-gradient(135deg, #FAD5B4 0%, #D49D6A 100%);
+	color: #2A1807;
+	font-size: 32rpx;
+	font-weight: 600;
+	border-radius: 44rpx;
+	height: 88rpx;
+	line-height: 88rpx;
+	border: none;
+}
+
 </style>

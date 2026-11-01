@@ -101,6 +101,19 @@ class Video extends BaseAdmin
                 return (new BaseModel())->error('', '只能关联一个商品');
             }
             $goods = model('goods')->getInfo(['goods_id'=>$store_ids[0]]);
+            $target_site_id = $goods['site_id'] ?? 0;
+            if ($target_site_id > 0) {
+                $shop_info = \think\facade\Db::name('shop')->where('site_id', $target_site_id)->find();
+                $level_id = $shop_info['level_id'] ?? 1;
+                $level_info = \think\facade\Db::name('shop_level')->where('level_id', $level_id)->find();
+                $max_video = $level_info['max_video_count'] ?? 3;
+                if ($max_video > 0) {
+                    $exist_video_count = \think\facade\Db::name('video')->where('site_id', $target_site_id)->count();
+                    if ($exist_video_count >= $max_video) {
+                        return (new BaseModel())->error('', "该店铺属于【" . ($level_info['level_name'] ?? '普通店铺') . "】，短视频上传上限为 {$max_video} 条，目前已达上限，请升级为至尊店铺解锁无限上传");
+                    }
+                }
+            }
             $data = [
                 'name' => $name,
                 'video_url' => $video_url,

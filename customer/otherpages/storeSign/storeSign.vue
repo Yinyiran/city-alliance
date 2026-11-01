@@ -18,8 +18,8 @@
 				<image src="/otherpages/static/btn4.png" @click="$util.redirectTo('/otherpages/signCode/signCode')"
 					class="w-180 h-60" mode=""></image>
 			</view>
-			<view class="relative acea-row row-middle">
-				<view class="" v-for="(item, index) in listA" :key="index">
+			<view class="relative sign-grid">
+				<view class="sign-item" v-for="(item, index) in listA" :key="index">
 					<view class="item2" v-if="item.is_signed">
 						<image :src="item.store_logo || '/static/shop.png'" mode="aspectFit" @error="onImgError(item)"></image>
 						<image src="/otherpages/static/checked.png" mode=""></image>
@@ -212,15 +212,22 @@ export default {
 		top: 0;
 	}
 
-	>view:last-child {
+	.sign-grid {
 		margin-top: 20rpx;
+		display: flex;
+		flex-wrap: wrap;
 
-		>view {
-			width: calc((100% - 36rpx)/4);
-			margin-right: 16rpx;
-			height: 52rpx;
+		.sign-item {
+			width: calc((100% - 36rpx) / 4);
+			margin-right: 12rpx;
 			margin-bottom: 12rpx;
+			height: 52rpx;
+			box-sizing: border-box;
 			text-align: center;
+
+			&:nth-child(4n) {
+				margin-right: 0;
+			}
 		}
 
 		.item2 {
@@ -252,18 +259,18 @@ export default {
 		}
 
 		.item1 {
+			width: 100%;
+			height: 100%;
 			background: #FFFDF9;
 			border: 2rpx dashed #F0F0F0;
 			border-radius: 6rpx;
 			font-weight: 400;
 			font-size: 22rpx;
-			line-height: 52rpx;
 			color: #555555;
 			box-sizing: border-box;
-		}
-
-		>view:nth-child(4n) {
-			margin-right: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
 		}
 	}
 }

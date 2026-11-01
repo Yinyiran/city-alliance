@@ -1,0 +1,168 @@
+{extend name="base"/}
+{block name="resources"}
+<style>
+	.ns-screen {
+		margin-bottom: 15px;
+	}
+	.material-img {
+		width: 48px;
+		height: 48px;
+		object-fit: cover;
+		border-radius: 4px;
+	}
+</style>
+{/block}
+
+{block name="main"}
+<div class="ns-card-brief">
+	<div class="ns-form-content">
+		<h2 class="ns-form-title layui-inline">官方物料收费配置</h2>
+		<div class="layui-inline" style="margin-left: 20px;">
+			<a class="layui-btn layui-btn-primary" href="{:addon_url('admin/material/orderList')}">查看物料申领订单</a>
+		</div>
+	</div>
+</div>
+
+<div class="ns-single-filter-box">
+	<button class="layui-btn ns-bg-color" onclick="addType()">添加物料品类</button>
+</div>
+
+<table id="material_type_list" lay-filter="material_type_list"></table>
+
+<!-- 样品图片 -->
+<script type="text/html" id="sample_img">
+	{{# if(d.sample_image){ }}
+		<img src="{{ ns.img(d.sample_image) }}" class="material-img" layer-src="{{ ns.img(d.sample_image) }}" />
+	{{# }else{ }}
+		<span style="color:#999;">无图片</span>
+	{{# } }}
+</script>
+
+<!-- 首次政策 -->
+<script type="text/html" id="first_free">
+	<span class="layui-badge layui-bg-green">首次全免</span>
+</script>
+
+<!-- 启用状态 -->
+<script type="text/html" id="is_enable">
+	{{# if(d.is_enable == 1){ }}
+		<span style="color: #07c160;">启用</span>
+	{{# }else{ }}
+		<span style="color: #ff4d4f;">禁用</span>
+	{{# } }}
+</script>
+
+<!-- 操作 -->
+<script type="text/html" id="action">
+	<div class="ns-table-btn">
+		<a class="layui-btn" lay-event="edit">编辑标准</a>
+		<a class="layui-btn" lay-event="del">删除</a>
+	</div>
+</script>
+{/block}
+
+{block name="script"}
+<script>
+	var table, repeat_flag = false;
+	layui.use(['form', 'layer'], function () {
+		var form = layui.form,
+			layer = layui.layer;
+
+		table = new Table({
+			elem: '#material_type_list',
+			url: ns.url("admin/material/typeList"),
+			cols: [
+				[{
+					field: 'type_id',
+					title: 'ID',
+					width: '6%',
+					unresize: 'false'
+				}, {
+					title: '物料效果图',
+					width: '10%',
+					unresize: 'false',
+					templet: '#sample_img'
+				}, {
+					field: 'type_name',
+					title: '物料名称',
+					width: '16%',
+					unresize: 'false'
+				}, {
+					field: 'material_spec',
+					title: '制作材质规格',
+					width: '20%',
+					unresize: 'false'
+				}, {
+					field: 'cost_price',
+					title: '工本费 (元)',
+					width: '10%',
+					unresize: 'false',
+					templet: function (d) {
+						return '￥' + parseFloat(d.cost_price).toFixed(2);
+					}
+				}, {
+					field: 'shipping_fee',
+					title: '物流运费 (元)',
+					width: '10%',
+					unresize: 'false',
+					templet: function (d) {
+						return d.shipping_fee > 0 ? ('￥' + parseFloat(d.shipping_fee).toFixed(2)) : '<span style="color:#07c160;">包邮</span>';
+					}
+				}, {
+					title: '首次优惠',
+					width: '10%',
+					unresize: 'false',
+					templet: '#first_free'
+				}, {
+					field: 'is_enable',
+					title: '状态',
+					width: '8%',
+					unresize: 'false',
+					templet: '#is_enable'
+				}, {
+					title: '操作',
+					width: '10%',
+					toolbar: '#action',
+					unresize: 'false'
+				}]
+			]
+		});
+
+		table.tool(function (obj) {
+			var data = obj.data;
+			switch (obj.event) {
+				case 'edit':
+					location.href = ns.url("admin/material/editType", { type_id: data.type_id });
+					break;
+				case 'del':
+					deleteType(data.type_id);
+					break;
+			}
+		});
+
+		function deleteType(type_id) {
+			layer.confirm('确定要删除该物料品类配置吗？', function () {
+				if (repeat_flag) return;
+				repeat_flag = true;
+				$.ajax({
+					url: ns.url("admin/material/deleteType"),
+					data: { type_id: type_id },
+					dataType: 'JSON',
+					type: 'POST',
+					success: function (res) {
+						repeat_flag = false;
+						layer.msg(res.message);
+						if (res.code >= 0) {
+							table.reload();
+						}
+					}
+				});
+			});
+		}
+	});
+
+	function addType() {
+		location.href = ns.url("admin/material/editType");
+	}
+</script>
+{/block}

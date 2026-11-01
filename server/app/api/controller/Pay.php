@@ -202,4 +202,224 @@ class Pay extends BaseApi
         return $this->response($this->success($result));
     }
 
+    /**
+     * 汇付线下终端 (扫码盒子) 反扫付款接口
+     */
+    public function terminalMicropay()
+    {
+        $site_id = intval($this->params['site_id'] ?? 0);
+        $amount = round(floatval($this->params['amount'] ?? 0), 2);
+        $auth_code = trim(strval($this->params['auth_code'] ?? ''));
+        $remark = trim(strval($this->params['remark'] ?? ''));
+        $store_id = intval($this->params['store_id'] ?? 0);
+        $terminal_id = trim(strval($this->params['terminal_id'] ?? ''));
+
+        if (empty($auth_code)) {
+            return $this->response($this->error('', '请扫描顾客付款码'));
+        }
+        if ($amount <= 0) {
+            return $this->response($this->error('', '请输入有效的收款金额'));
+        }
+
+        // 如果未传 site_id，尝试从 terminal_id 匹配商户，或从当前登录商户获取
+        if ($site_id <= 0 && !empty($terminal_id)) {
+            $shop_by_terminal = model('shop')->getInfo([['huifu_terminal_id', '=', $terminal_id]], 'site_id');
+            if (!empty($shop_by_terminal)) {
+                $site_id = intval($shop_by_terminal['site_id']);
+            }
+        }
+
+        if ($site_id <= 0) {
+            return $this->response($this->error('', '未指定收款商户或终端设备未绑定'));
+        }
+
+        $shop_info = model('shop')->getInfo([['site_id', '=', $site_id]], 'site_id, site_name, logo, website_id, huifu_id, huifu_terminal_id, pay_redirect_appid, pay_redirect_path, pay_ad_img, pay_ad_url');
+        if (empty($shop_info)) {
+            return $this->response($this->error('', '商户不存在'));
+        }
+
+        // 创建买单订单
+        $order_common = new \app\model\order\OrderCommon();
+        $order_no = $order_common->createOrderNo($site_id);
+        $pay_model = new PayModel();
+        $out_trade_no = $pay_model->createOutTradeNo(0);
+
+        model('order')->startTrans();
+        try {
+            $order_data = [
+                'order_no' => $order_no,
+                'site_id' => $site_id,
+                'site_name' => $shop_info['site_name'],
+                'website_id' => $shop_info['website_id'] ?? 0,
+                'order_name' => '线下终端收款-' . $shop_info['site_name'],
+                'order_from' => 'terminal',
+                'order_from_name' => '扫码盒子终端',
+                'order_type' => 2,
+                'order_type_name' => '到店买单',
+                'trade_type' => 1,
+                'pay_scene' => 2, // 线下终端收银
+                'custom_amount' => $amount,
+                'out_trade_no' => $out_trade_no,
+                'member_id' => 0,
+                'name' => '顾客',
+                'goods_money' => $amount,
+                'order_money' => $amount,
+                'pay_money' => $amount,
+                'goods_num' => 1,
+                'buyer_message' => $remark,
+                'order_status' => 0,
+                'order_status_name' => '待支付',
+                'pay_status' => 0,
+                'create_time' => time(),
+                'is_enable_refund' => 1,
+            ];
+            $order_id = model('order')->add($order_data);
+
+            $order_goods_data = [
+                'order_id' => $order_id,
+                'site_id' => $site_id,
+                'site_name' => $shop_info['site_name'],
+                'order_no' => $order_no,
+                'member_id' => 0,
+                'sku_name' => '向商家付款',
+                'goods_name' => '线下终端买单',
+                'sku_image' => $shop_info['logo'] ?: '',
+                'price' => $amount,
+                'cost_price' => $amount,
+                'num' => 1,
+                'goods_money' => $amount,
+                'cost_money' => $amount,
+                'real_goods_money' => $amount,
+                'trade_type' => 1,
+                'delivery_status' => 0,
+                'delivery_status_name' => '待支付',
+            ];
+            model('order_goods')->add($order_goods_data);
+
+            $pay_model->addPay(
+                $site_id,
+                $out_trade_no,
+                '',
+                '向' . $shop_info['site_name'] . '付款',
+                '线下终端买单' . $amount . '元',
+                $amount,
+                '',
+                'OrderPayNotify',
+                ''
+            );
+            model('order')->commit();
+        } catch (\Exception $e) {
+            model('order')->rollback();
+            return $this->response($this->error('', '生成收银订单失败：' . $e->getMessage()));
+        }
+
+        // 调用汇付聚合反扫
+        $huifu_model = new \app\model\pay\Huifu();
+        $huifu_param = [
+            'out_trade_no' => $out_trade_no,
+            'pay_money' => $amount,
+            'pay_body' => $shop_info['site_name'] . '-线下收银',
+            'auth_code' => $auth_code,
+            'huifu_id' => !empty($shop_info['huifu_id']) ? $shop_info['huifu_id'] : '',
+        ];
+        $pay_res = $huifu_model->createMicropay($huifu_param);
+
+        if ($pay_res['code'] >= 0) {
+            // 支付成功，立即进行订单状态扭转与分佣触发、微信消息推送
+            $order_common->orderOnlinePay([
+                'out_trade_no' => $out_trade_no,
+                'pay_type' => 'HUIFU_MICROPAY'
+            ]);
+
+            return $this->response($this->success([
+                'status' => 'SUCCESS',
+                'order_no' => $order_no,
+                'out_trade_no' => $out_trade_no,
+                'pay_money' => $amount,
+                'site_name' => $shop_info['site_name'],
+                'pay_redirect_appid' => $shop_info['pay_redirect_appid'] ?? '',
+                'pay_redirect_path' => $shop_info['pay_redirect_path'] ?? '',
+                'pay_ad_img' => $shop_info['pay_ad_img'] ?? '',
+                'pay_ad_url' => $shop_info['pay_ad_url'] ?? '',
+            ], '支付成功'));
+        } else {
+            // 检查是否为等待顾客输密码 (USERPAYING)
+            $msg = $pay_res['message'] ?? '';
+            if (strpos($msg, 'USERPAYING') !== false || strpos($msg, '输入密码') !== false || strpos($msg, '支付中') !== false) {
+                return $this->response($this->success([
+                    'status' => 'USERPAYING',
+                    'order_no' => $order_no,
+                    'out_trade_no' => $out_trade_no,
+                    'pay_money' => $amount,
+                ], '等待顾客输入支付密码'));
+            }
+            return $this->response($this->error('', $msg ?: '收单扣款失败'));
+        }
+    }
+
+    /**
+     * 汇付线下终端支付结果查询接口
+     */
+    public function terminalQuery()
+    {
+        $out_trade_no = trim(strval($this->params['out_trade_no'] ?? ''));
+        if (empty($out_trade_no)) {
+            return $this->response($this->error('', '请传入商户支付流水号'));
+        }
+
+        // 先查本地支付记录
+        $pay_info = model('pay')->getInfo([['out_trade_no', '=', $out_trade_no]], 'pay_status, pay_money, site_id');
+        if (empty($pay_info)) {
+            return $this->response($this->error('', '交易记录不存在'));
+        }
+        if ($pay_info['pay_status'] == 2) {
+            $shop = model('shop')->getInfo([['site_id', '=', $pay_info['site_id']]], 'site_name, pay_redirect_appid, pay_redirect_path, pay_ad_img, pay_ad_url');
+            return $this->response($this->success([
+                'status' => 'SUCCESS',
+                'out_trade_no' => $out_trade_no,
+                'pay_money' => $pay_info['pay_money'],
+                'site_name' => $shop['site_name'] ?? '',
+                'pay_redirect_appid' => $shop['pay_redirect_appid'] ?? '',
+                'pay_redirect_path' => $shop['pay_redirect_path'] ?? '',
+                'pay_ad_img' => $shop['pay_ad_img'] ?? '',
+                'pay_ad_url' => $shop['pay_ad_url'] ?? '',
+            ], '支付已完成'));
+        }
+
+        // 调用汇付斗拱查单接口
+        $huifu_model = new \app\model\pay\Huifu();
+        $query_res = $huifu_model->queryScanPay($out_trade_no);
+        if ($query_res['code'] >= 0 && !empty($query_res['data'])) {
+            $data = $query_res['data'];
+            $trans_stat = $data['trans_stat'] ?? '';
+            if ($trans_stat == 'S' || ($data['resp_code'] ?? '') == '00000000') {
+                $order_common = new \app\model\order\OrderCommon();
+                $order_common->orderOnlinePay([
+                    'out_trade_no' => $out_trade_no,
+                    'pay_type' => 'HUIFU_MICROPAY'
+                ]);
+                $shop = model('shop')->getInfo([['site_id', '=', $pay_info['site_id']]], 'site_name, pay_redirect_appid, pay_redirect_path, pay_ad_img, pay_ad_url');
+                return $this->response($this->success([
+                    'status' => 'SUCCESS',
+                    'out_trade_no' => $out_trade_no,
+                    'pay_money' => $pay_info['pay_money'],
+                    'site_name' => $shop['site_name'] ?? '',
+                    'pay_redirect_appid' => $shop['pay_redirect_appid'] ?? '',
+                    'pay_redirect_path' => $shop['pay_redirect_path'] ?? '',
+                    'pay_ad_img' => $shop['pay_ad_img'] ?? '',
+                    'pay_ad_url' => $shop['pay_ad_url'] ?? '',
+                ], '支付成功'));
+            } elseif ($trans_stat == 'P') {
+                return $this->response($this->success([
+                    'status' => 'USERPAYING',
+                    'out_trade_no' => $out_trade_no,
+                ], '顾客正在输入密码'));
+            } else {
+                return $this->response($this->error('', $data['resp_desc'] ?? '交易失败或已关闭'));
+            }
+        }
+
+        return $this->response($this->error('', '暂未查询到支付结果'));
+    }
+
 }

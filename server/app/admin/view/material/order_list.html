@@ -1,0 +1,274 @@
+{extend name="base"/}
+{block name="resources"}
+<style>
+	.ns-screen {
+		margin-bottom: 15px;
+	}
+	.address-box {
+		line-height: 1.5;
+		font-size: 13px;
+	}
+	.delivery-modal {
+		padding: 20px;
+	}
+</style>
+{/block}
+
+{block name="main"}
+<div class="ns-card-brief">
+	<div class="ns-form-content">
+		<h2 class="ns-form-title layui-inline">官方物料申领与制作订单</h2>
+		<div class="layui-inline" style="margin-left: 20px;">
+			<a class="layui-btn layui-btn-primary" href="{:addon_url('admin/material/typeList')}">管理物料品类与收费标准</a>
+		</div>
+	</div>
+</div>
+
+<!-- 筛选面板 -->
+<div class="ns-screen layui-collapse" lay-filter="selection_panel">
+	<div class="layui-colla-item">
+		<h2 class="layui-colla-title">筛选条件</h2>
+		<form class="layui-colla-content layui-form layui-show">
+			<div class="layui-form-item">
+				<div class="layui-inline">
+					<label class="layui-form-label">搜索关键词：</label>
+					<div class="layui-input-inline">
+						<input type="text" id="search_text" name="search_text" placeholder="订单号/商户名/联系人/手机号" class="layui-input" autocomplete="off" />
+					</div>
+				</div>
+				<div class="layui-inline">
+					<label class="layui-form-label">支付状态：</label>
+					<div class="layui-input-inline">
+						<select name="pay_status">
+							<option value="">全部</option>
+							<option value="1">已支付/首单免费</option>
+							<option value="0">未支付</option>
+						</select>
+					</div>
+				</div>
+				<div class="layui-inline">
+					<label class="layui-form-label">发货状态：</label>
+					<div class="layui-input-inline">
+						<select name="delivery_status">
+							<option value="">全部</option>
+							<option value="0">待制作/待发货</option>
+							<option value="1">已发货</option>
+							<option value="2">已签收</option>
+						</select>
+					</div>
+				</div>
+				<div class="layui-inline">
+					<button class="layui-btn ns-bg-color" lay-submit lay-filter="search">筛选</button>
+					<button type="reset" class="layui-btn layui-btn-primary">重置</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+
+<!-- 表格 -->
+<table id="material_order_list" lay-filter="material_order_list"></table>
+
+<!-- 订单信息 -->
+<script type="text/html" id="order_info">
+	<div class="ns-table-title">
+		<div class="ns-title-content">
+			<p><strong>{{ d.order_no }}</strong></p>
+			<p style="color:#888; font-size:12px;">{{ ns.time_to_date(d.create_time) }}</p>
+		</div>
+	</div>
+</script>
+
+<!-- 收件人及地址 -->
+<script type="text/html" id="receiver_info">
+	<div class="address-box">
+		<p><strong>{{ d.contacts_name }}</strong> <span style="color:#666;">{{ d.contacts_mobile }}</span></p>
+		<p style="color:#555; font-size:12px;">{{ d.full_address }}</p>
+	</div>
+</script>
+
+<!-- 金额与政策 -->
+<script type="text/html" id="money_info">
+	<div>
+		{{# if(d.is_first_free == 1){ }}
+			<span class="layui-badge layui-bg-green">首单全免</span>
+			<p style="font-size:12px; color:#07c160;">实付 ￥0.00</p>
+		{{# }else{ }}
+			<p>实付：<strong style="color:#ff4d4f;">￥{{ parseFloat(d.pay_money).toFixed(2) }}</strong></p>
+			<p style="font-size:11px; color:#888;">工本:￥{{ parseFloat(d.cost_price).toFixed(2) }} 运费:￥{{ parseFloat(d.shipping_fee).toFixed(2) }}</p>
+		{{# } }}
+	</div>
+</script>
+
+<!-- 支付状态 -->
+<script type="text/html" id="pay_status_tpl">
+	{{# if(d.pay_status == 1 || d.is_first_free == 1){ }}
+		<span style="color:#07c160;"><i class="layui-icon layui-icon-ok-circle"></i> 已支付</span>
+	{{# }else{ }}
+		<span style="color:#ff4d4f;"><i class="layui-icon layui-icon-close-fill"></i> 待付款</span>
+	{{# } }}
+</script>
+
+<!-- 发货状态与快递 -->
+<script type="text/html" id="delivery_tpl">
+	{{# if(d.delivery_status == 1){ }}
+		<span class="layui-badge layui-bg-blue">已发货</span>
+		{{# if(d.express_no){ }}
+			<p style="font-size:11px; color:#555; margin-top:4px;">{{ d.express_company || '快递' }}: {{ d.express_no }}</p>
+		{{# } }}
+	{{# }else if(d.delivery_status == 2){ }}
+		<span class="layui-badge layui-bg-gray">已签收</span>
+	{{# }else{ }}
+		<span class="layui-badge layui-bg-orange">待发货</span>
+	{{# } }}
+</script>
+
+<!-- 操作列 -->
+<script type="text/html" id="action">
+	<div class="ns-table-btn">
+		{{# if(d.delivery_status == 0 && (d.pay_status == 1 || d.is_first_free == 1)){ }}
+			<a class="layui-btn ns-bg-color" lay-event="delivery">发货制作</a>
+		{{# }else if(d.delivery_status == 1){ }}
+			<a class="layui-btn layui-btn-primary" lay-event="edit_delivery">修改快递</a>
+		{{# } }}
+	</div>
+</script>
+
+<!-- 发货弹窗容器 -->
+<div id="delivery_html" style="display:none;">
+	<form class="layui-form delivery-modal" lay-filter="delivery_form">
+		<input type="hidden" name="order_id" id="modal_order_id" value="" />
+		<div class="layui-form-item">
+			<label class="layui-form-label">快递公司：</label>
+			<div class="layui-input-block">
+				<input type="text" name="express_company" id="modal_express_company" placeholder="如：顺丰速运、中通快递" class="layui-input" autocomplete="off" />
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label"><span class="required">*</span>快递单号：</label>
+			<div class="layui-input-block">
+				<input type="text" name="express_no" id="modal_express_no" lay-verify="required" placeholder="请输入运单号" class="layui-input" autocomplete="off" />
+			</div>
+		</div>
+		<div class="layui-form-item" style="text-align:right; margin-top:20px;">
+			<button class="layui-btn ns-bg-color" lay-submit lay-filter="submit_delivery">确认发货</button>
+		</div>
+	</form>
+</div>
+{/block}
+
+{block name="script"}
+<script>
+	var table, form, repeat_flag = false;
+	layui.use(['form', 'layer'], function () {
+		form = layui.form;
+		var layer = layui.layer;
+
+		table = new Table({
+			elem: '#material_order_list',
+			url: ns.url("admin/material/orderList"),
+			cols: [
+				[{
+					title: '订单编号 / 时间',
+					width: '18%',
+					unresize: 'false',
+					templet: '#order_info'
+				}, {
+					field: 'site_name',
+					title: '申请商户',
+					width: '14%',
+					unresize: 'false'
+				}, {
+					field: 'type_name',
+					title: '物料品类',
+					width: '12%',
+					unresize: 'false'
+				}, {
+					title: '收件信息',
+					width: '20%',
+					unresize: 'false',
+					templet: '#receiver_info'
+				}, {
+					title: '结算费用',
+					width: '12%',
+					unresize: 'false',
+					templet: '#money_info'
+				}, {
+					title: '支付状态',
+					width: '10%',
+					unresize: 'false',
+					templet: '#pay_status_tpl'
+				}, {
+					title: '制作/发货',
+					width: '14%',
+					unresize: 'false',
+					templet: '#delivery_tpl'
+				}, {
+					title: '操作',
+					width: '10%',
+					toolbar: '#action',
+					unresize: 'false'
+				}]
+			]
+		});
+
+		// 搜索
+		form.on('submit(search)', function (data) {
+			table.reload({
+				page: { curr: 1 },
+				where: data.field
+			});
+			return false;
+		});
+
+		table.tool(function (obj) {
+			var data = obj.data;
+			switch (obj.event) {
+				case 'delivery':
+				case 'edit_delivery':
+					openDeliveryModal(data);
+					break;
+			}
+		});
+
+		function openDeliveryModal(data) {
+			$("#modal_order_id").val(data.order_id);
+			$("#modal_express_company").val(data.express_company || '顺丰速运');
+			$("#modal_express_no").val(data.express_no || '');
+
+			layer.open({
+				type: 1,
+				title: '物料制作发货录入 (订单号: ' + data.order_no + ')',
+				area: ['460px', '260px'],
+				content: $("#delivery_html").html(),
+				success: function(layero, index) {
+					form.render();
+					form.on('submit(submit_delivery)', function(d) {
+						if (repeat_flag) return false;
+						repeat_flag = true;
+						$.ajax({
+							url: ns.url("admin/material/delivery"),
+							data: d.field,
+							dataType: 'JSON',
+							type: 'POST',
+							success: function(res) {
+								repeat_flag = false;
+								layer.msg(res.message);
+								if (res.code >= 0) {
+									layer.close(index);
+									table.reload();
+								}
+							},
+							error: function() {
+								repeat_flag = false;
+								layer.msg('操作失败，请重试');
+							}
+						});
+						return false;
+					});
+				}
+			});
+		}
+	});
+</script>
+{/block}

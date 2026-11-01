@@ -138,21 +138,32 @@ class MemberLevelSettlement extends BaseModel
      * @param int $shop_id
      * @param float $custom_price
      * @param int $buy_member_id
+     * @param bool $is_free_quota 是否属于商户免抽佣配额 (免平台扣费，收益100%归商户)
      * @return array
      */
-    public function calculateCustomPartnerSettlement($order_id, $shop_id, $custom_price, $buy_member_id)
+    public function calculateCustomPartnerSettlement($order_id, $shop_id, $custom_price, $buy_member_id, $is_free_quota = false)
     {
         $order_info = Db::name('member_level_order')->where('order_id', $order_id)->find();
         $buy_member = Db::name('member')->where('member_id', $buy_member_id)->find();
         $shop = Db::name('shop')->where('site_id', $shop_id)->find();
         $website_id = $shop['website_id'] ?? ($buy_member['website_id'] ?? 0);
 
-        $reward_config = Db::name('reward_config')->where('id', 1)->find();
-        $shop_rate = !empty($reward_config['custom_partner_shop_rate']) ? floatval($reward_config['custom_partner_shop_rate']) : 50.00;
-        $city_rate = !empty($reward_config['custom_partner_city_rate']) ? floatval($reward_config['custom_partner_city_rate']) : 50.00;
-
-        $shop_money = round($custom_price * $shop_rate / 100, 2);
-        $city_money = round($custom_price * $city_rate / 100, 2);
+        if ($is_free_quota) {
+            // 免扣费名额：100%归主理人，不扣平台/城市分佣
+            $shop_rate = 100.00;
+            $city_rate = 0.00;
+            $shop_money = round($custom_price, 2);
+            $city_money = 0.00;
+            $remark = '老板开通合伙人(免扣费名额特权)';
+        } else {
+            // 恢复常规分佣
+            $reward_config = Db::name('reward_config')->where('id', 1)->find();
+            $shop_rate = !empty($reward_config['custom_partner_shop_rate']) ? floatval($reward_config['custom_partner_shop_rate']) : 50.00;
+            $city_rate = !empty($reward_config['custom_partner_city_rate']) ? floatval($reward_config['custom_partner_city_rate']) : 50.00;
+            $shop_money = round($custom_price * $shop_rate / 100, 2);
+            $city_money = round($custom_price * $city_rate / 100, 2);
+            $remark = '老板开通合伙人主理人分成';
+        }
 
         Db::startTrans();
         try {
@@ -184,7 +195,7 @@ class MemberLevelSettlement extends BaseModel
 
             if ($shop_id > 0 && $shop_money > 0) {
                 $shop_account = new ShopAccount();
-                $shop_account->addShopAccount($shop_id, 'account', $shop_money, 'member_level', $order_id, '老板开通合伙人主理人分成');
+                $shop_account->addShopAccount($shop_id, 'account', $shop_money, 'member_level', $order_id, $remark);
             }
             if ($website_id > 0 && $city_money > 0) {
                 $website_model = new WebSiteModel();

@@ -1,0 +1,162 @@
+{extend name="base"/}
+{block name="resources"}
+<style>
+	.ns-form {margin-top: 0;}
+	.upload-img-block {
+		width: 120px;
+		height: 120px;
+		border: 1px dashed #e2e2e2;
+		border-radius: 4px;
+		cursor: pointer;
+		position: relative;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: #fafafa;
+	}
+	.upload-img-block img {
+		max-width: 100%;
+		max-height: 100%;
+	}
+</style>
+{/block}
+
+{block name="main"}
+<div class="layui-form ns-form">
+	<input type="hidden" name="type_id" value="{$info.type_id ?? 0}" />
+
+	<div class="layui-form-item">
+		<label class="layui-form-label"><span class="required">*</span>物料品类名称：</label>
+		<div class="layui-input-block">
+			<input type="text" name="type_name" value="{$info.type_name ?? ''}" lay-verify="required" placeholder="如：亚克力立牌台卡、收银贴、易拉宝展架海报" class="layui-input ns-len-long" autocomplete="off" />
+		</div>
+		<div class="ns-word-aux">商家端申请物料时显示的品类名称</div>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label">材质与规格描述：</label>
+		<div class="layui-input-block">
+			<input type="text" name="material_spec" value="{$info.material_spec ?? ''}" placeholder="如：150mm*210mm 加厚高透亚克力材质，带木质底座" class="layui-input ns-len-long" autocomplete="off" />
+		</div>
+		<div class="ns-word-aux">详细标注物料制作的材质、厚度、尺寸及配件说明</div>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label">物料样品图：</label>
+		<div class="layui-input-block">
+			<div class="upload-img-block" id="sampleUpload">
+				{notempty name="$info.sample_image"}
+				<img id="samplePreview" src="{:img($info.sample_image)}" />
+				{else/}
+				<div id="samplePreview" style="color: #999; text-align: center;">
+					<i class="layui-icon layui-icon-upload" style="font-size: 30px;"></i>
+					<p style="font-size: 12px;">上传样品图</p>
+				</div>
+				{/notempty}
+			</div>
+			<input type="hidden" name="sample_image" id="sample_image" value="{$info.sample_image ?? ''}" />
+		</div>
+		<div class="ns-word-aux">建议上传 1:1 或 3:4 比例的高清实物渲染图或实拍图</div>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label"><span class="required">*</span>工本费（元）：</label>
+		<div class="layui-input-block">
+			<div class="layui-input-inline">
+				<input type="number" step="0.01" min="0" name="cost_price" value="{$info.cost_price ?? 0}" lay-verify="required" placeholder="0.00" class="layui-input ns-len-short" autocomplete="off" />
+			</div>
+			<div class="layui-form-mid">元</div>
+		</div>
+		<div class="ns-word-aux"><strong style="color:#ff4d4f;">首次申领免费</strong>，此费用为商户后续重复申领/补发时收取的制作工本费。设置为 0 则代表永久免工本费。</div>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label"><span class="required">*</span>快递运费（元）：</label>
+		<div class="layui-input-block">
+			<div class="layui-input-inline">
+				<input type="number" step="0.01" min="0" name="shipping_fee" value="{$info.shipping_fee ?? 0}" lay-verify="required" placeholder="0.00" class="layui-input ns-len-short" autocomplete="off" />
+			</div>
+			<div class="layui-form-mid">元</div>
+		</div>
+		<div class="ns-word-aux"><strong style="color:#ff4d4f;">首次申领包邮</strong>，此运费为商户后续制作申领时由平台收取的快递物流费。设置为 0 代表后续也全国包邮。</div>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label">排序号：</label>
+		<div class="layui-input-block">
+			<input type="number" name="sort" value="{$info.sort ?? 0}" class="layui-input ns-len-short" autocomplete="off" />
+		</div>
+		<div class="ns-word-aux">数值越小展示越靠前</div>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label">是否启用：</label>
+		<div class="layui-input-block">
+			<input type="checkbox" name="is_enable" value="1" lay-skin="switch" lay-text="启用|禁用" {if !isset($info.is_enable) || $info.is_enable == 1}checked{/if} />
+		</div>
+	</div>
+
+	<div class="ns-form-row">
+		<button class="layui-btn ns-bg-color" lay-submit lay-filter="save">保存物料标准</button>
+		<button class="layui-btn layui-btn-primary" onclick="back()">返回</button>
+	</div>
+</div>
+{/block}
+
+{block name="script"}
+<script>
+	layui.use(['form', 'upload'], function () {
+		var form = layui.form,
+			upload = layui.upload,
+			repeat_flag = false;
+
+		// 样品图上传
+		var uploadInst = upload.render({
+			elem: '#sampleUpload',
+			url: ns.url("admin/upload/upload"),
+			done: function (res) {
+				if (res.code >= 0) {
+					$("#sample_image").val(res.data.pic_path);
+					$("#samplePreview").replaceWith('<img id="samplePreview" src="' + ns.img(res.data.pic_path) + '" />');
+					layer.msg('图片上传成功');
+				} else {
+					layer.msg(res.message);
+				}
+			}
+		});
+
+		form.on('submit(save)', function (data) {
+			if (repeat_flag) return false;
+			repeat_flag = true;
+
+			// switch 处理
+			data.field.is_enable = data.field.is_enable ? 1 : 0;
+
+			$.ajax({
+				url: ns.url("admin/material/editType"),
+				data: data.field,
+				dataType: 'JSON',
+				type: 'POST',
+				success: function (res) {
+					repeat_flag = false;
+					layer.msg(res.message);
+					if (res.code >= 0) {
+						setTimeout(function () {
+							location.href = ns.url("admin/material/typeList");
+						}, 1000);
+					}
+				},
+				error: function () {
+					repeat_flag = false;
+					layer.msg('保存异常，请重试');
+				}
+			});
+			return false;
+		});
+	});
+
+	function back() {
+		location.href = ns.url("admin/material/typeList");
+	}
+</script>
+{/block}

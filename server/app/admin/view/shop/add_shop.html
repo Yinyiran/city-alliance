@@ -49,6 +49,33 @@
 <!--				<div class="ns-word-aux">显示的商家描述</div>-->
 			</div>
 
+			<div class="layui-form-item">
+				<label class="layui-form-label"><span class="required">*</span>店铺级别：</label>
+				<div class="layui-input-block ns-len-mid">
+					<select name="level_id" lay-filter="level_id">
+						{volist name="$shop_level_list" id="lvl"}
+						<option value="{$lvl.level_id}">{$lvl.level_name}</option>
+						{/volist}
+					</select>
+				</div>
+				<p class="ns-word-aux">入驻店铺级别(至尊店铺/金牌店铺/普通店铺)</p>
+			</div>
+
+			<div class="layui-form-item">
+				<label class="layui-form-label">合伙人免扣费名额：</label>
+				<div class="layui-input-block">
+					<input name="custom_partner_free_num" type="number" min="0" value="0" class="layui-input ns-len-short" autocomplete="off">
+				</div>
+				<p class="ns-word-aux">开通商户时设定的免抽佣合伙人数量，此数量内平台不扣费</p>
+			</div>
+
+			<div class="layui-form-item">
+				<label class="layui-form-label">汇付扫码终端号：</label>
+				<div class="layui-input-block">
+					<input name="huifu_terminal_id" type="text" placeholder="绑定汇付线下扫码小白盒/终端编号" class="layui-input ns-len-mid" autocomplete="off">
+				</div>
+			</div>
+
 			<div class="layui-form-item" style="display: none">
 				<label class="layui-form-label"><span class="required">*</span>主营行业：</label>
 				<div class="layui-input-block ns-len-mid">

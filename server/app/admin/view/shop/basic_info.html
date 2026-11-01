@@ -95,6 +95,62 @@
 	</div>
 
 	<div class="layui-form-item">
+		<label class="layui-form-label"><span class="required">*</span>店铺级别：</label>
+		<div class="layui-input-block ns-len-mid">
+			<select name="level_id" lay-filter="level_id">
+				{volist name="$shop_level_list" id="lvl"}
+				<option value="{$lvl.level_id}" {if condition="$shop_info.level_id == $lvl.level_id"}selected{/if}>{$lvl.level_name}</option>
+				{/volist}
+			</select>
+		</div>
+		<p class="ns-word-aux">店铺级别决定合伙人上限(至尊50人/金牌10人/普通2人)与短视频限额</p>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label">合伙人免扣费名额：</label>
+		<div class="layui-input-block">
+			<input name="custom_partner_free_num" type="number" min="0" value="{$shop_info.custom_partner_free_num|default=0}" class="layui-input ns-len-short" autocomplete="off">
+		</div>
+		<p class="ns-word-aux">商户创建合伙人时，该名额数量内不进行平台扣费，收益100%结算给商户</p>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label">汇付扫码终端号：</label>
+		<div class="layui-input-block">
+			<input name="huifu_terminal_id" type="text" value="{$shop_info.huifu_terminal_id|default=''}" placeholder="绑定汇付线下扫码小白盒/终端编号" class="layui-input ns-len-mid" autocomplete="off">
+		</div>
+		<p class="ns-word-aux">用于汇付收银盒子终端识别与对账</p>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label">支付后跳转小程序AppId：</label>
+		<div class="layui-input-block">
+			<input name="pay_redirect_appid" type="text" value="{$shop_info.pay_redirect_appid|default=''}" placeholder="如需跳转独立小程序请填写其AppId" class="layui-input ns-len-long" autocomplete="off">
+		</div>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label">支付后跳转页面路径：</label>
+		<div class="layui-input-block">
+			<input name="pay_redirect_path" type="text" value="{$shop_info.pay_redirect_path|default=''}" placeholder="例如: pages/index/index?site_id={$shop_info.site_id}" class="layui-input ns-len-long" autocomplete="off">
+		</div>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label">支付后广告宣传图：</label>
+		<div class="layui-input-block">
+			<input name="pay_ad_img" type="text" value="{$shop_info.pay_ad_img|default=''}" placeholder="广告宣传图图片URL或路径" class="layui-input ns-len-long" autocomplete="off">
+		</div>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label">广告跳转链接：</label>
+		<div class="layui-input-block">
+			<input name="pay_ad_url" type="text" value="{$shop_info.pay_ad_url|default=''}" placeholder="点击广告后的跳转链接或小程序路径" class="layui-input ns-len-long" autocomplete="off">
+		</div>
+	</div>
+
+	<div class="layui-form-item">
 		<label class="layui-form-label">商家描述：</label>
 		<div class="layui-input-block">
 			<input name="store_desc" value="{$info.store_desc}" type="text" lay-verify="" class="layui-input ns-len-long" autocomplete="off">

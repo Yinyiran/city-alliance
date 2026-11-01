@@ -606,15 +606,12 @@ class Store extends BaseModel
 
             // 累计销量及商家扩展信息（带字段自愈与兼容降级，防止数据库未执行迁移报错）
             $base_shop_fields = 'site_name,shop_sales,logo,avatar,telephone,workingtime,qq,ww';
+            $ext_fields = ',wecom_group_url,pay_redirect_appid,pay_redirect_path,pay_ad_img,pay_ad_url';
             try {
-                $shop_info = model('shop')->getInfo([['site_id', '=', $result['site_id']]], $base_shop_fields . ',wecom_group_url');
+                $shop_info = model('shop')->getInfo([['site_id', '=', $result['site_id']]], $base_shop_fields . $ext_fields);
             } catch (\Exception $e) {
-                // 如果数据库尚未添加 wecom_group_url 字段，降级查询基础字段，并自动尝试补全数据库表结构
+                // 如果数据库尚未添加扩展字段，降级查询基础字段
                 $shop_info = model('shop')->getInfo([['site_id', '=', $result['site_id']]], $base_shop_fields);
-                try {
-                    $prefix = config('database.connections.mysql.prefix');
-                    \think\facade\Db::execute("ALTER TABLE `{$prefix}shop` ADD COLUMN `wecom_group_url` varchar(500) NOT NULL DEFAULT '' COMMENT '企微群URL'");
-                } catch (\Exception $e2) {}
             }
             $result['total_sales'] = max(intval($shop_info['shop_sales'] ?? 0), intval($result['order_num'] ?? 0));
             if (!empty($shop_info['logo'])) {
@@ -629,6 +626,10 @@ class Store extends BaseModel
             if (!empty($shop_info['telephone']) && empty($result['telphone'])) {
                 $result['telphone'] = $shop_info['telephone'];
             }
+            $result['pay_redirect_appid'] = $shop_info['pay_redirect_appid'] ?? '';
+            $result['pay_redirect_path'] = $shop_info['pay_redirect_path'] ?? '';
+            $result['pay_ad_img'] = $shop_info['pay_ad_img'] ?? '';
+            $result['pay_ad_url'] = $shop_info['pay_ad_url'] ?? '';
 
             // 品牌专属粉丝群配置（支持每个品牌独立配置企业微信群）
             $config_model = new \app\model\system\Config();

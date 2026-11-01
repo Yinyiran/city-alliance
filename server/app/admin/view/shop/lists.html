@@ -237,6 +237,17 @@
 					</div>
 				</div>
 				<div class="layui-inline">
+					<label class="layui-form-label">店铺级别：</label>
+					<div class="layui-input-inline">
+						<select name="level_id" lay-filter="level_id">
+							<option value="">全部级别</option>
+							{volist name="$shop_level_list" id="level"}
+							<option value="{$level.level_id}">{$level.level_name}</option>
+							{/volist}
+						</select>
+					</div>
+				</div>
+				<div class="layui-inline">
 					<label class="layui-form-label">开店套餐：</label>
 					<div class="layui-input-inline">
 						<select name="group_id" lay-filter="group_id">
@@ -479,6 +490,21 @@
 					width: '10%',
 					unresize: 'false'
 				},*/
+					{
+						field: 'level_name',
+						title: '店铺级别',
+						width: '9%',
+						unresize: 'false',
+						templet: function (data) {
+							if (data.level_id == 3) {
+								return '<span class="layui-badge" style="background:#722ed1;">至尊店铺</span>';
+							} else if (data.level_id == 2) {
+								return '<span class="layui-badge layui-bg-orange">金牌店铺</span>';
+							} else {
+								return '<span class="layui-badge layui-bg-blue">普通店铺</span>';
+							}
+						}
+					},
 					{
 						field: 'category_name',
 						title: '主营行业',
