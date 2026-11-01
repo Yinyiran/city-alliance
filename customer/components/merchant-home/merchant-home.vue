@@ -75,10 +75,9 @@
 					</view>
 				</view>
 
-				<!-- 切换门店按钮（若有多门店且是Tab模式） -->
-				<view class="switch-store-btn" v-if="isTab && storeList.length > 1" @click="openStoreSelect">
-					<image src="/static/icon5.png" class="switch-icon" mode=""></image>
-					<text>换店({{ storeList.length }})</text>
+				<!-- 收付款快捷入口（功能与 pages/my/my 的 付款 一致） -->
+				<view class="quick-pay-btn" hover-class="quick-pay-btn-hover" :hover-stay-time="100" @click="toQuickPay">
+					<image src="/static/shoufukuan.png" class="quick-pay-img" mode="aspectFill"></image>
 				</view>
 			</view>
 
@@ -998,6 +997,30 @@ export default {
 			}
 		},
 
+		// 跳转快捷收付款页面（功能与 pages/my/my 的 付款 一致）
+		toQuickPay() {
+			let siteId = (this.sinfo && this.sinfo.site_id) || this.activeSiteId || uni.getStorageSync('selected_site_id') || uni.getStorageSync('site_id') || '';
+			if (this.sinfo && this.sinfo.site_id) {
+				uni.setStorageSync('selected_site_id', this.sinfo.site_id);
+				uni.setStorageSync('index_shop_info', {
+					site_id: this.sinfo.site_id,
+					site_name: this.sinfo.site_name || this.sinfo.store_name,
+					store_id: this.sinfo.store_id || '',
+					store_name: this.sinfo.store_name || this.sinfo.site_name,
+					logo: this.sinfo.store_logo || this.sinfo.store_image || this.sinfo.shop_logo || '',
+					avatar: this.sinfo.store_logo || this.sinfo.store_image || this.sinfo.shop_logo || '',
+					address: this.sinfo.address || this.sinfo.full_address || ''
+				});
+			}
+			let url = '/otherpages/quickPay/quickPay';
+			if (siteId) {
+				url += '?site_id=' + siteId;
+			}
+			uni.navigateTo({
+				url: url
+			});
+		},
+
 		// 打开换店弹窗
 		openStoreSelect() {
 			if (this.storeList.length <= 1) {
@@ -1370,6 +1393,36 @@ export default {
 						flex: 1;
 					}
 				}
+			}
+		}
+
+		.quick-pay-btn {
+			width: 70rpx;
+			height: 70rpx;
+			border-radius: 16rpx;
+			overflow: hidden;
+			margin-left: 16rpx;
+			flex-shrink: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			position: relative;
+			box-sizing: border-box;
+			border: 2rpx solid rgba(255, 255, 255, 0.95);
+			box-shadow: 0 6rpx 16rpx rgba(235, 50, 35, 0.32), 0 2rpx 6rpx rgba(0, 0, 0, 0.08);
+			transition: all 0.15s ease-in-out;
+
+			&.quick-pay-btn-hover,
+			&:active {
+				transform: translateY(2rpx) scale(0.92);
+				box-shadow: 0 2rpx 8rpx rgba(235, 50, 35, 0.22);
+				opacity: 0.92;
+			}
+
+			.quick-pay-img {
+				width: 100%;
+				height: 100%;
+				display: block;
 			}
 		}
 

@@ -297,15 +297,15 @@ class Ordercreate extends BaseApi
             return $this->response($this->error('', '商家已暂停营业'));
         }
 
-        // 获取门店信息（若未指定则取该店铺的默认门店）
+        // 获取门店信息（若未指定则取该店铺的正常营业门店）
         $store_info = [];
         if ($store_id > 0) {
             $store_info = model('store')->getInfo([ [ 'store_id', '=', $store_id ], [ 'site_id', '=', $site_id ] ], 'store_id, store_name, address, full_address, telphone') ?: [];
         }
         if (empty($store_info)) {
-            $store_info = model('store')->getInfo([ [ 'site_id', '=', $site_id ], [ 'is_default', '=', 1 ] ], 'store_id, store_name, address, full_address, telphone') ?: [];
+            $store_info = model('store')->getInfo([ [ 'site_id', '=', $site_id ], [ 'status', '=', 1 ], [ 'is_frozen', '=', 0 ] ], 'store_id, store_name, address, full_address, telphone', 'store_id asc') ?: [];
             if (empty($store_info)) {
-                $store_info = model('store')->getInfo([ [ 'site_id', '=', $site_id ] ], 'store_id, store_name, address, full_address, telphone') ?: [];
+                $store_info = model('store')->getInfo([ [ 'site_id', '=', $site_id ] ], 'store_id, store_name, address, full_address, telphone', 'store_id asc') ?: [];
             }
         }
 

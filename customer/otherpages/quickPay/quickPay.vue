@@ -2,15 +2,6 @@
 	<view class="quick-pay-page">
 		<nvabar type="1" title="向商家付款" titleStyle="color:#222"></nvabar>
 
-		<view class="top-nav-action acea-row row-middle row-between">
-			<view class="safe-tag acea-row row-middle">
-			</view>
-			<view class="record-btn acea-row row-middle" @click="goToRecords">
-				<uv-icon name="order" color="#F55606" size="14"></uv-icon>
-				<text class="m-l-6 font-24 font-weight-6" style="color: #F55606;">付款明细</text>
-			</view>
-		</view>
-
 		<view class="main-card">
 			<!-- 商家信息卡片 -->
 			<view class="shop-box acea-row row-middle row-between" @click="openStoreSelect">
@@ -57,23 +48,10 @@
 						<uv-icon name="close-circle-fill" color="#c0c4cc" size="20"></uv-icon>
 					</view>
 				</view>
-
-				<!-- 快捷金额选择 -->
-				<view class="quick-amounts acea-row row-middle">
-					<view
-						class="quick-tag"
-						:class="{ active: amount == item }"
-						v-for="(item, idx) in quickList"
-						:key="idx"
-						@click="selectQuick(item)"
-					>
-						￥{{ item }}
-					</view>
-				</view>
 			</view>
 
 			<!-- 备注输入 -->
-			<view class="remark-box m-t-32">
+			<view class="remark-box m-t-36">
 				<input
 					type="text"
 					class="remark-input"
@@ -93,6 +71,15 @@
 				>
 					{{ paying ? '正在调起微信支付...' : (amount ? `确认付款 ￥${Number(amount).toFixed(2)}` : '请输入金额付款') }}
 				</button>
+			</view>
+		</view>
+
+		<!-- 页面最下方：付款明细入口 -->
+		<view class="bottom-record-wrap acea-row row-middle row-center" @click="goToRecords">
+			<view class="record-btn acea-row row-middle">
+				<uv-icon name="order" color="#F55606" size="14"></uv-icon>
+				<text class="m-l-6 font-24 font-weight-6" style="color: #F55606;">付款明细</text>
+				<uv-icon name="arrow-right" color="#F55606" size="12" class="m-l-4"></uv-icon>
 			</view>
 		</view>
 
@@ -182,7 +169,6 @@ export default {
 			remark: '',
 			paying: false,
 			autoFocus: true,
-			quickList: [10, 20, 50, 100, 200, 500],
 			shopList: [],
 			filteredShopList: [],
 			searchKeyword: '',
@@ -326,9 +312,6 @@ export default {
 				}
 			}
 		},
-		selectQuick(val) {
-			this.amount = String(val);
-		},
 		openStoreSelect() {
 			this.searchKeyword = '';
 			this.filteredShopList = this.shopList;
@@ -385,6 +368,7 @@ export default {
 
 			const params = {
 				site_id: this.selectedShop.site_id,
+				store_id: this.selectedShop.store_id || 0,
 				amount: amt.toFixed(2),
 				remark: this.remark || ''
 			};
@@ -457,30 +441,33 @@ export default {
 .quick-pay-page {
 	min-height: 100vh;
 	background: #f7f8fa;
-	padding-bottom: 60rpx;
-}
-
-.top-nav-action {
-	padding: 24rpx 32rpx 12rpx 32rpx;
-
-	.safe-tag {
-		font-size: 22rpx;
-		color: #555;
-	}
-
-	.record-btn {
-		background: #FFF0E6;
-		padding: 10rpx 20rpx;
-		border-radius: 24rpx;
-	}
+	display: flex;
+	flex-direction: column;
+	box-sizing: border-box;
 }
 
 .main-card {
-	margin: 20rpx 32rpx;
+	margin: 28rpx 32rpx 20rpx 32rpx;
 	background: #ffffff;
 	border-radius: 24rpx;
 	padding: 32rpx;
 	box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04);
+}
+
+.bottom-record-wrap {
+	margin-top: auto;
+	padding: 40rpx 0 80rpx 0;
+
+	.record-btn {
+		background: #FFF0E6;
+		padding: 12rpx 28rpx;
+		border-radius: 32rpx;
+
+		&:active {
+			opacity: 0.8;
+			transform: scale(0.98);
+		}
+	}
 }
 
 .shop-box {
@@ -548,29 +535,6 @@ export default {
 
 		.clear-icon {
 			padding: 10rpx;
-		}
-	}
-
-	.quick-amounts {
-		margin-top: 24rpx;
-		flex-wrap: wrap;
-
-		.quick-tag {
-			padding: 12rpx 28rpx;
-			background: #f5f5f5;
-			border-radius: 28rpx;
-			font-size: 26rpx;
-			color: #555;
-			margin-right: 16rpx;
-			margin-bottom: 16rpx;
-			transition: all 0.2s;
-
-			&.active {
-				background: #FFF0E6;
-				color: #F55606;
-				font-weight: 600;
-				border: 1rpx solid #F55606;
-			}
 		}
 	}
 }
