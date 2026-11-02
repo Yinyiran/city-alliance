@@ -9,6 +9,18 @@
 		height: 48px;
 		object-fit: cover;
 		border-radius: 4px;
+		border: 1px solid #f0f0f0;
+		background: #fff;
+		vertical-align: middle;
+	}
+	.material-img.default-icon-img {
+		object-fit: contain;
+		padding: 8px;
+		background: #f7f8fa;
+		box-sizing: border-box;
+	}
+	.material-default-wrap {
+		display: inline-block;
 	}
 </style>
 {/block}
@@ -24,7 +36,7 @@
 </div>
 
 <div class="ns-single-filter-box">
-	<button class="layui-btn ns-bg-color" onclick="addType()">添加物料品类</button>
+	<a class="layui-btn ns-bg-color" href="{:addon_url('admin/material/editType')}" onclick="addType(); return false;">添加物料品类</a>
 </div>
 
 <table id="material_type_list" lay-filter="material_type_list"></table>
@@ -32,9 +44,11 @@
 <!-- 样品图片 -->
 <script type="text/html" id="sample_img">
 	{{# if(d.sample_image){ }}
-		<img src="{{ ns.img(d.sample_image) }}" class="material-img" layer-src="{{ ns.img(d.sample_image) }}" />
+		<img src="{{ ns.img(d.sample_image) }}" class="material-img" layer-src="{{ ns.img(d.sample_image) }}" onerror="this.onerror=null; this.src='ADMIN_IMG/upload_img.png'; $(this).addClass('default-icon-img');" />
 	{{# }else{ }}
-		<span style="color:#999;">无图片</span>
+		<div class="material-default-wrap" title="默认物料icon">
+			<img src="ADMIN_IMG/upload_img.png" class="material-img default-icon-img" />
+		</div>
 	{{# } }}
 </script>
 
@@ -55,8 +69,8 @@
 <!-- 操作 -->
 <script type="text/html" id="action">
 	<div class="ns-table-btn">
-		<a class="layui-btn" lay-event="edit">编辑标准</a>
-		<a class="layui-btn" lay-event="del">删除</a>
+		<a class="layui-btn" href="{{ ns.url('admin/material/editType?type_id=' + d.type_id) }}" lay-event="edit">编辑标准</a>
+		<a class="layui-btn" href="javascript:;" lay-event="del" onclick="deleteType({{ d.type_id }}); return false;">删除</a>
 	</div>
 </script>
 {/block}
@@ -64,6 +78,34 @@
 {block name="script"}
 <script>
 	var table, repeat_flag = false;
+
+	function deleteType(type_id) {
+		layer.confirm('确定要删除该物料品类配置吗？', function () {
+			if (repeat_flag) return;
+			repeat_flag = true;
+			$.ajax({
+				url: ns.url("admin/material/deleteType"),
+				data: { type_id: type_id },
+				dataType: 'JSON',
+				type: 'POST',
+				success: function (res) {
+					repeat_flag = false;
+					layer.msg(res.message);
+					if (res.code >= 0) {
+						table.reload();
+					}
+				},
+				error: function() {
+					repeat_flag = false;
+				}
+			});
+		});
+	}
+
+	function addType() {
+		location.href = ns.url("admin/material/editType");
+	}
+
 	layui.use(['form', 'layer'], function () {
 		var form = layui.form,
 			layer = layui.layer;
@@ -121,7 +163,8 @@
 					templet: '#is_enable'
 				}, {
 					title: '操作',
-					width: '10%',
+					width: '12%',
+					minWidth: 140,
 					toolbar: '#action',
 					unresize: 'false'
 				}]
@@ -132,37 +175,13 @@
 			var data = obj.data;
 			switch (obj.event) {
 				case 'edit':
-					location.href = ns.url("admin/material/editType", { type_id: data.type_id });
+					location.href = ns.url("admin/material/editType?type_id=" + data.type_id);
 					break;
 				case 'del':
 					deleteType(data.type_id);
 					break;
 			}
 		});
-
-		function deleteType(type_id) {
-			layer.confirm('确定要删除该物料品类配置吗？', function () {
-				if (repeat_flag) return;
-				repeat_flag = true;
-				$.ajax({
-					url: ns.url("admin/material/deleteType"),
-					data: { type_id: type_id },
-					dataType: 'JSON',
-					type: 'POST',
-					success: function (res) {
-						repeat_flag = false;
-						layer.msg(res.message);
-						if (res.code >= 0) {
-							table.reload();
-						}
-					}
-				});
-			});
-		}
 	});
-
-	function addType() {
-		location.href = ns.url("admin/material/editType");
-	}
 </script>
 {/block}

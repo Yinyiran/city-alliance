@@ -44,13 +44,13 @@
 	<div class="layui-form-item">
 		<label class="layui-form-label">物料样品图：</label>
 		<div class="layui-input-block">
-			<div class="upload-img-block" id="sampleUpload">
+			<div class="upload-img-block" id="sampleUpload" title="点击上传样品图">
 				{notempty name="$info.sample_image"}
-				<img id="samplePreview" src="{:img($info.sample_image)}" />
+				<img id="samplePreview" src="{:img($info.sample_image)}" onerror="this.src='ADMIN_IMG/upload_img.png'; this.onerror=null;" />
 				{else/}
 				<div id="samplePreview" style="color: #999; text-align: center;">
-					<i class="layui-icon layui-icon-upload" style="font-size: 30px;"></i>
-					<p style="font-size: 12px;">上传样品图</p>
+					<img src="ADMIN_IMG/upload_img.png" style="width: 36px; height: 36px; margin-bottom: 6px;" />
+					<p style="font-size: 12px; color: #999;">点击上传样品图</p>
 				</div>
 				{/notempty}
 			</div>

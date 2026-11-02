@@ -41,9 +41,9 @@ CREATE TABLE `shop_material_type` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='官方物料品类与收费标准配置表';
 
 INSERT INTO `shop_material_type` (`type_id`, `type_name`, `material_spec`, `sample_image`, `cost_price`, `shipping_fee`, `is_enable`, `sort`, `create_time`) VALUES
-(1, '亚克力立牌台卡 (T型)', '150mm×200mm 双面加厚亚克力', '/upload/material/taika.png', 18.00, 6.00, 1, 1, UNIX_TIMESTAMP()),
-(2, '收银台高质感扫码贴', '120mm×160mm 防水防油PVC水晶覆膜', '/upload/material/tiezhi.png', 8.00, 5.00, 1, 2, UNIX_TIMESTAMP()),
-(3, '门市易拉宝/展架海报', '800mm×2000mm 铝合金展架+高清相纸', '/upload/material/zhanjia.png', 45.00, 10.00, 1, 3, UNIX_TIMESTAMP());
+(1, '亚克力立牌台卡 (T型)', '150mm×200mm 双面加厚亚克力', '', 18.00, 6.00, 1, 1, UNIX_TIMESTAMP()),
+(2, '收银台高质感扫码贴', '120mm×160mm 防水防油PVC水晶覆膜', '', 8.00, 5.00, 1, 2, UNIX_TIMESTAMP()),
+(3, '门市易拉宝/展架海报', '800mm×2000mm 铝合金展架+高清相纸', '', 45.00, 10.00, 1, 3, UNIX_TIMESTAMP());
 
 -- 3. 扩充商户主表 (shop)
 ALTER TABLE `shop` 

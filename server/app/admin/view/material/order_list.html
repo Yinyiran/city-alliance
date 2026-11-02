@@ -127,9 +127,9 @@
 <script type="text/html" id="action">
 	<div class="ns-table-btn">
 		{{# if(d.delivery_status == 0 && (d.pay_status == 1 || d.is_first_free == 1)){ }}
-			<a class="layui-btn ns-bg-color" lay-event="delivery">发货制作</a>
+			<a href="javascript:;" class="layui-btn ns-bg-color" lay-event="delivery">发货制作</a>
 		{{# }else if(d.delivery_status == 1){ }}
-			<a class="layui-btn layui-btn-primary" lay-event="edit_delivery">修改快递</a>
+			<a href="javascript:;" class="layui-btn layui-btn-primary" lay-event="edit_delivery">修改快递</a>
 		{{# } }}
 	</div>
 </script>
