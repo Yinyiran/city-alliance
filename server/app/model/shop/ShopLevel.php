@@ -31,9 +31,16 @@ class ShopLevel extends BaseModel
      */
     public function editLevel($data)
     {
-        $res = model('shop_level')->update($data, [ 'level_id', '=', $data[ 'level_id' ] ]);
-        //修改对应店铺
-        model('shop')->update([ 'level_name' => $data[ 'level_name' ] ], [ 'level_id', '=', $data[ 'level_id' ] ]);
+        $level_id = $data['level_id'] ?? 0;
+        if (empty($level_id)) {
+            return $this->error('', '缺少级别ID');
+        }
+        $condition = [ [ 'level_id', '=', $level_id ] ];
+        $res = model('shop_level')->update($data, $condition);
+        // 如果修改了等级名称，同步修改对应店铺
+        if (!empty($data['level_name'])) {
+            model('shop')->update([ 'level_name' => $data['level_name'] ], $condition);
+        }
         Cache::tag("shop_level")->clear();
         return $this->success($res);
     }

@@ -1280,6 +1280,7 @@ import ShopSelectPopup from "@/components/shop-select-popup/shop-select-popup.vu
 			}
 
 			.shop-title-text {
+				flex:1;
 				font-size: 30rpx;
 				font-weight: 700;
 				color: #FFFFFF;

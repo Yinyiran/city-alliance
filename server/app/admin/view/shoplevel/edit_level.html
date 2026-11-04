@@ -1,9 +1,260 @@
 {extend name="base"/}
 {block name="resources"}
+<style>
+	.ns-form {margin-top: 0;}
+	.layui-input-inline {
+		display: inline-block;
+		vertical-align: middle;
+	}
+	.layui-form-mid {
+		display: inline-block;
+		vertical-align: middle;
+		float: none;
+		margin-left: 5px;
+	}
+</style>
 {/block}
+
 {block name="main"}
+<div class="layui-form ns-form">
+	<!-- 基础与价格信息 -->
+	<div class="layui-card ns-card-common ns-card-brief">
+		<div class="layui-card-header">
+			<span class="ns-card-title">等级与价格配置</span>
+		</div>
+		<div class="layui-card-body">
+			<div class="layui-form-item">
+				<label class="layui-form-label"><span class="required">*</span>等级名称：</label>
+				<div class="layui-input-block">
+					<input name="level_name" type="text" lay-verify="required" class="layui-input ns-len-long" value="{$level_info.data.level_name}" autocomplete="off" placeholder="例如：普通店铺、金牌店铺、至尊店铺">
+				</div>
+			</div>
+
+			<div class="layui-form-item">
+				<label class="layui-form-label"><span class="required">*</span>价格：</label>
+				<div class="layui-input-block">
+					<div class="layui-input-inline">
+						<input type="number" step="0.01" min="0" name="price" value="{$level_info.data.price}" lay-verify="price" autocomplete="off" class="layui-input ns-len-short" placeholder="0.00">
+					</div>
+					<span class="layui-form-mid">元</span>
+				</div>
+				<div class="ns-word-aux">
+					<p>商家购买或升级至该等级所需的支付金额。可保留两位小数，设为 0 表示免费。</p>
+				</div>
+			</div>
+
+			<div class="layui-form-item">
+				<label class="layui-form-label">有效期限：</label>
+				<div class="layui-input-block">
+					<input type="radio" name="validity_type" value="1" title="固定年限" lay-filter="validity_type" {if condition="$level_info.data.validity_type == 1"}checked{/if}>
+					<input type="radio" name="validity_type" value="2" title="永久有效" lay-filter="validity_type" {if condition="$level_info.data.validity_type == 2"}checked{/if}>
+				</div>
+			</div>
+
+			<div class="layui-form-item" id="validity_years_box" {if condition="$level_info.data.validity_type == 2"}style="display:none;"{/if}>
+				<label class="layui-form-label"><span class="required">*</span>有效年限：</label>
+				<div class="layui-input-block">
+					<div class="layui-input-inline">
+						<input type="number" min="1" step="1" name="validity_years" value="{$level_info.data.validity_years ?: 1}" autocomplete="off" class="layui-input ns-len-short">
+					</div>
+					<span class="layui-form-mid">年</span>
+				</div>
+				<div class="ns-word-aux">
+					<p>自购买或升级之日起的有效年数，例如 1 年、3 年。</p>
+				</div>
+			</div>
+
+			<div class="layui-form-item">
+				<label class="layui-form-label">排序：</label>
+				<div class="layui-input-block">
+					<input type="number" name="sort" class="layui-input ns-len-short" lay-verify="sort" value="{$level_info.data.sort ?: 0}" autocomplete="off">
+				</div>
+				<div class="ns-word-aux">
+					<p>排序值必须为整数；数值越小越靠前</p>
+				</div>
+			</div>
+
+			<div class="layui-form-item">
+				<label class="layui-form-label">状态：</label>
+				<div class="layui-input-block">
+					<input type="checkbox" name="status" value="1" lay-skin="switch" lay-text="启用|禁用" {if condition="$level_info.data.status == 1"}checked{/if}>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- 经营权益配置 -->
+	<div class="layui-card ns-card-common ns-card-brief">
+		<div class="layui-card-header">
+			<span class="ns-card-title">经营权益配置</span>
+		</div>
+		<div class="layui-card-body">
+			<div class="layui-form-item">
+				<label class="layui-form-label">合伙人上限：</label>
+				<div class="layui-input-block">
+					<div class="layui-input-inline">
+						<input type="number" min="0" step="1" name="max_partner_count" value="{$level_info.data.max_partner_count ?: 0}" autocomplete="off" class="layui-input ns-len-short">
+					</div>
+					<span class="layui-form-mid">人</span>
+				</div>
+				<div class="ns-word-aux">
+					<p>该等级店铺允许添加绑定的合伙人最大数量上限</p>
+				</div>
+			</div>
+
+			<div class="layui-form-item">
+				<label class="layui-form-label">合伙人免费额度：</label>
+				<div class="layui-input-block">
+					<div class="layui-input-inline">
+						<input type="number" min="0" step="1" name="free_partner_count" value="{$level_info.data.free_partner_count ?: 0}" autocomplete="off" class="layui-input ns-len-short">
+					</div>
+					<span class="layui-form-mid">个</span>
+				</div>
+				<div class="ns-word-aux">
+					<p>该等级店铺享有的免抽佣合伙人名额，名额内100%收益归门店且支持0元/自定义金额开通</p>
+				</div>
+			</div>
+
+			<div class="layui-form-item">
+				<label class="layui-form-label"><span class="required">*</span>合伙人开通费用：</label>
+				<div class="layui-input-block">
+					<div class="layui-input-inline">
+						<input type="number" step="0.01" min="0" name="partner_open_fee" value="{$level_info.data.partner_open_fee ?: 50.00}" lay-verify="open_fee" autocomplete="off" class="layui-input ns-len-short">
+					</div>
+					<span class="layui-form-mid">元</span>
+				</div>
+				<div class="ns-word-aux">
+					<p>免抽佣名额用完后，开通合伙人的标准费用（原最低门槛，单位：元）</p>
+				</div>
+			</div>
+
+			<div class="layui-form-item">
+				<label class="layui-form-label">短视频数量：</label>
+				<div class="layui-input-block">
+					<div class="layui-input-inline">
+						<input type="number" step="1" name="max_video_count" value="{$level_info.data.max_video_count}" autocomplete="off" class="layui-input ns-len-short">
+					</div>
+					<span class="layui-form-mid">条</span>
+				</div>
+				<div class="ns-word-aux">
+					<p>短视频发布数量上限；输入 -1 表示无限制</p>
+				</div>
+			</div>
+
+			<div class="layui-form-item">
+				<label class="layui-form-label">赠送底池积分：</label>
+				<div class="layui-input-block">
+					<div class="layui-input-inline">
+						<input type="number" min="0" step="1" name="base_points" value="{$level_info.data.base_points ?: 0}" autocomplete="off" class="layui-input ns-len-short">
+					</div>
+					<span class="layui-form-mid">积分</span>
+				</div>
+				<div class="ns-word-aux">
+					<p>商家购买或升级至该等级时赠送的底池积分额度</p>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="ns-form-row">
+		<button class="layui-btn ns-bg-color" lay-submit lay-filter="save">保存</button>
+		<button type="button" class="layui-btn layui-btn-primary" onclick="back()">返回</button>
+	</div>
+
+	<input type="hidden" name="level_id" value="{$level_info.data.level_id}">
+</div>
 {/block}
+
 {block name="script"}
 <script>
+	layui.use('form', function() {
+		var form = layui.form,
+			repeat_flag = false;
+		form.render();
+
+		// 监听有效期限类型切换
+		form.on('radio(validity_type)', function(data) {
+			if (parseInt(data.value) === 2) {
+				$('#validity_years_box').hide();
+			} else {
+				$('#validity_years_box').show();
+			}
+		});
+
+		// 表单验证
+		form.verify({
+			price: function(value) {
+				if (value === '' || value === null) {
+					return '请输入价格';
+				}
+				var num = parseFloat(value);
+				if (isNaN(num) || num < 0) {
+					return '价格不能小于0';
+				}
+				var parts = value.toString().split('.');
+				if (parts.length > 1 && parts[1].length > 2) {
+					return '价格最多保留两位小数';
+				}
+			},
+			open_fee: function(value) {
+				if (value === '' || value === null) {
+					return '请输入合伙人开通费用';
+				}
+				var num = parseFloat(value);
+				if (isNaN(num) || num < 0) {
+					return '合伙人开通费用不能小于0';
+				}
+			},
+			sort: function(value) {
+				if (value !== '' && !new RegExp("^-?[0-9]\\d*$").test(value)) {
+					return '排序必须为整数';
+				}
+			}
+		});
+
+		// 监听提交
+		form.on('submit(save)', function(data) {
+			if (repeat_flag) return false;
+			repeat_flag = true;
+
+			// 处理状态开关
+			if (!data.field.status) {
+				data.field.status = 0;
+			}
+
+			$.ajax({
+				url: ns.url("admin/shoplevel/editLevel"),
+				data: data.field,
+				type: "POST",
+				dataType: "JSON",
+				success: function(res) {
+					repeat_flag = false;
+					if (res.code == 0) {
+						layer.confirm('编辑成功', {
+							title: '操作提示',
+							btn: ['返回列表', '继续编辑'],
+							yes: function() {
+								location.href = ns.url("admin/shoplevel/lists");
+							},
+							btn2: function() {
+								location.reload();
+							}
+						});
+					} else {
+						layer.msg(res.message);
+					}
+				},
+				error: function() {
+					repeat_flag = false;
+					layer.msg('网络请求失败，请稍后重试');
+				}
+			});
+			return false;
+		});
+	});
+
+	function back() {
+		location.href = ns.url('admin/shoplevel/lists');
+	}
 </script>
 {/block}

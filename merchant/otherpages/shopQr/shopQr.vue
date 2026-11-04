@@ -74,11 +74,19 @@
 
 					<!-- 二维码主体区域 -->
 					<view class="qr-container m-t-24">
+						<image 
+							v-if="qrImage" 
+							:src="qrImage" 
+							class="qr-image" 
+							mode="aspectFit"
+						></image>
 						<uv-qrcode 
 							ref="qrcode" 
 							:value="currentQrValue" 
 							:size="200" 
 							:options="qrOptions"
+							:hide="isTagModalOpen || Boolean(qrImage)"
+							@complete="onQrComplete"
 						></uv-qrcode>
 					</view>
 
@@ -91,13 +99,13 @@
 
 			<!-- 底部操作按钮 -->
 			<view class="action-wrap m-t-32">
-				<button class="btn-save" :loading="saving" @click="saveQrcode">
-					<uv-icon name="download" color="#FFFFFF" size="18" class="m-r-8"></uv-icon>
-					<text class="btn-text">保存海报到手机相册</text>
+				<button class="btn-save acea-row row-middle row-center" :loading="saving" @click="saveQrcode">
+					<uv-icon name="download" color="#FFFFFF" size="18" v-if="!saving"></uv-icon>
+					<text class="btn-text m-l-10">保存海报到手机相册</text>
 				</button>
-				<button class="btn-material-apply m-t-20" @click="goApplyForCurrentQr">
-					<uv-icon name="gift" color="#2A1807" size="18" class="m-r-8"></uv-icon>
-					<text class="btn-material-text">为此码申请官方制作实体物料 ({{ materialInfo.is_first_free == 1 ? '首次免费' : '制作定制' }})</text>
+				<button class="btn-material-apply acea-row row-middle row-center m-t-20" @click="goApplyForCurrentQr">
+					<uv-icon name="gift" color="#2A1807" size="18"></uv-icon>
+					<text class="btn-material-text m-l-10">为此码申请官方制作实体物料 ({{ materialInfo.is_first_free == 1 ? '首次免费' : '制作定制' }})</text>
 				</button>
 			</view>
 		</view>
@@ -177,14 +185,21 @@
 
 			<!-- 申领提交按钮 -->
 			<view class="apply-action-wrap m-t-40">
-				<button class="btn-submit-apply" :loading="submittingApply" @click="submitMaterialOrder">
+				<button class="btn-submit-apply acea-row row-middle row-center" :loading="submittingApply" @click="submitMaterialOrder">
 					{{ materialInfo.is_first_free == 1 ? '确认立即免费申领物料 (0元包邮)' : ('确认并在线支付 ￥' + currentMaterialTotalPrice + ' 制作') }}
 				</button>
 			</view>
 		</view>
 
 		<!-- 新建标签码弹窗 -->
-		<uv-popup ref="addTagPopup" mode="center" :round="16" customStyle="width: 600rpx; padding: 36rpx; border-radius: 24rpx; background: #fff;">
+		<uv-popup 
+			ref="addTagPopup" 
+			mode="center" 
+			:round="16" 
+			:zIndex="10099"
+			@change="onPopupChange"
+			customStyle="width: 600rpx; padding: 36rpx; border-radius: 24rpx; background: #fff;"
+		>
 			<view class="modal-inner">
 				<view class="modal-title font-32 font-weight-6 text-center">新建标签二维码</view>
 				<view class="modal-tip font-24 text-center m-t-8" style="color: #888;">如: 1号桌 / 收银台 / 外摆区 / 门头海报</view>
@@ -192,7 +207,7 @@
 					<input class="modal-input" v-model="newTagName" placeholder="请输入标签名称 (最多10字)" maxlength="10" />
 				</view>
 				<view class="modal-btns acea-row row-middle row-between m-t-40">
-					<button class="modal-btn-cancel" @click="$refs.addTagPopup.close()">取消</button>
+					<button class="modal-btn-cancel" @click="closeAddTagModal">取消</button>
 					<button class="modal-btn-confirm" :loading="addingTag" @click="confirmAddTag">确认生成</button>
 				</view>
 			</view>
@@ -217,6 +232,8 @@ export default {
 			saving: false,
 			submittingApply: false,
 			addingTag: false,
+			isTagModalOpen: false,
+			qrImage: '',
 			selectedQrIndex: 0,
 			selectedMaterialIndex: 0,
 			currentTemplate: 0,
@@ -247,6 +264,11 @@ export default {
 				margin: 10
 			}
 		};
+	},
+	watch: {
+		currentQrValue() {
+			this.qrImage = '';
+		}
 	},
 	computed: {
 		currentQrItem() {
@@ -308,11 +330,36 @@ export default {
 			});
 		},
 		selectQrItem(idx) {
+			if (this.selectedQrIndex === idx) return;
 			this.selectedQrIndex = idx;
+			this.qrImage = '';
+		},
+		onQrComplete(e) {
+			if (e && e.success) {
+				this.$nextTick(() => {
+					if (this.$refs.qrcode) {
+						this.$refs.qrcode.toTempFilePath({
+							success: (res) => {
+								if (res && res.tempFilePath) {
+									this.qrImage = res.tempFilePath;
+								}
+							}
+						});
+					}
+				});
+			}
 		},
 		openAddTagModal() {
+			this.isTagModalOpen = true;
 			this.newTagName = '';
 			this.$refs.addTagPopup.open();
+		},
+		closeAddTagModal() {
+			this.isTagModalOpen = false;
+			this.$refs.addTagPopup.close();
+		},
+		onPopupChange(e) {
+			this.isTagModalOpen = Boolean(e && e.show);
 		},
 		confirmAddTag() {
 			if (!this.newTagName.trim()) {
@@ -327,7 +374,8 @@ export default {
 				this.addingTag = false;
 				if (res.code === 0) {
 					uni.showToast({ title: '创建成功', icon: 'success' });
-					this.$refs.addTagPopup.close();
+					this.closeAddTagModal();
+					this.qrImage = '';
 					this.fetchQrList();
 					this.selectedQrIndex = 0;
 				} else {
@@ -339,24 +387,41 @@ export default {
 		},
 		saveQrcode() {
 			if (this.saving) return;
-			if (!this.$refs.qrcode) {
-				uni.showToast({ title: '正在渲染海报...', icon: 'none' });
-				return;
-			}
 			this.saving = true;
 			uni.showLoading({ title: '保存海报中...' });
-			this.$refs.qrcode.save({
-				success: () => {
-					uni.hideLoading();
-					this.saving = false;
-					uni.showToast({ title: '已保存至相册', icon: 'success' });
-				},
-				fail: () => {
-					uni.hideLoading();
-					this.saving = false;
-					uni.showToast({ title: '保存失败，请检查相册权限', icon: 'none' });
-				}
-			});
+
+			const onSaveSuccess = () => {
+				uni.hideLoading();
+				this.saving = false;
+				uni.showToast({ title: '已保存至相册', icon: 'success' });
+			};
+
+			const onSaveFail = () => {
+				uni.hideLoading();
+				this.saving = false;
+				uni.showToast({ title: '保存失败，请检查相册权限', icon: 'none' });
+			};
+
+			if (this.$refs.qrcode) {
+				this.$refs.qrcode.save({
+					success: onSaveSuccess,
+					fail: () => {
+						if (this.qrImage && !this.qrImage.startsWith('data:')) {
+							uni.saveImageToPhotosAlbum({
+								filePath: this.qrImage,
+								success: onSaveSuccess,
+								fail: onSaveFail
+							});
+						} else {
+							onSaveFail();
+						}
+					}
+				});
+			} else {
+				uni.hideLoading();
+				this.saving = false;
+				uni.showToast({ title: '正在渲染海报...', icon: 'none' });
+			}
 		},
 		goApplyForCurrentQr() {
 			this.currentTab = 1;
@@ -611,7 +676,16 @@ page {
 	.qr-container {
 		display: flex;
 		justify-content: center;
+		align-items: center;
+		min-height: 200px;
 		padding: 24rpx 0;
+		position: relative;
+
+		.qr-image {
+			width: 200px;
+			height: 200px;
+			display: block;
+		}
 	}
 
 	.poster-tips {
@@ -629,23 +703,73 @@ page {
 }
 
 .action-wrap {
+	width: 100%;
+
 	.btn-save {
-		background: #F55606;
-		color: #fff;
+		width: 100%;
+		height: 88rpx;
+		background: linear-gradient(135deg, #FF6A00 0%, #F55606 100%);
+		color: #ffffff;
 		border-radius: 44rpx;
 		font-size: 30rpx;
 		font-weight: 600;
-		height: 88rpx;
-		line-height: 88rpx;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border: none;
+		outline: none;
+		box-shadow: 0 8rpx 20rpx rgba(245, 86, 6, 0.25);
+		padding: 0 24rpx;
+		box-sizing: border-box;
+		margin: 0;
+		transition: opacity 0.2s, transform 0.2s;
+
+		&::after {
+			border: none;
+		}
+
+		&:active {
+			opacity: 0.9;
+			transform: scale(0.99);
+		}
+
+		.btn-text {
+			line-height: 1;
+		}
 	}
+
 	.btn-material-apply {
+		width: 100%;
+		height: 88rpx;
 		background: linear-gradient(135deg, #FAD5B4 0%, #F5B67F 100%);
 		color: #2A1807;
 		border-radius: 44rpx;
 		font-size: 26rpx;
 		font-weight: 600;
-		height: 80rpx;
-		line-height: 80rpx;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border: 1rpx solid rgba(245, 182, 127, 0.4);
+		outline: none;
+		box-shadow: 0 6rpx 18rpx rgba(245, 182, 127, 0.35);
+		padding: 0 24rpx;
+		box-sizing: border-box;
+		margin: 0;
+		transition: opacity 0.2s, transform 0.2s;
+
+		&::after {
+			border: none;
+		}
+
+		&:active {
+			opacity: 0.9;
+			transform: scale(0.99);
+		}
+
+		.btn-material-text {
+			line-height: 1;
+			white-space: nowrap;
+		}
 	}
 }
 
@@ -768,14 +892,35 @@ page {
 }
 
 .apply-action-wrap {
+	width: 100%;
+
 	.btn-submit-apply {
-		background: #F55606;
+		width: 100%;
+		height: 88rpx;
+		background: linear-gradient(135deg, #FF6A00 0%, #F55606 100%);
 		color: #ffffff;
 		border-radius: 44rpx;
 		font-size: 30rpx;
 		font-weight: 600;
-		height: 88rpx;
-		line-height: 88rpx;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border: none;
+		outline: none;
+		box-shadow: 0 8rpx 20rpx rgba(245, 86, 6, 0.25);
+		padding: 0 24rpx;
+		box-sizing: border-box;
+		margin: 0;
+		transition: opacity 0.2s, transform 0.2s;
+
+		&::after {
+			border: none;
+		}
+
+		&:active {
+			opacity: 0.9;
+			transform: scale(0.99);
+		}
 	}
 }
 
@@ -798,16 +943,32 @@ page {
 		font-size: 28rpx;
 		border-radius: 36rpx;
 		height: 72rpx;
-		line-height: 72rpx;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border: none;
+		outline: none;
+
+		&::after {
+			border: none;
+		}
 	}
 	.modal-btn-confirm {
 		width: 46%;
-		background: #F55606;
+		background: linear-gradient(135deg, #FF6A00 0%, #F55606 100%);
 		color: #fff;
 		font-size: 28rpx;
 		border-radius: 36rpx;
 		height: 72rpx;
-		line-height: 72rpx;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border: none;
+		outline: none;
+
+		&::after {
+			border: none;
+		}
 	}
 }
 </style>

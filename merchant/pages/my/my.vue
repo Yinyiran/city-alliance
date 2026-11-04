@@ -5,29 +5,29 @@
 
 			<view class="acea-row row-middle relative">
 				<image :src="$util.img(info.logo)" v-if="info.logo" class="w-102 h-52 m-r-16" mode="aspectFill"></image>
-				<view style="flex: 1; overflow: hidden;" v-if="token">
+				<view style="flex: 1;overflow: hidden;" v-if="token">
 					<view class="acea-row row-middle shop-name-box" @click="openShopSelect">
-						<text class="font-32 text-more" style="max-width: 240rpx;">{{ info.site_name || '选择店铺' }}</text>
-						<view class="level-badge-tag" :class="'lvl-badge-' + (levelDetail.level_id || 1)" @click.stop="openUpgradePopup">
-							<text class="lvl-badge-txt">{{ levelDetail.level_name || '普通店铺' }}</text>
-							<uv-icon name="arrow-right" size="8" color="#fff" customStyle="margin-left: 4rpx;"></uv-icon>
-						</view>
+						<text class="font-32">{{ info.site_name || '选择店铺' }}</text>
 						<uv-icon name="arrow-down-fill" size="10" color="#fff"
-							customStyle="margin-left: 8rpx; flex-shrink: 0;"></uv-icon>
+							customStyle="margin: 0 8rpx; flex-shrink: 0;"></uv-icon>
 					</view>
-					<view class="acea-row row-middle m-t-8" v-if="levelDetail.level_name">
+					<view class="acea-row row-middle" v-if="token && levelDetail.level_name">
 						<text class="font-20" style="color: #B2A292;">入驻: {{ levelDetail.start_time || '-' }} · </text>
-						<text class="font-20 m-l-4" :style="levelDetail.is_permanent ? 'color: #F5B67F; font-weight: 600;' : 'color: #CCCCCC;'">{{ levelDetail.days_text }}</text>
-						<text class="upgrade-btn-tag m-l-12" @click.stop="openUpgradePopup">{{ levelDetail.level_id == 3 ? '续费' : '升级' }}</text>
+						<text class="font-20 m-l-4"
+							:style="levelDetail.is_permanent ? 'color: #F5B67F; font-weight: 600;' : 'color: #CCCCCC;'">{{
+								levelDetail.days_text }}</text>
+						<text class="upgrade-btn-tag m-l-12" @click.stop="openUpgradePopup">{{ levelDetail.level_id == 3 ? '续费' :
+							'升级' }}</text>
 					</view>
+				</view>
+				<view class="level-badge-tag" :class="'lvl-badge-' + (levelDetail.level_id || 1)" v-if="token"
+					@click.stop="openUpgradePopup">
+					<text class="lvl-badge-txt">{{ levelDetail.level_name || '普通店铺' }}</text>
+					<uv-icon name="arrow-right" size="8" color="#fff" customStyle="margin-left: 4rpx;"></uv-icon>
 				</view>
 				<view class="font-32" style="flex: 1;" v-else @click="$refs.login.open(true)">
 					<view class="login-btn">立即登录</view>
 				</view>
-				<image src="/static/qr.png" class="w-48 h-48 m-l-18 qr-btn" mode="aspectFit" @click="goShopQr" v-if="token">
-				</image>
-				<image src="/static/seeting.png" class="w-48 h-48 m-l-18 setting-btn" mode="aspectFit" @click="goSetting"
-					v-if="token"></image>
 			</view>
 			<view class="acea-row row-middle m-t-12 " v-if="token">
 				<view style="flex: 1;display: flex; align-items: center;">
@@ -38,9 +38,13 @@
 						{{ (info.myinfo || {}).is_manager == 1 ? '主理人' : '员工' }}
 					</view>
 				</view>
-				<view class="acea-row row-middle row-center cash" @click="caches" v-if="(info.myinfo || {}).is_manager == 1">提现 
+				<view class="acea-row row-middle row-center cash" @click="caches" v-if="(info.myinfo || {}).is_manager == 1">提现
 					<uv-icon name="arrow-right" color="#fff" size="12"></uv-icon>
 				</view>
+				<image src="/static/qr.png" class="w-48 h-48 m-l-18 qr-btn" mode="aspectFit" @click="goShopQr" v-if="token">
+				</image>
+				<image src="/static/seeting.png" class="w-48 h-48 m-l-18 setting-btn" mode="aspectFit" @click="goSetting"
+					v-if="token"></image>
 			</view>
 			<view class="checkes acea-row row-middle row-center row-between m-t-24">
 				<view class="a-i">
@@ -54,24 +58,24 @@
 				</view>
 			</view>
 			<image src="/static/bg3.png" mode=""></image>
-			</view>
+		</view>
 
-			<!-- 未登录：给出明确引导，而不是留一大片空白（审核判定为白屏） -->
-					<view class="empty-guide" v-if="!token">
-						<image src="/static/avatar.png" class="empty-avatar" mode="aspectFill"></image>
-						<view class="empty-title">登录后查看商家经营数据</view>
-						<view class="empty-desc">订单、销售额、员工业绩排行等数据需登录后展示</view>
-						<view class="empty-btn" @click="$refs.login.open(true)">立即登录</view>
-					</view>
+		<!-- 未登录：给出明确引导，而不是留一大片空白（审核判定为白屏） -->
+		<view class="empty-guide" v-if="!token">
+			<image src="/static/avatar.png" class="empty-avatar" mode="aspectFill"></image>
+			<view class="empty-title">登录后查看商家经营数据</view>
+			<view class="empty-desc">订单、销售额、员工业绩排行等数据需登录后展示</view>
+			<view class="empty-btn" @click="$refs.login.open(true)">立即登录</view>
+		</view>
 
-			<!-- 加载失败：给出重试入口，避免"无法加载完整数据内容" -->
-			<view class="empty-guide" v-else-if="loadError">
-				<view class="empty-title">数据加载失败</view>
-				<view class="empty-desc">{{ loadErrorText }}</view>
-				<view class="empty-btn" @click="refreshAll">重新加载</view>
-			</view>
+		<!-- 加载失败：给出重试入口，避免"无法加载完整数据内容" -->
+		<view class="empty-guide" v-else-if="loadError">
+			<view class="empty-title">数据加载失败</view>
+			<view class="empty-desc">{{ loadErrorText }}</view>
+			<view class="empty-btn" @click="refreshAll">重新加载</view>
+		</view>
 
-			<template v-if="token">
+		<template v-if="token">
 			<view class="members acea-row row-middle row-between">
 				<view class="">
 					<view class="">
@@ -125,113 +129,115 @@
 					</view>
 				</view>
 			</view>
-		<view class="btns acea-row row-middle row-between" style="flex-wrap: wrap;"
-			v-if="(info.myinfo || {}).is_manager == 1">
-			<view class="acea-row row-middle row-center m-b-20" @click="gonext('incomeDetail')">
-				<image src="/static/icon1.png" class="w-40 h-40" mode=""></image>
-				<text>收益明细</text>
-				<image src="/static/go.png" class="w-16 h-16" mode=""></image>
-			</view>
-			<view class="acea-row row-middle row-center m-b-20" @click="gonext('openPartner')">
-				<image src="/static/icon2.png" class="w-40 h-40" mode=""></image>
-				<text>开通合伙人</text>
-				<image src="/static/go.png" class="w-16 h-16" mode=""></image>
-			</view>
-			<view class="acea-row row-middle row-center" @click="gonext('deposit')">
-				<image src="/static/icon3.png" class="w-40 h-40" mode=""></image>
-				<text>保证金充值</text>
-				<image src="/static/go.png" class="w-16 h-16" mode=""></image>
-			</view>
-			<view class="acea-row row-middle row-center" @click="godatas">
-				<image src="/static/icon4.png" class="w-40 h-40" mode=""></image>
-				<text>数据大屏</text>
-				<image src="/static/go.png" class="w-16 h-16" mode=""></image>
-			</view>
-		</view>
-		<view class="btns acea-row row-middle row-between" style="flex-wrap: wrap;" v-else>
-			<view class="acea-row row-middle row-center m-b-20" @click="gonext('incomeDetail')">
-				<image src="/static/icon1.png" class="w-40 h-40" mode=""></image>
-				<text>收益明细</text>
-				<image src="/static/go.png" class="w-16 h-16" mode=""></image>
-			</view>
-		</view>
-		<view class="container">
-			<view class="row-between m-b-32">
-				<scroll-view scroll-x="true">
-					<view v-for="(item, index) in tablist" class="itens" :class="{ 'on': check == index }" @click="cuts(index)"
-						:key="index">
-						{{ item }}
-						<image src="/static/down1.png" class="w-24 h-8" v-if="check == index" mode=""></image>
-					</view>
-				</scroll-view>
-			</view>
-			<uv-subsection :list="list1" :current="current" activeColor='#1D1E24'
-				custom-style="height: 60rpx;border-radius: 30rpx;" custom-item-style="border-radius: 30rpx;"
-				@change="change"></uv-subsection>
-			<view class="h-24"></view>
-			<view class="meminfo acea-row row-middle" v-if="levelData && levelData.length > 0">
-				<view class="memit" v-for="(item, index) in levelData">
-					<view class="">{{ item.level_name }}</view>
-					<view class="">{{ item.counts || 0 }}</view>
+			<view class="btns acea-row row-middle row-between" style="flex-wrap: wrap;"
+				v-if="(info.myinfo || {}).is_manager == 1">
+				<view class="acea-row row-middle row-center m-b-20" @click="gonext('incomeDetail')">
+					<image src="/static/icon1.png" class="w-40 h-40" mode=""></image>
+					<text>收益明细</text>
+					<image src="/static/go.png" class="w-16 h-16" mode=""></image>
+				</view>
+				<view class="acea-row row-middle row-center m-b-20" @click="gonext('openPartner')">
+					<image src="/static/icon2.png" class="w-40 h-40" mode=""></image>
+					<text>开通合伙人</text>
+					<image src="/static/go.png" class="w-16 h-16" mode=""></image>
+				</view>
+				<view class="acea-row row-middle row-center" @click="gonext('deposit')">
+					<image src="/static/icon3.png" class="w-40 h-40" mode=""></image>
+					<text>保证金充值</text>
+					<image src="/static/go.png" class="w-16 h-16" mode=""></image>
+				</view>
+				<view class="acea-row row-middle row-center" @click="godatas">
+					<image src="/static/icon4.png" class="w-40 h-40" mode=""></image>
+					<text>数据大屏</text>
+					<image src="/static/go.png" class="w-16 h-16" mode=""></image>
 				</view>
 			</view>
-			<view class="m-b-24" v-if="check == 0">
-				<uv-tabs :list="list2" lineWidth="30" @click="onclick" :current="check1" :scrollable="false" lineColor="#f56c6c"
-					:activeStyle="{
-						fontWeight: 'bold',
-					}" :inactiveStyle="{
-						color: '#222',
-					}" itemStyle="height: 34px;font-size:28rpx;"></uv-tabs>
+			<view class="btns acea-row row-middle row-between" style="flex-wrap: wrap;" v-else>
+				<view class="acea-row row-middle row-center m-b-20" @click="gonext('incomeDetail')">
+					<image src="/static/icon1.png" class="w-40 h-40" mode=""></image>
+					<text>收益明细</text>
+					<image src="/static/go.png" class="w-16 h-16" mode=""></image>
+				</view>
 			</view>
+			<view class="container">
+				<view class="row-between m-b-32">
+					<scroll-view scroll-x="true">
+						<view v-for="(item, index) in tablist" class="itens" :class="{ 'on': check == index }" @click="cuts(index)"
+							:key="index">
+							{{ item }}
+							<image src="/static/down1.png" class="w-24 h-8" v-if="check == index" mode=""></image>
+						</view>
+					</scroll-view>
+				</view>
+				<uv-subsection :list="list1" :current="current" activeColor='#1D1E24'
+					custom-style="height: 60rpx;border-radius: 30rpx;" custom-item-style="border-radius: 30rpx;"
+					@change="change"></uv-subsection>
+				<view class="h-24"></view>
+				<view class="meminfo acea-row row-middle" v-if="levelData && levelData.length > 0">
+					<view class="memit" v-for="(item, index) in levelData">
+						<view class="">{{ item.level_name }}</view>
+						<view class="">{{ item.counts || 0 }}</view>
+					</view>
+				</view>
+				<view class="m-b-24" v-if="check == 0">
+					<uv-tabs :list="list2" lineWidth="30" @click="onclick" :current="check1" :scrollable="false"
+						lineColor="#f56c6c" :activeStyle="{
+							fontWeight: 'bold',
+						}" :inactiveStyle="{
+							color: '#222',
+						}" itemStyle="height: 34px;font-size:28rpx;"></uv-tabs>
+				</view>
 
-			<view class="defas acea-row row-middle row-between" v-if="myinfo && myinfo.myinfo">
-				<view class="acea-row row-middle">
-					<view class="ranks">
-						<image src="/static/rank.png" mode=""></image>
-						<text>{{ myinfo.myrank }}</text>
+				<view class="defas acea-row row-middle row-between" v-if="myinfo && myinfo.myinfo">
+					<view class="acea-row row-middle">
+						<view class="ranks">
+							<image src="/static/rank.png" mode=""></image>
+							<text>{{ myinfo.myrank }}</text>
+						</view>
+						<image :src="$util.img(myinfo.myinfo.headimg)" v-if="myinfo.myinfo && myinfo.myinfo.headimg"
+							class="w-52 h-52 bor-50 m-l-24" mode=""></image>
+						<image src="/static/avatar.png" v-else class="w-52 h-52 bor-50 m-l-24" mode=""></image>
+						<text class="font-28 m-l-12" style="color: #222;">{{ (myinfo.myinfo || {}).username }}</text>
+						<text class="my">(我)</text>
 					</view>
-					<image :src="$util.img(myinfo.myinfo.headimg)" v-if="myinfo.myinfo && myinfo.myinfo.headimg"
-						class="w-52 h-52 bor-50 m-l-24" mode=""></image>
-					<image src="/static/avatar.png" v-else class="w-52 h-52 bor-50 m-l-24" mode=""></image>
-					<text class="font-28 m-l-12" style="color: #222;">{{ (myinfo.myinfo || {}).username }}</text>
-					<text class="my">(我)</text>
+					<view class="font-28" style="color: #222;">{{ (myinfo.myinfo || {}).order_count !== undefined && check != 0 ?
+						(myinfo.myinfo || {}).order_count : (myinfo.myinfo || {}).invite_count || 0 }}</view>
 				</view>
-				<view class="font-28" style="color: #222;">{{ (myinfo.myinfo || {}).order_count !== undefined && check != 0 ?
-					(myinfo.myinfo || {}).order_count : (myinfo.myinfo || {}).invite_count || 0 }}</view>
-			</view>
-			<view class="acea-row row-middle row-between p-24 titles">
-				<view class="acea-row row-middle">
-					<text class="m-r-20">排名</text>
-					<text>名称</text>
-				</view>
-				<text>{{ check == 0 ? '会员数量' : (check == 1 ? '自签单量' : '贡献单量') }}</text>
-			</view>
-			<view v-for="(item, index) in list" class="m-b-20 defas acea-row row-middle row-between"
-				:class="{ 'rankbg1': index == 0, 'rankbg2': index == 1, 'rankbg3': index == 2 }" :key="index">
-				<view class="acea-row row-middle">
-					<view class="ranks">
-						<image src="/static/rank1.png" v-if="index == 0" mode=""></image>
-						<image src="/static/rank2.png" v-else-if="index == 1" mode=""></image>
-						<image src="/static/rank3.png" v-else-if="index == 2" mode=""></image>
-						<image src="/static/rank.png" v-else mode=""></image>
-						<text v-if="index > 2">{{ index + 1 }}</text>
+				<view class="acea-row row-middle row-between p-24 titles">
+					<view class="acea-row row-middle">
+						<text class="m-r-20">排名</text>
+						<text>名称</text>
 					</view>
-					<image :src="$util.img(item.headimg)" v-if="item.headimg" class="w-52 h-52 bor-50 m-l-24" mode="">
-					</image>
-					<image src="/static/avatar.png" v-else class="w-52 h-52 bor-50 m-l-24" mode=""></image>
-					<text class="font-28 m-l-12" style="color: #222;">{{ item.username }}</text>
+					<text>{{ check == 0 ? '会员数量' : (check == 1 ? '自签单量' : '贡献单量') }}</text>
 				</view>
-				<view class="font-28" style="color: #222;">{{ item.order_count !== undefined && check != 0 ? item.order_count :
-					item.invite_count || 0 }}</view>
+				<view v-for="(item, index) in list" class="m-b-20 defas acea-row row-middle row-between"
+					:class="{ 'rankbg1': index == 0, 'rankbg2': index == 1, 'rankbg3': index == 2 }" :key="index">
+					<view class="acea-row row-middle">
+						<view class="ranks">
+							<image src="/static/rank1.png" v-if="index == 0" mode=""></image>
+							<image src="/static/rank2.png" v-else-if="index == 1" mode=""></image>
+							<image src="/static/rank3.png" v-else-if="index == 2" mode=""></image>
+							<image src="/static/rank.png" v-else mode=""></image>
+							<text v-if="index > 2">{{ index + 1 }}</text>
+						</view>
+						<image :src="$util.img(item.headimg)" v-if="item.headimg" class="w-52 h-52 bor-50 m-l-24" mode="">
+						</image>
+						<image src="/static/avatar.png" v-else class="w-52 h-52 bor-50 m-l-24" mode=""></image>
+						<text class="font-28 m-l-12" style="color: #222;">{{ item.username }}</text>
+					</view>
+					<view class="font-28" style="color: #222;">{{ item.order_count !== undefined && check != 0 ? item.order_count
+						:
+						item.invite_count || 0 }}</view>
+				</view>
+				<!-- 排行空态：避免只有表头没有内容的大片留白 -->
+				<view class="rank-empty" v-if="!list.length">
+					<text>暂无{{ tablist[check] }}数据</text>
+				</view>
 			</view>
-			<!-- 排行空态：避免只有表头没有内容的大片留白 -->
-			<view class="rank-empty" v-if="!list.length">
-				<text>暂无{{ tablist[check] }}数据</text>
-			</view>
-		</view>
 		</template>
 		<!-- 店铺级别在线购买与升级弹窗 -->
-		<uv-popup ref="levelUpgradePopup" mode="bottom" :round="24" :closeOnClickOverlay="true" customStyle="border-radius: 28rpx 28rpx 0 0; background: #1B1D24;">
+		<uv-popup ref="levelUpgradePopup" mode="bottom" :round="24" :closeOnClickOverlay="true"
+			customStyle="border-radius: 28rpx 28rpx 0 0; background: #1B1D24;">
 			<view class="level-popup-content" style="padding: 32rpx; color: #fff;">
 				<view class="acea-row row-middle row-between">
 					<view class="acea-row row-middle">
@@ -241,44 +247,60 @@
 					<uv-icon name="close" size="18" color="#999" @click="closeUpgradePopup"></uv-icon>
 				</view>
 
-				<view class="current-bar acea-row row-middle row-between m-t-20 p-20" style="background: #252834; border-radius: 12rpx;">
-					<text class="font-26 font-weight-6">{{ info.site_name }}</text>
-					<text class="font-24" style="color: #F5B67F;">当前: {{ levelDetail.level_name || '普通店铺' }} ({{ levelDetail.days_text }})</text>
+				<view class="current-bar acea-row row-middle row-between m-t-20 p-20"
+					style="background: #252834; border-radius: 12rpx;">
+					<text class="font-26 font-weight-6" style="color: #FFFFFF;">{{ info.site_name }}</text>
+					<text class="font-24" style="color: #F5B67F;">当前: {{ levelDetail.level_name || '普通店铺' }} ({{
+						levelDetail.days_text
+					}})</text>
 				</view>
 
 				<!-- 等级套餐 -->
 				<scroll-view scroll-y="true" style="max-height: 60vh; margin-top: 24rpx;">
-					<view 
-						class="level-card m-b-20" 
-						v-for="(pkg, idx) in levelPackages" 
-						:key="idx"
+					<view class="level-card m-b-20" v-for="(pkg, idx) in levelPackages" :key="idx"
 						:class="{ 'card-active': selectedLevelId === pkg.level_id, 'card-current': pkg.is_current == 1 }"
-						@click="selectedLevelId = pkg.level_id"
-					>
+						@click="selectedLevelId = pkg.level_id">
 						<view class="acea-row row-middle row-between">
 							<view class="acea-row row-middle">
-								<text class="font-30 font-weight-6" :style="pkg.level_id == 3 ? 'color: #FAD5B4;' : ''">{{ pkg.level_name }}</text>
+								<text class="font-30 font-weight-6 level-title" :class="'level-title-' + pkg.level_id"
+									:style="getLevelTitleStyle(pkg.level_id)">{{ pkg.level_name }}</text>
 								<text class="badge-tag m-l-12" v-if="pkg.is_current == 1">当前等级</text>
 								<text class="badge-hot m-l-12" v-else-if="pkg.level_id == 3">最高推荐·永久</text>
 							</view>
 							<view class="price-wrap">
 								<text class="font-24" style="color: #F5B67F;">￥</text>
 								<text class="font-36 font-weight-6" style="color: #F5B67F;">{{ pkg.price }}</text>
-								<text class="font-20" style="color: #8E929E;">/ {{ pkg.validity_type == 2 ? '永久' : (pkg.validity_years + '年') }}</text>
+								<text class="font-20" style="color: #A0A5B5;">/ {{ pkg.validity_type == 2 ? '永久' : (pkg.validity_years +
+									'年') }}</text>
 							</view>
 						</view>
 						<view class="benefits-box m-t-16">
 							<view class="b-item acea-row row-middle">
 								<uv-icon name="checkmark-circle-fill" size="14" color="#F5B67F"></uv-icon>
-								<text class="font-22 m-l-10" style="color: #CCCCCC;">合伙人数量上限：<text style="color: #F5B67F; font-weight: 600;">{{ pkg.max_partner_count }} 人</text></text>
+								<text class="font-22 m-l-10" style="color: #CCCCCC;">合伙人数量上限：<text
+										style="color: #F5B67F; font-weight: 600;">{{ pkg.max_partner_count }} 人</text></text>
+							</view>
+							<view class="b-item acea-row row-middle m-t-8" v-if="pkg.free_partner_count > 0">
+								<uv-icon name="checkmark-circle-fill" size="14" color="#F5B67F"></uv-icon>
+								<text class="font-22 m-l-10" style="color: #CCCCCC;">添加合伙人免费额度：<text
+										style="color: #27ae60; font-weight: 600;">{{ pkg.free_partner_count }} 个名额</text></text>
 							</view>
 							<view class="b-item acea-row row-middle m-t-8">
 								<uv-icon name="checkmark-circle-fill" size="14" color="#F5B67F"></uv-icon>
-								<text class="font-22 m-l-10" style="color: #CCCCCC;">短视频上传限制：<text style="color: #F5B67F; font-weight: 600;">{{ pkg.max_video_count > 0 ? (pkg.max_video_count + ' 条') : '无限制 (无限上传)' }}</text></text>
+								<text class="font-22 m-l-10" style="color: #CCCCCC;">合伙人开通费用：<text
+										style="color: #F5B67F; font-weight: 600;">￥{{ pkg.partner_open_fee || 50 }} 元起</text></text>
 							</view>
 							<view class="b-item acea-row row-middle m-t-8">
 								<uv-icon name="checkmark-circle-fill" size="14" color="#F5B67F"></uv-icon>
-								<text class="font-22 m-l-10" style="color: #CCCCCC;">品牌基础积分：<text style="color: #F5B67F; font-weight: 600;">{{ pkg.base_points }} 分</text></text>
+								<text class="font-22 m-l-10" style="color: #CCCCCC;">短视频上传限制：<text
+										style="color: #F5B67F; font-weight: 600;">{{ pkg.max_video_count > 0 ? (pkg.max_video_count + ' 条')
+											:
+											'无限制 (无限上传)' }}</text></text>
+							</view>
+							<view class="b-item acea-row row-middle m-t-8">
+								<uv-icon name="checkmark-circle-fill" size="14" color="#F5B67F"></uv-icon>
+								<text class="font-22 m-l-10" style="color: #CCCCCC;">品牌基础积分：<text
+										style="color: #F5B67F; font-weight: 600;">{{ pkg.base_points }} 分</text></text>
 							</view>
 						</view>
 					</view>
@@ -298,19 +320,18 @@
 
 <script>
 import {
-	myIndex,
-	invitemember,
-	orderbyselfrank,
+	completeShopLevelOrder,
 	conorderrank,
+	createShopLevelOrder,
 	getInfo,
-	shopList,
-	shopLogin,
 	getShopLevelDetail,
 	getShopLevelPackages,
-	createShopLevelOrder,
-	completeShopLevelOrder
-} from "@/common/js/api.js"
-import ShopSelectPopup from "@/components/shop-select-popup/shop-select-popup.vue"
+	invitemember,
+	myIndex,
+	orderbyselfrank,
+	shopList
+} from "@/common/js/api.js";
+import ShopSelectPopup from "@/components/shop-select-popup/shop-select-popup.vue";
 
 export default {
 	components: {
@@ -500,6 +521,14 @@ export default {
 		},
 		closeUpgradePopup() {
 			this.$refs.levelUpgradePopup.close()
+		},
+		getLevelTitleStyle(levelId) {
+			if (levelId == 3) {
+				return 'color: #FAD5B4;'
+			} else if (levelId == 2) {
+				return 'color: #FFD591;'
+			}
+			return 'color: #FFFFFF;'
 		},
 		getUpgradeBtnText() {
 			let sel = (this.levelPackages || []).find(p => p.level_id === this.selectedLevelId)
@@ -855,17 +884,17 @@ export default {
 	margin: 32rpx;
 
 	>view {
-		height: 100rpx;
+		height: 78rpx;
 		background: #272A33;
 		border-radius: 16rpx;
 		border: 1rpx solid #FAD5B4;
-		width: calc((100% - 16rpx)/2);
+		width: 48%;
 		box-sizing: border-box;
 
 		text {
 			color: #fff;
 			font-weight: 400;
-			font-size: 32rpx;
+			font-size: 30rpx;
 			color: #FFFFFF;
 			margin-left: 12rpx;
 			margin-right: 6rpx;
@@ -1044,8 +1073,8 @@ page {
 }
 
 .level-badge-tag {
-	margin-left: 12rpx;
-	padding: 4rpx 14rpx;
+	margin-left: 10rpx;
+	padding: 6rpx 18rpx;
 	border-radius: 20rpx;
 	display: inline-flex;
 	align-items: center;
@@ -1087,26 +1116,47 @@ page {
 	border-radius: 16rpx;
 	padding: 24rpx;
 	border: 2rpx solid #2E3240;
+	color: #FFFFFF;
 
 	&.card-active {
 		border-color: #F5B67F;
 		background: rgba(245, 182, 127, 0.08);
 	}
+
+	.level-title {
+		font-size: 30rpx;
+		font-weight: 600;
+		color: #FFFFFF;
+
+		&.level-title-1 {
+			color: #FFFFFF !important;
+		}
+
+		&.level-title-2 {
+			color: #FFD591 !important;
+		}
+
+		&.level-title-3 {
+			color: #FAD5B4 !important;
+		}
+	}
 }
 
 .badge-tag {
-	background: #3A3D4D;
-	color: #8E929E;
+	background: rgba(255, 255, 255, 0.12);
+	color: #E2E8F0;
+	border: 1rpx solid rgba(255, 255, 255, 0.25);
 	font-size: 20rpx;
-	padding: 2rpx 10rpx;
+	padding: 2rpx 12rpx;
 	border-radius: 6rpx;
+	font-weight: 500;
 }
 
 .badge-hot {
 	background: linear-gradient(135deg, #FA8C16 0%, #D4380D 100%);
-	color: #fff;
+	color: #ffffff;
 	font-size: 20rpx;
-	padding: 2rpx 10rpx;
+	padding: 2rpx 12rpx;
 	border-radius: 6rpx;
 	font-weight: 600;
 }
@@ -1121,5 +1171,4 @@ page {
 	line-height: 88rpx;
 	border: none;
 }
-
 </style>

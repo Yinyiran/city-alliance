@@ -1,9 +1,329 @@
 {extend name="base"/}
 {block name="resources"}
+<style>
+	.layui-table-cell, .layui-table-tool-panel li {
+		overflow: inherit !important;
+	}
+	.ns-price-input:focus {
+		border-color: #ff5722 !important;
+		box-shadow: 0 0 5px rgba(255, 87, 34, 0.3);
+	}
+	.ns-sort-len {
+		width: 60px !important;
+		height: 30px !important;
+		line-height: 30px !important;
+		text-align: center;
+		padding: 0 !important;
+	}
+</style>
 {/block}
 {block name="main"}
+<div class="layui-collapse ns-tips">
+	<div class="layui-colla-item">
+		<h2 class="layui-colla-title">操作提示</h2>
+		<ul class="layui-colla-content layui-show">
+			<li>店铺等级用于划分商家的经营权限与权益（如合伙人数量上限、<strong>添加合伙人免费额度</strong>、<strong>合伙人开通费用</strong>、短视频发布数、赠送底池积分等）。</li>
+			<li><strong>购买/升级店铺等级的价格在此处统一配置</strong>，移动端商户中心“店铺会员级别与升级”将自动根据此处配置的价格结算。</li>
+			<li><strong>添加合伙人免费额度</strong>：该等级店铺拥有的免扣费合伙人名额，名额内100%收益归门店且支持0元开通；用完后将按照<strong>合伙人开通费用</strong>（原最低门槛）标准开通。</li>
+			<li>在列表中可直接输入<strong>价格</strong>或<strong>排序</strong>并失去焦点自动保存，也可点击【修改价格】通过弹窗修改。</li>
+		</ul>
+	</div>
+</div>
+
+<!-- 搜索及添加操作栏 -->
+<div class="ns-single-filter-box">
+	<button class="layui-btn ns-bg-color" onclick="addLevel()">添加店铺等级</button>
+
+	<div class="layui-form">
+		<div class="layui-input-inline">
+			<input type="text" name="search_text" placeholder="请输入等级名称" autocomplete="off" class="layui-input">
+			<button type="button" class="layui-btn layui-btn-primary" lay-filter="search" lay-submit>
+				<i class="layui-icon">&#xe615;</i>
+			</button>
+		</div>
+	</div>
+</div>
+
+<!-- 等级列表表格 -->
+<table id="level_list" lay-filter="level_list"></table>
+
+<!-- 状态开关模板 -->
+<script type="text/html" id="statusTpl">
+	<input type="checkbox" name="status" value="{{d.level_id}}" lay-skin="switch" lay-text="启用|禁用" lay-filter="status" {{d.status == 1 ? 'checked' : ''}}>
+</script>
+
+<!-- 排序模板 -->
+<script type="text/html" id="sortTpl">
+	<input name="sort" type="number" onchange="editSort({{d.level_id}}, this)" value="{{d.sort}}" class="layui-input ns-sort-len">
+</script>
+
+<!-- 操作列模板 -->
+<script type="text/html" id="action">
+	<div class="ns-table-btn">
+		<a class="layui-btn" lay-event="editPrice">修改价格</a>
+		<a class="layui-btn" lay-event="edit">编辑</a>
+		<a class="layui-btn" lay-event="del">删除</a>
+	</div>
+</script>
 {/block}
+
 {block name="script"}
 <script>
+	layui.use(['form'], function() {
+		var table,
+			form = layui.form,
+			repeat_flag = false; //防重复标识
+
+		table = new Table({
+			elem: '#level_list',
+			url: ns.url("admin/shoplevel/lists"),
+			cols: [
+				[{
+					field: 'sort',
+					title: '排序',
+					width: '8%',
+					unresize: 'false',
+					align: 'center',
+					templet: '#sortTpl'
+				}, {
+					field: 'level_name',
+					title: '等级名称',
+					width: '15%',
+					unresize: 'false',
+					templet: function(data) {
+						return '<strong style="color: #333; font-size: 14px;">' + data.level_name + '</strong>' + 
+							'<div style="color: #999; font-size: 12px;">ID: ' + data.level_id + '</div>';
+					}
+				}, {
+					field: 'price',
+					title: '<span style="color:#ff5722;">购买/升级价格（元）</span>',
+					width: '18%',
+					unresize: 'false',
+					templet: function(data) {
+						var price = parseFloat(data.price || 0).toFixed(2);
+						return '<div style="display:flex;align-items:center;">' +
+							'<span style="color:#ff5722;font-weight:bold;font-size:14px;margin-right:4px;">￥</span>' +
+							'<input type="number" step="0.01" min="0" class="layui-input ns-price-input" style="width:110px;height:30px;line-height:30px;padding:0 8px;font-weight:600;color:#ff5722;display:inline-block;" value="' + price + '" data-id="' + data.level_id + '" data-name="' + data.level_name + '" title="直接修改价格失焦即保存">' +
+							'</div>';
+					}
+				}, {
+					field: 'validity',
+					title: '有效期限',
+					width: '12%',
+					unresize: 'false',
+					align: 'center',
+					templet: function(data) {
+						if (parseInt(data.validity_type) === 2) {
+							return '<span class="layui-badge layui-bg-green" style="padding: 3px 8px; border-radius: 4px;">永久有效</span>';
+						} else {
+							return '<span class="layui-badge layui-bg-blue" style="padding: 3px 8px; border-radius: 4px;">' + (data.validity_years || 1) + ' 年</span>';
+						}
+					}
+				}, {
+					title: '等级权益',
+					width: '24%',
+					unresize: 'false',
+					templet: function(data) {
+						var html = '<div style="line-height: 1.8; font-size: 12px;">';
+						html += '<div>合伙人上限：<strong style="color: #0076fe;">' + data.max_partner_count + '</strong> 人</div>';
+						html += '<div>免费合伙人额度：<strong style="color: #27ae60;">' + (data.free_partner_count || 0) + '</strong> 个</div>';
+						html += '<div>合伙人开通费用：<strong style="color: #ff5722;">￥' + parseFloat(data.partner_open_fee || 50).toFixed(2) + '</strong> 起</div>';
+						if (parseInt(data.max_video_count) === -1) {
+							html += '<div>短视频发布：<strong style="color: #27ae60;">无限制</strong></div>';
+						} else {
+							html += '<div>短视频发布：<strong style="color: #333;">' + data.max_video_count + '</strong> 条</div>';
+						}
+						html += '<div>赠送底池积分：<strong style="color: #f39c12;">' + (data.base_points || 0) + '</strong> 积分</div>';
+						html += '</div>';
+						return html;
+					}
+				}, {
+					field: 'status',
+					title: '状态',
+					width: '10%',
+					unresize: 'false',
+					align: 'center',
+					templet: '#statusTpl'
+				}, {
+					title: '操作',
+					width: '13%',
+					unresize: 'false',
+					toolbar: '#action'
+				}]
+			],
+			callback: function() {
+				form.render('checkbox');
+			}
+		});
+
+		/**
+		 * 状态切换
+		 */
+		form.on('switch(status)', function(obj) {
+			var status = obj.elem.checked ? 1 : 0;
+			var level_id = this.value;
+			$.ajax({
+				type: 'POST',
+				url: ns.url("admin/shoplevel/setStatus"),
+				data: {
+					level_id: level_id,
+					status: status
+				},
+				dataType: 'JSON',
+				success: function(res) {
+					layer.msg(res.message);
+					if (res.code != 0) {
+						table.reload();
+					}
+				},
+				error: function() {
+					layer.msg('操作失败，请重试');
+					table.reload();
+				}
+			});
+		});
+
+		/**
+		 * 输入框直接失焦或回车修改价格
+		 */
+		$('body').on('change', '.ns-price-input', function() {
+			var level_id = $(this).attr('data-id');
+			var price = $(this).val();
+			var num = parseFloat(price);
+			if (isNaN(num) || num < 0) {
+				layer.msg('请输入有效的价格（不能小于0）');
+				return;
+			}
+			savePrice(level_id, num);
+		});
+
+		/**
+		 * 工具栏操作
+		 */
+		table.tool(function(obj) {
+			var data = obj.data,
+				event = obj.event;
+
+			switch (event) {
+				case 'edit':
+					location.href = ns.url("admin/shoplevel/editLevel?level_id=" + data.level_id);
+					break;
+				case 'editPrice':
+					layer.prompt({
+						title: '修改【' + data.level_name + '】购买/升级价格（元）',
+						value: parseFloat(data.price || 0).toFixed(2),
+						formType: 0
+					}, function(value, index) {
+						var num = parseFloat(value);
+						if (isNaN(num) || num < 0) {
+							layer.msg('请输入有效的价格（大于等于0）');
+							return;
+						}
+						layer.close(index);
+						savePrice(data.level_id, num);
+					});
+					break;
+				case 'del':
+					delLevel(data.level_id, data.level_name);
+					break;
+			}
+		});
+
+		/**
+		 * 保存价格修改
+		 */
+		function savePrice(level_id, price) {
+			if (repeat_flag) return;
+			repeat_flag = true;
+			$.ajax({
+				type: 'POST',
+				url: ns.url("admin/shoplevel/editPrice"),
+				data: {
+					level_id: level_id,
+					price: price
+				},
+				dataType: 'JSON',
+				success: function(res) {
+					repeat_flag = false;
+					layer.msg(res.message || '价格修改成功');
+					if (res.code == 0) {
+						table.reload();
+					}
+				},
+				error: function() {
+					repeat_flag = false;
+					layer.msg('请求失败，请稍后重试');
+				}
+			});
+		}
+
+		/**
+		 * 删除等级
+		 */
+		function delLevel(level_id, level_name) {
+			if (repeat_flag) return false;
+			repeat_flag = true;
+
+			layer.confirm('确定要删除店铺等级【' + level_name + '】吗？', function() {
+				$.ajax({
+					type: 'POST',
+					url: ns.url("admin/shoplevel/deleteLevel"),
+					data: { level_id: level_id },
+					dataType: 'JSON',
+					success: function(res) {
+						layer.msg(res.message);
+						repeat_flag = false;
+						if (res.code == 0) {
+							table.reload();
+						}
+					},
+					error: function() {
+						repeat_flag = false;
+						layer.msg('网络请求失败');
+					}
+				});
+			}, function() {
+				layer.close();
+				repeat_flag = false;
+			});
+		}
+
+		/**
+		 * 搜索功能
+		 */
+		form.on('submit(search)', function(data) {
+			table.reload({
+				page: { curr: 1 },
+				where: data.field
+			});
+		});
+	});
+
+	/**
+	 * 快捷修改排序
+	 */
+	function editSort(level_id, event) {
+		var value = $(event).val();
+		if (!new RegExp("^-?[0-9]\\d*$").test(value)) {
+			layer.msg("排序号只能是整数");
+			return;
+		}
+		$.ajax({
+			type: 'POST',
+			url: ns.url("admin/shoplevel/editSort"),
+			data: { 'sort': value, 'level_id': level_id },
+			dataType: 'JSON',
+			success: function(res) {
+				layer.msg(res.message);
+			}
+		});
+	}
+
+	/**
+	 * 跳转添加等级
+	 */
+	function addLevel() {
+		location.href = ns.url("admin/shoplevel/addLevel");
+	}
 </script>
 {/block}

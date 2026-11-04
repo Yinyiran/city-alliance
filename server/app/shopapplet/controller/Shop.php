@@ -549,9 +549,6 @@ class Shop extends Common
         if (empty($mobile)) {
             return $this->response($this->error('', '请输入目标会员手机号'));
         }
-        if ($custom_price < 50) {
-            return $this->response($this->error('', '开通合伙人自定义金额最低门槛为 50 元'));
-        }
 
         $target_member = Db::name('member')->where('mobile', $mobile)->where('is_delete', 0)->find();
         if (!$target_member) {
@@ -584,10 +581,25 @@ class Shop extends Common
             return $this->response($this->error('', "当前店铺合伙人数量已达【{$level_info['level_name']}】上限（{$max_partner}人），请升级为更高等级店铺"));
         }
 
-        // 检查免扣费名额
-        $free_num = intval($shop['custom_partner_free_num'] ?? 0);
+        // 检查免扣费名额（优先使用店铺独立分配的免扣费名额，若无则使用店铺等级配置的免费额度）
+        $level_free_count = intval($level_info['free_partner_count'] ?? 0);
+        $shop_free_count = intval($shop['custom_partner_free_num'] ?? 0);
+        $free_num = max($shop_free_count, $level_free_count);
         $used_free_num = intval($shop['custom_partner_used_free_num'] ?? 0);
         $is_free_quota = ($used_free_num < $free_num);
+
+        $partner_open_fee = floatval($level_info['partner_open_fee'] ?? 50.00);
+
+        // 如果免费名额已用完，则必须达到合伙人开通费用标准；若在免费额度内，支持0元或自定义金额
+        if (!$is_free_quota) {
+            if ($custom_price < $partner_open_fee) {
+                return $this->response($this->error('', "合伙人开通费用不能低于 ￥{$partner_open_fee} 元"));
+            }
+        } else {
+            if ($custom_price < 0) {
+                return $this->response($this->error('', '开通金额不能小于 0 元'));
+            }
+        }
 
         $website_id = $shop['website_id'] ?? 0;
 
@@ -677,9 +689,12 @@ class Shop extends Common
             ->where('m.member_level', 4)
             ->count('DISTINCT m.member_id');
 
-        $free_num = intval($shop['custom_partner_free_num'] ?? 0);
+        $level_free_count = intval($level_info['free_partner_count'] ?? 0);
+        $shop_free_count = intval($shop['custom_partner_free_num'] ?? 0);
+        $free_num = max($shop_free_count, $level_free_count);
         $used_free_num = intval($shop['custom_partner_used_free_num'] ?? 0);
         $remain_free_quota = max(0, $free_num - $used_free_num);
+        $partner_open_fee = floatval($level_info['partner_open_fee'] ?? 50.00);
 
         return $this->response($this->success([
             'free_quota' => $free_num,
@@ -690,7 +705,9 @@ class Shop extends Common
             'is_at_limit' => ($partner_count >= $max_partner) ? 1 : 0,
             'level_id' => $level_id,
             'level_name' => $level_info['level_name'] ?? '普通店铺',
-            'min_price' => 50.00
+            'min_price' => $partner_open_fee,
+            'partner_open_fee' => $partner_open_fee,
+            'free_partner_count' => $free_num
         ]));
     }
 
@@ -753,7 +770,9 @@ class Shop extends Common
             'max_partner_count' => $level['max_partner_count'],
             'max_video_count' => $level['max_video_count'],
             'base_points' => $level['base_points'],
-            'free_partner_quota' => intval($shop['custom_partner_free_num'] ?? 0),
+            'free_partner_count' => intval($level['free_partner_count'] ?? 0),
+            'partner_open_fee' => floatval($level['partner_open_fee'] ?? 50.00),
+            'free_partner_quota' => max(intval($shop['custom_partner_free_num'] ?? 0), intval($level['free_partner_count'] ?? 0)),
             'used_partner_quota' => intval($shop['custom_partner_used_free_num'] ?? 0)
         ]));
     }
@@ -885,6 +904,10 @@ class Shop extends Common
 
             if (empty($shop['level_start_time'])) {
                 $update_data['level_start_time'] = time();
+            }
+
+            if (!empty($target_level['free_partner_count'])) {
+                $update_data['custom_partner_free_num'] = max(intval($shop['custom_partner_free_num'] ?? 0), intval($target_level['free_partner_count']));
             }
 
             Db::name('shop')->where('site_id', $order['site_id'])->update($update_data);

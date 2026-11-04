@@ -9,13 +9,17 @@
 			<view class="quota-banner m-t-20 acea-row row-middle row-between" v-if="quotaInfo.remain_free_quota > 0">
 				<view class="acea-row row-middle">
 					<uv-icon name="gift-fill" size="18" color="#2A1807"></uv-icon>
-					<text class="quota-txt m-l-10">享有免抽佣特权：剩余 <text class="quota-highlight">{{ quotaInfo.remain_free_quota }}</text> 个名额</text>
+					<text class="quota-txt m-l-10">享有免抽佣特权：剩余 <text class="quota-highlight">{{ quotaInfo.remain_free_quota }}</text> 个名额 (共{{ quotaInfo.free_quota }}个)</text>
 				</view>
 				<view class="quota-badge">平台0扣费</view>
 			</view>
-			<view class="quota-banner-empty m-t-20 acea-row row-middle row-between" v-else>
+			<view class="quota-banner-empty m-t-20 acea-row row-middle row-between" v-else-if="quotaInfo.free_quota > 0">
 				<text class="quota-txt-sub">免扣费名额已用完，恢复常规分佣机制</text>
-				<text class="quota-num-sub">已用 {{ quotaInfo.used_quota }}/{{ quotaInfo.free_quota }}</text>
+				<text class="quota-num-sub">已用 {{ quotaInfo.partner_count }}/{{ quotaInfo.max_partner_count }} 人</text>
+			</view>
+			<view class="quota-banner-empty m-t-20 acea-row row-middle row-between" v-else>
+				<text class="quota-txt-sub">常规分佣机制（主理人与分公司各50%）</text>
+				<text class="quota-num-sub">合伙人 {{ quotaInfo.partner_count }}/{{ quotaInfo.max_partner_count }} 人</text>
 			</view>
 		</view>
 
@@ -41,11 +45,12 @@
 			<view class="form-item m-t-32">
 				<view class="form-label acea-row row-between row-middle">
 					<text>设定开通金额 (元)</text>
-					<text class="font-22" style="color: #F5B67F;">最低门槛 ￥50 元</text>
+					<text class="font-22" style="color: #27ae60;" v-if="quotaInfo.remain_free_quota > 0">免抽佣特权·支持0元免费开通</text>
+					<text class="font-22" style="color: #F5B67F;" v-else>合伙人开通费用 ￥{{ quotaInfo.min_price || 50 }} 元起</text>
 				</view>
 				<view class="input-wrap acea-row row-middle">
 					<text class="symbol">￥</text>
-					<input class="input-field" type="digit" v-model="customPrice" placeholder="最低门槛 50 元起" />
+					<input class="input-field" type="digit" v-model="customPrice" :placeholder="quotaInfo.remain_free_quota > 0 ? '免抽佣特权，可填0或自定义金额' : ('合伙人开通费用 ￥' + (quotaInfo.min_price || 50) + ' 元起')" />
 				</view>
 			</view>
 
@@ -180,18 +185,32 @@ export default {
 				});
 				return;
 			}
+			let isFree = (this.quotaInfo && this.quotaInfo.remain_free_quota > 0);
+			let minPrice = parseFloat(this.quotaInfo.min_price) || 50;
 			let price = parseFloat(this.customPrice);
-			if (!price || isNaN(price) || price < 50) {
-				uni.showToast({
-					title: '自定义金额最低门槛为 50 元',
-					icon: 'none'
-				});
-				return;
+
+			if (isFree) {
+				if (isNaN(price) || price < 0) {
+					price = 0;
+				}
+			} else {
+				if (isNaN(price) || price < minPrice) {
+					uni.showToast({
+						title: `合伙人开通费用不能低于 ￥${minPrice} 元`,
+						icon: 'none'
+					});
+					return;
+				}
 			}
 
-			let tipMsg = (this.quotaInfo.remain_free_quota > 0) 
-				? `确定以 ￥${price} 开通合伙人？(本单享免抽佣特权，收益100%归本店)` 
-				: `确定以 ￥${price} 为手机号 ${this.mobile} 开通合伙人身份吗？`;
+			let tipMsg = '';
+			if (isFree) {
+				tipMsg = (price <= 0) 
+					? `确定免费(￥0)为手机号 ${this.mobile} 开通合伙人身份？(本单享免抽佣特权)` 
+					: `确定以 ￥${price} 为手机号 ${this.mobile} 开通合伙人？(本单享免抽佣特权，收益100%归本店)`;
+			} else {
+				tipMsg = `确定以 ￥${price} 为手机号 ${this.mobile} 开通合伙人身份吗？`;
+			}
 
 			uni.showModal({
 				title: '确认开通合伙人',

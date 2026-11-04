@@ -694,6 +694,53 @@ return [
                 ],
             ],
             [
+                'name' => 'SHOP_LEVEL',
+                'title' => '店铺等级',
+                'url' => 'admin/shoplevel/lists',
+                'is_show' => 1,
+                'picture' => '',
+                'picture_selected' => '',
+                'sort' => 3,
+                'child_list' => [
+                    [
+                        'name' => 'SHOP_LEVEL_ADD',
+                        'title' => '添加等级',
+                        'url' => 'admin/shoplevel/addlevel',
+                        'is_show' => 0,
+                    ],
+                    [
+                        'name' => 'SHOP_LEVEL_EDIT',
+                        'title' => '编辑等级',
+                        'url' => 'admin/shoplevel/editlevel',
+                        'is_show' => 0,
+                    ],
+                    [
+                        'name' => 'SHOP_LEVEL_EDIT_PRICE',
+                        'title' => '修改价格',
+                        'url' => 'admin/shoplevel/editprice',
+                        'is_show' => 0,
+                    ],
+                    [
+                        'name' => 'SHOP_LEVEL_EDIT_SORT',
+                        'title' => '修改排序',
+                        'url' => 'admin/shoplevel/editsort',
+                        'is_show' => 0,
+                    ],
+                    [
+                        'name' => 'SHOP_LEVEL_SET_STATUS',
+                        'title' => '设置状态',
+                        'url' => 'admin/shoplevel/setstatus',
+                        'is_show' => 0,
+                    ],
+                    [
+                        'name' => 'SHOP_LEVEL_DELETE',
+                        'title' => '删除等级',
+                        'url' => 'admin/shoplevel/deletelevel',
+                        'is_show' => 0,
+                    ],
+                ],
+            ],
+            [
                 'name' => 'SHOP_CATEGORY',
                 'title' => '主营行业',
                 'url' => 'admin/shopcategory/lists',

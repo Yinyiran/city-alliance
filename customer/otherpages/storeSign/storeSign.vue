@@ -58,7 +58,6 @@
 								</view>
 								<view class="font-22" style="color: #555;">{{ item.distance_value }}km</view>
 							</view>
-							<view class="font-22 m-t-8 m-b-16 h-36"></view>
 							<view class="acea-row row-middle row-between">
 								<view class="w1">
 									<view class="acea-row row-middle m-b-12 text-more">
@@ -93,10 +92,10 @@
 
 <script>
 import {
-	websiteInfo,
+	getsignininfo,
 	storeList,
-	getsignininfo
-} from "@/common/js/api.js"
+	websiteInfo
+} from "@/common/js/api.js";
 export default {
 	data() {
 		return {
@@ -221,7 +220,7 @@ export default {
 			width: calc((100% - 36rpx) / 4);
 			margin-right: 12rpx;
 			margin-bottom: 12rpx;
-			height: 52rpx;
+			height: 64rpx;
 			box-sizing: border-box;
 			text-align: center;
 
@@ -261,8 +260,7 @@ export default {
 		.item1 {
 			width: 100%;
 			height: 100%;
-			background: #FFFDF9;
-			border: 2rpx dashed #F0F0F0;
+			border: 2rpx dashed #555;
 			border-radius: 6rpx;
 			font-weight: 400;
 			font-size: 22rpx;
