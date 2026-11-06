@@ -36,56 +36,51 @@
 				<view class="">商家距离推荐</view>
 				<image src="/otherpages/static/rline.png" mode=""></image>
 			</view>
-			<view v-for="(item, index) in list" @click="godetail(item.store_id)" class="m-b-20" :key="index">
-				<view class="p-24">
+			<view v-for="(item, index) in list" @click="godetail(item.store_id)" :key="index"
+				class="acea-row row-middle row-between p-20">
+				<view class="logos">
+					<image :src="$util.img(item.store_image)" mode=""></image>
+					<view class="">
+						<image src="/static/rank1.png" v-if="index == 0" mode=""></image>
+						<image src="/static/rank2.png" v-else-if="index == 1" mode=""></image>
+						<image src="/static/rank3.png" v-else-if="index == 2" mode=""></image>
+						<image src="/static/rank.png" v-else mode=""></image>
+						<text v-if="index > 2">{{ index + 1 }}</text>
+					</view>
+				</view>
+				<view class="rights">
 					<view class="acea-row row-middle row-between">
-						<view class="logos">
-							<image :src="$util.img(item.store_image)" mode=""></image>
-							<view class="">
-								<image src="/static/rank1.png" v-if="index == 0" mode=""></image>
-								<image src="/static/rank2.png" v-else-if="index == 1" mode=""></image>
-								<image src="/static/rank3.png" v-else-if="index == 2" mode=""></image>
-								<image src="/static/rank.png" v-else mode=""></image>
-								<text v-if="index > 2">{{ index + 1 }}</text>
+						<view class="font-28 font-weight-6 acea-row row-middle">
+							<image src="/static/shop.png" class="w-28 h-28 m-r-8" mode=""></image>
+							<view class="text-more font-28" style="width: 200rpx;">{{ item.store_name }}</view>
+							<image src="/otherpages/static/go3.png" class="w-26 h-26 m-l-8" mode=""></image>
+						</view>
+						<view class="font-22" style="color: #555;">{{ item.distance_value }}km</view>
+					</view>
+					<view class="acea-row row-middle row-between">
+						<view class="w1">
+							<view class="acea-row row-middle m-b-12 text-more">
+								<image src="/otherpages/static/clock.png" class="w-22 h-22 m-r-4" mode="">
+								</image>
+								营业时间 {{ item.open_date }}
+							</view>
+							<view class="acea-row row-middle ">
+								<image src="/otherpages/static/map4.png" class="w-22 h-22 m-r-4" mode="">
+								</image>
+								<view class="w-200 text-more">{{ item.address }}</view>
 							</view>
 						</view>
-						<view class="rights">
-							<view class="acea-row row-middle row-between">
-								<view class="font-28 font-weight-6 acea-row row-middle">
-									<image src="/static/shop.png" class="w-28 h-28 m-r-8" mode=""></image>
-									<view class="text-more font-28" style="width: 200rpx;">{{ item.store_name }}</view>
-									<image src="/otherpages/static/go3.png" class="w-26 h-26 m-l-8" mode=""></image>
-								</view>
-								<view class="font-22" style="color: #555;">{{ item.distance_value }}km</view>
+						<view class="w2 acea-row row-middle">
+							<view class="m-r-16" @click.stop="daohang(item)">
+								<image src="/otherpages/static/map2.png" mode=""></image>
 							</view>
-							<view class="acea-row row-middle row-between">
-								<view class="w1">
-									<view class="acea-row row-middle m-b-12 text-more">
-										<image src="/otherpages/static/clock.png" class="w-22 h-22 m-r-4" mode="">
-										</image>
-										营业时间 {{ item.open_date }}
-									</view>
-									<view class="acea-row row-middle ">
-										<image src="/otherpages/static/map4.png" class="w-22 h-22 m-r-4" mode="">
-										</image>
-										<view class="w-200 text-more">{{ item.address }}</view>
-									</view>
-								</view>
-								<view class="w2 acea-row row-middle">
-									<view class="m-r-16" @click.stop="daohang(item)">
-										<image src="/otherpages/static/map2.png" mode=""></image>
-									</view>
-									<view class="" @click.stop="calls(item)">
-										<image src="/otherpages/static/phone.png" mode=""></image>
-									</view>
-								</view>
+							<view class="" @click.stop="calls(item)">
+								<image src="/otherpages/static/phone.png" mode=""></image>
 							</view>
 						</view>
 					</view>
-
 				</view>
 			</view>
-
 		</view>
 	</view>
 </template>

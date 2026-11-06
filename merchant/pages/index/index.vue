@@ -34,13 +34,6 @@
 							<image src="/static/go.png" class="w-16 h-16 m-l-4" mode=""></image>
 						</view>
 					</view>
-					<view class="acea-row row-middle row-center m-t-10" @click="goCashier">
-						<image src="/static/img1.png" class="w-88 h-88 m-r-20" mode=""></image>
-						<view class="acea-row row-middle font-32 fcolor1">
-							收银台
-							<image src="/static/go.png" class="w-16 h-16 m-l-4" mode=""></image>
-						</view>
-					</view>
 				</view>
 				<!-- 按交易类型处理订单的快捷入口 -->
 				<view class="order-quick acea-row row-middle row-between m-t-24">
@@ -726,14 +719,6 @@ import ShopSelectPopup from "@/components/shop-select-popup/shop-select-popup.vu
 				});
 			},
 			// 进入订单管理页并定位到指定分组与处理阶段
-			//收银台：到店消费收款（支持自定义金额）、预约到店改约
-			goCashier() {
-				if (!uni.getStorageSync('token')) {
-					if (this.$refs.login) this.$refs.login.open()
-					return
-				}
-				uni.navigateTo({ url: '/otherpages/cashier/cashier' })
-			},
 			goTradeOrder(biz, stage) {
 				if (!uni.getStorageSync('token')) {
 					if (this.$refs.login) this.$refs.login.open()
@@ -1041,7 +1026,13 @@ import ShopSelectPopup from "@/components/shop-select-popup/shop-select-popup.vu
 		margin: 0 32rpx;
 		margin-top: 20rpx;
 		box-sizing: border-box;
-		padding: 16rpx;
+		padding: 32rpx;
+
+		>view:first-child {
+			>view {
+				width: calc((100% - 46rpx)/2);
+			}
+		}
 	}
 
 	.fcolor1 {

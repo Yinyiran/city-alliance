@@ -492,7 +492,15 @@ export default {
 			if (!this.site_id) return
 			getShopLevelDetail({ site_id: this.site_id }).then(res => {
 				if (res && res.code === 0 && res.data) {
-					this.levelDetail = res.data
+					let d = res.data;
+					// 普通店铺(level_id == 1)为基础入驻无过期概念，或无限期店铺长期有效
+					if (d.level_id == 1 || d.expire_time === '永久有效' || d.expire_time === 0) {
+						d.is_permanent = 1;
+						if (d.days_text === '已到期' || !d.days_text) {
+							d.days_text = '长期有效';
+						}
+					}
+					this.levelDetail = d;
 				}
 			}).catch(err => {
 				console.error('获取店铺等级失败', err)

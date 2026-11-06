@@ -741,10 +741,16 @@ class Shop extends Common
             ];
         }
 
-        $is_permanent = (!empty($shop['is_permanent']) || intval($level['validity_type']) === 2) ? 1 : 0;
+        // expire_time: 数据库中0表示无限期/长期有效
         $expire_time = intval($shop['expire_time']);
         $days_left = 0;
-        if ($is_permanent) {
+
+        // 普通店铺(level_id == 1)为基础入驻身份，无到期概念；至尊店铺(level_id == 3/validity_type == 2)或标记永久有效，或 expire_time == 0(无限期)
+        $is_permanent = ($level_id == 1 || !empty($shop['is_permanent']) || intval($level['validity_type']) === 2 || $expire_time == 0) ? 1 : 0;
+
+        if ($level_id == 1) {
+            $days_text = '长期有效';
+        } elseif ($is_permanent) {
             $days_text = '永久合作';
         } elseif ($expire_time > time()) {
             $days_left = ceil(($expire_time - time()) / 86400);
@@ -795,7 +801,7 @@ class Shop extends Common
         foreach ($levels as &$lvl) {
             $lvl['is_current'] = ($lvl['level_id'] == $current_level_id) ? 1 : 0;
             $lvl['can_upgrade'] = ($lvl['level_id'] > $current_level_id) ? 1 : 0;
-            $lvl['can_renew'] = ($lvl['level_id'] == $current_level_id && $lvl['validity_type'] != 2) ? 1 : 0;
+            $lvl['can_renew'] = ($lvl['level_id'] == $current_level_id && $lvl['validity_type'] != 2 && $lvl['level_id'] != 1) ? 1 : 0;
         }
 
         return $this->response($this->success([

@@ -9,19 +9,19 @@
 					<view class="acea-row row-middle" style="flex-wrap: nowrap;" v-if="siteName" @click.stop="openShopSelect">
 						<image :src="$util.img(info.logo)" v-if="info.logo" class="shop-logo m-r-12" mode="heightFix">
 						</image>
-						<text class="font-36 font-weight-6 text-more" style="color: #fff; max-width: 340rpx;">
+						<text class="font-36 font-weight-6 text-more" style="color: #fff;">
 							{{ siteName || '门店签到' }}
 						</text>
 						<uv-icon name="arrow-down-fill" size="10" color="#FFFFFF"
-							customStyle="margin-left: 8rpx; flex-shrink: 0;"></uv-icon>
+							customStyle=" m-l-20; flex-shrink: 0;"></uv-icon>
 					</view>
 					<!-- 第二行：头像 + 姓名 + 员工/主理人 -->
 					<view class="acea-row row-middle m-t-12" v-if="userName" style="flex-wrap: nowrap;">
-						<text style="color: rgba(255, 255, 255, 0.95); max-width: 200rpx;" class="font-26 font-weight-6 text-more">
+						<text style="color: rgba(255, 255, 255, 0.95);" class="font-26 font-weight-6 text-more">
 							{{ token ? userName : '' }}
 						</text>
 						<view class="user-role-badge m-l-10" v-if="roleName">{{ roleName }}</view>
-						<text class="font-30 m-l-8 font-weight-6" style="color: #fff;" v-if="!token" @click.stop="$refs.login.open(true)">点击登录</text>
+						<text class="font-30 m-l-20 font-weight-6" style="color: #fff;" v-if="!token" @click.stop="$refs.login.open(true)">点击登录</text>
 					</view>
 				</view>
 				<!-- 右侧：扫码签到 -->
@@ -150,12 +150,12 @@
 
 <script>
 import {
-	signlist,
-	signIndex,
+	dosignin,
 	getInfo,
-	dosignin
-} from "@/common/js/api.js"
-import ShopSelectPopup from "@/components/shop-select-popup/shop-select-popup.vue"
+	signIndex,
+	signlist
+} from "@/common/js/api.js";
+import ShopSelectPopup from "@/components/shop-select-popup/shop-select-popup.vue";
 
 export default {
 	components: {
